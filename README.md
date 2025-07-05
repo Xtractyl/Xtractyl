@@ -78,7 +78,7 @@ Frontend Button / Action	Command to Trigger	Purpose
 
 
 
-
+#
 
 
 
@@ -106,4 +106,4 @@ This project is released under the MIT License. It makes use of the following op
 - [Ollama](https://github.com/ollama/ollama) (MIT)
 - LLMs like Gemma, which are subject to their own terms from the model provider (e.g., Google)
 
-Please check the [LICENSE](LICENSE) file for more details.
+Please check the [LICENSE](LICENSE) file for more details. 
