@@ -3,7 +3,7 @@
 
 alle orchestrator scripte in flask endpoints 
 
-frontend adden
+frontend ausbauen und scripte triggern lassen
 
 
 
@@ -14,6 +14,8 @@ frontend adden
 #dann findet man ihn unter dem user icon unter account und settings 
 
 
+frontend unter
+http://localhost:5173/
 
 
 #modell laden: docker compose exec orchestrator python load_ollama_models.py
