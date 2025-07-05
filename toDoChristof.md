@@ -27,4 +27,4 @@ Frontend Button / Action	Command to Trigger	Purpose
 📤 Upload Tasks (HTMLs)	docker compose run --rm orchestrator python upload_tasks.py	Uploads HTMLs as tasks into the project
 🤖 Run Prelabeling (LLM)	docker compose exec orchestrator python batch_requests.py	Calls the ML backend with HTML DOMs and questions
 ✅ Accept Predictions as Annotations	docker compose exec orchestrator python accept_predictions_as_annotations.py	Moves predictions into LS annotations
-🔬 Run Evaluation (Compare GT vs Predictions)	docker compose exec orchestrator python compare_predictions_with_annotations.py	Compares 2 LS projects and outputs metrics + CSV
+🔬 Run Evaluation (Compare GT vs Predictions)	docker compose exec orchestrator python compare_predictions_with_annotations.py	Compares 2 LS projects and outputs metrics + CSV 
