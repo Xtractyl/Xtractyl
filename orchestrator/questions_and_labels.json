@@ -1,0 +1,13 @@
+{
+    "questions": [
+      "Wie lautet das TNM-Stadium?",
+      "Wie lautet der Name der Patientin oder des Patienten?",
+      "Wie lautet der Name des Arztes oder der Ärztin?"
+
+    ],
+    "labels": [
+      "TNM",
+      "PatientIn",
+      "ArztIn"
+    ]
+  }

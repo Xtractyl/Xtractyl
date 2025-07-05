@@ -1,0 +1,94 @@
+services:
+  labelstudio:
+    image: heartexlabs/label-studio:latest
+    container_name: labelstudio
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      DJANGO_DB: default
+      POSTGRE_NAME: db
+      POSTGRE_USER: postgres
+      POSTGRE_PASSWORD: pieceofcake
+      POSTGRE_PORT: 5432
+      POSTGRE_HOST: postgres
+    volumes:
+      - labelstudio_data:/data  
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: pieceofcake
+      POSTGRES_DB: db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  orchestrator:
+    build:
+      context: .
+      dockerfile: docker/orchestrator/Dockerfile
+    container_name: orchestrator
+    depends_on:
+      labelstudio:
+        condition: service_started
+      ml_backend:
+        condition: service_healthy
+    env_file:
+      - ./orchestrator/.env
+    volumes:  
+      - ./orchestrator/.env:/app/.env  # 🔥 Das ist neu: schreibt Änderungen im Container zurück ins echte File
+      - ./data/htmls:/app/data/htmls
+      - ./orchestrator/questions_and_labels.json:/app/questions_and_labels.json
+      - ./screenshots:/app/screenshots
+      - ./evaluation:/app/evaluation
+
+  ml_backend:
+    build:
+      context: .
+      dockerfile: docker/ml_backend/Dockerfile
+    container_name: ml_backend
+    ports:
+      - "6789:6789"
+    depends_on:
+      - labelstudio
+      - ollama
+    env_file:
+      - ./orchestrator/.env
+    volumes:
+      - ./orchestrator/questions_and_labels.json:/app/questions_and_labels.json
+      - ./screenshots:/app/screenshots
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6789/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 60
+
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+
+  docling:
+    build:
+      context: .
+      dockerfile: docker/docling/Dockerfile
+    container_name: docling
+    volumes:
+      - ./data/pdfs:/pdfs
+      - ./data/htmls:/htmls
+      - ./docling/convert_pdfs.sh:/app/convert_pdfs.sh
+    entrypoint: tail -f /dev/null
+
+volumes:
+  labelstudio_data:
+  pgdata:
+  ollama_models:

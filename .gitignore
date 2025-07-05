@@ -1,0 +1,53 @@
+# 🌍 System- und Editor-Dateien
+.DS_Store
+*.swp
+*.swo
+*.log
+*.bak
+
+# 🛠 Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+*.env
+.env
+.venv/
+venv/
+pip-wheel-metadata/
+
+# 🐳 Docker
+**/htmls/
+**/screenshots/
+evaluation/
+evaluation_compare/
+docker/ml_backend/__pycache__/
+docker/orchestrator/__pycache__/
+
+# 🔍 Label Studio
+label-studio/frontend/dist/
+label-studio/static/
+
+# 🧪 Test- und Temp-Daten
+*.tmp
+*.temp
+*.old
+*.out
+*.test
+
+# 💻 IDEs & Tools
+.vscode/
+.idea/
+*.code-workspace
+
+# 🔐 Sicherungen oder sensible Dateien
+*.key
+*.pem
+*.crt
+
+# 📦 Node.js (falls relevant)
+node_modules/
+
+
+#persönliche Instructions
+zentraleBefehle.md

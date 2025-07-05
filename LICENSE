@@ -1,0 +1,57 @@
+MIT License
+
+Copyright (c) 2025 Christof Dücker and Thomas Walawgo
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the “Software”), to deal
+in the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+-------------------------------------------------------------------------------
+
+Third-Party Acknowledgments:
+
+This project makes use of the following third-party software and tools:
+
+- **Label Studio**  
+  Copyright © 2020 Heartex  
+  License: Apache License 2.0  
+  https://github.com/HeartexLabs/label-studio
+
+- **Docling**  
+  License: MIT License  
+  https://github.com/docling/docling
+
+- **Ollama**  
+  License: MIT License  
+  https://github.com/ollama/ollama
+
+Please consult the respective repositories for detailed license terms.
+
+-------------------------------------------------------------------------------
+
+Models Used:
+
+This project may use local LLMs such as `gemma3:12b` with the Ollama runtime.  
+**Important**: These models are distributed under their own licenses and usage restrictions.  
+You are responsible for reviewing and complying with the license and usage terms of any  
+model you load via Ollama.
+
+- For example, Gemma models are released by Google under the [Gemma License Agreement](https://ai.google.dev/gemma).
+- Some models may be for **non-commercial use only** or **research purposes**.
+
+This project does **not** include any pre-downloaded models.  
+Instead, it provides tools to run models via Ollama, assuming you have the legal right to do so.
