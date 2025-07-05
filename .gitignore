@@ -17,7 +17,6 @@ venv/
 pip-wheel-metadata/
 
 # 🐳 Docker
-**/htmls/
 **/screenshots/
 evaluation/
 evaluation_compare/

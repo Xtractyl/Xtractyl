@@ -63,6 +63,7 @@ services:
     volumes:
       - ./orchestrator/questions_and_labels.json:/app/questions_and_labels.json
       - ./screenshots:/app/screenshots
+
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:6789/health"]
       interval: 10s
@@ -76,6 +77,7 @@ services:
       - "11434:11434"
     volumes:
       - ollama_models:/root/.ollama
+
 
   docling:
     build:
