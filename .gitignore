@@ -22,6 +22,7 @@ evaluation/
 evaluation_compare/
 docker/ml_backend/__pycache__/
 docker/orchestrator/__pycache__/
+docker/frontend/node_modules/
 
 # 🔍 Label Studio
 label-studio/frontend/dist/
@@ -44,9 +45,23 @@ label-studio/static/
 *.pem
 *.crt
 
-# 📦 Node.js (falls relevant)
+# 📦 Node.js
 node_modules/
+*.eslintcache
+.prettierignore
+.prettierrc
+stylelint.config.js
 
+# 📦 Frontend Output & Lock
+frontend/dist/
+frontend/.vite/
+# frontend/package-lock.json
 
-#persönliche Instructions
+# 📸 Playwright (optional)
+*.spec.ts
+playwright-report/
+test-results/
+
+# 📝 Persönliche Instructions
 zentraleBefehle.md
+toDoChristof.md

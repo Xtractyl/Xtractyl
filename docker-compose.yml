@@ -1,4 +1,16 @@
 services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../docker/frontend/Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules  
+    environment:
+      - ROLLUP_USE_NODE_BUILTINS=true
+
   labelstudio:
     image: heartexlabs/label-studio:latest
     container_name: labelstudio
@@ -42,7 +54,7 @@ services:
     env_file:
       - ./orchestrator/.env
     volumes:  
-      - ./orchestrator/.env:/app/.env  # 🔥 Das ist neu: schreibt Änderungen im Container zurück ins echte File
+      - ./orchestrator/.env:/app/.env  
       - ./data/htmls:/app/data/htmls
       - ./orchestrator/questions_and_labels.json:/app/questions_and_labels.json
       - ./screenshots:/app/screenshots
