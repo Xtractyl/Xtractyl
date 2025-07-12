@@ -1,6 +1,7 @@
 import os
-import requests
 import time
+
+import requests
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -49,10 +50,7 @@ def get_tasks():
 
 
 def send_predict(task_id, html):
-    payload = {
-        "task": {"id": task_id},
-        "data": {"html": html}
-    }
+    payload = {"task": {"id": task_id}, "data": {"html": html}}
 
     url = f"{ML_BACKEND_URL}/predict"
     response = requests.post(url, json=payload)

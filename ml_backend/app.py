@@ -1,26 +1,32 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-from bs4 import BeautifulSoup
-import unicodedata
-import uuid
 import json
-import os
-import re
-import time
 import logging
-import requests
+import os
 import pathlib
 import pprint
+import re
+import unicodedata
+import uuid
+
+import requests
+from bs4 import BeautifulSoup
 from dotenv import load_dotenv
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 from playwright.sync_api import sync_playwright
 
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s [%(levelname)s] %(message)s")
+logging.basicConfig(
+    level=logging.DEBUG, format="%(asctime)s [%(levelname)s] %(message)s"
+)
 
 # Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": ["http://localhost:8080"]}}, supports_credentials=True)
+CORS(
+    app,
+    resources={r"/api/*": {"origins": ["http://localhost:8080"]}},
+    supports_credentials=True,
+)
 
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "gemma:latest")
 LABEL_STUDIO_URL = os.getenv("LABEL_STUDIO_URL")
@@ -34,10 +40,12 @@ timeout_log_path = pathlib.Path("./timeout_tasks.log")
 
 # --------------------- UTILITIES ---------------------
 
+
 def normalize_text(text):
     if not isinstance(text, str):
         return ""
     return unicodedata.normalize("NFKC", text).replace("\n", "").strip()
+
 
 def get_offset_in_original(original_text, normalized_target, start_in_normalized):
     norm = ""
@@ -59,12 +67,14 @@ def get_offset_in_original(original_text, normalized_target, start_in_normalized
             return match_start, match_end
     return None, None
 
+
 def clean_xpath(raw_xpath):
     raw_xpath = re.sub(r"^/html(\[1\])?/body(\[1\])?", "", raw_xpath)
     raw_xpath = re.sub(r"/text\(\)\[1\]$", "", raw_xpath)
     if not raw_xpath.startswith("/"):
         raw_xpath = "/" + raw_xpath
     return raw_xpath
+
 
 def extract_xpath_matches_from_dom(dom_data, answers):
     matches, diagnostics = [], []
@@ -83,58 +93,80 @@ def extract_xpath_matches_from_dom(dom_data, answers):
             offset_norm = normalized_content.find(normalized_answer)
             if offset_norm == -1:
                 continue
-            start_offset, end_offset = get_offset_in_original(content, normalized_answer, offset_norm)
+            start_offset, end_offset = get_offset_in_original(
+                content, normalized_answer, offset_norm
+            )
             if start_offset is None:
-                diagnostics.append({"label": ans["label"], "xpath": xpath, "reason": "Offset mapping failed"})
+                diagnostics.append(
+                    {
+                        "label": ans["label"],
+                        "xpath": xpath,
+                        "reason": "Offset mapping failed",
+                    }
+                )
                 continue
-            matches.append({
-                "id": str(uuid.uuid4()),
-                "from_name": "label",
-                "to_name": "html",
-                "type": "labels",
-                "origin": "prediction",
-                "value": {
-                    "start": xpath,
-                    "end": xpath,
-                    "startOffset": start_offset,
-                    "endOffset": end_offset,
-                    "labels": [ans["label"]],
-                    "text": ans["answer"]
+            matches.append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "from_name": "label",
+                    "to_name": "html",
+                    "type": "labels",
+                    "origin": "prediction",
+                    "value": {
+                        "start": xpath,
+                        "end": xpath,
+                        "startOffset": start_offset,
+                        "endOffset": end_offset,
+                        "labels": [ans["label"]],
+                        "text": ans["answer"],
+                    },
                 }
-            })
+            )
             found_match = True
             break
         if not found_match:
-            diagnostics.append({"label": ans["label"], "reason": "Not found in any content block"})
+            diagnostics.append(
+                {"label": ans["label"], "reason": "Not found in any content block"}
+            )
     return matches, diagnostics
 
+
 def save_predictions_to_labelstudio(task_id, prediction_result):
-    logging.info(f"📤 Sende Predictions für Task {task_id} an Label Studio mit Modell: {OLLAMA_MODEL}")
+    logging.info(
+        f"📤 Sende Predictions für Task {task_id} an Label Studio mit Modell: {OLLAMA_MODEL}"
+    )
 
     payload = {
         "task": task_id,
         "model_version": OLLAMA_MODEL,
-        "result": prediction_result
+        "result": prediction_result,
     }
 
     try:
         response = requests.post(
             f"{LABEL_STUDIO_URL}/api/predictions",
-            headers={"Authorization": f"Token {LS_TOKEN}", "Content-Type": "application/json"},
-            json=payload
+            headers={
+                "Authorization": f"Token {LS_TOKEN}",
+                "Content-Type": "application/json",
+            },
+            json=payload,
         )
         response.raise_for_status()
-        logging.info(f"✅ Prediction erfolgreich in Label Studio gespeichert (Task {task_id})")
+        logging.info(
+            f"✅ Prediction erfolgreich in Label Studio gespeichert (Task {task_id})"
+        )
     except requests.exceptions.HTTPError as http_err:
-        logging.error(f"❌ HTTP Error: {http_err} - {response.status_code} {response.text}")
+        logging.error(
+            f"❌ HTTP Error: {http_err} - {response.status_code} {response.text}"
+        )
     except Exception as e:
         logging.error(f"❌ Fehler beim Senden an Label Studio: {e}")
 
     with open("prediction_payload.log", "a", encoding="utf-8") as f:
         f.write(f"\n📤 Task {task_id} Prediction Payload:\n")
         f.write(json.dumps(payload, indent=2, ensure_ascii=False))
-        f.write("\n" + "="*80 + "\n")
- 
+        f.write("\n" + "=" * 80 + "\n")
+
 
 def ensure_model_available(model_name):
     try:
@@ -144,8 +176,12 @@ def ensure_model_available(model_name):
         if model_name in local_models:
             return True
 
-        logging.info(f"📦 Modell '{model_name}' nicht lokal gefunden – starte Download...")
-        pull = requests.post("http://ollama:11434/api/pull", json={"name": model_name}, stream=True)
+        logging.info(
+            f"📦 Modell '{model_name}' nicht lokal gefunden – starte Download..."
+        )
+        pull = requests.post(
+            "http://ollama:11434/api/pull", json={"name": model_name}, stream=True
+        )
         for line in pull.iter_lines():
             if line:
                 logging.debug(f"📥 {line.decode('utf-8')}")
@@ -154,7 +190,8 @@ def ensure_model_available(model_name):
     except Exception as e:
         logging.error(f"❌ Fehler beim Download des Modells '{model_name}': {e}")
         return False
-    
+
+
 def ask_llm_with_timeout(prompt, timeout):
     if not ensure_model_available(OLLAMA_MODEL):
         return "<Modell nicht verfügbar>"
@@ -168,6 +205,7 @@ def ask_llm_with_timeout(prompt, timeout):
     except Exception as e:
         logging.error(f"❌ Timeout or error while calling LLM: {e}")
         return "<keine Antwort>"
+
 
 def extract_dom_with_chromium(html: str):
     extracted = []
@@ -198,21 +236,20 @@ def extract_dom_with_chromium(html: str):
                         }
                         return getXPath(el);
                     }""",
-                    el
+                    el,
                 )
                 cleaned_xpath = clean_xpath(xpath)
-                extracted.append({
-                    "xpath": cleaned_xpath,
-                    "content": text
-                })
+                extracted.append({"xpath": cleaned_xpath, "content": text})
             except Exception:
                 continue
         browser.close()
     return extracted
 
+
 # --------------------- ENDPOINTS ---------------------
 
-@app.route('/predict', methods=['POST'])
+
+@app.route("/predict", methods=["POST"])
 def predict():
     data = request.get_json()
     task = data.get("task")
@@ -233,23 +270,23 @@ def predict():
 
     answers = []
     timed_out = False
-    model_unavailable = False
 
     # ✅ Frühzeitiger Modellcheck
     if not ensure_model_available(OLLAMA_MODEL):
-        model_unavailable = True
         for q, l in zip(QUESTIONS, LABELS):
             answers.append({"question": q, "label": l, "answer": None})
 
-        return jsonify({
-            "results": [],
-            "meta": {
-                "answers": answers,
-                "diagnostics": [],
-                "status": "model_unavailable",
-                "task_id": task_id
+        return jsonify(
+            {
+                "results": [],
+                "meta": {
+                    "answers": answers,
+                    "diagnostics": [],
+                    "status": "model_unavailable",
+                    "task_id": task_id,
+                },
             }
-        })
+        )
 
     for q, l in zip(QUESTIONS, LABELS):
         prompt = f"""{SYSTEM_PROMPT}
@@ -277,25 +314,32 @@ Text: {puretext}
     except Exception as e:
         logging.error(f"❌ Fehler beim Speichern in Label Studio: {e}")
 
-    return jsonify({
-        "results": [{"model_version": OLLAMA_MODEL, "score": 1.0, "result": prelabels}],
-        "meta": {
-            "answers": answers,
-            "diagnostics": diagnostics,
-            "status": "timeout" if timed_out else "success",
-            "task_id": task_id
+    return jsonify(
+        {
+            "results": [
+                {"model_version": OLLAMA_MODEL, "score": 1.0, "result": prelabels}
+            ],
+            "meta": {
+                "answers": answers,
+                "diagnostics": diagnostics,
+                "status": "timeout" if timed_out else "success",
+                "task_id": task_id,
+            },
         }
-    })
+    )
 
-@app.route('/health', methods=['GET'])
+
+@app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "UP"})
 
-@app.route('/setup', methods=['POST'])
+
+@app.route("/setup", methods=["POST"])
 def setup():
     config = request.json
     logging.info(f"Received setup config: {config}")
     return jsonify({"status": "setup completed"}), 200
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app.run(host="0.0.0.0", port=6789, debug=True)

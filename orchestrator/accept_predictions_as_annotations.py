@@ -1,4 +1,5 @@
 import os
+
 import requests
 from dotenv import load_dotenv
 
@@ -11,10 +12,11 @@ PROJECT_ID = os.getenv("LABEL_STUDIO_PROJECT_ID")
 HEADERS = {
     "Authorization": f"Token {LABEL_STUDIO_TOKEN}",
     "Accept": "application/json",
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
 }
 
 log_buffer = []
+
 
 def get_tasks_with_predictions():
     page = 1
@@ -45,6 +47,7 @@ def get_tasks_with_predictions():
     log_buffer.append(f"[INFO] Tasks WITH predictions: {len(filtered)}")
     return filtered
 
+
 def accept_prediction_as_annotation(task):
     if not task.get("predictions") or task.get("annotations"):
         return False
@@ -67,8 +70,10 @@ def accept_prediction_as_annotation(task):
     r = requests.post(url, headers=HEADERS, json=payload)
 
     content_type = r.headers.get("Content-Type", "")
-    if 'application/json' not in content_type:
-        log_buffer.append(f"❌ Task {task_id} lieferte HTML statt JSON. Mögliche Ursache: falsche URL oder ungültiger Token.")
+    if "application/json" not in content_type:
+        log_buffer.append(
+            f"❌ Task {task_id} lieferte HTML statt JSON. Mögliche Ursache: falsche URL oder ungültiger Token."
+        )
         log_buffer.append(f"⚠️ HEADERS: {r.headers}")
         log_buffer.append(f"⚠️ BODY:\n{r.text}")
         return False
@@ -79,6 +84,7 @@ def accept_prediction_as_annotation(task):
     else:
         log_buffer.append(f"⚠️ Fehler bei Task {task_id}: {r.status_code} – {r.text}")
         return False
+
 
 def main():
     tasks = get_tasks_with_predictions()
@@ -91,6 +97,7 @@ def main():
 
     # Gib am Ende alle gesammelten Logs aus
     print("\n".join(log_buffer))
+
 
 if __name__ == "__main__":
     main()

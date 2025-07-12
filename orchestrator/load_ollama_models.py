@@ -1,4 +1,6 @@
-import requests, time
+import time
+
+import requests
 
 model = "gemma3:12b"
 

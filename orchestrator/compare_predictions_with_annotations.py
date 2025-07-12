@@ -1,8 +1,9 @@
-import os
 import csv
 import hashlib
-import requests
+import os
 from collections import defaultdict
+
+import requests
 from dotenv import load_dotenv
 from sklearn.metrics import precision_recall_fscore_support
 
@@ -13,13 +14,14 @@ LABEL_STUDIO_TOKEN = os.getenv("LABEL_STUDIO_API_TOKEN")
 HEADERS = {"Authorization": f"Token {LABEL_STUDIO_TOKEN}"}
 
 PROJECT_ID_PRED = os.getenv("LABEL_STUDIO_PROJECT_ID_PRED")  # Modell
-PROJECT_ID_GT = os.getenv("LABEL_STUDIO_PROJECT_ID_GT")      # Ground Truth
+PROJECT_ID_GT = os.getenv("LABEL_STUDIO_PROJECT_ID_GT")  # Ground Truth
 MODEL_NAME = os.getenv("OLLAMA_MODEL", "gemma:latest").replace(":", "_")
 
 SAVE_PATH = f"/app/evaluation/{PROJECT_ID_PRED}_vs_{PROJECT_ID_GT}"
 os.makedirs(SAVE_PATH, exist_ok=True)
 csv_path = os.path.join(SAVE_PATH, f"{MODEL_NAME}_comparison.csv")
 txt_path = os.path.join(SAVE_PATH, f"{MODEL_NAME}_metrics.txt")
+
 
 def fetch_tasks(project_id):
     page = 1
@@ -37,9 +39,11 @@ def fetch_tasks(project_id):
         page += 1
     return all_tasks
 
+
 def get_html_hash(task):
     html = task.get("data", {}).get("html", "")
     return hashlib.md5(html.encode("utf-8")).hexdigest() if html else None
+
 
 def extract_labels(result_list):
     return {
@@ -48,17 +52,12 @@ def extract_labels(result_list):
         if "labels" in res["value"] and "text" in res["value"]
     }
 
+
 def compare_by_html(pred_tasks, gt_tasks):
     pred_map = {
-        get_html_hash(task): task
-        for task in pred_tasks
-        if task.get("annotations")
+        get_html_hash(task): task for task in pred_tasks if task.get("annotations")
     }
-    gt_map = {
-        get_html_hash(task): task
-        for task in gt_tasks
-        if task.get("annotations")
-    }
+    gt_map = {get_html_hash(task): task for task in gt_tasks if task.get("annotations")}
 
     common_hashes = set(pred_map) & set(gt_map)
     print(f"🔗 Übereinstimmende HTML-Hashes: {len(common_hashes)}")
@@ -78,7 +77,7 @@ def compare_by_html(pred_tasks, gt_tasks):
 
         row = {
             "task_id_prediction": pred_task["id"],
-            "task_id_annotation": gt_task["id"]
+            "task_id_annotation": gt_task["id"],
         }
         for label in labels_set:
             row[f"{label}_prediction"] = pred_result.get(label, "")
@@ -86,6 +85,7 @@ def compare_by_html(pred_tasks, gt_tasks):
         rows.append(row)
 
     return rows, sorted(labels_set)
+
 
 def calculate_metrics(rows, labels):
     all_preds, all_anns = [], []
@@ -127,14 +127,19 @@ def calculate_metrics(rows, labels):
 
     return txt_lines
 
+
 def main():
     print(f"📥 Lade Tasks aus Prediction-Projekt: {PROJECT_ID_PRED}")
     pred_tasks = fetch_tasks(PROJECT_ID_PRED)
     print(f"📥 Lade Tasks aus Ground-Truth-Projekt: {PROJECT_ID_GT}")
     gt_tasks = fetch_tasks(PROJECT_ID_GT)
 
-    print(f"🔢 Annotierte Prediction-Tasks: {sum(bool(t.get('annotations')) for t in pred_tasks)}")
-    print(f"🔢 Annotierte Ground-Truth-Tasks: {sum(bool(t.get('annotations')) for t in gt_tasks)}")
+    print(
+        f"🔢 Annotierte Prediction-Tasks: {sum(bool(t.get('annotations')) for t in pred_tasks)}"
+    )
+    print(
+        f"🔢 Annotierte Ground-Truth-Tasks: {sum(bool(t.get('annotations')) for t in gt_tasks)}"
+    )
 
     rows, labels = compare_by_html(pred_tasks, gt_tasks)
 
@@ -152,6 +157,7 @@ def main():
         f.write("\n".join(txt_lines))
 
     print(f"✅ Vergleich gespeichert unter:\n- CSV: {csv_path}\n- Metriken: {txt_path}")
+
 
 if __name__ == "__main__":
     main()

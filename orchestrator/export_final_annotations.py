@@ -1,7 +1,8 @@
-import os
 import csv
-import requests
 import hashlib
+import os
+
+import requests
 from dotenv import load_dotenv
 
 load_dotenv()

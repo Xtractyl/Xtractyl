@@ -1,8 +1,8 @@
 import json
 import os
-import requests
-from dotenv import load_dotenv, set_key, dotenv_values
 
+import requests
+from dotenv import dotenv_values, load_dotenv, set_key
 
 load_dotenv()
 LABEL_STUDIO_URL = os.getenv("LABEL_STUDIO_URL", "http://labelstudio:8080")
@@ -33,20 +33,12 @@ label_tags = "\n    ".join([f'<Label value="{label}"/>' for label in labels])
 label_config = LABEL_CONFIG_TEMPLATE.format(labels=label_tags)
 
 # 3. Erstelle das Projekt via API
-headers = {
-    "Authorization": f"Token {API_TOKEN}",
-    "Content-Type": "application/json"
-}
+headers = {"Authorization": f"Token {API_TOKEN}", "Content-Type": "application/json"}
 
-payload = {
-    "title": PROJECT_NAME,
-    "label_config": label_config
-}
+payload = {"title": PROJECT_NAME, "label_config": label_config}
 
 response = requests.post(
-    f"{LABEL_STUDIO_URL}/api/projects",
-    headers=headers,
-    json=payload
+    f"{LABEL_STUDIO_URL}/api/projects", headers=headers, json=payload
 )
 
 if response.status_code != 201:
@@ -69,16 +61,10 @@ project_id = int(config["LABEL_STUDIO_PROJECT_ID"])
 # 5. Verknüpfe ML Backend mit Projekt
 ml_backend_url = os.getenv("ML_BACKEND_URL", "http://ml_backend:6789")
 
-ml_payload = {
-    "url": ml_backend_url,
-    "title": "xtractyl-backend",
-    "project": project_id
-}
+ml_payload = {"url": ml_backend_url, "title": "xtractyl-backend", "project": project_id}
 
 ml_response = requests.post(
-    f"{LABEL_STUDIO_URL}/api/ml",
-    headers=headers,
-    json=ml_payload
+    f"{LABEL_STUDIO_URL}/api/ml", headers=headers, json=ml_payload
 )
 
 if ml_response.status_code != 201:
