@@ -55,7 +55,10 @@ stylelint.config.js
 # 📦 Frontend Output & Lock
 frontend/dist/
 frontend/.vite/
-# frontend/package-lock.json
+# frontend modules
+node_modules
+dist
+.vscode
 
 # 📸 Playwright (optional)
 *.spec.ts

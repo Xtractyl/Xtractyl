@@ -1,9 +1,15 @@
-function App() {
+// src/App.jsx
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import Compare from './pages/Compare';
+
+export default function App() {
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
-      <h1 className="text-3xl font-bold text-blue-600">Xtractyl läuft! 🦖</h1>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/compare" element={<Compare />} />
+      </Routes>
+    </Router>
   );
 }
-
-export default App;
