@@ -265,7 +265,7 @@ def predict():
     with open("questions_and_labels.json", "r", encoding="utf-8") as f:
         qa_config = json.load(f)
 
-    QUESTIONS, LABELS = qa_config["questions"], qa_config["labels"]
+    questions, labels = qa_config["questions"], qa_config["labels"]
     puretext = BeautifulSoup(html_content, "html.parser").get_text("\n", strip=True)
 
     answers = []
@@ -273,8 +273,8 @@ def predict():
 
     # ✅ Frühzeitiger Modellcheck
     if not ensure_model_available(OLLAMA_MODEL):
-        for q, l in zip(QUESTIONS, LABELS):
-            answers.append({"question": q, "label": l, "answer": None})
+        for question, label in zip(questions, labels):
+            answers.append({"question": question, "label": label, "answer": None})
 
         return jsonify(
             {
@@ -288,24 +288,24 @@ def predict():
             }
         )
 
-    for q, l in zip(QUESTIONS, LABELS):
+    for question, label in zip(questions, labels):
         prompt = f"""{SYSTEM_PROMPT}
 
-Frage: {q}
+Frage: {question}
 
 Text: {puretext}
 """
-        logging.info(f"🧠 Frage: {q}")
+        logging.info(f"🧠 Frage: {question}")
         output = ask_llm_with_timeout(prompt, timeout=LLM_TIMEOUT_SECONDS)
         logging.info(f"📝 LLM-Antwort: {output}")
 
         if output == "<keine Antwort>":
             timed_out = True
             with open(timeout_log_path, "a", encoding="utf-8") as f:
-                f.write(f"{task_id}: {q}\n")
+                f.write(f"{task_id}: {question}\n")
 
         parsed = None if output == "<keine Antwort>" else output
-        answers.append({"question": q, "label": l, "answer": parsed})
+        answers.append({"question": question, "label": label, "answer": parsed})
 
     prelabels, diagnostics = extract_xpath_matches_from_dom(dom_data, answers)
 
