@@ -53,18 +53,37 @@ Use any of the following (your choice):
 
 ✅ Frontend Integration Guide for xtractyl
 
+
+
+🔄 Convert PDFs to HTML	docker exec -it docling bash /app/convert_pdfs.sh	
+Converts all PDFs in /pdfs/ to HTML using Docling
+
+
+
 📦 Central Backend Scripts & Trigger Points
 
 
 
-Frontend Button / Action	Command to Trigger	Purpose
-🔄 Convert PDFs to HTML	docker exec -it docling bash /app/convert_pdfs.sh	Converts all PDFs in /pdfs/ to HTML using Docling
-🚀 Create New Label Studio Project	docker compose run --rm orchestrator python create_project.py	Creates a new project using .env settings + questions_and_labels.json
-📤 Upload Tasks (HTMLs)	docker compose run --rm orchestrator python upload_tasks.py	Uploads HTMLs as tasks into the project
-🤖 Run Prelabeling (LLM)	docker compose exec orchestrator python prelabel_complete_project.py	Calls the ML backend with HTML DOMs and questions
-✅ Accept Predictions as Annotations	docker compose exec orchestrator python accept_predictions_as_annotations.py	Moves predictions into LS annotations
-🔬 Run Evaluation (Compare GT vs Predictions)	docker compose exec orchestrator python compare_predictions_with_annotations.py	Compares 2 LS projects and outputs metrics + CSV
+# Modell laden (falls nicht schon geladen)
+curl -X POST http://localhost:5001/load_models
 
+# Projekt anlegen
+curl -X POST http://localhost:5001/create_project
+
+# Tasks hochladen
+curl -X POST http://localhost:5001/upload_tasks
+
+# Vorlabeln
+curl -X POST http://localhost:5001/prelabel_project
+
+# Prelabels als Annotationen übernehmen
+curl -X POST http://localhost:5001/accept_predictions
+
+# Vergleichen mit anderem Projekt
+curl http://localhost:5001/compare_predictions
+
+# Finale Annotationen exportieren
+curl http://localhost:5001/export_annotations
 
 
 🗂 Required Files

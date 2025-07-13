@@ -2,9 +2,12 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-COPY orchestrator/requirements.txt .
+# Install dependencies
+COPY docker/orchestrator/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY orchestrator/ /app/
+# Expose Flask port
+EXPOSE 5001
 
-CMD ["tail", "-f", "/dev/null"]
+# Start the Flask app
+CMD ["python", "app.py"]

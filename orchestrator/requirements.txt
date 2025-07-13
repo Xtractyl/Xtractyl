@@ -1,6 +1,0 @@
-playwright==1.52.0
-requests
-python-dotenv
-requests
-beautifulsoup4
-scikit-learn

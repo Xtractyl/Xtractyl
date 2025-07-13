@@ -13,8 +13,8 @@ LABEL_STUDIO_URL = os.getenv("LABEL_STUDIO_URL", "http://labelstudio:8080")
 LABEL_STUDIO_TOKEN = os.getenv("LABEL_STUDIO_API_TOKEN")
 HEADERS = {"Authorization": f"Token {LABEL_STUDIO_TOKEN}"}
 
-PROJECT_ID_PRED = os.getenv("LABEL_STUDIO_PROJECT_ID_PRED")  # Modell
-PROJECT_ID_GT = os.getenv("LABEL_STUDIO_PROJECT_ID_GT")  # Ground Truth
+PROJECT_ID_PRED = os.getenv("LABEL_STUDIO_PROJECT_ID_PRED")
+PROJECT_ID_GT = os.getenv("LABEL_STUDIO_PROJECT_ID_GT")
 MODEL_NAME = os.getenv("OLLAMA_MODEL", "gemma:latest").replace(":", "_")
 
 SAVE_PATH = f"/app/evaluation/{PROJECT_ID_PRED}_vs_{PROJECT_ID_GT}"
@@ -60,7 +60,6 @@ def compare_by_html(pred_tasks, gt_tasks):
     gt_map = {get_html_hash(task): task for task in gt_tasks if task.get("annotations")}
 
     common_hashes = set(pred_map) & set(gt_map)
-    print(f"🔗 Übereinstimmende HTML-Hashes: {len(common_hashes)}")
 
     rows = []
     labels_set = set()
@@ -128,16 +127,18 @@ def calculate_metrics(rows, labels):
     return txt_lines
 
 
-def main():
-    print(f"📥 Lade Tasks aus Prediction-Projekt: {PROJECT_ID_PRED}")
+def compare_predictions_main():
+    logs = []
+
+    logs.append(f"📥 Lade Tasks aus Prediction-Projekt: {PROJECT_ID_PRED}")
     pred_tasks = fetch_tasks(PROJECT_ID_PRED)
-    print(f"📥 Lade Tasks aus Ground-Truth-Projekt: {PROJECT_ID_GT}")
+    logs.append(f"📥 Lade Tasks aus Ground-Truth-Projekt: {PROJECT_ID_GT}")
     gt_tasks = fetch_tasks(PROJECT_ID_GT)
 
-    print(
+    logs.append(
         f"🔢 Annotierte Prediction-Tasks: {sum(bool(t.get('annotations')) for t in pred_tasks)}"
     )
-    print(
+    logs.append(
         f"🔢 Annotierte Ground-Truth-Tasks: {sum(bool(t.get('annotations')) for t in gt_tasks)}"
     )
 
@@ -156,8 +157,13 @@ def main():
     with open(txt_path, "w", encoding="utf-8") as f:
         f.write("\n".join(txt_lines))
 
-    print(f"✅ Vergleich gespeichert unter:\n- CSV: {csv_path}\n- Metriken: {txt_path}")
+    logs.append(f"✅ Vergleich gespeichert unter:\n- CSV: {csv_path}\n- Metriken: {txt_path}")
+    return logs
 
+
+def compare_predictions_with_annotations_main():
+    return compare_predictions_main()
 
 if __name__ == "__main__":
-    main()
+    for line in compare_predictions_main():
+        print(line)

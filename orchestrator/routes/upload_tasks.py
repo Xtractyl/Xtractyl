@@ -1,15 +1,14 @@
 import os
-
 import requests
 from dotenv import load_dotenv
 
-load_dotenv()  # Lädt Umgebungsvariablen aus .env-Datei
+load_dotenv()
+
 LABEL_STUDIO_URL = os.getenv("LABEL_STUDIO_URL", "http://labelstudio:8080")
-API_TOKEN = os.getenv("LABEL_STUDIO_API_TOKEN")  # konsistent mit create_project.py
+API_TOKEN = os.getenv("LABEL_STUDIO_API_TOKEN")
 PROJECT_ID = int(os.getenv("LABEL_STUDIO_PROJECT_ID"))
 HTML_FOLDER = "data/htmls"
 BATCH_SIZE = 50
-
 
 HEADERS = {"Authorization": f"Token {API_TOKEN}", "Content-Type": "application/json"}
 
@@ -25,30 +24,38 @@ def collect_html_tasks(folder):
     return tasks
 
 
-def upload_in_batches(tasks, batch_size):
-    url = f"{LABEL_STUDIO_URL}/api/projects/{PROJECT_ID}/import"
+def upload_in_batches(tasks, batch_size, logs):
+    url = f"{LABEL_STUDIO_URL}/api/projects/{PROJECT_ID}/tasks/bulk"    
     total = len(tasks)
     for i in range(0, total, batch_size):
         batch = tasks[i : i + batch_size]
         try:
             response = requests.post(url, headers=HEADERS, json=batch)
-            print(f"📤 Batch {i // batch_size + 1}: Status {response.status_code}")
+            msg = f"📤 Batch {i // batch_size + 1}: Status {response.status_code}"
+            logs.append(msg)
             if response.status_code != 201:
-                print("❌ Fehler beim Import:")
-                print(response.text)
+                logs.append("❌ Fehler beim Import:")
+                logs.append(response.text)
                 break
         except Exception as e:
-            print("🚨 Upload-Fehler:", str(e))
+            logs.append(f"🚨 Upload-Fehler: {str(e)}")
             break
 
 
-if __name__ == "__main__":
-    print("Token und Project ID:")
-    print(API_TOKEN, PROJECT_ID)
-    print(f"🔍 Suche HTML-Dateien in {HTML_FOLDER} ...")
+def upload_tasks_main():
+    logs = []
+    logs.append(f"🔍 Suche HTML-Dateien in {HTML_FOLDER} ...")
     tasks = collect_html_tasks(HTML_FOLDER)
-    print(f"📦 {len(tasks)} HTML-Dateien gefunden.")
+    logs.append(f"📦 {len(tasks)} HTML-Dateien gefunden.")
     if tasks:
-        upload_in_batches(tasks, BATCH_SIZE)
+        upload_in_batches(tasks, BATCH_SIZE, logs)
     else:
-        print("⚠️ Keine HTML-Dateien gefunden.")
+        logs.append("⚠️ Keine HTML-Dateien gefunden.")
+    return logs
+
+def upload_tasks_main_wrapper():
+    return upload_tasks_main()
+
+if __name__ == "__main__":
+    for line in upload_tasks_main():
+        print(line)

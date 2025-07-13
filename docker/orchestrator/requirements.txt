@@ -1,0 +1,5 @@
+requests
+python-dotenv
+beautifulsoup4
+scikit-learn
+flask

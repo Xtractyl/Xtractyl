@@ -51,12 +51,13 @@ services:
         condition: service_started
       ml_backend:
         condition: service_healthy
+    ports:
+      - "5001:5001"
     env_file:
       - ./orchestrator/.env
-    volumes:  
-      - ./orchestrator/.env:/app/.env  
+    volumes:
+      - ./orchestrator:/app
       - ./data/htmls:/app/data/htmls
-      - ./orchestrator/questions_and_labels.json:/app/questions_and_labels.json
       - ./screenshots:/app/screenshots
       - ./evaluation:/app/evaluation
 
