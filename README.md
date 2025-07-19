@@ -53,15 +53,11 @@ Use any of the following (your choice):
 
 ✅ Frontend Integration Guide for xtractyl
 
-
-
-🔄 Convert PDFs to HTML	docker exec -it docling bash /app/convert_pdfs.sh	
-Converts all PDFs in /pdfs/ to HTML using Docling
-
-
-
 📦 Central Backend Scripts & Trigger Points
 
+
+🔄 Convert PDFs to HTML	
+curl -X POST http://localhost:5004/docling/convert-folder
 
 
 # Modell laden (falls nicht schon geladen)

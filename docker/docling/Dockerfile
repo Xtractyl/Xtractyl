@@ -1,18 +1,18 @@
 FROM python:3.10-slim
 
-# Prevents Python from writing .pyc files to disc
 ENV PYTHONDONTWRITEBYTECODE=1
-# Ensures stdout/stderr are unbuffered
 ENV PYTHONUNBUFFERED=1
 
-# Install system dependencies (for OCR etc.)
+# System dependencies (Tesseract etc.)
 RUN apt-get update && \
     apt-get install -y tesseract-ocr libgl1 && \
     rm -rf /var/lib/apt/lists/*
 
-# Install docling
-RUN pip install --no-cache-dir docling
+# Install Flask + Docling
+RUN pip install --no-cache-dir flask docling
 
 WORKDIR /app
+COPY docling/app.py .
+COPY docker/docling/requirements.txt .
 
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+# Flask runs via docker-compose command

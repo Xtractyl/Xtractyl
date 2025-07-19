@@ -91,17 +91,18 @@ services:
     volumes:
       - ollama_models:/root/.ollama
 
-
   docling:
     build:
       context: .
       dockerfile: docker/docling/Dockerfile
     container_name: docling
+    ports:
+      - "5004:5004"
     volumes:
       - ./data/pdfs:/pdfs
       - ./data/htmls:/htmls
-      - ./docling/convert_pdfs.sh:/app/convert_pdfs.sh
-    entrypoint: tail -f /dev/null
+      - ./logs:/logs  
+    command: ["flask", "run", "--host=0.0.0.0", "--port=5004"]
 
 volumes:
   labelstudio_data:
