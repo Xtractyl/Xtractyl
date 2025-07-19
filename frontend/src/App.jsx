@@ -1,18 +1,17 @@
-// src/App.jsx
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './pages/Home';
-import Compare from './pages/Compare';
-import Navigation from './components/Navigation';
-
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import Layout from './components/Layout'
+import UploadPage from './pages/UploadPage'
+import StatusPage from './pages/StatusPage'
 
 export default function App() {
   return (
     <Router>
-      <Navigation />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/compare" element={<Compare />} />
-      </Routes>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<UploadPage />} />
+          <Route path="/status" element={<StatusPage />} />
+        </Routes>
+      </Layout>
     </Router>
-  );
+  )
 }
