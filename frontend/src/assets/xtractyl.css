@@ -1,0 +1,18 @@
+/* Xtractyl Buttons */
+.btn-xtractyl {
+    @apply bg-xtractyl-green text-white px-4 py-2 rounded-xl shadow hover:bg-xtractyl-shadowgreen transition;
+  }
+  
+  .btn-xtractyl-outline {
+    @apply border-2 border-xtractyl-green text-xtractyl-green px-4 py-2 rounded-xl hover:bg-xtractyl-green hover:text-white transition;
+  }
+  
+  /* Cards */
+  .card-xtractyl {
+    @apply bg-xtractyl-beige border border-xtractyl-outline rounded-2xl p-6 shadow-md;
+  }
+  
+  /* Überschrift im Dino-Stil */
+  .heading-dino {
+    @apply font-bold text-2xl text-xtractyl-green;
+  }
