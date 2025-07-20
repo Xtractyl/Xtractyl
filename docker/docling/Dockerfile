@@ -11,6 +11,10 @@ RUN apt-get update && \
 # Install Flask + Docling
 RUN pip install --no-cache-dir flask docling
 
+# Requirements installieren
+COPY docker/docling/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
 WORKDIR /app
 COPY docling/app.py .
 COPY docker/docling/requirements.txt .
