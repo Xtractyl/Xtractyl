@@ -24,7 +24,7 @@ export default function PDFFileSelector({ files, setFiles, folder, setFolder }) 
       </div>
 
       <div>
-        <label className="block font-medium">PDF-Dateien auswählen</label>
+        <label className="block font-medium">Select your PDFs</label>
         <input
           type="file"
           accept="application/pdf"
@@ -35,7 +35,7 @@ export default function PDFFileSelector({ files, setFiles, folder, setFolder }) 
         />
         {files.length > 0 && (
           <p className="mt-2 text-sm text-gray-600">
-            {files.length} Datei(en) ausgewählt
+            {files.length} File(s) selected
           </p>
         )}
       </div>
