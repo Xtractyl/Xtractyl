@@ -98,7 +98,7 @@ export default function PDFUploadAndConversion() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block font-medium mb-1">Choose or type a folder</label>
+          <label className="block font-medium mb-1">Type in folder name</label>
           <input
             list="folder-options"
             type="text"
