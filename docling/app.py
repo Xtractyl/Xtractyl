@@ -1,18 +1,21 @@
+from flask import Flask, request, jsonify, send_from_directory
 import os
 import subprocess
-from flask import Flask, request, jsonify
 import logging
 from flask_cors import CORS
 
-LOGFILE_PATH = "/logs/docling.log"
+app = Flask(__name__)
+CORS(app, origins=["http://localhost:5173"])
 
+LOGFILE_PATH = "/logs/docling.log"
+PDF_DIR = "/pdfs"
+HTML_DIR = "/htmls"
+
+# Logging setup
 logging.basicConfig(
     level=logging.INFO,
     format='[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
-    handlers=[
-        logging.FileHandler(LOGFILE_PATH),
-        logging.StreamHandler()
-    ]
+    handlers=[logging.FileHandler(LOGFILE_PATH), logging.StreamHandler()]
 )
 logger = logging.getLogger(__name__)
 
@@ -88,6 +91,44 @@ def upload_and_convert():
 
     return jsonify({"results": results})
 
+@app.route("/list-subfolders", methods=["GET"])
+def list_subfolders():
+    try:
+        logger.info("📁 Liste Unterordner in /pdfs ...")
+        entries = os.listdir(PDF_DIR)
+        logger.info(f"🔍 Gefundene Einträge: {entries}")
+
+        subfolders = [
+            name for name in entries
+            if os.path.isdir(os.path.join(PDF_DIR, name))
+        ]
+        logger.info(f"✅ Rückgabe: {subfolders}")
+        return jsonify(subfolders)
+
+    except Exception as e:
+        logger.exception("❌ Fehler beim Auflisten der Unterordner")
+        return jsonify([]), 500
+    
+@app.route("/list-files", methods=["GET"])
+def list_files_in_folder():
+    folder = request.args.get("folder", "").strip()
+    if not folder:
+        return jsonify([]), 400
+
+    target_dir = os.path.join(PDF_DIR, folder)
+    if not os.path.exists(target_dir) or not os.path.isdir(target_dir):
+        return jsonify([]), 404
+
+    try:
+        files = [
+            f for f in os.listdir(target_dir)
+            if f.lower().endswith(".pdf") and os.path.isfile(os.path.join(target_dir, f))
+        ]
+        return jsonify(files)
+    except Exception as e:
+        logger.exception("Fehler beim Auflisten der Dateien")
+        return jsonify([]), 500
+    
 if __name__ == "__main__":
     logger.info("🚀 Docling Flask-Server wird gestartet ...")
     app.run(host="0.0.0.0", port=5004)
