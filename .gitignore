@@ -24,6 +24,12 @@ docker/ml_backend/__pycache__/
 docker/orchestrator/__pycache__/
 docker/frontend/node_modules/
 
+# 📂 Data-Verzeichnis (PDFs, HTML, temporäre Dateien)
+data/pdfs/
+data/htmls/
+data/tmp/
+!data/.gitkeep  # Leeres data/ behalten, falls erwünscht
+
 # 🔍 Label Studio
 label-studio/frontend/dist/
 label-studio/static/
@@ -55,10 +61,6 @@ stylelint.config.js
 # 📦 Frontend Output & Lock
 frontend/dist/
 frontend/.vite/
-# frontend modules
-node_modules
-dist
-.vscode
 
 # 📸 Playwright (optional)
 *.spec.ts
