@@ -12,7 +12,7 @@ export default function HtmlFolderSelect({ selected, onChange }) {
 
   return (
     <div>
-      <label className="block font-medium mb-1">Select HTML Folder</label>
+      <label className="block font-medium mb-1">Select HTML (Folder content will be sent to label studio)</label>
       <select
         value={selected}
         onChange={(e) => onChange(e.target.value)}

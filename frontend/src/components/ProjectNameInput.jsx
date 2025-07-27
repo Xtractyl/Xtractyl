@@ -8,7 +8,7 @@ export default function ProjectNameInput({ value, onChange }) {
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value.trim())}
-        placeholder="e.g. Oncology_July_2025"
+        placeholder="identical to your current project, name as in label studio"
         required
         className="w-full p-2 border rounded"
       />
