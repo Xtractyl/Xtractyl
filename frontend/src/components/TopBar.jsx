@@ -43,18 +43,7 @@ export default function TopBar() {
             `text-lg px-6 py-3 rounded-xl font-medium transition
              ${isActive ? 'bg-xtractyl-green text-white' : 'hover:bg-xtractyl-green/80'}`
           }
-        >
-          Upload Tasks
-        </NavLink>
 
-        <ChevronRight className="text-white w-5 h-5" />
-
-        <NavLink
-          to="/prelabelling"
-          className={({ isActive }) =>
-            `text-lg px-6 py-3 rounded-xl font-medium transition
-             ${isActive ? 'bg-xtractyl-green text-white' : 'hover:bg-xtractyl-green/80'}`
-          }
         >
           Start AI
         </NavLink>
