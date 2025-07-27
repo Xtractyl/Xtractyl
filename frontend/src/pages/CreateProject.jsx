@@ -14,7 +14,7 @@ export default function CreateProjectPage() {
     };
 
     try {
-      // 🔐 Schritt 1: Check if project already exists
+      // 🔐 Schritt 1: Projektname prüfen
       const checkResponse = await fetch("http://localhost:5001/project_exists", {
         method: "POST",
         headers: {
@@ -33,7 +33,7 @@ export default function CreateProjectPage() {
         return;
       }
 
-      // 📤 Projekt in Label Studio erstellen
+      // 📤 Schritt 2: Projekt in Label Studio erstellen + Fragen/Labels speichern
       const response = await fetch("http://localhost:5001/create_project", {
         method: "POST",
         headers: {
@@ -48,26 +48,7 @@ export default function CreateProjectPage() {
 
       const result = await response.json();
       console.log("✅ Project created:", result);
-
-      // 📝 Fragen und Labels lokal im Projektordner speichern
-      const saveResponse = await fetch("http://localhost:5001/save_questions_labels", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title: formData.title,
-          questions: formData.questions,
-          labels: formData.labels,
-        }),
-      });
-
-      if (!saveResponse.ok) {
-        throw new Error("Saving questions_and_labels.json failed");
-      }
-
-      alert("Project successfully created and questions saved!");
-
+      alert("✅ Project successfully created!");
     } catch (error) {
       console.error("❌ Error:", error);
       alert("Something went wrong. See console for details.");
@@ -97,7 +78,7 @@ export default function CreateProjectPage() {
         </p>
       </div>
 
-      {/* Token-Eingabe + Projektformular */}
+      {/* Token-Eingabe + Formular */}
       <div className="mt-10">
         <TokenInput onTokenSave={setApiToken} />
 

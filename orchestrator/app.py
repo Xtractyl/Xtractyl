@@ -9,7 +9,6 @@ from routes.export_final_annotations import export_final_annotations_main_wrappe
 from routes.load_ollama_models import load_ollama_models_main_wrapper as load_ollama_models_main
 from routes.prelabel_complete_project import prelabel_complete_project_main_wrapper as prelabel_complete_project_main
 from routes.upload_tasks import upload_tasks_main_wrapper as upload_tasks_main
-from routes.save_questions_labels import save_questions_and_labels_main
 from routes.check_project_exists import check_project_exists
 
 app = Flask(__name__)
@@ -80,11 +79,6 @@ def upload_tasks():
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "ok"}), 200
-
-@app.route("/save_questions_labels", methods=["POST"])
-def save_questions_labels():
-    payload = request.get_json()
-    return try_wrap(lambda: save_questions_and_labels_main(payload))
 
 @app.route("/project_exists", methods=["POST"])
 def project_exists():
