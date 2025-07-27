@@ -3,3 +3,4 @@ python-dotenv
 beautifulsoup4
 scikit-learn
 flask
+flask-cors

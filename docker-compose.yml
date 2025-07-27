@@ -57,10 +57,11 @@ services:
       - ./orchestrator/.env
     volumes:
       - ./orchestrator:/app
+      - ./data/projects:/app/data/projects 
       - ./data/htmls:/app/data/htmls
-      - ./screenshots:/app/screenshots
       - ./evaluation:/app/evaluation
-
+      - ./logs:/logs 
+      
   ml_backend:
     build:
       context: .
@@ -75,8 +76,6 @@ services:
       - ./orchestrator/.env
     volumes:
       - ./orchestrator/questions_and_labels.json:/app/questions_and_labels.json
-      - ./screenshots:/app/screenshots
-
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:6789/health"]
       interval: 10s

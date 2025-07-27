@@ -27,6 +27,7 @@ docker/frontend/node_modules/
 # 📂 Data-Verzeichnis (PDFs, HTML, temporäre Dateien)
 data/pdfs/
 data/htmls/
+data/projects/
 data/tmp/
 !data/.gitkeep  # Leeres data/ behalten, falls erwünscht
 
