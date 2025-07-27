@@ -94,7 +94,17 @@ export default function TopBar() {
         >
           Evaluate AI
         </NavLink>
-        
+        <ChevronRight className="text-white w-5 h-5" />
+
+        <NavLink
+        to="/finetune"
+        className={({ isActive }) =>
+            `text-lg px-6 py-3 rounded-xl font-medium transition
+            ${isActive ? 'bg-xtractyl-green text-white' : 'hover:bg-xtractyl-green/80'}`
+        }
+        >
+        Finetune AI
+        </NavLink>       
       </nav>
     </header>
   )

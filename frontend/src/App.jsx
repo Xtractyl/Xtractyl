@@ -7,6 +7,8 @@ import StartPrelabellingPage from './pages/StartPrelabelling.jsx';
 import ReviewAIPage from './pages/ReviewAI.jsx';
 import GetResultsPage from './pages/GetResults.jsx';
 import EvaluateAIPage from './pages/EvaluateAI.jsx';
+import FinetuneAIPage from './pages/FinetuneAI.jsx';
+
 import { useState, useEffect } from 'react';
 
 export default function App() {
@@ -33,6 +35,7 @@ export default function App() {
           <Route path="/review" element={<ReviewAIPage />} />
           <Route path="/results" element={<GetResultsPage />} />
           <Route path="/evaluate" element={<EvaluateAIPage />} />
+          <Route path="/finetune" element={<FinetuneAIPage />} />
         </Routes>
       </Layout>
     </Router>
