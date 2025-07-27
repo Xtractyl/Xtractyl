@@ -8,8 +8,9 @@ from routes.create_project import create_project_main_from_payload
 from routes.export_final_annotations import export_final_annotations_main_wrapper as export_final_annotations_main
 from routes.load_ollama_models import load_ollama_models_main_wrapper as load_ollama_models_main
 from routes.prelabel_complete_project import prelabel_complete_project_main_wrapper as prelabel_complete_project_main
-from routes.upload_tasks import upload_tasks_main_wrapper as upload_tasks_main
+from routes.upload_tasks import upload_tasks_main_from_payload
 from routes.check_project_exists import check_project_exists
+from routes.list_html_folders import list_html_subfolders
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:5173"])
@@ -74,7 +75,8 @@ def prelabel_project():
 
 @app.route("/upload_tasks", methods=["POST"])
 def upload_tasks():
-    return try_wrap(upload_tasks_main)
+    payload = request.get_json()
+    return try_wrap(lambda: upload_tasks_main_from_payload(payload))
 
 @app.route("/health", methods=["GET"])
 def health():
@@ -83,6 +85,10 @@ def health():
 @app.route("/project_exists", methods=["POST"])
 def project_exists():
     return check_project_exists()
+
+@app.route("/list_html_subfolders", methods=["GET"])
+def list_html_subfolders_route():
+    return list_html_subfolders()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001)

@@ -2,8 +2,15 @@ import { useState } from "react";
 import TokenInput from "../components/TokenInput";
 import CreateProjectForm from "../components/CreateProjectForm";
 
-export default function CreateProjectPage() {
+export default function CreateProjectPage({ onTokenSave }) {
   const [apiToken, setApiToken] = useState("");
+
+  const handleLocalTokenSave = (token) => {
+    setApiToken(token);
+    if (onTokenSave) {
+      onTokenSave(token);
+    }
+  };
 
   const handleFormSubmit = async (formData) => {
     const payload = {
@@ -14,12 +21,9 @@ export default function CreateProjectPage() {
     };
 
     try {
-      // 🔐 Schritt 1: Projektname prüfen
       const checkResponse = await fetch("http://localhost:5001/project_exists", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: formData.title }),
       });
 
@@ -33,12 +37,9 @@ export default function CreateProjectPage() {
         return;
       }
 
-      // 📤 Schritt 2: Projekt in Label Studio erstellen + Fragen/Labels speichern
       const response = await fetch("http://localhost:5001/create_project", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
@@ -56,35 +57,32 @@ export default function CreateProjectPage() {
   };
 
   return (
-    <div className="p-6">
-      {/* Intro-Bereich */}
-      <div>
-        <h1 className="text-2xl font-semibold mb-4">Create Project</h1>
-        <p className="text-gray-600">Create your project.</p>
-      </div>
+    <div className="p-8 bg-[#e6e2cf] min-h-screen text-[#23211c]">
+      <h1 className="text-2xl font-semibold mb-4">Create Project</h1>
+      <p className="text-gray-600 mb-6">Create your project in Label Studio.</p>
 
-      {/* Token holen */}
-      <div className="mt-14">
-        <a
-          href="http://localhost:8080/user/account"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block bg-xtractyl-orange text-white text-base font-medium px-5 py-2 rounded shadow hover:bg-orange-600 transition"
-        >
-          Get your legacy token
-        </a>
-        <p className="mt-6 text-sm text-gray-500">
-          Return to this tab after copying the token.
-        </p>
-      </div>
+      <div className="space-y-6 bg-[#ede6d6] p-8 rounded shadow w-full">
+        {/* Token holen */}
+        <div>
+          <a
+            href="http://localhost:8080/user/account"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block bg-[#db7127] text-white text-base font-medium px-5 py-2 rounded shadow hover:bg-orange-600 transition"
+          >
+            Get your legacy token
+          </a>
+          <p className="mt-4 text-sm text-gray-500">
+            Return to this tab after copying the token.
+          </p>
+        </div>
 
-      {/* Token-Eingabe + Formular */}
-      <div className="mt-10">
-        <TokenInput onTokenSave={setApiToken} />
+        {/* Token-Eingabe */}
+        <TokenInput onTokenSave={handleLocalTokenSave} />
 
         {apiToken && (
-          <div className="mt-4">
-            <p className="text-gray-600">Token saved!</p>
+          <div>
+            <p className="text-gray-600 mb-2">Token saved!</p>
             <CreateProjectForm onSubmit={handleFormSubmit} />
           </div>
         )}
