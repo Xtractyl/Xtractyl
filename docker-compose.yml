@@ -18,13 +18,8 @@ services:
       - "8080:8080"
     depends_on:
       - postgres
-    environment:
-      DJANGO_DB: default
-      POSTGRE_NAME: db
-      POSTGRE_USER: postgres
-      POSTGRE_PASSWORD: pieceofcake
-      POSTGRE_PORT: 5432
-      POSTGRE_HOST: postgres
+    env_file:
+      - .env 
     volumes:
       - labelstudio_data:/data  
 
