@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 
+// === API Base URLs ===
+const ORCH_BASE = "http://localhost:5001"; // Orchestrator backend
+
 export default function HtmlFolderSelect({ selected, onChange }) {
   const [folders, setFolders] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5001/list_html_subfolders")
+    fetch(`${ORCH_BASE}/list_html_subfolders`)
       .then((res) => res.json())
       .then((data) => setFolders(data))
       .catch(() => setFolders([]));
@@ -12,7 +15,9 @@ export default function HtmlFolderSelect({ selected, onChange }) {
 
   return (
     <div>
-      <label className="block font-medium mb-1">Select HTML (Folder content will be sent to label studio)</label>
+      <label className="block font-medium mb-1">
+        Select HTML (Folder content will be sent to Label Studio)
+      </label>
       <select
         value={selected}
         onChange={(e) => onChange(e.target.value)}

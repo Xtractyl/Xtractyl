@@ -1,48 +1,55 @@
 import React, { useState, useEffect } from "react";
 
+// === API Base URLs ===
+const DOC_BASE = "http://localhost:5004"; // Docling backend
+
 export default function PDFUploadAndConversion() {
+  // --- UI state ---
   const [files, setFiles] = useState([]);
   const [folder, setFolder] = useState("");
   const [existingFolders, setExistingFolders] = useState([]);
   const [filesInSelectedFolder, setFilesInSelectedFolder] = useState([]);
 
+  // --- job / server interaction state ---
   const [jobId, setJobId] = useState(() => localStorage.getItem("doclingJobId"));
   const [submitBusy, setSubmitBusy] = useState(false);
   const [serverMsg, setServerMsg] = useState("");
   const [jobStatus, setJobStatus] = useState(null);
   const [cancelBusy, setCancelBusy] = useState(false);
 
+  // Fetch existing subfolders
   const fetchSubfolders = () => {
-    fetch("http://localhost:5004/list-subfolders")
+    fetch(`${DOC_BASE}/list-subfolders`)
       .then((res) => res.json())
       .then((data) => setExistingFolders(data))
       .catch(() => setExistingFolders([]));
   };
 
+  // Fetch list of PDFs in a selected folder
   const fetchFilesInFolder = (folderName) => {
-    fetch(`http://localhost:5004/list-files?folder=${encodeURIComponent(folderName)}`)
+    fetch(`${DOC_BASE}/list-files?folder=${encodeURIComponent(folderName)}`)
       .then((res) => res.json())
       .then((data) => setFilesInSelectedFolder(data))
       .catch(() => setFilesInSelectedFolder([]));
   };
 
+  // Cancel a running job
   const handleCancel = async () => {
     if (!jobId) return;
     setCancelBusy(true);
     try {
-      const res = await fetch(`http://localhost:5004/cancel_job/${jobId}`, { method: "POST" });
-  
+      const res = await fetch(`${DOC_BASE}/cancel_job/${jobId}`, { method: "POST" });
+
       if (res.status === 404) {
-        // wirklich unbekannt
         localStorage.removeItem("doclingJobId");
         setJobId(null);
         setJobStatus(null);
         setServerMsg("⚠️ Job not found on server.");
         return;
       }
-  
+
       const data = await res.json();
-  
+
       if (data.status === "already_finished") {
         setServerMsg(`ℹ️ Job already ${data.state}.`);
         localStorage.removeItem("doclingJobId");
@@ -54,8 +61,7 @@ export default function PDFUploadAndConversion() {
         setJobStatus((prev) => ({ ...(prev || {}), state: "cancelling", message: "cancel requested" }));
         return;
       }
-  
-      // Fallback
+
       setServerMsg("ℹ️ Cancel processed.");
     } catch (e) {
       console.error(e);
@@ -65,6 +71,7 @@ export default function PDFUploadAndConversion() {
     }
   };
 
+  // Restore job id from localStorage if empty
   useEffect(() => {
     if (!jobId) {
       const saved = localStorage.getItem("doclingJobId");
@@ -72,15 +79,17 @@ export default function PDFUploadAndConversion() {
     }
   }, [jobId]);
 
+  // Load folders initially
   useEffect(() => {
     fetchSubfolders();
   }, []);
 
+  // Load files when the selected folder changes
   useEffect(() => {
     if (folder) fetchFilesInFolder(folder);
   }, [folder]);
 
-  // === NEUES Polling mit 404-Aufräumen ===
+  // Poll job status
   useEffect(() => {
     if (!jobId) return;
 
@@ -93,10 +102,10 @@ export default function PDFUploadAndConversion() {
 
     const tick = async () => {
       try {
-        const res = await fetch(`http://localhost:5004/job_status/${jobId}`);
+        const res = await fetch(`${DOC_BASE}/job_status/${jobId}`);
         if (!res.ok) {
           if (res.status === 404) {
-            // Stale jobId → aufräumen
+            // Stale jobId → clean up
             localStorage.removeItem("doclingJobId");
             setJobId(null);
             setJobStatus(null);
@@ -108,7 +117,7 @@ export default function PDFUploadAndConversion() {
         const s = await res.json();
         setJobStatus(s);
 
-        if (s.state === "done" || s.state === "error"|| s.state === "cancelled") {
+        if (["done", "error", "cancelled"].includes(s.state)) {
           localStorage.removeItem("doclingJobId");
           setJobId(null);
           return;
@@ -129,6 +138,7 @@ export default function PDFUploadAndConversion() {
   const handleFileChange = (e) => setFiles([...e.target.files]);
   const handleFolderChange = (e) => setFolder(e.target.value.trim());
 
+  // Submit PDFs to the server
   const handleSubmit = async (e) => {
     e.preventDefault();
     setServerMsg("");
@@ -140,7 +150,7 @@ export default function PDFUploadAndConversion() {
 
     setSubmitBusy(true);
     try {
-      const res = await fetch("http://localhost:5004/uploadpdfs", {
+      const res = await fetch(`${DOC_BASE}/uploadpdfs`, {
         method: "POST",
         body: formData,
       });
@@ -238,7 +248,6 @@ export default function PDFUploadAndConversion() {
           )}
         </div>
 
-        {/* === NEUER Submit-Button-Status === */}
         <button
           type="submit"
           disabled={submitBusy || !!jobId}
@@ -252,7 +261,7 @@ export default function PDFUploadAndConversion() {
         {serverMsg && <p className="text-sm mt-2">{serverMsg}</p>}
       </form>
 
-      {/* Status-Panel */}
+      {/* Status panel */}
       {jobId && jobStatus && (
         <div className="mt-4 bg-[#cdc0a3] p-4 rounded">
           <div className="font-medium mb-1">
@@ -274,38 +283,39 @@ export default function PDFUploadAndConversion() {
         </div>
       )}
 
-    {jobId && (
-    <div className="mt-6 bg-[#ede6d6] p-4 rounded">
-      <div className="font-semibold">Active conversion job</div>
-      <div className="text-sm break-all">Job ID: {jobId}</div>
+      {/* Active job controls */}
+      {jobId && (
+        <div className="mt-6 bg-[#ede6d6] p-4 rounded">
+          <div className="font-semibold">Active conversion job</div>
+          <div className="text-sm break-all">Job ID: {jobId}</div>
 
-      <div className="mt-3 flex gap-3">
-        <button
-          type="button"
-          onClick={handleCancel}
-          disabled={cancelBusy}
-          className={`px-3 py-2 rounded bg-red-600 text-white hover:bg-red-700 ${
-            cancelBusy ? "opacity-60 cursor-not-allowed" : ""
-          }`}
-        >
-          {cancelBusy ? "Cancelling…" : "Cancel Job"}
-        </button>
+          <div className="mt-3 flex gap-3">
+            <button
+              type="button"
+              onClick={handleCancel}
+              disabled={cancelBusy}
+              className={`px-3 py-2 rounded bg-red-600 text-white hover:bg-red-700 ${
+                cancelBusy ? "opacity-60 cursor-not-allowed" : ""
+              }`}
+            >
+              {cancelBusy ? "Cancelling…" : "Cancel Job"}
+            </button>
 
-        <button
-          type="button"
-          className="px-3 py-2 rounded bg-gray-200 hover:bg-gray-300"
-          onClick={() => {
-            localStorage.removeItem("doclingJobId");
-            setJobId(null);
-            setServerMsg("");
-            setJobStatus(null);
-          }}
-        >
-          Clear Job ID (local)
-        </button>
-      </div>
-    </div>
-  )}
+            <button
+              type="button"
+              className="px-3 py-2 rounded bg-gray-200 hover:bg-gray-300"
+              onClick={() => {
+                localStorage.removeItem("doclingJobId");
+                setJobId(null);
+                setServerMsg("");
+                setJobStatus(null);
+              }}
+            >
+              Clear Job ID (local)
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

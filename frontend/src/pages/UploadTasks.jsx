@@ -2,6 +2,10 @@ import React, { useState } from "react";
 import ProjectNameInput from "../components/ProjectNameInput";
 import HtmlFolderSelect from "../components/HTMLFolderSelect";
 
+// === API Base URLs ===
+const ORCH_BASE = "http://localhost:5001";  // Orchestrator backend
+const LS_BASE   = "http://localhost:8080";  // Label Studio
+
 export default function UploadTasksPage({ apiToken }) {
   const [projectName, setProjectName] = useState("");
   const [htmlFolder, setHtmlFolder] = useState("");
@@ -14,16 +18,14 @@ export default function UploadTasksPage({ apiToken }) {
     }
 
     try {
-      const response = await fetch("http://localhost:5001/upload_tasks", {
+      const response = await fetch(`${ORCH_BASE}/upload_tasks`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           project_name: projectName,
           token: apiToken,
-          html_folder: htmlFolder
-        })
+          html_folder: htmlFolder,
+        }),
       });
 
       if (!response.ok) {
@@ -59,9 +61,11 @@ export default function UploadTasksPage({ apiToken }) {
 
         {/* Helper link to Label Studio */}
         <div className="pt-2 border-t border-[#d8cfbd]">
-          <div className="text-sm font-medium mb-1">Forgot your project name?</div>
+          <div className="text-sm font-medium mb-1">
+            Forgot your project name? Want to check the task upload?
+          </div>
           <a
-            href="http://localhost:8080/projects?pag=&page=1"
+            href={`${LS_BASE}/projects?pag=&page=1`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block text-[#6baa56] hover:underline"

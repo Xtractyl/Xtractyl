@@ -1,15 +1,18 @@
+# Base image includes Python + Playwright (Ubuntu Jammy)
 FROM mcr.microsoft.com/playwright/python:v1.52.0-jammy
 
+# Application working directory inside the container
 WORKDIR /app
 
-# Requirements installieren
+# Install Python dependencies (copied first to leverage build cache)
 COPY docker/ml_backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# App-Code kopieren
+# Copy the ML backend application code
 COPY ml_backend/ /app/
 
+# Expose the Flask/WSGI service port
 EXPOSE 6789
 
-# Direkt Flask-App starten
+# Start the Flask app (unbuffered output for real-time logs)
 CMD ["python", "-u", "app.py"]
