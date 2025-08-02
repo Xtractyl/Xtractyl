@@ -29,7 +29,7 @@ data/pdfs/
 data/htmls/
 data/projects/
 data/tmp/
-!data/.gitkeep  # Leeres data/ behalten, falls erwünscht
+!data/.gitkeep  
 
 # 🔍 Label Studio
 label-studio/frontend/dist/
@@ -71,3 +71,6 @@ test-results/
 # 📝 Persönliche Instructions
 zentraleBefehle.md
 toDoChristof.md
+
+#logs
+logs/
