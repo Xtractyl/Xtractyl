@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Any, Dict, Optional, Union
 
 # Base directory for per-job artifacts
-DOC_LOG_DIR = "/logs/docling"
+DOC_LOG_DIR = "/logs/docling_jobs"
 os.makedirs(DOC_LOG_DIR, exist_ok=True)
 
 
