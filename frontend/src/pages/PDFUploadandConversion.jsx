@@ -4,9 +4,14 @@ import DinoLoader from "../components/DinoLoader.jsx";
 export default function PDFUploadAndConversion() {
   const [files, setFiles] = useState([]);
   const [folder, setFolder] = useState("");
-  const [fileStatuses, setFileStatuses] = useState([]);
   const [existingFolders, setExistingFolders] = useState([]);
   const [filesInSelectedFolder, setFilesInSelectedFolder] = useState([]);
+
+  const [jobId, setJobId] = useState(() => localStorage.getItem("doclingJobId"));
+  const [submitBusy, setSubmitBusy] = useState(false);
+  const [serverMsg, setServerMsg] = useState("");
+  const [jobStatus, setJobStatus] = useState(null);
+  const [cancelBusy, setCancelBusy] = useState(false);
 
   const fetchSubfolders = () => {
     fetch("http://localhost:5004/list-subfolders")
@@ -16,77 +21,132 @@ export default function PDFUploadAndConversion() {
   };
 
   const fetchFilesInFolder = (folderName) => {
-    fetch(`http://localhost:5004/list-files?folder=${folderName}`)
+    fetch(`http://localhost:5004/list-files?folder=${encodeURIComponent(folderName)}`)
       .then((res) => res.json())
       .then((data) => setFilesInSelectedFolder(data))
       .catch(() => setFilesInSelectedFolder([]));
   };
+
+  const handleCancel = async () => {
+    if (!jobId) return;
+    setCancelBusy(true);
+    try {
+      const res = await fetch(`http://localhost:5004/cancel_job/${jobId}`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `Cancel failed: ${res.status}`);
+      }
+      // Optional: direkt local aufräumen – oder warten bis Polling "cancelled" sieht
+      // localStorage.removeItem("doclingJobId");
+      // setJobId(null);
+    } catch (e) {
+      console.error(e);
+      setServerMsg(`❌ ${e.message}`);
+    } finally {
+      setCancelBusy(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!jobId) {
+      const saved = localStorage.getItem("doclingJobId");
+      if (saved) setJobId(saved);
+    }
+  }, [jobId]);
 
   useEffect(() => {
     fetchSubfolders();
   }, []);
 
   useEffect(() => {
-    if (!folder) return;
-    fetchFilesInFolder(folder);
+    if (folder) fetchFilesInFolder(folder);
   }, [folder]);
 
-  const handleFileChange = (e) => {
-    setFiles([...e.target.files]);
-  };
+  // === NEUES Polling mit 404-Aufräumen ===
+  useEffect(() => {
+    if (!jobId) return;
 
-  const handleFolderChange = (e) => {
-    setFolder(e.target.value.trim());
-  };
+    let cancelled = false;
+    let timer = null;
+
+    const schedule = (ms = 1500) => {
+      if (!cancelled) timer = setTimeout(tick, ms);
+    };
+
+    const tick = async () => {
+      try {
+        const res = await fetch(`http://localhost:5004/job_status/${jobId}`);
+        if (!res.ok) {
+          if (res.status === 404) {
+            // Stale jobId → aufräumen
+            localStorage.removeItem("doclingJobId");
+            setJobId(null);
+            setJobStatus(null);
+            return;
+          }
+          setJobStatus((s) => s ?? { state: "queued", message: "waiting…" });
+          return schedule();
+        }
+        const s = await res.json();
+        setJobStatus(s);
+
+        if (s.state === "done" || s.state === "error"|| s.state === "cancelled") {
+          localStorage.removeItem("doclingJobId");
+          setJobId(null);
+          return;
+        }
+        schedule();
+      } catch {
+        schedule();
+      }
+    };
+
+    tick();
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [jobId]);
+
+  const handleFileChange = (e) => setFiles([...e.target.files]);
+  const handleFolderChange = (e) => setFolder(e.target.value.trim());
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setServerMsg("");
     if (!folder || files.length === 0) return;
 
-    setFileStatuses([]);
+    const formData = new FormData();
+    formData.append("folder", folder);
+    for (const file of files) formData.append("files", file);
 
-    for (const file of files) {
-      setFileStatuses((prev) => [
-        ...prev,
-        { file: file.name, status: "loading" },
-      ]);
+    setSubmitBusy(true);
+    try {
+      const res = await fetch("http://localhost:5004/uploadpdfs", {
+        method: "POST",
+        body: formData,
+      });
 
-      const formData = new FormData();
-      formData.append("folder", folder);
-      formData.append("files", file);
-
-      try {
-        const response = await fetch("http://localhost:5004/uploadpdfs", {
-          method: "POST",
-          body: formData,
-        });
-
-        const data = await response.json();
-        const result = data.results?.[0] || {
-          file: file.name,
-          status: "error",
-          message: "no response",
-        };
-
-        setFileStatuses((prev) =>
-          prev.map((entry) =>
-            entry.file === file.name ? result : entry
-          )
-        );
-      } catch (error) {
-        setFileStatuses((prev) =>
-          prev.map((entry) =>
-            entry.file === file.name
-              ? { file: file.name, status: "error", message: error.message }
-              : entry
-          )
-        );
+      if (res.status !== 202) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `Unexpected status ${res.status}`);
       }
-    }
 
-    // 🔄 Nach Upload: Ordner und Dateiliste neu laden
-    fetchSubfolders();
-    fetchFilesInFolder(folder);
+      const data = await res.json();
+      setJobId(data.job_id);
+      localStorage.setItem("doclingJobId", data.job_id);
+      setServerMsg(data.message || "accepted");
+
+      fetchSubfolders();
+      fetchFilesInFolder(folder);
+    } catch (err) {
+      console.error(err);
+      setServerMsg(`❌ ${err.message}`);
+    } finally {
+      setSubmitBusy(false);
+    }
   };
 
   return (
@@ -162,33 +222,74 @@ export default function PDFUploadAndConversion() {
           )}
         </div>
 
+        {/* === NEUER Submit-Button-Status === */}
         <button
           type="submit"
-          className="bg-[#6baa56] text-white px-4 py-2 rounded hover:bg-[#5b823f]"
+          disabled={submitBusy || !!jobId}
+          className={`bg-[#6baa56] text-white px-4 py-2 rounded hover:bg-[#5b823f] ${
+            submitBusy || jobId ? "opacity-60 cursor-not-allowed" : ""
+          }`}
         >
-          Upload & Convert
+          {submitBusy ? "Submitting…" : jobId ? "Job running…" : "Upload & Convert"}
         </button>
+
+        {serverMsg && <p className="text-sm mt-2">{serverMsg}</p>}
       </form>
 
-      {fileStatuses.length > 0 && (
-        <div className="mt-6 bg-[#cdc0a3] p-4 rounded shadow">
-          <h2 className="font-semibold mb-2">Conversion Progress</h2>
-          <ul className="list-disc pl-5">
-            {fileStatuses.map((entry, index) => (
-              <li key={index} className="flex items-center gap-2">
-                <span className="font-mono">{entry.file}</span>
-                {entry.status === "loading" ? (
-                  <DinoLoader />
-                ) : entry.status === "ok" ? (
-                  <span className="text-green-700">✅ success</span>
-                ) : (
-                  <span className="text-red-600">❌ error – {entry.message}</span>
-                )}
-              </li>
-            ))}
-          </ul>
+      {/* Status-Panel */}
+      {jobId && jobStatus && (
+        <div className="mt-4 bg-[#cdc0a3] p-4 rounded">
+          <div className="font-medium mb-1">
+            Status: {jobStatus.state}{" "}
+            {typeof jobStatus.progress === "number"
+              ? `— ${Math.round((jobStatus.progress || 0) * 100)}%`
+              : ""}
+          </div>
+          <div className="w-full h-2 bg-gray-200 rounded">
+            <div
+              className="h-2 bg-[#6baa56] rounded"
+              style={{ width: `${Math.round((jobStatus.progress || 0) * 100)}%` }}
+            />
+          </div>
+          {jobStatus.message && <div className="text-sm mt-2">{jobStatus.message}</div>}
+          <div className="text-xs text-gray-600 mt-1">
+            {jobStatus.done ?? 0}/{jobStatus.total ?? 0} files
+          </div>
         </div>
       )}
+
+    {jobId && (
+    <div className="mt-6 bg-[#ede6d6] p-4 rounded">
+      <div className="font-semibold">Active conversion job</div>
+      <div className="text-sm break-all">Job ID: {jobId}</div>
+
+      <div className="mt-3 flex gap-3">
+        <button
+          type="button"
+          onClick={handleCancel}
+          disabled={cancelBusy}
+          className={`px-3 py-2 rounded bg-red-600 text-white hover:bg-red-700 ${
+            cancelBusy ? "opacity-60 cursor-not-allowed" : ""
+          }`}
+        >
+          {cancelBusy ? "Cancelling…" : "Cancel Job"}
+        </button>
+
+        <button
+          type="button"
+          className="px-3 py-2 rounded bg-gray-200 hover:bg-gray-300"
+          onClick={() => {
+            localStorage.removeItem("doclingJobId");
+            setJobId(null);
+            setServerMsg("");
+            setJobStatus(null);
+          }}
+        >
+          Clear Job ID (local)
+        </button>
+      </div>
+    </div>
+  )}
     </div>
   );
 }

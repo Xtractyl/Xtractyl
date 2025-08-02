@@ -1,22 +1,25 @@
+# docker/docling/Dockerfile
 FROM python:3.10-slim
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
-# System dependencies (Tesseract etc.)
-RUN apt-get update && \
-    apt-get install -y tesseract-ocr libgl1 && \
-    rm -rf /var/lib/apt/lists/*
+# System deps (Tesseract + OpenGL lib für headless Rendering)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      tesseract-ocr libgl1 \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Flask + Docling
-RUN pip install --no-cache-dir flask docling
-
-# Requirements installieren
-COPY docker/docling/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
+# Abhängigkeiten zuerst (bessere Layer-Caches)
 WORKDIR /app
-COPY docling/app.py .
-COPY docker/docling/requirements.txt .
+COPY docker/docling/requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
-# Flask runs via docker-compose command
+
+# App-Code KOMPLETT kopieren (inkl. utils/)
+COPY docling/ /app/
+
+# Optional: Port dokumentieren
+EXPOSE 5004
+
+# Flask starten
+CMD ["flask", "--app", "app.py", "run", "--host=0.0.0.0", "--port=5004"]
