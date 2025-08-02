@@ -1,24 +1,41 @@
-# Xtractyl Non-Commercial License v1.0
+# Xtractyl Non-Commercial License v1.1
 
 Copyright (c) 2025 Christof Dücker and Thomas Walawgo
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to use, copy, modify, and distribute the Software, solely for Non-Commercial Use, subject to the following conditions:
+This license applies to all code, documentation, scripts, configuration files, and other content 
+provided in this repository (collectively, the “Software”).
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this Software, to 
+use, copy, modify, and distribute it, solely for Non-Commercial Use, subject to the following conditions:
 
 1. Non-Commercial Use Only.  
-   You may use, copy, modify, and distribute the Software only for Non-Commercial Use. Any Commercial Use of the Software, in whole or in part, is prohibited without a separate commercial license from the copyright holders.
+   You may use, copy, modify, and distribute the Software only for Non-Commercial Use. Any Commercial 
+   Use of the Software, in whole or in part, is prohibited without a separate commercial license from 
+   the copyright holders.
 
 2. Attribution and Notice.  
-   You must retain the above copyright notice and this license in all copies or substantial portions of the Software and in any derivative works.
+   You must retain the above copyright notice and this license in all copies or substantial portions 
+   of the Software and in any derivative works.
 
 3. No Trademark License.  
    This license does not grant permission to use the names, logos, or trademarks of the copyright holders.
 
 4. No Liability; No Warranty.  
-   THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+   THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT 
+   NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+   NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT 
+   OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 5. Definitions.  
-   - “Commercial Use” means any use of the Software that is intended for or directed toward commercial advantage or monetary compensation, including (without limitation) using the Software in, or for the benefit of, a for-profit business, offering paid services, selling, licensing, or distributing the Software or derivative works for a fee, or using the Software to provide a service for which you are compensated.  
-   - “Non-Commercial Use” means any use that is not Commercial Use, including personal, academic, research, or internal evaluation use by individuals, non-profit organizations, or educational institutions without receiving monetary compensation related to the use of the Software.
+   - “Commercial Use” means any use of the Software that is intended for or directed toward commercial 
+     advantage or monetary compensation, including (without limitation) using the Software in, or for 
+     the benefit of, a for-profit business, offering paid services, selling, licensing, or distributing 
+     the Software or derivative works for a fee, or using the Software to provide a service for which 
+     you are compensated.  
+   - “Non-Commercial Use” means any use that is not Commercial Use, including personal, academic, 
+     research, or internal evaluation use by individuals, non-profit organizations, or educational 
+     institutions without receiving monetary compensation related to the use of the Software.
 
 6. Patents.  
    No patent rights are granted under this license.
@@ -26,7 +43,9 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 7. Severability.  
    If any part of this license is held unenforceable, the rest remains in effect.
 
-For Commercial Use, please contact the copyright holders to obtain a commercial license.
+---
+
+**For Commercial Use**, please contact the copyright holders to obtain a commercial license.
 
 ---
 
@@ -54,9 +73,11 @@ Please consult the respective repositories for detailed license terms.
 ## Models Used
 
 This project may use local LLMs such as `gemma3:12b` with the Ollama runtime.  
-Important: These models are distributed under their own licenses and usage restrictions. You are responsible for reviewing and complying with the license and usage terms of any model you load via Ollama.
+**Important**: These models are distributed under their own licenses and usage restrictions. You are 
+responsible for reviewing and complying with the license and usage terms of any model you load via Ollama.
 
 - For example, Gemma models are released by Google under the Gemma License Agreement.
 - Some models may be for non-commercial use only or research purposes.
 
-This project does not include any pre-downloaded models. It provides tools to run models via Ollama, assuming you have the legal right to do so.
+This project does not include any pre-downloaded models. It provides tools to run models via Ollama, 
+assuming you have the legal right to do so.

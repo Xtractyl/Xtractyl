@@ -1,124 +1,129 @@
-# 🦕 xtractyl – Extract structured data from messy medical PDFs
+# 🦕 Xtractyl – Extract structured data from messy medical PDFs
 
-**xtractyl** is a modular AI pipeline to pre-label and annotate medical documents (e.g. discharge letters).  
-It converts PDFs → HTML → DOM → prelabels them with an LLM → and allows for manual review via Label Studio.
+**Xtractyl** is a modular, local, human-in-the-loop AI pipeline that searches unstructured PDF documents for specific cases in your data and builds a structured database from them.  
 
-🔍 Built for human-in-the-loop annotation with evaluation & comparison built in.
+It converts PDFs → HTML → DOM → pre-labels them with an LLM → allows manual review via Label Studio → and 🦕 **xtracts** them into your database.
+
+🔍 Designed for **privacy-first**, human-validated data extraction with evaluation & comparison tools built in.
+
+---
+
+## 📜 License
+
+Xtractyl is licensed under the **Xtractyl Non-Commercial License v1.1**.  
+You are free to use, copy, modify, and distribute this software **only for non-commercial purposes**.  
+Any commercial use requires a separate commercial license from the copyright holders.
+
+🔒 **No Commercial Use Allowed Without Permission**  
+See the [LICENSE](LICENSE) file for full terms.
 
 ---
 
 ## 🚀 Features
 
-- ✅ Convert medical PDFs into structured HTML via Docling
-- 🤖 Prelabel data with an LLM (Ollama: Gemma3 12B by default)
-- 🧠 DOM-based XPath mapping and label matching
-- 👩‍⚕️ Use Label Studio for human validation
-- 🧪 Evaluate predictions vs. ground truth with built-in metrics
-- 🐳 Modular Docker architecture
-- 🎛️ Simple CLI & frontend trigger points
+- 🔒 Keeps all your data local — no cloud processing 
+- ✅ Convert medical PDFs into structured HTML via **Docling**  
+- 🤖 Pre-label data with an LLM (**Ollama: Gemma3 12B** by default)  
+- 🧠 DOM-based XPath mapping and label matching  
+- 👩‍⚕️ Human validation with **Label Studio**  
+- 🔍 Find specific cases in your documents  
+- 🦕 Extract a database from your previously unstructured data  
+- 🐳 Modular **Docker** architecture  
+
+---
+
+## 📅 Planned Features
+
+- 🦕 Create dashboards from your Xtractyl-generated database  
+- 🧪 Evaluate predictions vs. ground truth with built-in metrics  
+- 🎛️ Fine-tune models based on your labeled data 
 
 ---
 
 ## ⚙️ Setup
 
+### 1. Requirements
+Before installing Xtractyl, ensure you have the following installed on your system:
 
+- **Docker** & **Docker Compose**
+- **Node.js** (v20 or later)
+- **Python** (v3.10 or later)
+- **Ollama** (for running local LLMs) → [Ollama installation guide](https://ollama.com/download)
 
+---
 
+### 2. Installation
+Clone the repository and start the Docker containers:
 
-## ⚙️ Usage
+```bash
+git clone https://github.com/<your-username>/xtractyl.git
+cd xtractyl
+docker compose up --build
+```
 
-🦕 xtractyl Frontend Requirements
+---
 
-🎯 Goal
+## 📖 Usage
 
-A simple frontend UI that allows the user to:
-	1.	Upload PDFs
-	2.	Trigger the pipeline (PDF → HTML → DOM → LLM → Label Studio)
-  3.  Accept predictions as truth (can be done without human review via below script or by the User within label studio by submit button)
-	4.	Optionally trigger evaluation between prediction and ground truth
+1. **Open the frontend**  
+	Go to: [http://localhost:5173](http://localhost:5173)
 
+2. **Upload your docs** (PDF → HTML conversion)  
+   Page: **Upload & Convert** (`/`)  
+   - Choose or type a folder name  
+   - Select PDFs and click **Upload & Convert**  
+   - You can monitor status and cancel a running job
 
+3. **Create a new project** in Label Studio  
+   Page: **Create Project** (`/project`)  
+   - Save your Label Studio token  
+   - Enter project name, questions, and labels  
+   - Create the project (ML backend gets attached automatically)
 
+4. **Upload your tasks into the project**  
+   Page: **Upload Tasks** (`/tasks`)  
+   - Pick the project name  
+   - Select the HTML folder (from step 2)  
+   - Upload tasks to Label Studio
 
-🧱 1. Frontend Tech Stack
+5. **Start AI prelabeling**  
+   Page: **Start Prelabeling** (`/prelabelling`)  
+   - (Select LLM, system prompt, and the project)  
+   - Start prelabeling and monitor status (cancel if needed)
 
-Use any of the following (your choice):
-	•	React (recommended)
-	•	Svelte / Vue (if preferred)
-	•	Flask / FastAPI with Jinja templates (if you want it integrated directly)
+6. **Review the AI**  
+   Page: **Review in Label Studio** (`/review`)  
+   - Open Label Studio to validate/correct predictions
 
+7. **Get your results**  
+   Page: **Get Results** (`/results`)  
+   - Export validated annotations for downstream use
 
+---
 
+### ⏭️ Coming Soon
+8. **Evaluate the AI** (`/evaluate`)  
+   - Compare predictions vs. ground truth, see metrics
 
+9. **Fine-tune the AI** (`/finetune`) 
+   - Use your labeled data to improve model performance
 
-✅ Frontend Integration Guide for xtractyl
+---
 
-📦 Central Backend Scripts & Trigger Points
-
-
-🔄 Convert PDFs to HTML	
-curl -X POST http://localhost:5004/docling/convert-folder
-
-
-# Modell laden (falls nicht schon geladen)
-curl -X POST http://localhost:5001/load_models
-
-# Projekt anlegen
-curl -X POST http://localhost:5001/create_project
-
-# Tasks hochladen
-curl -X POST http://localhost:5001/upload_tasks
-
-# Vorlabeln
-curl -X POST http://localhost:5001/prelabel_project
-
-# Prelabels als Annotationen übernehmen
-curl -X POST http://localhost:5001/accept_predictions
-
-# Vergleichen mit anderem Projekt
-curl http://localhost:5001/compare_predictions
-
-# Finale Annotationen exportieren
-curl http://localhost:5001/export_annotations
-
-
-🗂 Required Files
-	•	.env in root – config for project IDs, token, model name, etc.
-	•	questions_and_labels.json in orchestrator/ – maps questions to label names for prelabeling
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-📝 additional Documentation:
+## 📝 Additional Documentation
 For more details on how to use Label Studio (e.g. reviewing annotations, submitting, filtering), visit:
 👉 https://labelstud.io/guide
 
-
-
-
-
-
-
-
-
+---
 
 ## 📝 Licensing & Attribution
 
-This project is released under the MIT License. It makes use of the following open-source components:
+This project is released under the **Xtractyl Non-Commercial License v1.1**.  
+It incorporates the following open-source components:
 
-- [Label Studio](https://github.com/heartexlabs/label-studio) (Apache-2.0)
-- [Docling](https://github.com/docling/docling) (MIT)
-- [Ollama](https://github.com/ollama/ollama) (MIT)
-- LLMs like Gemma, which are subject to their own terms from the model provider (e.g., Google)
+- [Label Studio](https://github.com/heartexlabs/label-studio) — Apache-2.0 License  
+- [Docling](https://github.com/docling/docling) — MIT License  
+- [Ollama](https://github.com/ollama/ollama) — MIT License  
+- Local LLMs such as Gemma, which are subject to their own license terms from the respective model providers (e.g., Google)
 
-Please check the [LICENSE](LICENSE) file for more details. 
+Please refer to the [LICENSE](LICENSE) file for the full license text.
