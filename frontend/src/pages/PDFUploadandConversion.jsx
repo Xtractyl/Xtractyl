@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import DinoLoader from "../components/DinoLoader.jsx";
 
 export default function PDFUploadAndConversion() {
   const [files, setFiles] = useState([]);
