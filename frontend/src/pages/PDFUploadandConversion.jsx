@@ -34,13 +34,23 @@ export default function PDFUploadAndConversion() {
       const res = await fetch(`http://localhost:5004/cancel_job/${jobId}`, {
         method: "POST",
       });
+  
+      if (res.status === 404) {
+        // Stale job: lokal aufräumen
+        localStorage.removeItem("doclingJobId");
+        setJobId(null);
+        setJobStatus(null);
+        setServerMsg("⚠️ Job not found on server (already finished or restarted).");
+        return;
+      }
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.error || `Cancel failed: ${res.status}`);
       }
-      // Optional: direkt local aufräumen – oder warten bis Polling "cancelled" sieht
-      // localStorage.removeItem("doclingJobId");
-      // setJobId(null);
+  
+      // Optimistisches UI-Update – Polling wird gleich "cancelled" bestätigen
+      setServerMsg("🛑 Cancel requested.");
+      setJobStatus((prev) => ({ ...(prev || {}), state: "cancelling", message: "cancel requested" }));
     } catch (e) {
       console.error(e);
       setServerMsg(`❌ ${e.message}`);
@@ -48,7 +58,7 @@ export default function PDFUploadAndConversion() {
       setCancelBusy(false);
     }
   };
-
+  
   useEffect(() => {
     if (!jobId) {
       const saved = localStorage.getItem("doclingJobId");
