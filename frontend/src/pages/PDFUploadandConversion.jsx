@@ -31,26 +31,33 @@ export default function PDFUploadAndConversion() {
     if (!jobId) return;
     setCancelBusy(true);
     try {
-      const res = await fetch(`http://localhost:5004/cancel_job/${jobId}`, {
-        method: "POST",
-      });
+      const res = await fetch(`http://localhost:5004/cancel_job/${jobId}`, { method: "POST" });
   
       if (res.status === 404) {
-        // Stale job: lokal aufräumen
+        // wirklich unbekannt
         localStorage.removeItem("doclingJobId");
         setJobId(null);
         setJobStatus(null);
-        setServerMsg("⚠️ Job not found on server (already finished or restarted).");
+        setServerMsg("⚠️ Job not found on server.");
         return;
       }
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || `Cancel failed: ${res.status}`);
+  
+      const data = await res.json();
+  
+      if (data.status === "already_finished") {
+        setServerMsg(`ℹ️ Job already ${data.state}.`);
+        localStorage.removeItem("doclingJobId");
+        setJobId(null);
+        return;
+      }
+      if (data.status === "cancel_requested") {
+        setServerMsg("🛑 Cancel requested.");
+        setJobStatus((prev) => ({ ...(prev || {}), state: "cancelling", message: "cancel requested" }));
+        return;
       }
   
-      // Optimistisches UI-Update – Polling wird gleich "cancelled" bestätigen
-      setServerMsg("🛑 Cancel requested.");
-      setJobStatus((prev) => ({ ...(prev || {}), state: "cancelling", message: "cancel requested" }));
+      // Fallback
+      setServerMsg("ℹ️ Cancel processed.");
     } catch (e) {
       console.error(e);
       setServerMsg(`❌ ${e.message}`);
@@ -58,7 +65,7 @@ export default function PDFUploadAndConversion() {
       setCancelBusy(false);
     }
   };
-  
+
   useEffect(() => {
     if (!jobId) {
       const saved = localStorage.getItem("doclingJobId");

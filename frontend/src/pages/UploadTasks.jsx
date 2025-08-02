@@ -20,10 +20,10 @@ export default function UploadTasksPage({ apiToken }) {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            project_name: projectName,
-            token: apiToken,
-            html_folder: htmlFolder
-          })
+          project_name: projectName,
+          token: apiToken,
+          html_folder: htmlFolder
+        })
       });
 
       if (!response.ok) {
@@ -56,6 +56,19 @@ export default function UploadTasksPage({ apiToken }) {
         >
           Upload HTML Tasks
         </button>
+
+        {/* Helper link to Label Studio */}
+        <div className="pt-2 border-t border-[#d8cfbd]">
+          <div className="text-sm font-medium mb-1">Forgot your project name?</div>
+          <a
+            href="http://localhost:8080/projects?pag=&page=1"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block text-[#6baa56] hover:underline"
+          >
+            Open Label Studio projects
+          </a>
+        </div>
 
         {status && <p className="mt-4 text-sm">{status}</p>}
       </div>

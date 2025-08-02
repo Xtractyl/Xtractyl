@@ -89,28 +89,28 @@ def job_log(job_id):
 @app.route("/cancel_job/<job_id>", methods=["POST"])
 def cancel_job(job_id):
     info = JOBS.get(job_id)
+    status = read_latest_status(job_id)  # kann None sein
+
     if not info:
+        # Job nicht im Speicher: war er schon fertig?
+        if status and status.get("state") in ("done", "error", "cancelled"):
+            return jsonify({
+                "status": "already_finished",
+                "state": status.get("state")
+            }), 200
+        # Sonst wirklich unbekannt
         return jsonify({"error": "unknown job_id"}), 404
 
-    # Signal an den Worker senden
+    # Laufenden Job abbrechen
     info["stop"].set()
-
-    # Falls Future noch nicht gestartet ist, versucht cancel() sie zu verhindern
     try:
         _ = info["future"].cancel()
     except Exception:
         pass
 
     append_log(job_id, "cancel requested via API")
-    # Sofort sichtbarer Status (Worker setzt danach 'cancelled', sobald er das Signal sieht)
-    write_status(
-        job_id,
-        state="cancelling",
-        progress=None,
-        total=None,
-        done=None,
-        message="cancel requested"
-    )
+    write_status(job_id, state="cancelling", progress=None, total=None, done=None,
+                 message="cancel requested")
 
     return jsonify({"status": "cancel_requested"}), 200
 
