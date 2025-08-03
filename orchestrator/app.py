@@ -10,26 +10,41 @@ Conventions
 - All responses are JSON.
 - Success wrapper: {"status": "success", "logs": <list|string|object>}
 - Error wrapper:   {"status": "error",   "error": "<message>"}
-- CORS is limited to the frontend origin.
+- CORS is limited to the configured frontend origin (see FRONTEND_ORIGIN).
+
+HTTP Statuses
+-------------
+- 200: Request handled successfully (even if the "logs" describe partial issues).
+- 4xx: Client error (missing fields, invalid input, not found).
+- 5xx: Unhandled exception or upstream service error.
 
 Endpoints (overview)
 --------------------
-POST /accept_predictions         -> Accept model predictions as final annotations.
-GET  /compare_predictions        -> Compare predictions with human annotations.
-POST /create_project             -> Create a Label Studio project + config.
-GET  /export_annotations         -> Export merged/final annotations.
-POST /load_models                -> Ensure Ollama models are available.
-POST /prelabel_project           -> Kick off pre‑labelling for a project.
-POST /upload_tasks               -> Upload HTML tasks to a project.
-GET  /health                     -> Liveness probe.
-POST /project_exists             -> Check if a project exists by title.
-GET  /list_html_subfolders       -> List available HTML subfolders on disk.
+Label Studio / pipeline orchestration:
+- POST /accept_predictions         -> Accept model predictions as final annotations.
+- GET  /compare_predictions        -> Compare predictions with human annotations.
+- POST /create_project             -> Create a Label Studio project + config.
+- GET  /export_annotations         -> Export merged/final annotations.
+- POST /load_models                -> Ensure Ollama models are available.
+- POST /prelabel_project           -> Kick off pre‑labelling for a project.
+- POST /upload_tasks               -> Upload HTML tasks to a project.
+
+Health / helpers:
+- GET  /health                     -> Liveness probe.
+- POST /project_exists             -> Check if a project exists by title.
+- GET  /list_html_subfolders       -> List available HTML subfolders on disk.
+
+Questions & Labels (Q&L) files:
+- GET  /list_projects              -> List project directories under data/projects.
+- GET  /list_qal_jsons             -> List *.json files for a given project.
+- GET  /preview_qal                -> Return the parsed JSON of a selected Q&L file.
 
 Notes
 -----
 - The `try_wrap` helper standardizes success/error JSON envelopes.
-- The `run_script` helper is available if a route needs to invoke a stand‑alone
-  Python script (currently not used by the routes below).
+- Q&L routes use a fixed base path: `data/projects/<project>/...` and validate
+  against path traversal.
+- Ports and allowed origins are defined as constants in this file.
 """
 
 from flask import Flask, jsonify, request
@@ -52,6 +67,10 @@ from routes.prelabel_complete_project import (
 from routes.upload_tasks import upload_tasks_main_from_payload
 from routes.check_project_exists import check_project_exists
 from routes.list_html_folders import list_html_subfolders
+from routes.questions_and_labels import (
+    list_projects_route,
+    list_qal_jsons_route,
+    preview_qal_route,)
 
 # --- Configuration constants (adjust here if needed) ---
 FRONTEND_ORIGIN = "http://localhost:5173"
@@ -205,6 +224,42 @@ def list_html_subfolders_route():
     """
     return list_html_subfolders()
 
+@app.route("/list_projects", methods=["GET"])
+def list_projects():
+    """
+    List project directories under data/projects.
+
+    Request:  No body.
+    Response: ["ProjectA", "ProjectB", ...]
+    """
+    return list_projects_route()
+
+
+@app.route("/list_qal_jsons", methods=["GET"])
+def list_qal_jsons():
+    """
+    List Questions & Labels JSON files inside a given project folder.
+
+    Query parameters:
+      - project: str (required)  // name of folder under data/projects
+
+    Response: ["questions_and_labels.json", "custom_qal.json", ...]
+    """
+    return list_qal_jsons_route()
+
+
+@app.route("/preview_qal", methods=["GET"])
+def preview_qal():
+    """
+    Preview (return) the parsed JSON content of a Q&L file for a project.
+
+    Query parameters:
+      - project: str (required)  // project folder name
+      - file:    str (required)  // JSON filename within that project
+
+    Response: <parsed JSON>  // dict or list, as stored in the file
+    """
+    return preview_qal_route()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=APP_PORT)
