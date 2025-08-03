@@ -1,5 +1,5 @@
 # Base image includes Python + Playwright (Ubuntu Jammy)
-FROM mcr.microsoft.com/playwright/python:v1.52.0-jammy
+FROM mcr.microsoft.com/playwright/python:v1.54.0-jammy ║
 
 # Application working directory inside the container
 WORKDIR /app
