@@ -7,10 +7,11 @@ const ORCH_BASE = "http://localhost:5001";   // Orchestrator (backend)
 const LS_BASE   = "http://localhost:8080";   // Label Studio
 
 export default function CreateProjectPage({ onTokenSave }) {
-  const [apiToken, setApiToken] = useState("");
+  const [apiToken, setApiToken] = useState(() => localStorage.getItem("lsToken") || "");
 
   const handleLocalTokenSave = (token) => {
     setApiToken(token);
+    try { localStorage.setItem("lsToken", token); } catch {}
     if (onTokenSave) onTokenSave(token);
   };
 

@@ -1,110 +1,139 @@
-import os
+# routes/prelabel_complete_project.py
 import time
 import requests
-from dotenv import load_dotenv
+import uuid
+import os
+import json
 
-load_dotenv()
+# --- Fixed base URLs / ports (no envs here) ---
+LABEL_STUDIO_URL = "http://labelstudio:8080"
+ML_BACKEND_URL   = "http://ml_backend:6789"
+PAGE_SIZE        = 100
 
-LABEL_STUDIO_URL = os.getenv("LABEL_STUDIO_URL", "http://labelstudio:8080")
-LABEL_STUDIO_TOKEN = os.getenv("LABEL_STUDIO_API_TOKEN")
-ML_BACKEND_URL = os.getenv("ML_BACKEND_URL", "http://ml-backend:6789")
-PROJECT_ID = os.getenv("LABEL_STUDIO_PROJECT_ID")
-MODEL_NAME = os.getenv("OLLAMA_MODEL", "gemma:latest").replace(":", "_")
-HEADERS = {"Authorization": f"Token {LABEL_STUDIO_TOKEN}"}
+def _resolve_project_id_by_title(title: str, token: str) -> int:
+    headers = {"Authorization": f"Token {token}"}
+    url = f"{LABEL_STUDIO_URL}/api/projects"
+    r = requests.get(url, headers=headers)
+    r.raise_for_status()
+    data = r.json()
+    projects = data if isinstance(data, list) else data.get("results") or data.get("projects") or []
+    for p in projects:
+        if p.get("title") == title:
+            return p["id"]
+    raise ValueError(f"Project '{title}' not found in Label Studio.")
 
-SAVE_PATH = f"/app/evaluation/{PROJECT_ID}"
-os.makedirs(SAVE_PATH, exist_ok=True)
-LOG_FILE = os.path.join(SAVE_PATH, f"{MODEL_NAME}_timing_log.txt")
-
-
-def get_tasks():
+def _get_tasks_without_predictions(project_id: int, token: str):
+    headers = {"Authorization": f"Token {token}"}
     page = 1
-    page_size = 100
     all_tasks = []
-
     while True:
-        url = f"{LABEL_STUDIO_URL}/api/projects/{PROJECT_ID}/tasks?page={page}&page_size={page_size}"
-        try:
-            response = requests.get(url, headers=HEADERS)
-            if response.status_code == 404:
-                break
-            response.raise_for_status()
-        except requests.exceptions.HTTPError:
+        url = f"{LABEL_STUDIO_URL}/api/projects/{project_id}/tasks?page={page}&page_size={PAGE_SIZE}"
+        r = requests.get(url, headers=headers)
+        if r.status_code == 404:
             break
-
-        page_tasks = response.json()
+        r.raise_for_status()
+        page_tasks = r.json()
         if not page_tasks:
             break
-
         all_tasks.extend(page_tasks)
         page += 1
+    return [t for t in all_tasks if not t.get("predictions")]
 
-    return [task for task in all_tasks if not task.get("predictions")]
+def _send_predict(task_id: int, html: str, job_id: str, model: str, system_prompt: str, token: str, questions_and_labels: dict):
+    payload = {
+        "config": {
+            "label_studio_url": LABEL_STUDIO_URL,
+            "ls_token": token,
+            "ollama_model": model,
+            "ollama_base": "http://ollama:11434",
+            "system_prompt": system_prompt,
+            "llm_timeout_seconds": "120"
+        },
+        "task": {"id": task_id, "data": {"html": html}},
+        "questions_and_labels": questions_and_labels
+    }
+    headers = {"X-Prelabel-Job": job_id}
+    return requests.post(f"{ML_BACKEND_URL}/predict", json=payload, headers=headers, timeout=1200)
 
-
-def send_predict(task_id, html):
-    payload = {"task": {"id": task_id}, "data": {"html": html}}
-    url = f"{ML_BACKEND_URL}/predict"
-    return requests.post(url, json=payload)
-
-
-def wait_until_prediction_saved(task_id, timeout=30):
+def _wait_until_prediction_saved(task_id: int, token: str, timeout: int = 30):
+    headers = {"Authorization": f"Token {token}"}
     start = time.time()
     while time.time() - start < timeout:
-        url = f"{LABEL_STUDIO_URL}/api/tasks/{task_id}"
-        response = requests.get(url, headers=HEADERS)
-        if response.status_code == 200 and response.json().get("predictions"):
+        r = requests.get(f"{LABEL_STUDIO_URL}/api/tasks/{task_id}", headers=headers)
+        if r.status_code == 200 and r.json().get("predictions"):
             return True
         time.sleep(1)
     return False
 
-
-def prelabel_complete_project_main():
+def prelabel_complete_project_main(payload: dict):
+    """
+    Synchronous pre‑label run based on explicit payload.
+    Expected payload:
+      - project_name: str
+      - model: str
+      - system_prompt: str
+      - qal_file: str
+      - token: str
+      - (optional) job_id: str
+    """
     logs = []
-    tasks = get_tasks()
+    for k in ("project_name", "model", "system_prompt", "qal_file", "token"):
+        if not payload.get(k):
+            raise ValueError(f"Missing field: {k}")
+
+    project_name  = payload["project_name"]
+    model         = payload["model"]
+    system_prompt = payload["system_prompt"]
+    token         = payload["token"]
+    qal_file      = payload["qal_file"]
+
+    # NEU: job_id vergeben (oder übergebenen Wert nutzen)
+    job_id = payload.get("job_id") or f"sync-{uuid.uuid4()}"
+
+    # NEU: Q&A-Konfiguration aus Datei laden
+    qal_path = os.path.join("data", "projects", project_name, qal_file)
+    if not os.path.exists(qal_path):
+        raise FileNotFoundError(f"Questions & Labels file not found: {qal_path}")
+    with open(qal_path, encoding="utf-8") as f:
+        questions_and_labels = json.load(f)
+
+    project_id = _resolve_project_id_by_title(project_name, token)
+    logs.append(f"[INFO] Using project '{project_name}' (id={project_id}).")
+
+    tasks = _get_tasks_without_predictions(project_id, token)
     logs.append(f"[INFO] Found {len(tasks)} tasks without predictions.")
 
-    total_time = 0
+    total_time = 0.0
     durations = []
 
-    with open(LOG_FILE, "w", encoding="utf-8") as log:
-        log.write(f"📋 Timing Log for Project {PROJECT_ID}, Model: {MODEL_NAME}\n")
-        log.write(f"Total tasks: {len(tasks)}\n\n")
+    for t in tasks:
+        task_id = t["id"]
+        html = t.get("data", {}).get("html")
+        if not html:
+            logs.append(f"[WARN] Task {task_id} has no HTML. Skipping.")
+            continue
 
-        for task in tasks:
-            task_id = task["id"]
-            html = task["data"].get("html")
+        start = time.time()
+        r = _send_predict(
+            task_id, html, job_id=job_id, model=model,
+            system_prompt=system_prompt, token=token,
+            questions_and_labels=questions_and_labels
+        )
+        logs.append(f"[SEND] Task {task_id} → /predict: {r.status_code}")
 
-            if not html:
-                logs.append(f"[WARN] Task {task_id} has no HTML. Skipping.")
-                continue
+        ok = _wait_until_prediction_saved(task_id, token)
+        dt = time.time() - start
+        durations.append(dt)
+        total_time += dt
+        status = "ok" if ok else "timeout"
+        logs.append(f"[TIME] Task {task_id} finished in {round(dt, 2)}s ({status}).")
 
-            start = time.time()
-            response = send_predict(task_id, html)
-            logs.append(f"[SEND] Task {task_id} → Predict: {response.status_code}")
+    if durations:
+        avg = total_time / len(durations)
+        logs.append(f"[SUMMARY] Processed: {len(durations)} tasks | Total: {round(total_time,2)}s | Avg: {round(avg,2)}s")
 
-            success = wait_until_prediction_saved(task_id)
-            duration = time.time() - start
-            durations.append(duration)
-            total_time += duration
+    # Optional: am Ende die job_id loggen
+    logs.append(f"[JOB] job_id={job_id}")
 
-            logs.append(f"[TIME] Task {task_id} finished in {round(duration, 2)} seconds")
-            log.write(f"Task {task_id}: {round(duration, 2)} seconds\n")
-
-        if durations:
-            avg_time = total_time / len(durations)
-            log.write("\n📈 Summary:\n")
-            log.write(f"Total processed: {len(durations)} tasks\n")
-            log.write(f"Total time: {round(total_time, 2)} seconds\n")
-            log.write(f"Average per task: {round(avg_time, 2)} seconds\n")
-
-    logs.append(f"📄 Timing log saved to {LOG_FILE}")
     return logs
 
-
-def prelabel_complete_project_main_wrapper():
-    return prelabel_complete_project_main()
-
-if __name__ == "__main__":
-    for line in prelabel_complete_project_main():
-        print(line)

@@ -65,10 +65,8 @@ services:
     depends_on:
       - labelstudio
       - ollama
-    env_file:
-      - ./orchestrator/.env
     volumes:
-      - ./orchestrator/questions_and_labels.json:/app/questions_and_labels.json
+      - ./logs:/logs
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:6789/health"]
       interval: 10s

@@ -13,6 +13,7 @@ export default function QuestionsAndLabelsPicker({
   const [preview, setPreview] = useState(null);
   const [previewErr, setPreviewErr] = useState("");
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [questionsAndLabels, setQuestionsAndLabels] = useState(null);
 
   useEffect(() => {
     if (!projectName) {
@@ -55,6 +56,31 @@ export default function QuestionsAndLabelsPicker({
       setPreviewErr(e.message || "Failed to load preview");
     }
   };
+  const handleFileSelect = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    const text = await file.text();
+    try {
+      const json = JSON.parse(text);
+      onChange(projectName, file.name, json); // <- übergib auch das JSON
+    } catch (err) {
+      alert("Invalid JSON file.");
+    }
+  };
+
+  const handleDropdownSelect = async (fileName) => {
+    if (!fileName || !projectName) return;
+    try {
+      const res = await fetch(
+        `${apiBase}/preview_qal?project=${encodeURIComponent(projectName)}&file=${encodeURIComponent(fileName)}`
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      onChange(projectName, fileName, json);
+    } catch (err) {
+      alert("❌ Failed to load file content.");
+    }
+  };
 
   return (
     <div className="space-y-2">
@@ -62,7 +88,7 @@ export default function QuestionsAndLabelsPicker({
       <div className="flex gap-2">
         <select
           value={selectedFile || ""}
-          onChange={(e) => onChange(projectName, e.target.value)}
+          onChange={(e) => handleDropdownSelect(e.target.value)}
           className="w-full p-2 border rounded"
           disabled={!projectName || loading}
         >
