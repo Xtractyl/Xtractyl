@@ -1,4 +1,4 @@
-# Xtractyl Non-Commercial License v1.1
+# Xtractyl Non-Commercial License v1.2
 
 Copyright (c) 2025 Christof Dücker and Thomas Walawgo
 
@@ -35,7 +35,11 @@ use, copy, modify, and distribute it, solely for Non-Commercial Use, subject to 
      you are compensated.  
    - “Non-Commercial Use” means any use that is not Commercial Use, including personal, academic, 
      research, or internal evaluation use by individuals, non-profit organizations, or educational 
-     institutions without receiving monetary compensation related to the use of the Software.
+     institutions without receiving monetary compensation related to the use of the Software.  
+   - **Clarification**: The determination of whether a use qualifies as "Non-Commercial Use" shall, 
+     in cases of doubt, be confirmed in writing by the copyright holders. Public research institutions, 
+     government agencies, and non-profit organizations **may** be classified as "Non-Commercial Use" 
+     under a separate agreement.
 
 6. Patents.  
    No patent rights are granted under this license.
