@@ -116,7 +116,11 @@ For more details on how to use Label Studio (e.g. reviewing annotations, submitt
 
 ---
 
-## 📝 Licensing & Attribution
+## 📝 Disclaimer / Licensing & Attribution
+
+
+This project is a private, non-commercial initiative developed independently during personal time.  
+It has no connection to any employer or professional affiliation and is provided as-is for research and experimentation.
 
 This project is released under the **Xtractyl Non-Commercial License v1.1**.  
 It incorporates the following open-source components:
