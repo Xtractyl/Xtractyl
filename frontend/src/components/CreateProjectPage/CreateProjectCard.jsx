@@ -1,6 +1,6 @@
 import { useState } from "react";
-import TokenInput from "../TokenInput";
-import CreateProjectForm from "../CreateProjectForm";
+import TokenInput from "./TokenInput";
+import CreateProjectForm from "./CreateProjectForm";
 
 const ORCH_BASE = "http://localhost:5001"; // Orchestrator (backend)
 const LS_BASE   = "http://localhost:8080"; // Label Studio
