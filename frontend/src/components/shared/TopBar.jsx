@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import logo from '../assets/xtractyl_dinosaur_with_transparent_background.png'
+import logo from '../../assets/xtractyl_dinosaur_with_transparent_background.png'
 import { ChevronRight } from 'lucide-react' // falls du Lucide-Icons nutzt
 
 export default function TopBar() {

@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout';
+import Layout from './components/shared/Layout';
 import UploadandConversionPage from './pages/PDFUploadandConversion.jsx';
 import CreateProjectPage from './pages/CreateProject.jsx';
 import UploadTasksPage from './pages/UploadTasks.jsx';
