@@ -1,6 +1,6 @@
 // src/components/UploadTasks/UploadTasksCard.jsx
 import React, { useState } from "react";
-import ProjectNameInput from "./ProjectNameInput";
+import ProjectNameInput from "../shared/ProjectNameInput";
 import HtmlFolderSelect from "./HTMLFolderSelect";
 
 const ORCH_BASE = "http://localhost:5001";  // Orchestrator backend
