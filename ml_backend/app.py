@@ -2,7 +2,6 @@ import json
 import logging
 import os
 import pathlib
-import pprint
 import re
 import unicodedata
 import uuid
@@ -12,14 +11,22 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from playwright.sync_api import sync_playwright
 
+# ----------------------------------
+# Toggle for full DOM logging
+# ----------------------------------
+LOG_FULL_DOM = False  # <--- set to False to disable full DOM dump
 
 # ----------------------------------
-# Basic logging to console
+# Logging
 # ----------------------------------
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s [%(levelname)s] %(message)s")
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": ["http://localhost:8080", "http://localhost:5173"]}}, supports_credentials=True)
+CORS(
+    app,
+    resources={r"/*": {"origins": ["http://localhost:8080", "http://localhost:5173"]}},
+    supports_credentials=True,
+)
 
 # ----------------------------------
 # Central + per-job logging
@@ -29,7 +36,6 @@ JOBS_DIR = os.path.join(LOG_DIR, "ml_backend_jobs")
 os.makedirs(LOG_DIR, exist_ok=True)
 os.makedirs(JOBS_DIR, exist_ok=True)
 
-# General file log
 general_logfile = os.path.join(LOG_DIR, "ml_backend.log")
 _fh = logging.FileHandler(general_logfile, encoding="utf-8")
 _fh.setLevel(logging.DEBUG)
@@ -44,69 +50,180 @@ def _job_log_paths(job_id: str | None):
         return {
             "payload": os.path.join(base, "prediction_payload.log"),
             "timeouts": os.path.join(base, "timeout_tasks.log"),
+            "dom_dump": os.path.join(base, "dom_dump.jsonl"),
         }
     else:
         return {
             "payload": os.path.join(LOG_DIR, "prediction_payload.log"),
             "timeouts": os.path.join(LOG_DIR, "timeout_tasks.log"),
+            "dom_dump": os.path.join(LOG_DIR, "dom_dump.jsonl"),
         }
 
 # ----------------------------------
-# Utilities
+# Normalization helpers
 # ----------------------------------
-def normalize_text(text):
-    if not isinstance(text, str):
-        return ""
-    return unicodedata.normalize("NFKC", text).replace("\n", "").strip()
+def _norm_char(c: str) -> str:
+    # char-wise normalization without strip so lengths map correctly
+    return (
+        unicodedata.normalize("NFKC", c)
+        .replace("\u00AD", "")    # soft hyphen
+        .replace("\u00A0", " ")   # NBSP -> space
+        .replace("\r", "")
+        .replace("\n", "")
+    )
 
-def get_offset_in_original(original_text, normalized_target, start_in_normalized):
-    norm = ""
-    orig_index = 0
-    match_start, match_end = None, None
-    while orig_index < len(original_text):
-        c = original_text[orig_index]
-        norm_c = unicodedata.normalize("NFKC", c)
-        norm += norm_c
-        if match_start is None and len(norm) > start_in_normalized:
-            match_start = orig_index
-        if len(norm) >= start_in_normalized + len(normalized_target):
-            match_end = orig_index + 1
-            break
-        orig_index += 1
-    if match_start is not None and match_end is not None:
-        candidate = original_text[match_start:match_end]
-        if normalize_text(candidate) == normalized_target:
-            return match_start, match_end
-    return None, None
+def build_norm_index(original_text: str):
+    """
+    Returns (norm_text, index_map)
+    index_map[j] = original index for the j-th character in norm_text.
+    """
+    norm_parts = []
+    index_map = []
+    for i, ch in enumerate(original_text):
+        n = _norm_char(ch)
+        if not n:
+            continue
+        norm_parts.append(n)
+        for _ in range(len(n)):
+            index_map.append(i)
+    return "".join(norm_parts), index_map
 
-def clean_xpath(raw_xpath):
+def normalize_text_block(text: str) -> str:
+    # block normalization used for answers (trim OK)
+    return (
+        unicodedata.normalize("NFKC", text or "")
+        .replace("\u00AD", "")
+        .replace("\u00A0", " ")
+        .replace("\r", "")
+        .replace("\n", "")
+        .strip()
+    )
+
+def clean_xpath(raw_xpath: str) -> str:
     raw_xpath = re.sub(r"^/html(\[1\])?/body(\[1\])?", "", raw_xpath)
     raw_xpath = re.sub(r"/text\(\)\[1\]$", "", raw_xpath)
     if not raw_xpath.startswith("/"):
         raw_xpath = "/" + raw_xpath
     return raw_xpath
 
+# ----------------------------------
+# DOM extraction (raw + normalized + index_map)
+# ----------------------------------
+def extract_dom_with_chromium(html: str):
+    """
+    Returns list of dicts:
+      {
+        "xpath": str,
+        "raw": original textContent,
+        "content": normalized text,
+        "index_map": list[int] mapping normalized indices -> original indices
+      }
+    """
+    extracted = []
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page()
+        page.set_content(html, wait_until="domcontentloaded")
+
+        elements = page.query_selector_all("body *")
+        for el in elements:
+            try:
+                raw_text = page.evaluate("el => el.textContent", el) or ""
+                norm_text, index_map = build_norm_index(raw_text)
+                if not norm_text:
+                    continue
+
+                xpath = page.evaluate(
+                    """el => {
+                        function getXPath(e) {
+                            if (e.id) return '//*[@id="' + e.id + '"]';
+                            if (e === document.body) return '/html/body';
+                            let ix = 1;
+                            const siblings = e.parentNode ? e.parentNode.childNodes : [];
+                            for (let i = 0; i < siblings.length; i++) {
+                                const s = siblings[i];
+                                if (s === e) return getXPath(e.parentNode) + '/' + e.tagName.toLowerCase() + '[' + ix + ']';
+                                if (s.nodeType === 1 && s.tagName === e.tagName) ix++;
+                            }
+                            return '';
+                        }
+                        return getXPath(el);
+                    }""",
+                    el,
+                )
+                cleaned_xpath = clean_xpath(xpath)
+                extracted.append({
+                    "xpath": cleaned_xpath,
+                    "raw": raw_text,
+                    "content": norm_text,
+                    "index_map": index_map,
+                })
+            except Exception:
+                continue
+
+        browser.close()
+    return extracted
+
+# ----------------------------------
+# Matching
+# ----------------------------------
 def extract_xpath_matches_from_dom(dom_data, answers):
+    """
+    dom_data: list of {"xpath", "raw", "content", "index_map"}
+    answers:  list of {"question", "label", "answer"}
+    """
     matches, diagnostics = [], []
-    dom_data_sorted = sorted(dom_data, key=lambda el: len(el.get("content", "")))
-    for ans in answers:
+
+    logging.debug("🔎 Starting DOM matching: %d DOM blocks, %d answers", len(dom_data), len(answers))
+
+    # sort by normalized content length asc (tighter nodes first)
+    dom_sorted = sorted(dom_data, key=lambda el: len(el.get("content") or ""))
+
+    for idx, ans in enumerate(answers, start=1):
         if not ans["answer"] or ans["answer"] in ("<no answer>", "<keine Antwort>"):
             continue
-        normalized_answer = normalize_text(ans["answer"])
+
+        normalized_answer = normalize_text_block(ans["answer"])
+        logging.debug(
+            "🧩 [%d] Label=%s | normalized_answer=%r (len=%d)",
+            idx, ans["label"], normalized_answer, len(normalized_answer)
+        )
+
         found_match = False
-        for el in dom_data_sorted:
-            content = el.get("content", "")
-            xpath = el.get("xpath", "")
+        for el in dom_sorted:
+            content = el.get("content") or ""
+            xpath = el.get("xpath") or ""
             if not content or not xpath:
                 continue
-            normalized_content = normalize_text(content)
-            offset_norm = normalized_content.find(normalized_answer)
+
+            offset_norm = content.find(normalized_answer)
             if offset_norm == -1:
                 continue
-            start_offset, end_offset = get_offset_in_original(content, normalized_answer, offset_norm)
-            if start_offset is None:
-                diagnostics.append({"label": ans["label"], "xpath": xpath, "reason": "Offset mapping failed"})
+
+            index_map = el.get("index_map") or []
+            if not index_map or offset_norm + len(normalized_answer) - 1 >= len(index_map):
+                diagnostics.append({
+                    "label": ans["label"],
+                    "xpath": xpath,
+                    "reason": "Index map missing/short"
+                })
+                logging.debug(
+                    "❌ [%d] Index map missing/short | xpath=%s | offset_norm=%d | ans_len=%d | map_len=%d",
+                    idx, xpath, offset_norm, len(normalized_answer), len(index_map)
+                )
                 continue
+
+            start_orig = index_map[offset_norm]
+            end_orig = index_map[offset_norm + len(normalized_answer) - 1] + 1  # slice end exclusive
+
+            if start_orig is None or end_orig is None or start_orig < 0 or end_orig <= start_orig:
+                diagnostics.append({"label": ans["label"], "xpath": xpath, "reason": "Offset mapping failed"})
+                logging.debug(
+                    "❌ [%d] Offset mapping failed | xpath=%s | offset_norm=%d | start_orig=%s | end_orig=%s",
+                    idx, xpath, offset_norm, start_orig, end_orig
+                )
+                continue
+
             matches.append({
                 "id": str(uuid.uuid4()),
                 "from_name": "label",
@@ -116,18 +233,31 @@ def extract_xpath_matches_from_dom(dom_data, answers):
                 "value": {
                     "start": xpath,
                     "end": xpath,
-                    "startOffset": start_offset,
-                    "endOffset": end_offset,
+                    "startOffset": start_orig,
+                    "endOffset": end_orig,
                     "labels": [ans["label"]],
                     "text": ans["answer"],
                 },
             })
+            logging.debug(
+                "✅ [%d] Match | xpath=%s | start_orig=%d | end_orig=%d | norm_offset=%d",
+                idx, xpath, start_orig, end_orig, offset_norm
+            )
             found_match = True
             break
+
         if not found_match:
             diagnostics.append({"label": ans["label"], "reason": "Not found in any content block"})
+            logging.debug("🔍 [%d] No match for label=%s | normalized_answer=%r", idx, ans["label"], normalized_answer)
+
+    logging.info("🧾 Match summary: %d matches, %d diagnostics", len(matches), len(diagnostics))
+    if diagnostics:
+        logging.debug("🧪 Diagnostics: %s", json.dumps(diagnostics, ensure_ascii=False))
     return matches, diagnostics
 
+# ----------------------------------
+# LS, model, LLM
+# ----------------------------------
 def save_predictions_to_labelstudio(params, task_id, prediction_result):
     url = params["label_studio_url"]
     token = params["ls_token"]
@@ -185,47 +315,12 @@ def ask_llm_with_timeout(params, prompt: str, timeout: int, model_name: str):
         logging.error(f"❌ Timeout or error while calling LLM: {e}")
         return "<no answer>"
 
-def extract_dom_with_chromium(html: str):
-    extracted = []
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
-        page.set_content(html, wait_until="domcontentloaded")
-        elements = page.query_selector_all("body *")
-        for el in elements:
-            try:
-                text = el.inner_text().strip()
-                if not text:
-                    continue
-                xpath = page.evaluate(
-                    """el => {
-                        function getXPath(e) {
-                            if (e.id) return '//*[@id="' + e.id + '"]';
-                            if (e === document.body) return '/html/body';
-                            let ix = 1;
-                            const siblings = e.parentNode ? e.parentNode.childNodes : [];
-                            for (let i = 0; i < siblings.length; i++) {
-                                const s = siblings[i];
-                                if (s === e) return getXPath(e.parentNode) + '/' + e.tagName.toLowerCase() + '[' + ix + ']';
-                                if (s.nodeType === 1 && s.tagName === e.tagName) ix++;
-                            }
-                            return '';
-                        }
-                        return getXPath(el);
-                    }""",
-                    el,
-                )
-                cleaned_xpath = clean_xpath(xpath)
-                extracted.append({"xpath": cleaned_xpath, "content": text})
-            except Exception:
-                continue
-        browser.close()
-    return extracted
-
+# ----------------------------------
+# Routes
+# ----------------------------------
 @app.route("/predict", methods=["POST"])
 def predict():
     data = request.get_json() or {}
-    # Extract config entirely from payload
     params = data.get("config", {})
     required = ["label_studio_url", "ls_token", "ollama_model", "ollama_base", "system_prompt", "llm_timeout_seconds"]
     missing = [r for r in required if r not in params]
@@ -236,17 +331,18 @@ def predict():
     job_paths = _job_log_paths(job_id)
     prediction_payload_path = job_paths["payload"]
     timeout_log_path = pathlib.Path(job_paths["timeouts"])
+    dom_dump_path = pathlib.Path(job_paths["dom_dump"])
 
-    # select task object
+    # task object
     task_obj = data.get("task") or (data.get("tasks") or [{}])[0]
     task_id = task_obj.get("id") or task_obj.get("pk") or task_obj.get("task_id") or data.get("task_id") or data.get("id")
     if not task_id:
         return jsonify({"error": "task id missing"}), 400
 
-    # get HTML content
+    # HTML
     html_content = ""
     d = (task_obj.get("data") or data.get("data") or {})
-    for k in ("html", "text", "content", "raw"):  # try common keys
+    for k in ("html", "text", "content", "raw"):
         if isinstance(d.get(k), str) and d[k].strip():
             html_content = d[k]
             break
@@ -255,33 +351,67 @@ def predict():
     if not html_content:
         return jsonify({"error": "HTML content missing"}), 400
 
-    # Extract and predict
+    # Extract DOM
     dom_data = extract_dom_with_chromium(html_content)
 
-    # Load QA config from request
+    # Full DOM dump (toggle)
+    if LOG_FULL_DOM:
+        try:
+            with open(dom_dump_path, "a", encoding="utf-8") as f:
+                for node in dom_data:
+                    f.write(json.dumps(node, ensure_ascii=False) + "\n")
+            logging.info("🗂️ Full DOM dumped to %s (%d nodes)", str(dom_dump_path), len(dom_data))
+        except Exception as e:
+            logging.error("❌ Failed to write DOM dump: %s", e)
+
+    # Always write compact DOM summary to main log
+    try:
+        logging.debug(
+            "📚 DOM summary: %s",
+            json.dumps(
+                [{"xpath": n["xpath"], "raw_len": len(n["raw"]), "norm_len": len(n["content"])} for n in dom_data],
+                ensure_ascii=False,
+            ),
+        )
+    except Exception:
+        pass
+
+    # Q&L
     qa_config = data.get("questions_and_labels") or {}
     questions = qa_config.get("questions", [])
     labels = qa_config.get("labels", [])
-    
     if not questions or not labels:
         return jsonify({"error": "questions_and_labels must include both 'questions' and 'labels'."}), 400
-    questions, labels = qa_config.get("questions", []), qa_config.get("labels", [])
+
+    # Plain text for LLM
     puretext = BeautifulSoup(html_content, "html.parser").get_text("\n", strip=True)
 
+    # LLM answers
     answers, timed_out = [], False
     for q, lab in zip(questions, labels):
         prompt = f"{params['system_prompt']}\n\nQuestion: {q}\n\nText: {puretext}"
-        output = ask_llm_with_timeout(params, prompt, timeout=int(params['llm_timeout_seconds']), model_name=params['ollama_model'])
+        output = ask_llm_with_timeout(
+            params,
+            prompt,
+            timeout=int(params["llm_timeout_seconds"]),
+            model_name=params["ollama_model"],
+        )
         if output == "<no answer>":
             timed_out = True
-            with open(timeout_log_path, "a", encoding="utf-8") as f:
-                f.write(f"{task_id}: {q}\n")
+            try:
+                with open(timeout_log_path, "a", encoding="utf-8") as f:
+                    f.write(f"{task_id}: {q}\n")
+            except Exception:
+                pass
         answers.append({"question": q, "label": lab, "answer": None if output == "<no answer>" else output})
-    logging.info(f"🧠 Answers from LLM: {json.dumps(answers, indent=2, ensure_ascii=False)}")
+
+    logging.info("🧠 Answers from LLM: %s", json.dumps(answers, indent=2, ensure_ascii=False))
+
+    # Match
     prelabels, diagnostics = extract_xpath_matches_from_dom(dom_data, answers)
 
     # Log payload
-    payload_for_log = {"task": task_id, "model_version": params['ollama_model'], "result": prelabels}
+    payload_for_log = {"task": task_id, "model_version": params["ollama_model"], "result": prelabels}
     with open(prediction_payload_path, "a", encoding="utf-8") as f:
         f.write(json.dumps(payload_for_log, indent=2, ensure_ascii=False) + "\n")
 
@@ -289,10 +419,16 @@ def predict():
     save_predictions_to_labelstudio(params, task_id, prelabels)
 
     return jsonify({
-        "results": [{"model_version": params['ollama_model'], "score": 1.0, "result": prelabels}],
-        "meta": {"answers": answers, "diagnostics": diagnostics, "status": "timeout" if timed_out else "success", "task_id": task_id, "job_id": job_id}
+        "results": [{"model_version": params["ollama_model"], "score": 1.0, "result": prelabels}],
+        "meta": {
+            "answers": answers,
+            "diagnostics": diagnostics,
+            "status": "timeout" if timed_out else "success",
+            "task_id": task_id,
+            "job_id": job_id
+        }
     }), 200
-    
+
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "UP"}), 200
