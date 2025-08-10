@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import ModelDownloadInput from "../components/ModelDownloadInput";
 import ModelPicker from "../components/ModelPicker";
 import SystemPromptInput from "../components/SystemPromptInput";
-import ProjectNameInput from "../components/ProjectNameInput";
+import ProjectNameInput from "../components/UploadTasksPage/ProjectNameInput";
 import QuestionsAndLabelsPicker from "../components/QuestionsAndLabelsPicker";
 
 const OLLAMA_BASE = "http://localhost:11434";
