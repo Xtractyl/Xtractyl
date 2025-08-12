@@ -1,3 +1,9 @@
+## Work in Progress
+
+The results page is still missing.  
+The backend requires optimization for accuracy and speed, now that iterative testing is possible via the frontend.  
+Both backend and frontend are at the early stages of refactoring.
+
 # 🦕 Xtractyl – Extract structured data from messy medical PDFs
 
 **Xtractyl** is a modular, local, human-in-the-loop AI pipeline that searches unstructured PDF documents for specific cases in your data and builds a structured database from them.  
