@@ -51,10 +51,7 @@ See the [LICENSE](LICENSE) file for full terms.
 ### 1. Requirements
 Before installing Xtractyl, ensure you have the following installed on your system:
 
-- **Docker** & **Docker Compose**
-- **Node.js** (v20 or later)
-- **Python** (v3.10 or later)
-- **Ollama** (for running local LLMs) → [Ollama installation guide](https://ollama.com/download)
+- **Docker** 
 
 ---
 
