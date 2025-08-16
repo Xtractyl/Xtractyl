@@ -7,6 +7,7 @@ import QuestionsAndLabelsPicker from "./QuestionsAndLabelsPicker";
 
 const OLLAMA_BASE = "http://localhost:11434";
 const API_BASE = "http://localhost:5001";
+const LS_BASE = "http://localhost:8080";
 
 export default function StartPrelabellingCard() {
   const [model, setModel] = useState(() => localStorage.getItem("ollamaModel") || "");
@@ -27,6 +28,7 @@ export default function StartPrelabellingCard() {
   const [preStatus, setPreStatus] = useState(null);
   const [busy, setBusy] = useState(false);
   const [statusMsg, setStatusMsg] = useState("");
+  const [token, setToken] = useState("");  
 
   useEffect(() => { try { localStorage.setItem("ollamaModel", model || ""); } catch {} }, [model]);
   useEffect(() => { try { localStorage.setItem("xtractylSystemPrompt", systemPrompt || ""); } catch {} }, [systemPrompt]);
@@ -38,20 +40,19 @@ export default function StartPrelabellingCard() {
     setQuestionsAndLabels(json);
   };
 
-  const canStart = !!projectName && !!model && !!systemPrompt.trim() && !!qalFile && !preJobId;
+  const canStart = !!projectName && !!model && !!systemPrompt.trim() && !!qalFile && !!token && !preJobId;
 
   const handleStart = async () => {
     if (!canStart) return;
     setBusy(true);
     setStatusMsg("");
     try {
-      const lsToken = localStorage.getItem("lsToken") || "";
       const payload = {
         project_name: projectName,
         model,
         system_prompt: systemPrompt,
         qal_file: qalFile,
-        token: lsToken,
+        token,
         questions_and_labels: questionsAndLabels 
       };
       const res = await fetch(`${API_BASE}/prelabel_project`, {
@@ -136,6 +137,7 @@ export default function StartPrelabellingCard() {
       </div>
 
       <div className="space-y-6 bg-[#ede6d6] p-6 rounded shadow max-w-3xl">
+        {/* Project name */}
         <ProjectNameInput value={projectName} onChange={setProjectName} />
         <div className="text-sm text-gray-600 -mt-2">
           <div>Forgot your project name?</div>
@@ -147,6 +149,46 @@ export default function StartPrelabellingCard() {
           >
             Open Label Studio projects
           </a>
+        </div>
+
+        {/* Token helper + Eingabe */}
+        <div>
+          <a
+            href={`${LS_BASE}/user/account`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block bg-[#db7127] text-white text-base font-medium px-5 py-2 rounded shadow hover:bg-orange-600 transition"
+          >
+            Get your legacy token
+          </a>
+          <p className="mt-2 text-sm text-gray-500">
+            Return here after copying the token from Label Studio.
+          </p>
+          <p className="mt-1 text-sm text-gray-500">
+            ⚠️ If you see no legacy token there, go to{" "}
+            <a
+              href={`${LS_BASE}/organization`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#6baa56] hover:underline"
+            >
+              {LS_BASE}/organization
+            </a>{" "}
+            and enable it via the API Tokens settings.
+          </p>
+        </div>
+
+        <div className="mt-3">
+          <label className="block text-sm font-medium mb-1">Label Studio Token</label>
+          <input
+            type="text"
+            value={token}
+            onChange={(e) => setToken(e.target.value)}
+            placeholder="Paste your legacy API token"
+            className="w-full border rounded px-3 py-2"
+            autoComplete="off"
+            spellCheck={false}
+          />
         </div>
 
         <ModelPicker
