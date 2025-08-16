@@ -10,7 +10,7 @@ export default function ReviewAICard() {
         </p>
   
         <a
-          href={`${LS_BASE}/projects/${PROJECT_ID}`}
+          href={`${LS_BASE}/projects/`}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-block bg-xtractyl-orange text-white text-base font-medium px-5 py-2 rounded shadow hover:bg-orange-600 transition"
