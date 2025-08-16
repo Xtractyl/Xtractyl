@@ -20,6 +20,13 @@ services:
       - postgres
     volumes:
       - labelstudio_data:/data  
+    environment:
+    - DATABASE=postgres
+    - POSTGRE_NAME=labelstudio
+    - POSTGRE_USER=postgres
+    - POSTGRE_PASSWORD=yourpass
+    - POSTGRE_PORT=5432
+    - POSTGRE_HOST=postgres
 
   postgres:
     image: postgres:15
