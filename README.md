@@ -56,7 +56,7 @@ Before installing Xtractyl, ensure you have the following installed on your syst
 ---
 
 ### 2. Installation
-Clone the repository and start the Docker containers:
+Clone the repository copy the .env.example to the orchestrator directory and name it .env then start the Docker containers:
 
 ```bash
 git clone https://github.com/<your-username>/xtractyl.git
