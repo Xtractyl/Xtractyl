@@ -64,6 +64,10 @@ cd xtractyl
 docker compose up --build
 ```
 
+you need the label studio legacy token for xtraxtyl NOT the personal access token
+go here: http://localhost:8080/organization?page=1
+go on API Tokens Settings there
+and enable legacy token there
 
 ---
 

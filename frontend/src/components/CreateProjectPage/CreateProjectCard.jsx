@@ -70,8 +70,20 @@ export default function CreateProjectCard({ onTokenSave }) {
           >
             Get your legacy token
           </a>
-          <p className="mt-4 text-sm text-gray-500">
-            Return to this tab after copying the token.
+          <p className="mt-2 text-sm text-gray-500">
+            Return here after copying the token from Label Studio.
+          </p>
+          <p className="mt-1 text-sm text-gray-500">
+            ⚠️ If you see no legacy token there, go to{" "}
+            <a
+              href={`${LS_BASE}/organization`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#6baa56] hover:underline"
+            >
+              {LS_BASE}/organization
+            </a>{" "}
+            and enable it via the API Tokens settings.
           </p>
         </div>
 
