@@ -59,7 +59,6 @@ Before installing Xtractyl, ensure you have the following installed on your syst
 Clone the repository then start the Docker containers:
 
 Name your database, user and password in root in the docker-compose.yml file
-and provide a secret key
 password, username and dbname have to be identical for postgres and labelstudio
 
 
