@@ -66,21 +66,19 @@ password, username and dbname have to be identical for postgres and labelstudio
 in root in the docker-compose.yml file under 
 
 postgres:
+    environment:
+      POSTGRES_DB: dbname
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: yourpassword
+ 
 
-POSTGRES_DB: dbname
-POSTGRES_USER: username
-POSTGRES_PASSWORD: yourpassword
-
-
-in root in the docker-compose.yml file under 
+and under: 
 
 labelstudio:
-
-POSTGRE_USER: username
-POSTGRE_PASSWORD: yourpassword
-POSTGRE_DB: dbname
-SECRET_KEY: randomlongpassword
-
+    environment:
+      - POSTGRE_NAME=dbname
+      - POSTGRE_USER=username
+      - POSTGRE_PASSWORD=yourpassword
 
 
 ```bash

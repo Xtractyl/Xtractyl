@@ -40,12 +40,12 @@ services:
     volumes:
       - labelstudio_data:/label-studio/data
     environment:
-      POSTGRE_HOST: postgres
-      POSTGRE_USER: username
-      POSTGRE_PASSWORD: yourpassword
-      POSTGRE_DB: dbname
-      LABEL_STUDIO_COPY_STATIC_DATA: "true"
-      SECRET_KEY: randomlongpassword
+      - DJANGO_DB=default
+      - POSTGRE_NAME=dbname
+      - POSTGRE_USER=username
+      - POSTGRE_PASSWORD=yourpassword
+      - POSTGRE_PORT=5432
+      - POSTGRE_HOST=postgres
 
   orchestrator:
     build:
