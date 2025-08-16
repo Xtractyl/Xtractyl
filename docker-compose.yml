@@ -11,23 +11,6 @@ services:
     environment:
       - ROLLUP_USE_NODE_BUILTINS=true
 
-  labelstudio:
-    image: heartexlabs/label-studio:latest
-    container_name: labelstudio
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
-    volumes:
-      - labelstudio_data:/data  
-    environment:
-    - DATABASE=postgres
-    - POSTGRE_NAME=labelstudio
-    - POSTGRE_USER=postgres
-    - POSTGRE_PASSWORD=yourpass
-    - POSTGRE_PORT=5432
-    - POSTGRE_HOST=postgres
-
   postgres:
     image: postgres:15
     container_name: postgres
@@ -36,6 +19,33 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: dbname
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: yourpassword
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U username -d dbname"]
+      interval: 5s
+      retries: 5
+      timeout: 5s
+
+  labelstudio:
+    image: heartexlabs/label-studio:latest
+    container_name: labelstudio
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - labelstudio_data:/label-studio/data
+    environment:
+      POSTGRE_HOST: postgres
+      POSTGRE_USER: username
+      POSTGRE_PASSWORD: yourpassword
+      POSTGRE_DB: dbname
+      LABEL_STUDIO_COPY_STATIC_DATA: "true"
+      SECRET_KEY: randomlongpassword
 
   orchestrator:
     build:
@@ -55,7 +65,7 @@ services:
       - ./data/htmls:/app/data/htmls
       - ./evaluation:/app/evaluation
       - ./logs:/logs 
-      
+
   ml_backend:
     build:
       context: .
