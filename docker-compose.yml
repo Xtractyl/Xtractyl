@@ -7,7 +7,7 @@ services:
       - "5173:5173"
     volumes:
       - ./frontend:/app
-      - /app/node_modules #verhindert mount des node_modules Ordners aus frontend
+      - /app/node_modules 
     environment:
       - ROLLUP_USE_NODE_BUILTINS=true
 
