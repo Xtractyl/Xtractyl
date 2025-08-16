@@ -433,5 +433,10 @@ def predict():
 def health():
     return jsonify({"status": "UP"}), 200
 
+# required from label studio for registration
+@app.route("/setup", methods=["GET", "POST"])
+def setup():
+    return jsonify({"status": "ok"})
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=6789, debug=True)
