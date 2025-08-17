@@ -1,20 +1,15 @@
-import { useState } from "react";
+import useFormState from "../../hooks/CreateProjectPage/useFormState.js";
+import useError from "../../hooks/CreateProjectPage/useError.js";
+import useSplitLines from "../../hooks/CreateProjectPage/useSplitLines.js";
 
 export default function CreateProjectForm({ onSubmit }) {
-  const [title, setTitle] = useState("");
-  const [questions, setQuestions] = useState("");
-  const [labels, setLabels] = useState("");
-  const [error, setError] = useState("");
-
-  const splitLines = (v) =>
-    v
-      .split("\n")
-      .map((s) => s.trim())
-      .filter(Boolean);
+  const { title, setTitle, questions, setQuestions, labels, setLabels, resetForm } = useFormState();
+  const { error, setError, clearError } = useError();
+  const { splitLines } = useSplitLines();
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    setError("");
+    clearError();
 
     const parsedQuestions = splitLines(questions);
     const parsedLabels = splitLines(labels);
@@ -25,23 +20,12 @@ export default function CreateProjectForm({ onSubmit }) {
     }
 
     if (parsedLabels.length !== parsedQuestions.length) {
-      setError(
-        `Questions (${parsedQuestions.length}) and labels (${parsedLabels.length}) must have the same count.`
-      );
+      setError(`Questions (${parsedQuestions.length}) and labels (${parsedLabels.length}) must have the same count.`);
       return;
     }
 
-    // Pass everything to the parent component
-    onSubmit({
-      title: title.trim(),
-      questions: parsedQuestions,
-      labels: parsedLabels,
-    });
-
-    // Optional reset
-    setTitle("");
-    setQuestions("");
-    setLabels("");
+    onSubmit({ title: title.trim(), questions: parsedQuestions, labels: parsedLabels });
+    resetForm();
   };
 
   return (
@@ -66,9 +50,7 @@ export default function CreateProjectForm({ onSubmit }) {
           placeholder="e.g., What is the patient ID?"
           className="w-full px-3 py-2 border rounded"
         />
-        <p className="mt-1 text-xs text-gray-600">
-          {splitLines(questions).length} question(s)
-        </p>
+        <p className="mt-1 text-xs text-gray-600">{splitLines(questions).length} question(s)</p>
       </div>
 
       <div>
@@ -80,17 +62,12 @@ export default function CreateProjectForm({ onSubmit }) {
           placeholder="e.g., Patient ID"
           className="w-full px-3 py-2 border rounded"
         />
-        <p className="mt-1 text-xs text-gray-600">
-          {splitLines(labels).length} label(s)
-        </p>
+        <p className="mt-1 text-xs text-gray-600">{splitLines(labels).length} label(s)</p>
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <button
-        type="submit"
-        className="bg-xtractyl-green text-white px-4 py-2 rounded hover:bg-green-700 transition"
-      >
+      <button type="submit" className="bg-xtractyl-green text-white px-4 py-2 rounded hover:bg-green-700 transition">
         Create project
       </button>
     </form>

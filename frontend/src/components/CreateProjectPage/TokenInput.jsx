@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 
+const LS_BASE = "http://localhost:8080"; // <- hier deine Basis-URL
+
 export default function TokenInput({ onTokenSave }) {
   const [token, setToken] = useState("");
 
-  // Prefill from localStorage if available
   useEffect(() => {
     const saved = localStorage.getItem("apiToken");
     if (saved) setToken(saved);
@@ -14,13 +15,12 @@ export default function TokenInput({ onTokenSave }) {
     const trimmed = token.trim();
     if (!trimmed) return;
 
-    // Pass token up to the parent (App.jsx) and persist locally
     onTokenSave?.(trimmed);
     localStorage.setItem("apiToken", trimmed);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 bg-beige rounded shadow w-full">
+    <form onSubmit={handleSubmit} className="p-4 bg-beige rounded shadow w-full space-y-4">
       <label htmlFor="ls-token" className="block text-sm font-medium mb-2">
         Enter your Label Studio legacy token
       </label>
@@ -40,6 +40,33 @@ export default function TokenInput({ onTokenSave }) {
       >
         Save Token
       </button>
+
+      {/* Token helper + Eingabe */}
+      <div className="mt-4">
+        <a
+          href={`${LS_BASE}/user/account`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block bg-[#db7127] text-white text-base font-medium px-5 py-2 rounded shadow hover:bg-orange-600 transition"
+        >
+          Get your legacy token
+        </a>
+        <p className="mt-2 text-sm text-gray-500">
+          Return here after copying the token from Label Studio.
+        </p>
+        <p className="mt-1 text-sm text-gray-500">
+          ⚠️ If you see no legacy token there, go to{" "}
+          <a
+            href={`${LS_BASE}/organization`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#6baa56] hover:underline"
+          >
+            {LS_BASE}/organization
+          </a>{" "}
+          and enable it via the API Tokens settings.
+        </p>
+      </div>
     </form>
   );
 }
