@@ -4,6 +4,13 @@ The results page is still missing.
 The backend requires optimization for accuracy and speed, now that iterative testing is possible via the frontend.  
 Both backend and frontend are at the early stages of refactoring.
 
+## Project Management & Collaboration
+This project is managed using industry-standard tools:
+
+- [Jira Board (private, invitation only)](https://dueckerchristof.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog)  
+- [Miro Board (private, invitation only – link available on request)]
+
+
 # 🦕 Xtractyl – Extract structured data from messy medical PDFs
 
 **Xtractyl** is a modular, local, human-in-the-loop AI pipeline that searches unstructured PDF documents for specific cases in your data and builds a structured database from them.  
