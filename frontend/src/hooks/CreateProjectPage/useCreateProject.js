@@ -1,5 +1,4 @@
-import { checkProjectExistsAPI } from "../../api/CreateProjectPage/checkProjectExists";
-import { createProjectAPI } from "../../api/CreateProjectPage/createProject";
+import { checkProjectExistsAPI, createProjectAPI  } from "../../api/CreateProjectPage/api.js";
 
 export default function useCreateProject() {
   const createProject = async (data) => {
