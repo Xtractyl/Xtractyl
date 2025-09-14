@@ -1,4 +1,11 @@
 import React, { useState, useEffect } from "react";
+import {
+    listSubfolders,
+    listFiles,
+    uploadPdfs,
+    getJobStatus,
+    cancelJob
+  } from "../../api/PDFUploadAndConversionPage/api.js";
 
 // === API Base URLs ===
 const DOC_BASE = "http://localhost:5004"; // Docling backend
@@ -19,53 +26,49 @@ export default function UploadAndConvertCard() {
 
   // Fetch existing subfolders
   const fetchSubfolders = () => {
-    fetch(`${DOC_BASE}/list-subfolders`)
-      .then((res) => res.json())
+    listSubfolders()
       .then((data) => setExistingFolders(data))
       .catch(() => setExistingFolders([]));
   };
 
   // Fetch list of PDFs in a selected folder
   const fetchFilesInFolder = (folderName) => {
-    fetch(`${DOC_BASE}/list-files?folder=${encodeURIComponent(folderName)}`)
-      .then((res) => res.json())
+    listFiles(folderName)
       .then((data) => setFilesInSelectedFolder(data))
       .catch(() => setFilesInSelectedFolder([]));
   };
 
   // Cancel a running job
-  const handleCancel = async () => {
+const handleCancel = async () => {
     if (!jobId) return;
     setCancelBusy(true);
     try {
-      const res = await fetch(`${DOC_BASE}/cancel_job/${jobId}`, { method: "POST" });
-
-      if (res.status === 404) {
-        localStorage.removeItem("doclingJobId");
-        setJobId(null);
-        setJobStatus(null);
-        setServerMsg("⚠️ Job not found on server.");
-        return;
-      }
-
-      const data = await res.json();
-
+      const data = await cancelJob(jobId); // data ist schon das JSON
+  
       if (data.status === "already_finished") {
         setServerMsg(`ℹ️ Job already ${data.state}.`);
         localStorage.removeItem("doclingJobId");
         setJobId(null);
         return;
       }
+  
       if (data.status === "cancel_requested") {
         setServerMsg("🛑 Cancel requested.");
         setJobStatus((prev) => ({ ...(prev || {}), state: "cancelling", message: "cancel requested" }));
         return;
       }
-
+  
       setServerMsg("ℹ️ Cancel processed.");
     } catch (e) {
-      console.error(e);
-      setServerMsg(`❌ ${e.message}`);
+      if (e.status === 404) {
+        localStorage.removeItem("doclingJobId");
+        setJobId(null);
+        setJobStatus(null);
+        setServerMsg("⚠️ Job not found on server.");
+      } else {
+        console.error(e);
+        setServerMsg(`❌ ${e.message}`);
+      }
     } finally {
       setCancelBusy(false);
     }
@@ -101,32 +104,31 @@ export default function UploadAndConvertCard() {
     };
 
     const tick = async () => {
-      try {
-        const res = await fetch(`${DOC_BASE}/job_status/${jobId}`);
-        if (!res.ok) {
-          if (res.status === 404) {
+        try {
+          const s = await getJobStatus(jobId); // direktes JSON-Objekt
+      
+          setJobStatus(s);
+      
+          if (["done", "error", "cancelled"].includes(s.state)) {
+            localStorage.removeItem("doclingJobId");
+            setJobId(null);
+            return;
+          }
+          schedule();
+        } catch (e) {
+          if (e.status === 404) {
             // Stale jobId → clean up
             localStorage.removeItem("doclingJobId");
             setJobId(null);
             setJobStatus(null);
             return;
           }
+      
+          // alle anderen Fehler: einfach weiter pollen
           setJobStatus((s) => s ?? { state: "queued", message: "waiting…" });
-          return schedule();
+          schedule();
         }
-        const s = await res.json();
-        setJobStatus(s);
-
-        if (["done", "error", "cancelled"].includes(s.state)) {
-          localStorage.removeItem("doclingJobId");
-          setJobId(null);
-          return;
-        }
-        schedule();
-      } catch {
-        schedule();
-      }
-    };
+      };
 
     tick();
     return () => {
@@ -138,33 +140,20 @@ export default function UploadAndConvertCard() {
   const handleFileChange = (e) => setFiles([...e.target.files]);
   const handleFolderChange = (e) => setFolder(e.target.value.trim());
 
-  // Submit PDFs to the server
-  const handleSubmit = async (e) => {
+// Submit PDFs to the server
+const handleSubmit = async (e) => {
     e.preventDefault();
     setServerMsg("");
     if (!folder || files.length === 0) return;
-
-    const formData = new FormData();
-    formData.append("folder", folder);
-    for (const file of files) formData.append("files", file);
-
+  
     setSubmitBusy(true);
     try {
-      const res = await fetch(`${DOC_BASE}/uploadpdfs`, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (res.status !== 202) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || `Unexpected status ${res.status}`);
-      }
-
-      const data = await res.json();
+      const data = await uploadPdfs(files, folder); // API-Funktion nutzen
+  
       setJobId(data.job_id);
       localStorage.setItem("doclingJobId", data.job_id);
       setServerMsg(data.message || "accepted");
-
+  
       fetchSubfolders();
       fetchFilesInFolder(folder);
     } catch (err) {
