@@ -103,9 +103,18 @@ services:
       - ./data/pdfs:/pdfs
       - ./data/htmls:/htmls
       - ./logs:/logs  
+      - fontcache:/var/cache/fontconfig #keeping cache to reduce start time
+      - xdg_cache:/root/.cache
+      - xdg_data:/root/.local/share
+    environment:
+      - XDG_CACHE_HOME=/root/.cache #setting env variables to direct caching pathes 
+      - XDG_DATA_HOME=/root/.local/share
     command: ["flask", "run", "--host=0.0.0.0", "--port=5004"]
 
 volumes:
   labelstudio_data:
   pgdata:
   ollama_models:
+  fontcache:
+  xdg_cache:
+  xdg_data:
