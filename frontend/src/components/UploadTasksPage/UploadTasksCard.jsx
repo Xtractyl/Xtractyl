@@ -2,8 +2,8 @@
 import React, { useState } from "react";
 import ProjectNameInput from "../shared/ProjectNameInput";
 import HtmlFolderSelect from "./HTMLFolderSelect";
+import { uploadTasks } from "../../api/UploadTasksPage/api.js";
 
-const ORCH_BASE = "http://localhost:5001";  // Orchestrator backend
 const LS_BASE   = "http://localhost:8080";  // Label Studio
 
 export default function UploadTasksCard({ apiToken }) {
@@ -18,31 +18,22 @@ export default function UploadTasksCard({ apiToken }) {
       alert("Please provide all fields.");
       return;
     }
-
+  
     try {
       setBusy(true);
       setStatus(null);
-
-      const response = await fetch(`${ORCH_BASE}/upload_tasks`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          project_name: projectName,
-          token: localToken,
-          html_folder: htmlFolder,
-        }),
+  
+      const result = await uploadTasks({
+        projectName,
+        token: localToken,
+        htmlFolder,
       });
-
-      if (!response.ok) {
-        throw new Error(`Upload failed: ${response.status}`);
-      }
-
-      const result = await response.json();
+  
       console.log("✅ Upload success:", result);
       setStatus("✅ Tasks uploaded successfully.");
     } catch (error) {
       console.error("❌ Upload error:", error);
-      setStatus("❌ Upload failed. See console for details.");
+      setStatus(`❌ Upload failed. ${error.message || "See console for details."}`);
     } finally {
       setBusy(false);
     }

@@ -1,4 +1,4 @@
-// CreateProjectPage/api
+// api/CreateProjectPage/api.js
 
 const ORCH_BASE = "http://localhost:5001";
 
