@@ -1,5 +1,5 @@
 // api/UploadAndConversionPage/api.js
-const DOC_BASE = "http://localhost:5004";
+const DOC_BASE = import.meta.env.VITE_DOC_BASE || "http://localhost:5004";
 
 /** kleiner Fetch-Wrapper mit Timeout & konsistentem Error-Objekt */
 async function request(path, { method = "GET", headers, body, timeoutMs = 15000 } = {}) {
