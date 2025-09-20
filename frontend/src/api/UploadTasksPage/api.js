@@ -1,5 +1,5 @@
 // src/api/UploadTasks/api.js
-const ORCH_BASE = "http://localhost:5001";
+const ORCH_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001";
 
 /** POST /upload_tasks -> { ...result } */
 export async function uploadTasks({ projectName, token, htmlFolder }) {

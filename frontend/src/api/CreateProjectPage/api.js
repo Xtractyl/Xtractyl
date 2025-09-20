@@ -1,6 +1,6 @@
 // api/CreateProjectPage/api.js
 
-const ORCH_BASE = "http://localhost:5001";
+const ORCH_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001";
 
 export async function checkProjectExistsAPI(title) {
   const res = await fetch(`${ORCH_BASE}/project_exists`, {
