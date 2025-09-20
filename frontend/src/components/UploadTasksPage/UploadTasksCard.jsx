@@ -4,7 +4,7 @@ import ProjectNameInput from "../shared/ProjectNameInput";
 import HtmlFolderSelect from "./HTMLFolderSelect";
 import { uploadTasks } from "../../api/UploadTasksPage/api.js";
 
-const LS_BASE   = "http://localhost:8080";  // Label Studio
+const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080";
 
 export default function UploadTasksCard({ apiToken }) {
   const [projectName, setProjectName] = useState("");

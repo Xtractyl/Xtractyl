@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-// === API Base URLs ===
-const ORCH_BASE = "http://localhost:5001"; // Orchestrator backend
+const ORCH_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001";
 
 export default function HtmlFolderSelect({ selected, onChange }) {
   const [folders, setFolders] = useState([]);
