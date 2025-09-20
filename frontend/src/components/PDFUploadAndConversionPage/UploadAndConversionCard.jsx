@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { uploadPdfs, getJobStatus, cancelJob } from "../../api/PDFUploadAndConversionPage/api.js";
+// src/components/UploadAndConvertCard.jsx
+import React, { useState } from "react";
 import useSubfolders from "../../hooks/PDFUploadAndConversionPage/useSubfolders";
 import useFilesInFolder from "../../hooks/PDFUploadAndConversionPage/useFilesInFolder";
+import useJobManager from "../../hooks/PDFUploadAndConversionPage/useJobManager";
 
 export default function UploadAndConvertCard() {
-  // --- UI state ---
   const [files, setFiles] = useState([]);
   const [folder, setFolder] = useState("");
 
-  // --- moved into hooks ---
   const {
     existingFolders,
     loadingFolders,
@@ -16,132 +15,21 @@ export default function UploadAndConvertCard() {
     refreshSubfolders
   } = useSubfolders();
 
+  // ⬇️ existierende Ordner werden hier übergeben; optional: Debounce 300ms
   const {
     filesInSelectedFolder,
     loadingFiles,
     filesError,
     refreshFilesInFolder
-  } = useFilesInFolder(folder);
+  } = useFilesInFolder(folder, existingFolders, 300);
 
-  // --- job / server interaction state ---
-  const [jobId, setJobId] = useState(() => localStorage.getItem("doclingJobId"));
-  const [submitBusy, setSubmitBusy] = useState(false);
-  const [serverMsg, setServerMsg] = useState("");
-  const [jobStatus, setJobStatus] = useState(null);
-  const [cancelBusy, setCancelBusy] = useState(false);
-
-  // Cancel a running job
-  const handleCancel = async () => {
-    if (!jobId) return;
-    setCancelBusy(true);
-    try {
-      const data = await cancelJob(jobId);
-
-      if (data.status === "already_finished") {
-        setServerMsg(`ℹ️ Job already ${data.state}.`);
-        localStorage.removeItem("doclingJobId");
-        setJobId(null);
-        return;
-      }
-
-      if (data.status === "cancel_requested") {
-        setServerMsg("🛑 Cancel requested.");
-        setJobStatus((prev) => ({ ...(prev || {}), state: "cancelling", message: "cancel requested" }));
-        return;
-      }
-
-      setServerMsg("ℹ️ Cancel processed.");
-    } catch (e) {
-      if (e.status === 404) {
-        localStorage.removeItem("doclingJobId");
-        setJobId(null);
-        setJobStatus(null);
-        setServerMsg("⚠️ Job not found on server.");
-      } else {
-        console.error(e);
-        setServerMsg(`❌ ${e.message}`);
-      }
-    } finally {
-      setCancelBusy(false);
-    }
-  };
-
-  // Restore job id from localStorage if empty
-  useEffect(() => {
-    if (!jobId) {
-      const saved = localStorage.getItem("doclingJobId");
-      if (saved) setJobId(saved);
-    }
-  }, [jobId]);
-
-  // Poll job status
-  useEffect(() => {
-    if (!jobId) return;
-
-    let cancelled = false;
-    let timer = null;
-
-    const schedule = (ms = 1500) => {
-      if (!cancelled) timer = setTimeout(tick, ms);
-    };
-
-    const tick = async () => {
-      try {
-        const s = await getJobStatus(jobId);
-        setJobStatus(s);
-
-        if (["done", "error", "cancelled"].includes(s.state)) {
-          localStorage.removeItem("doclingJobId");
-          setJobId(null);
-          return;
-        }
-        schedule();
-      } catch (e) {
-        if (e.status === 404) {
-          localStorage.removeItem("doclingJobId");
-          setJobId(null);
-          setJobStatus(null);
-          return;
-        }
-        setJobStatus((s) => s ?? { state: "queued", message: "waiting…" });
-        schedule();
-      }
-    };
-
-    tick();
-    return () => {
-      cancelled = true;
-      if (timer) clearTimeout(timer);
-    };
-  }, [jobId]);
+  const {
+    jobId, jobStatus, serverMsg, submitBusy, cancelBusy,
+    handleSubmit, handleCancel, clearJob
+  } = useJobManager(folder, files, refreshSubfolders, refreshFilesInFolder);
 
   const handleFileChange = (e) => setFiles([...e.target.files]);
   const handleFolderChange = (e) => setFolder(e.target.value.trim());
-
-  // Submit PDFs to the server
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setServerMsg("");
-    if (!folder || files.length === 0) return;
-
-    setSubmitBusy(true);
-    try {
-      const data = await uploadPdfs(files, folder);
-
-      setJobId(data.job_id);
-      localStorage.setItem("doclingJobId", data.job_id);
-      setServerMsg(data.message || "accepted");
-
-      // Nach Upload: Ordner & Datei-Liste aktualisieren
-      refreshSubfolders();
-      refreshFilesInFolder(folder);
-    } catch (err) {
-      console.error(err);
-      setServerMsg(`❌ ${err.message}`);
-    } finally {
-      setSubmitBusy(false);
-    }
-  };
 
   return (
     <div className="p-6 bg-[#e6e2cf] min-h-screen text-[#23211c]">
@@ -235,6 +123,7 @@ export default function UploadAndConvertCard() {
         {serverMsg && <p className="text-sm mt-2">{serverMsg}</p>}
       </form>
 
+      {/* Status panel */}
       {jobId && jobStatus && (
         <div className="mt-4 bg-[#cdc0a3] p-4 rounded">
           <div className="font-medium mb-1">
@@ -256,6 +145,7 @@ export default function UploadAndConvertCard() {
         </div>
       )}
 
+      {/* Active job controls */}
       {jobId && (
         <div className="mt-6 bg-[#ede6d6] p-4 rounded">
           <div className="font-semibold">Active conversion job</div>
@@ -276,12 +166,7 @@ export default function UploadAndConvertCard() {
             <button
               type="button"
               className="px-3 py-2 rounded bg-gray-200 hover:bg-gray-300"
-              onClick={() => {
-                localStorage.removeItem("doclingJobId");
-                setJobId(null);
-                setServerMsg("");
-                setJobStatus(null);
-              }}
+              onClick={clearJob}
             >
               Clear Job ID (local)
             </button>
