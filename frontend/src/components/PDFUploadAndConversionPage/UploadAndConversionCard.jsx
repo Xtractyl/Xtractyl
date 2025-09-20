@@ -7,9 +7,6 @@ import {
     cancelJob
   } from "../../api/PDFUploadAndConversionPage/api.js";
 
-// === API Base URLs ===
-const DOC_BASE = "http://localhost:5004"; // Docling backend
-
 export default function UploadAndConvertCard() {
   // --- UI state ---
   const [files, setFiles] = useState([]);
