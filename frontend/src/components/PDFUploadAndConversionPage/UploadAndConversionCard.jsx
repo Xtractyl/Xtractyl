@@ -1,18 +1,27 @@
 import React, { useState, useEffect } from "react";
-import {
-    listSubfolders,
-    listFiles,
-    uploadPdfs,
-    getJobStatus,
-    cancelJob
-  } from "../../api/PDFUploadAndConversionPage/api.js";
+import { uploadPdfs, getJobStatus, cancelJob } from "../../api/PDFUploadAndConversionPage/api.js";
+import useSubfolders from "../../hooks/PDFUploadAndConversionPage/useSubfolders";
+import useFilesInFolder from "../../hooks/PDFUploadAndConversionPage/useFilesInFolder";
 
 export default function UploadAndConvertCard() {
   // --- UI state ---
   const [files, setFiles] = useState([]);
   const [folder, setFolder] = useState("");
-  const [existingFolders, setExistingFolders] = useState([]);
-  const [filesInSelectedFolder, setFilesInSelectedFolder] = useState([]);
+
+  // --- moved into hooks ---
+  const {
+    existingFolders,
+    loadingFolders,
+    foldersError,
+    refreshSubfolders
+  } = useSubfolders();
+
+  const {
+    filesInSelectedFolder,
+    loadingFiles,
+    filesError,
+    refreshFilesInFolder
+  } = useFilesInFolder(folder);
 
   // --- job / server interaction state ---
   const [jobId, setJobId] = useState(() => localStorage.getItem("doclingJobId"));
@@ -21,40 +30,26 @@ export default function UploadAndConvertCard() {
   const [jobStatus, setJobStatus] = useState(null);
   const [cancelBusy, setCancelBusy] = useState(false);
 
-  // Fetch existing subfolders
-  const fetchSubfolders = () => {
-    listSubfolders()
-      .then((data) => setExistingFolders(data))
-      .catch(() => setExistingFolders([]));
-  };
-
-  // Fetch list of PDFs in a selected folder
-  const fetchFilesInFolder = (folderName) => {
-    listFiles(folderName)
-      .then((data) => setFilesInSelectedFolder(data))
-      .catch(() => setFilesInSelectedFolder([]));
-  };
-
   // Cancel a running job
-const handleCancel = async () => {
+  const handleCancel = async () => {
     if (!jobId) return;
     setCancelBusy(true);
     try {
-      const data = await cancelJob(jobId); // data ist schon das JSON
-  
+      const data = await cancelJob(jobId);
+
       if (data.status === "already_finished") {
         setServerMsg(`ℹ️ Job already ${data.state}.`);
         localStorage.removeItem("doclingJobId");
         setJobId(null);
         return;
       }
-  
+
       if (data.status === "cancel_requested") {
         setServerMsg("🛑 Cancel requested.");
         setJobStatus((prev) => ({ ...(prev || {}), state: "cancelling", message: "cancel requested" }));
         return;
       }
-  
+
       setServerMsg("ℹ️ Cancel processed.");
     } catch (e) {
       if (e.status === 404) {
@@ -79,16 +74,6 @@ const handleCancel = async () => {
     }
   }, [jobId]);
 
-  // Load folders initially
-  useEffect(() => {
-    fetchSubfolders();
-  }, []);
-
-  // Load files when the selected folder changes
-  useEffect(() => {
-    if (folder) fetchFilesInFolder(folder);
-  }, [folder]);
-
   // Poll job status
   useEffect(() => {
     if (!jobId) return;
@@ -101,31 +86,27 @@ const handleCancel = async () => {
     };
 
     const tick = async () => {
-        try {
-          const s = await getJobStatus(jobId); // direktes JSON-Objekt
-      
-          setJobStatus(s);
-      
-          if (["done", "error", "cancelled"].includes(s.state)) {
-            localStorage.removeItem("doclingJobId");
-            setJobId(null);
-            return;
-          }
-          schedule();
-        } catch (e) {
-          if (e.status === 404) {
-            // Stale jobId → clean up
-            localStorage.removeItem("doclingJobId");
-            setJobId(null);
-            setJobStatus(null);
-            return;
-          }
-      
-          // alle anderen Fehler: einfach weiter pollen
-          setJobStatus((s) => s ?? { state: "queued", message: "waiting…" });
-          schedule();
+      try {
+        const s = await getJobStatus(jobId);
+        setJobStatus(s);
+
+        if (["done", "error", "cancelled"].includes(s.state)) {
+          localStorage.removeItem("doclingJobId");
+          setJobId(null);
+          return;
         }
-      };
+        schedule();
+      } catch (e) {
+        if (e.status === 404) {
+          localStorage.removeItem("doclingJobId");
+          setJobId(null);
+          setJobStatus(null);
+          return;
+        }
+        setJobStatus((s) => s ?? { state: "queued", message: "waiting…" });
+        schedule();
+      }
+    };
 
     tick();
     return () => {
@@ -137,22 +118,23 @@ const handleCancel = async () => {
   const handleFileChange = (e) => setFiles([...e.target.files]);
   const handleFolderChange = (e) => setFolder(e.target.value.trim());
 
-// Submit PDFs to the server
-const handleSubmit = async (e) => {
+  // Submit PDFs to the server
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setServerMsg("");
     if (!folder || files.length === 0) return;
-  
+
     setSubmitBusy(true);
     try {
-      const data = await uploadPdfs(files, folder); // API-Funktion nutzen
-  
+      const data = await uploadPdfs(files, folder);
+
       setJobId(data.job_id);
       localStorage.setItem("doclingJobId", data.job_id);
       setServerMsg(data.message || "accepted");
-  
-      fetchSubfolders();
-      fetchFilesInFolder(folder);
+
+      // Nach Upload: Ordner & Datei-Liste aktualisieren
+      refreshSubfolders();
+      refreshFilesInFolder(folder);
     } catch (err) {
       console.error(err);
       setServerMsg(`❌ ${err.message}`);
@@ -187,6 +169,9 @@ const handleSubmit = async (e) => {
           </datalist>
         </div>
 
+        {loadingFolders && <div className="text-sm">Loading folders…</div>}
+        {foldersError && <div className="text-sm text-red-600">Failed to load folders.</div>}
+
         {existingFolders.length > 0 && (
           <div className="mt-4 bg-[#ede6d6] p-4 rounded">
             <h3 className="font-semibold mb-2">Existing folders:</h3>
@@ -205,6 +190,9 @@ const handleSubmit = async (e) => {
             </ul>
           </div>
         )}
+
+        {loadingFiles && <div className="text-sm mt-2">Loading files…</div>}
+        {filesError && <div className="text-sm text-red-600 mt-2">Failed to load files.</div>}
 
         {filesInSelectedFolder.length > 0 && (
           <div className="mt-2 bg-[#ede6d6] p-4 rounded">
@@ -247,7 +235,6 @@ const handleSubmit = async (e) => {
         {serverMsg && <p className="text-sm mt-2">{serverMsg}</p>}
       </form>
 
-      {/* Status panel */}
       {jobId && jobStatus && (
         <div className="mt-4 bg-[#cdc0a3] p-4 rounded">
           <div className="font-medium mb-1">
@@ -269,7 +256,6 @@ const handleSubmit = async (e) => {
         </div>
       )}
 
-      {/* Active job controls */}
       {jobId && (
         <div className="mt-6 bg-[#ede6d6] p-4 rounded">
           <div className="font-semibold">Active conversion job</div>
