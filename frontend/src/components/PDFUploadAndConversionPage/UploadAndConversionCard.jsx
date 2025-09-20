@@ -15,7 +15,6 @@ export default function UploadAndConvertCard() {
     refreshSubfolders
   } = useSubfolders();
 
-  // ⬇️ existierende Ordner werden hier übergeben; optional: Debounce 300ms
   const {
     filesInSelectedFolder,
     loadingFiles,
