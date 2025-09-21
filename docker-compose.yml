@@ -4,111 +4,116 @@ services:
       context: ./frontend
       dockerfile: ../docker/frontend/Dockerfile
     ports:
-      - "5173:5173"
+      - "${FRONTEND_PORT:-5173}:5173"
     volumes:
       - ./frontend:/app
-      - /app/node_modules 
+      - /app/node_modules
     environment:
-      - ROLLUP_USE_NODE_BUILTINS=true
+      - ROLLUP_USE_NODE_BUILTINS=${ROLLUP_USE_NODE_BUILTINS:-true}
+      # Vite-Variablen fürs Frontend (ins Bundle injiziert)
+      - VITE_ORCH_BASE=${VITE_ORCH_BASE:-http://localhost:5001}
+      - VITE_DOC_BASE=${VITE_DOC_BASE:-http://localhost:5004}
+      - VITE_OLLAMA_BASE=${VITE_OLLAMA_BASE:-http://localhost:11434}
 
   postgres:
-    image: postgres:15
-    container_name: postgres
+    image: ${POSTGRES_IMAGE:-postgres:15}
+    container_name: ${POSTGRES_CONTAINER_NAME:-postgres}
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ${PGDATA_VOLUME:-pgdata}:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: dbname
-      POSTGRES_USER: username
-      POSTGRES_PASSWORD: yourpassword
+      POSTGRES_DB: ${POSTGRES_DB:-dbname}
+      POSTGRES_USER: ${POSTGRES_USER:-username}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-yourpassword}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U username -d dbname"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-username} -d ${POSTGRES_DB:-dbname}"]
       interval: 5s
       retries: 5
       timeout: 5s
 
   labelstudio:
-    image: heartexlabs/label-studio:latest
-    container_name: labelstudio
+    image: ${LABELSTUDIO_IMAGE:-heartexlabs/label-studio:latest}
+    container_name: ${LABELSTUDIO_CONTAINER_NAME:-labelstudio}
     ports:
-      - "8080:8080"
+      - "${LABELSTUDIO_PORT:-8080}:8080"
     depends_on:
       postgres:
         condition: service_healthy
     volumes:
-      - labelstudio_data:/label-studio/data
+      - ${LABELSTUDIO_DATA_VOLUME:-labelstudio_data}:/label-studio/data
     environment:
-      - DJANGO_DB=default
-      - POSTGRE_NAME=dbname
-      - POSTGRE_USER=username
-      - POSTGRE_PASSWORD=yourpassword
-      - POSTGRE_PORT=5432
-      - POSTGRE_HOST=postgres
+      - DJANGO_DB=${DJANGO_DB:-default}
+      - POSTGRE_NAME=${POSTGRES_DB:-dbname}
+      - POSTGRE_USER=${POSTGRES_USER:-username}
+      - POSTGRE_PASSWORD=${POSTGRES_PASSWORD:-yourpassword}
+      - POSTGRE_PORT=${POSTGRES_INTERNAL_PORT:-5432}
+      - POSTGRE_HOST=${POSTGRES_SERVICE_NAME:-postgres}
 
   orchestrator:
     build:
       context: .
       dockerfile: docker/orchestrator/Dockerfile
-    container_name: orchestrator
+    container_name: ${ORCH_CONTAINER_NAME:-orchestrator}
     depends_on:
       labelstudio:
         condition: service_started
       ml_backend:
         condition: service_healthy
     ports:
-      - "5001:5001"
+      - "${ORCH_PORT:-5001}:5001"
     volumes:
-      - ./orchestrator:/app
-      - ./data/projects:/app/data/projects 
-      - ./data/htmls:/app/data/htmls
-      - ./evaluation:/app/evaluation
-      - ./logs:/logs 
+      - ${ORCH_APP_DIR:-./orchestrator}:/app
+      - ${PROJECTS_DIR:-./data/projects}:/app/data/projects
+      - ${HTMLS_DIR:-./data/htmls}:/app/data/htmls
+      - ${EVAL_DIR:-./evaluation}:/app/evaluation
+      - ${LOGS_DIR:-./logs}:/logs
 
   ml_backend:
     build:
       context: .
       dockerfile: docker/ml_backend/Dockerfile
-    container_name: ml_backend
+    container_name: ${ML_BACKEND_CONTAINER_NAME:-ml_backend}
     ports:
-      - "6789:6789"
+      - "${ML_BACKEND_PORT:-6789}:6789"
     depends_on:
       - labelstudio
       - ollama
     volumes:
-      - ./logs:/logs
+      - ${LOGS_DIR:-./logs}:/logs
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6789/health"]
+      # intern hört der Dienst standardmäßig auf 6789; überschreibbar via ENV
+      test: ["CMD", "curl", "-f", "http://localhost:${ML_BACKEND_INTERNAL_PORT:-6789}/health"]
       interval: 10s
       timeout: 5s
       retries: 60
 
   ollama:
-    image: ollama/ollama
-    container_name: ollama
+    image: ${OLLAMA_IMAGE:-ollama/ollama}
+    container_name: ${OLLAMA_CONTAINER_NAME:-ollama}
     ports:
-      - "11434:11434"
+      - "${OLLAMA_PORT:-11434}:11434"
     volumes:
-      - ollama_models:/root/.ollama
+      - ${OLLAMA_MODELS_VOLUME:-ollama_models}:/root/.ollama
 
   docling:
     build:
       context: .
       dockerfile: docker/docling/Dockerfile
-    container_name: docling
+    container_name: ${DOCLING_CONTAINER_NAME:-docling}
     ports:
-      - "5004:5004"
+      - "${DOCLING_PORT:-5004}:5004"
     volumes:
-      - ./data/pdfs:/pdfs
-      - ./data/htmls:/htmls
-      - ./logs:/logs  
-      - fontcache:/var/cache/fontconfig #keeping cache to reduce start time
-      - xdg_cache:/root/.cache
-      - xdg_data:/root/.local/share
+      - ${PDFS_DIR:-./data/pdfs}:/pdfs
+      - ${DOC_HTMLS_DIR:-./data/htmls}:/htmls
+      - ${LOGS_DIR:-./logs}:/logs
+      - ${FONTCACHE_VOLUME:-fontcache}:/var/cache/fontconfig
+      - ${XDG_CACHE_VOLUME:-xdg_cache}:/root/.cache
+      - ${XDG_DATA_VOLUME:-xdg_data}:/root/.local/share
     environment:
-      - XDG_CACHE_HOME=/root/.cache #setting env variables to direct caching pathes 
-      - XDG_DATA_HOME=/root/.local/share
+      - XDG_CACHE_HOME=${XDG_CACHE_HOME:-/root/.cache}
+      - XDG_DATA_HOME=${XDG_DATA_HOME:-/root/.local/share}
     command: ["flask", "run", "--host=0.0.0.0", "--port=5004"]
 
 volumes:
