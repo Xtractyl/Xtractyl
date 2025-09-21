@@ -5,9 +5,10 @@ import uuid
 import os
 import json
 
-# --- Fixed base URLs / ports (no envs here) ---
-LABEL_STUDIO_URL = "http://labelstudio:8080"
-ML_BACKEND_URL   = "http://ml_backend:6789"
+# --- Base URLs / ports (read from env, with defaults) ---
+LABEL_STUDIO_URL = f"http://{os.getenv('LABELSTUDIO_CONTAINER_NAME', 'labelstudio')}:{os.getenv('LABELSTUDIO_PORT', '8080')}"
+ML_BACKEND_URL   = f"http://{os.getenv('ML_BACKEND_CONTAINER_NAME', 'ml_backend')}:{os.getenv('ML_BACKEND_PORT', '6789')}"
+
 PAGE_SIZE        = 100
 
 def _resolve_project_id_by_title(title: str, token: str) -> int:
