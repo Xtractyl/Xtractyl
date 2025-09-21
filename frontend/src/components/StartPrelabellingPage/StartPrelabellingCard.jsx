@@ -5,9 +5,9 @@ import SystemPromptInput from "./SystemPromptInput";
 import ProjectNameInput from "../shared/ProjectNameInput";
 import QuestionsAndLabelsPicker from "./QuestionsAndLabelsPicker";
 
-const OLLAMA_BASE = "http://localhost:11434";
-const API_BASE = "http://localhost:5001";
-const LS_BASE = "http://localhost:8080";
+const OLLAMA_BASE = import.meta.env.VITE_OLLAMA_BASE || "http://localhost:11434";
+const ORCH_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001";
+const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080";
 
 export default function StartPrelabellingCard() {
   const [model, setModel] = useState(() => localStorage.getItem("ollamaModel") || "");
@@ -55,7 +55,7 @@ export default function StartPrelabellingCard() {
         token,
         questions_and_labels: questionsAndLabels 
       };
-      const res = await fetch(`${API_BASE}/prelabel_project`, {
+      const res = await fetch(`${ORCH_BASE}/prelabel_project`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -73,7 +73,7 @@ export default function StartPrelabellingCard() {
   const handleCancel = async () => {
     if (!preJobId) return;
     try {
-      const res = await fetch(`${API_BASE}/prelabel/cancel/${preJobId}`, { method: "POST" });
+      const res = await fetch(`${ORCH_BASE}/prelabel/cancel/${preJobId}`, { method: "POST" });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
       setStatusMsg(
@@ -93,7 +93,7 @@ export default function StartPrelabellingCard() {
     };
     const tick = async () => {
       try {
-        const res = await fetch(`${API_BASE}/prelabel/status/${preJobId}`);
+        const res = await fetch(`${ORCH_BASE}/prelabel/status/${preJobId}`);
         if (!res.ok) {
           if (res.status === 404) {
             localStorage.removeItem("prelabelJobId");
@@ -205,7 +205,7 @@ export default function StartPrelabellingCard() {
         />
 
         <QuestionsAndLabelsPicker
-          apiBase={API_BASE}
+          apiBase={ORCH_BASE}
           projectName={projectName}
           selectedFile={qalFile}
           onChange={handleQalChange}

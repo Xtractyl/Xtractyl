@@ -1,7 +1,7 @@
 // src/components/ModelDownloadInput.jsx
 import React, { useState } from "react";
 
-const OLLAMA_BASE = "http://localhost:11434";
+const OLLAMA_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:11434";
 
 export default function ModelDownloadInput({
   ollamaBase = OLLAMA_BASE,

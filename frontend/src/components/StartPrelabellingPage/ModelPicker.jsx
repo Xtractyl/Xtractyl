@@ -1,8 +1,10 @@
 // src/components/ModelPicker.jsx
 import React, { useEffect, useState } from "react";
 
+const OLLAMA_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:11434";
+
 export default function ModelPicker({
-  ollamaBase = "http://localhost:11434",
+  ollamaBase = OLLAMA_BASE,  // ⬅️ Standardwert aus env
   selectedModel,
   onChange,
   refreshKey,

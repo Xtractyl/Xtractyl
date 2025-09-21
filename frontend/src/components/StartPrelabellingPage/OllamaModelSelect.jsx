@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 // ---- Base URLs (adjust in one place) ----
-const OLLAMA_BASE_URL = "http://localhost:11434";
+const OLLAMA_BASE = import.meta.env.VITE_OLLAMA_BASE || "http://localhost:11434";
 
 export default function OllamaModelSelect({ value, onChange }) {
   const [models, setModels] = useState([]);
@@ -12,7 +12,7 @@ export default function OllamaModelSelect({ value, onChange }) {
     setLoading(true);
     setErr("");
     try {
-      const res = await fetch(`${OLLAMA_BASE_URL}/api/tags`);
+      const res = await fetch(`${OLLAMA_BASE}/api/tags`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       // Shape: { models: [{ name, model, size, modified_at, ... }] }

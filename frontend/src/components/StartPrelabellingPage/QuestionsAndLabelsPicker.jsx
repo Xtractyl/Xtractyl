@@ -1,8 +1,10 @@
 // src/components/QuestionsAndLabelsPicker.jsx
 import React, { useEffect, useState } from "react";
 
+const ORCH_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001";
+
 export default function QuestionsAndLabelsPicker({
-  apiBase = "http://localhost:5001",
+  apiBase = ORCH_BASE,
   projectName,                 // required to list files
   selectedFile,
   onChange,                    // (projectName, fileName)
