@@ -21,10 +21,25 @@ LOG_FULL_DOM = False  # <--- set to False to disable full DOM dump
 # ----------------------------------
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s [%(levelname)s] %(message)s")
 
+PORT = int(os.getenv("ML_BACKEND_PORT", "6789"))
+
 app = Flask(__name__)
+
+def origin_from_env(prefix: str, default_port: int, default_host: str = "localhost") -> str:
+    origin = os.getenv(f"{prefix}_ORIGIN") or os.getenv(f"{prefix}_URL")
+    if origin:
+        return origin
+    host = os.getenv(f"{prefix}_HOST", default_host)
+    port = os.getenv(f"{prefix}_PORT", str(default_port))
+    scheme = os.getenv(f"{prefix}_SCHEME", "http")
+    return f"{scheme}://{host}:{port}"
+
+FRONTEND_ORIGIN = origin_from_env("FRONTEND_PORT", 5173)
+LABELSTUDIO_ORIGIN = origin_from_env("LABELSTUDIO_PORT", 8080)
+
 CORS(
     app,
-    resources={r"/*": {"origins": ["http://localhost:8080", "http://localhost:5173"]}},
+    resources={r"/*": {"origins": [FRONTEND_ORIGIN, LABELSTUDIO_ORIGIN]}},
     supports_credentials=True,
 )
 
@@ -439,4 +454,4 @@ def setup():
     return jsonify({"status": "ok"})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=6789, debug=True)
+    app.run(host="0.0.0.0", port=PORT, debug=True)
