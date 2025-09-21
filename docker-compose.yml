@@ -10,10 +10,7 @@ services:
       - /app/node_modules
     environment:
       - ROLLUP_USE_NODE_BUILTINS=${ROLLUP_USE_NODE_BUILTINS:-true}
-      # Vite-Variablen fürs Frontend (ins Bundle injiziert)
-      - VITE_ORCH_BASE=${VITE_ORCH_BASE:-http://localhost:5001}
-      - VITE_DOC_BASE=${VITE_DOC_BASE:-http://localhost:5004}
-      - VITE_OLLAMA_BASE=${VITE_OLLAMA_BASE:-http://localhost:11434}
+    working_dir: /app
 
   postgres:
     image: ${POSTGRES_IMAGE:-postgres:15}
