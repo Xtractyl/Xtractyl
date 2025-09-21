@@ -73,14 +73,18 @@ services:
       dockerfile: docker/ml_backend/Dockerfile
     container_name: ${ML_BACKEND_CONTAINER_NAME:-ml_backend}
     ports:
-      - "${ML_BACKEND_PORT:-6789}:6789"
+      - "${ML_BACKEND_PORT:-6789}:${ML_BACKEND_INTERNAL_PORT:-6789}"
     depends_on:
       - labelstudio
       - ollama
     volumes:
       - ${LOGS_DIR:-./logs}:/logs
+    environment:
+      - ML_BACKEND_PORT=${ML_BACKEND_PORT:-6789}
+      - ML_BACKEND_INTERNAL_PORT=${ML_BACKEND_INTERNAL_PORT:-6789}
+      - FRONTEND_PORT=${FRONTEND_PORT:-5173}
+      - LABELSTUDIO_PORT=${LABELSTUDIO_PORT:-8080}
     healthcheck:
-      # intern hört der Dienst standardmäßig auf 6789; überschreibbar via ENV
       test: ["CMD", "curl", "-f", "http://localhost:${ML_BACKEND_INTERNAL_PORT:-6789}/health"]
       interval: 10s
       timeout: 5s
