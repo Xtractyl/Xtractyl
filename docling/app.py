@@ -15,10 +15,12 @@ JOBS = {}
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:5173"])
 
+PORT = int(os.getenv("DOCLING_PORT", "5004"))
+
 # --- Paths / Logging ---
 PDF_DIR = "/pdfs"
 HTML_DIR = "/htmls"
-DOC_LOG_DIR = "/logs/docling"
+DOC_LOG_DIR = "/logs/docling_jobs"
 LOGFILE_PATH = "/logs/docling.log"
 os.makedirs(DOC_LOG_DIR, exist_ok=True)
 
@@ -178,5 +180,5 @@ def list_files_in_folder():
 
 
 if __name__ == "__main__":
-    logger.info("Starting Docling Flask server on 0.0.0.0:5004 …")
-    app.run(host="0.0.0.0", port=5004)
+    logger.info(f"Starting Docling Flask server on 0.0.0.0:{PORT} …")
+    app.run(host="0.0.0.0", port=PORT)

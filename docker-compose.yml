@@ -100,7 +100,7 @@ services:
       dockerfile: docker/docling/Dockerfile
     container_name: ${DOCLING_CONTAINER_NAME:-docling}
     ports:
-      - "${DOCLING_PORT:-5004}:5004"
+      - "${DOCLING_PORT:-5004}:${DOCLING_PORT:-5004}"
     volumes:
       - ${PDFS_DIR:-./data/pdfs}:/pdfs
       - ${DOC_HTMLS_DIR:-./data/htmls}:/htmls
@@ -111,7 +111,8 @@ services:
     environment:
       - XDG_CACHE_HOME=${XDG_CACHE_HOME:-/root/.cache}
       - XDG_DATA_HOME=${XDG_DATA_HOME:-/root/.local/share}
-    command: ["flask", "run", "--host=0.0.0.0", "--port=5004"]
+      - DOCLING_PORT=${DOCLING_PORT:-5004}
+    command: ["sh", "-c", "flask run --host=0.0.0.0 --port=$DOCLING_PORT"]
 
 volumes:
   labelstudio_data:

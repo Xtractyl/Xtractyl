@@ -21,4 +21,4 @@ COPY docling/ /app/
 EXPOSE 5004
 
 # Start Flask
-CMD ["flask", "--app", "app.py", "run", "--host=0.0.0.0", "--port=5004"]
+CMD ["sh", "-c", "flask --app app.py run --host=0.0.0.0 --port=${DOCLING_PORT:-5004}"]
