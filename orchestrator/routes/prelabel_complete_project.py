@@ -8,6 +8,7 @@ import json
 # --- Base URLs / ports (read from env, with defaults) ---
 LABEL_STUDIO_URL = f"http://{os.getenv('LABELSTUDIO_CONTAINER_NAME', 'labelstudio')}:{os.getenv('LABELSTUDIO_PORT', '8080')}"
 ML_BACKEND_URL   = f"http://{os.getenv('ML_BACKEND_CONTAINER_NAME', 'ml_backend')}:{os.getenv('ML_BACKEND_PORT', '6789')}"
+OLLAMA_BASE = os.getenv("OLLAMA_URL", f"http://{os.getenv('OLLAMA_CONTAINER_NAME', 'ollama')}:{os.getenv('OLLAMA_PORT', '11434')}")
 
 PAGE_SIZE        = 100
 
@@ -46,7 +47,7 @@ def _send_predict(task_id: int, html: str, job_id: str, model: str, system_promp
             "label_studio_url": LABEL_STUDIO_URL,
             "ls_token": token,
             "ollama_model": model,
-            "ollama_base": "http://ollama:11434",
+            "ollama_base": OLLAMA_BASE,
             "system_prompt": system_prompt,
             "llm_timeout_seconds": "120"
         },

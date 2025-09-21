@@ -3,9 +3,9 @@ import json
 import requests
 from datetime import datetime
 
-# === Base URLs / Ports (override via environment) ===
-LABEL_STUDIO_URL = os.getenv("LABEL_STUDIO_URL", "http://labelstudio:8080")
-ML_BACKEND_URL   = os.getenv("ML_BACKEND_URL",   "http://ml_backend:6789")
+# === Base URLs / Ports (resolve from env or defaults) ===
+LABEL_STUDIO_URL = f"http://{os.getenv('LABELSTUDIO_CONTAINER_NAME', 'labelstudio')}:{os.getenv('LABELSTUDIO_PORT', '8080')}"
+ML_BACKEND_URL   = f"http://{os.getenv('ML_BACKEND_CONTAINER_NAME', 'ml_backend')}:{os.getenv('ML_BACKEND_PORT', '6789')}"
 
 LOGFILE_PATH = "/logs/orchestrator.log"
 

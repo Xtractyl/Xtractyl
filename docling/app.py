@@ -13,7 +13,7 @@ from utils.job_files import write_status, append_log, read_latest_status
 JOBS = {}
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:5173"])
+CORS(app, origins=[f"http://localhost:{os.getenv('FRONTEND_PORT', '5173')}"])
 
 PORT = int(os.getenv("DOCLING_PORT", "5004"))
 

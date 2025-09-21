@@ -118,8 +118,8 @@ from routes.prelabel_jobs import start_job, read_status as read_prelabel_status,
 
 
 # --- Configuration constants (adjust here if needed) ---
-FRONTEND_ORIGIN = "http://localhost:5173"
-APP_PORT = 5001
+FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", f"http://localhost:{os.getenv('FRONTEND_PORT', '5173')}")
+APP_PORT = int(os.getenv("ORCH_PORT", "5001"))
 # -------------------------------------------------------
 
 app = Flask(__name__)
