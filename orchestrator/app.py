@@ -100,12 +100,8 @@ from flask_cors import CORS
 import os
 
 # Route implementations
-from routes.accept_predictions_as_annotations import accept_predictions_main
-from routes.compare_predictions_with_annotations import compare_predictions_main
 from routes.create_project import create_project_main_from_payload
-from routes.export_final_annotations import (
-    export_final_annotations_main_wrapper as export_final_annotations_main,
-)
+
 from routes.load_ollama_models import (
     load_ollama_models_main_wrapper as load_ollama_models_main,
 )
@@ -143,29 +139,6 @@ def try_wrap(fn):
     except Exception as e:
         return jsonify({"status": "error", "error": str(e)}), 500
 
-
-@app.route("/accept_predictions", methods=["POST"])
-def accept_predictions():
-    """
-    Accept model predictions as final annotations.
-
-    Request:  JSON body as required by `accept_predictions_main()`.
-    Response: {"status": "success", "logs": [...]}
-    """
-    return try_wrap(accept_predictions_main)
-
-
-@app.route("/compare_predictions", methods=["GET"])
-def compare_predictions():
-    """
-    Compare predictions with existing human annotations.
-
-    Request:  No body.
-    Response: {"status": "success", "logs": [...]}
-    """
-    return try_wrap(compare_predictions_main)
-
-
 @app.route("/create_project", methods=["POST"])
 def create_project():
     """
@@ -184,18 +157,6 @@ def create_project():
     """
     payload = request.get_json()
     return try_wrap(lambda: create_project_main_from_payload(payload))
-
-
-@app.route("/export_annotations", methods=["GET"])
-def export_annotations():
-    """
-    Export final/merged annotations from Label Studio.
-
-    Request:  No body.
-    Response: {"status": "success", "logs": [... or a path/export info ...]}
-    """
-    return try_wrap(export_final_annotations_main)
-
 
 @app.route("/load_models", methods=["POST"])
 def load_models():

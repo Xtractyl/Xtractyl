@@ -3,8 +3,11 @@ import logging
 import requests
 from flask import request, jsonify
 
-# === Base URLs / Ports (do NOT read from env) ===
-LABEL_STUDIO_URL = "http://labelstudio:8080"
+# === Base URLs / Ports (from env with defaults) ===
+LABELSTUDIO_HOST = os.getenv("LABELSTUDIO_CONTAINER_NAME", "labelstudio")
+LABELSTUDIO_PORT = os.getenv("LABELSTUDIO_PORT", "8080")
+LABEL_STUDIO_URL = f"http://{LABELSTUDIO_HOST}:{LABELSTUDIO_PORT}"
+
 BATCH_SIZE = 50
 
 # === Logging ===
