@@ -66,6 +66,8 @@ services:
       - ${HTMLS_DIR:-./data/htmls}:/app/data/htmls
       - ${EVAL_DIR:-./evaluation}:/app/evaluation
       - ${LOGS_DIR:-./logs}:/logs
+    environment:
+      - FRONTEND_PORT=${FRONTEND_PORT:-5173}
 
   ml_backend:
     build:
@@ -116,6 +118,7 @@ services:
       - XDG_CACHE_HOME=${XDG_CACHE_HOME:-/root/.cache}
       - XDG_DATA_HOME=${XDG_DATA_HOME:-/root/.local/share}
       - DOCLING_PORT=${DOCLING_PORT:-5004}
+      - FRONTEND_PORT=${FRONTEND_PORT:-5173}
     command: ["sh", "-c", "flask run --host=0.0.0.0 --port=$DOCLING_PORT"]
 
 volumes:
