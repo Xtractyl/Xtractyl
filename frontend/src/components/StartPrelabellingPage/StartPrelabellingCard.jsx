@@ -9,7 +9,7 @@ const OLLAMA_BASE = import.meta.env.VITE_OLLAMA_BASE || "http://localhost:11434"
 const ORCH_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001";
 const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080";
 
-export default function StartPrelabellingCard() {
+export default function StartPrelabellingCard({ apiToken }) {
   const [model, setModel] = useState(() => localStorage.getItem("ollamaModel") || "");
   const [refreshKey, setRefreshKey] = useState(0);
   const [systemPrompt, setSystemPrompt] = useState(
@@ -28,7 +28,7 @@ export default function StartPrelabellingCard() {
   const [preStatus, setPreStatus] = useState(null);
   const [busy, setBusy] = useState(false);
   const [statusMsg, setStatusMsg] = useState("");
-  const [token, setToken] = useState("");  
+  const [token, setToken] = useState(apiToken || ""); 
 
   useEffect(() => { try { localStorage.setItem("ollamaModel", model || ""); } catch {} }, [model]);
   useEffect(() => { try { localStorage.setItem("xtractylSystemPrompt", systemPrompt || ""); } catch {} }, [systemPrompt]);

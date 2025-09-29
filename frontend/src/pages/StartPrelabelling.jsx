@@ -1,5 +1,6 @@
 import StartPrelabellingCard from "../components/StartPrelabellingPage/StartPrelabellingCard";
 
-export default function StartPrelabellingPage() {
-  return <StartPrelabellingCard />;
+export default function StartPrelabellingPage({ apiToken }) {
+  return <StartPrelabellingCard apiToken={apiToken}/>;
 }
+

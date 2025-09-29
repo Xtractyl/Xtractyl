@@ -31,7 +31,7 @@ export default function App() {
           <Route path="/" element={<UploadandConversionPage />} />
           <Route path="/project" element={<CreateProjectPage onTokenSave={handleTokenSave} />} />
           <Route path="/tasks" element={<UploadTasksPage apiToken={apiToken} />} />
-          <Route path="/prelabelling" element={<StartPrelabellingPage />} />
+          <Route path="/prelabelling" element={<StartPrelabellingPage apiToken={apiToken}  />} />
           <Route path="/review" element={<ReviewAIPage />} />
           <Route path="/results" element={<GetResultsPage />} />
           <Route path="/evaluate" element={<EvaluateAIPage />} />
