@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
-
-const ORCH_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001";
+import { getHtmlSubfolders } from "../../api/UploadTasksPage/api.js"; 
 
 export default function HtmlFolderSelect({ selected, onChange }) {
   const [folders, setFolders] = useState([]);
 
   useEffect(() => {
-    fetch(`${ORCH_BASE}/list_html_subfolders`)
-      .then((res) => res.json())
-      .then((data) => setFolders(data))
+    getHtmlSubfolders()
+      .then(setFolders)
       .catch(() => setFolders([]));
   }, []);
 
