@@ -169,7 +169,6 @@ def load_models():
     return try_wrap(load_ollama_models_main)
 
 
-# app.py (orchestrator) – replace the existing /prelabel_project route
 @app.route("/prelabel_project", methods=["POST"])
 def prelabel_project():
     """
