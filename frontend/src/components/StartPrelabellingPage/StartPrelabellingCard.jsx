@@ -202,7 +202,6 @@ export default function StartPrelabellingCard({ apiToken }) {
         />
 
         <QuestionsAndLabelsPicker
-          apiBase={ORCH_BASE}
           projectName={projectName}
           selectedFile={qalFile}
           onChange={handleQalChange}

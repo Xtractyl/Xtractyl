@@ -1,6 +1,7 @@
 // src/api/StartPrelabellingPage/api.js
 
 const OLLAMA_BASE = import.meta.env.VITE_OLLAMA_BASE || "http://localhost:11434";
+const ORCH_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001"
 
 export async function pullModel(model, onProgress, baseUrl = OLLAMA_BASE) {
     const res = await fetch(`${baseUrl}/api/pull`, {
@@ -55,4 +56,21 @@ export async function listModels(baseUrl = OLLAMA_BASE) {
   return Array.isArray(data?.models)
     ? data.models.map((m) => m.model || m.name).filter(Boolean)
     : [];
+}
+
+
+export async function listQalJsons(projectName, base = ORCH_BASE) {
+  const url = `${base}/list_qal_jsons?project=${encodeURIComponent(projectName)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
+}
+
+
+export async function previewQal(projectName, fileName, base = ORCH_BASE) {
+  const url = `${base}/preview_qal?project=${encodeURIComponent(projectName)}&file=${encodeURIComponent(fileName)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
 }
