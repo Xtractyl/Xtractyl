@@ -1,11 +1,9 @@
 // src/components/ModelDownloadInput.jsx
 import React, { useState } from "react";
-
-const OLLAMA_BASE = import.meta.env.VITE_OLLAMA_BASE || "http://localhost:11434";
+import { pullModel } from "../../api/StartPrelabellingPage/api.js";
 
 export default function ModelDownloadInput({
-  ollamaBase = OLLAMA_BASE,
-  onDone,           
+  onDone           
 }) {
   const [name, setName] = useState("");
   const [pulling, setPulling] = useState(false);
@@ -15,52 +13,15 @@ export default function ModelDownloadInput({
   const handlePull = async () => {
     const model = name.trim();
     if (!model) return;
-
+  
     setPulling(true);
     setProgress("Starting…");
     setError("");
-
+  
     try {
-      const res = await fetch(`${ollamaBase}/api/pull`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: model }),
-      });
-
-      if (!res.ok || !res.body) {
-        throw new Error(`Pull failed: HTTP ${res.status}`);
-      }
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder("utf-8");
-      let buffer = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
-
-        for (const line of lines) {
-          if (!line.trim()) continue;
-          try {
-            const obj = JSON.parse(line);
-            if (typeof obj.total === "number" && typeof obj.completed === "number" && obj.total > 0) {
-              const pct = Math.round((obj.completed / obj.total) * 100);
-              setProgress(`${pct}%`);
-            } else if (obj.status) {
-              setProgress(obj.status);
-            }
-          } catch {
-            // ignore partial lines
-          }
-        }
-      }
-
+      await pullModel(model, setProgress);
       setProgress("Done");
-      if (onDone) onDone(model);
+      onDone?.(model);
     } catch (e) {
       setError(e.message || "Unknown error");
     } finally {
