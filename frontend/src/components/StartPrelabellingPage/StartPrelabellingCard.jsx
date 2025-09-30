@@ -6,6 +6,7 @@ import SystemPromptInput from "./SystemPromptInput";
 import QuestionsAndLabelsPicker from "./QuestionsAndLabelsPicker";
 import { prelabelProject } from "../../api/StartPrelabellingPage/api.js";
 import { cancelPrelabel } from "../../api/StartPrelabellingPage/api.js";
+import { getPrelabelStatus } from "../../api/StartPrelabellingPage/api.js";
 
 const ORCH_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001";
 const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080"; //only for links do not move to api
@@ -57,8 +58,14 @@ export default function StartPrelabellingCard({ apiToken }) {
         questions_and_labels: questionsAndLabels,
       };
   
-      await prelabelProject(payload);
-      setStatusMsg("✅ Prelabeling finished.");
+      const result = await prelabelProject(payload);   // <- ← get job id
+      const jobId = result?.job_id;
+      if (jobId) {
+        setPreJobId(jobId);
+        try { localStorage.setItem("prelabelJobId", jobId); } catch {}
+      }
+  
+      setStatusMsg("✅ Prelabeling started.");
     } catch (e) {
       setStatusMsg(`❌ ${e.message || "Failed to start."}`);
     } finally {
@@ -84,33 +91,35 @@ export default function StartPrelabellingCard({ apiToken }) {
     if (!preJobId) return;
     let cancelled = false;
     let timer = null;
+  
     const schedule = (ms = 1500) => {
       if (!cancelled) timer = setTimeout(tick, ms);
     };
+  
     const tick = async () => {
       try {
-        const res = await fetch(`${ORCH_BASE}/prelabel/status/${preJobId}`);
-        if (!res.ok) {
-          if (res.status === 404) {
-            localStorage.removeItem("prelabelJobId");
-            setPreJobId("");
-            setPreStatus(null);
-            return;
-          }
-          return schedule();
+        const s = await getPrelabelStatus(preJobId);
+        if (s?.notFound) {
+          localStorage.removeItem("prelabelJobId");
+          setPreJobId("");
+          setPreStatus(null);
+          return;
         }
-        const s = await res.json();
+  
         setPreStatus(s);
+  
         if (["done", "error", "cancelled"].includes(s.state)) {
           localStorage.removeItem("prelabelJobId");
           setPreJobId("");
           return;
         }
+  
         schedule();
       } catch {
         schedule();
       }
     };
+  
     tick();
     return () => {
       cancelled = true;
