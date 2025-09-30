@@ -57,7 +57,7 @@ def _send_predict(task_id: int, html: str, job_id: str, model: str, system_promp
     headers = {"X-Prelabel-Job": job_id}
     return requests.post(f"{ML_BACKEND_URL}/predict", json=payload, headers=headers, timeout=1200)
 
-def _wait_until_prediction_saved(task_id: int, token: str, timeout: int = 30):
+def _wait_until_prediction_saved(task_id: int, token: str, timeout: int = 30000):
     headers = {"Authorization": f"Token {token}"}
     start = time.time()
     while time.time() - start < timeout:
