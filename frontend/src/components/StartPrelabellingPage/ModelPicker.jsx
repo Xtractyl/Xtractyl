@@ -1,10 +1,9 @@
 // src/components/ModelPicker.jsx
 import React, { useEffect, useState } from "react";
-
-const OLLAMA_BASE = import.meta.env.VITE_OLLAMA_BASE || "http://localhost:11434";
+import { listModels } from "../../api/StartPrelabellingPage/api.js";
 
 export default function ModelPicker({
-  ollamaBase = OLLAMA_BASE,  // ⬅️ Standardwert aus env
+  ollamaBase,          // optional, defaults handled in api.js
   selectedModel,
   onChange,
   refreshKey,
@@ -19,12 +18,7 @@ export default function ModelPicker({
       setLoading(true);
       setErr("");
       try {
-        const res = await fetch(`${ollamaBase}/api/tags`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        const names = Array.isArray(data?.models)
-          ? data.models.map((m) => m.model || m.name).filter(Boolean)
-          : [];
+        const names = await listModels();
         if (!cancelled) setModels(names);
       } catch (e) {
         if (!cancelled) setErr(e.message || "Failed to load models");
@@ -51,9 +45,7 @@ export default function ModelPicker({
         ))}
       </select>
 
-      {/* small hint to refresh the page after downloading new model */}
       <div className="flex items-center gap-2 text-xs text-gray-500">
-        {/* SVG Refresh-Icon */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="h-3.5 w-3.5"

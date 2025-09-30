@@ -2,7 +2,6 @@
 
 const OLLAMA_BASE = import.meta.env.VITE_OLLAMA_BASE || "http://localhost:11434";
 
-
 export async function pullModel(model, onProgress, baseUrl = OLLAMA_BASE) {
     const res = await fetch(`${baseUrl}/api/pull`, {
       method: "POST",
@@ -46,3 +45,14 @@ export async function pullModel(model, onProgress, baseUrl = OLLAMA_BASE) {
       }
     }
   }
+
+
+export async function listModels(baseUrl = OLLAMA_BASE) {
+  const res = await fetch(`${baseUrl}/api/tags`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+
+  return Array.isArray(data?.models)
+    ? data.models.map((m) => m.model || m.name).filter(Boolean)
+    : [];
+}
