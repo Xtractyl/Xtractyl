@@ -5,9 +5,8 @@ import ModelPicker from "./ModelPicker";
 import SystemPromptInput from "./SystemPromptInput";
 import QuestionsAndLabelsPicker from "./QuestionsAndLabelsPicker";
 
-const OLLAMA_BASE = import.meta.env.VITE_OLLAMA_BASE || "http://localhost:11434";
 const ORCH_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001";
-const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080";
+const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080"; //only for links do not move to api
 
 export default function StartPrelabellingCard({ apiToken }) {
   const [model, setModel] = useState(() => localStorage.getItem("ollamaModel") || "");
@@ -131,7 +130,6 @@ export default function StartPrelabellingCard({ apiToken }) {
 
       <div className="mb-6">
         <ModelDownloadInput
-          ollamaBase={OLLAMA_BASE}
           onDone={() => setRefreshKey((k) => k + 1)}
         />
       </div>
@@ -192,7 +190,6 @@ export default function StartPrelabellingCard({ apiToken }) {
         </div>
 
         <ModelPicker
-          ollamaBase={OLLAMA_BASE}
           selectedModel={model}
           onChange={setModel}
           refreshKey={refreshKey}
