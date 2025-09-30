@@ -4,6 +4,8 @@ import ProjectNameInput from "../shared/ProjectNameInput";
 import ModelPicker from "./ModelPicker";
 import SystemPromptInput from "./SystemPromptInput";
 import QuestionsAndLabelsPicker from "./QuestionsAndLabelsPicker";
+import { prelabelProject } from "../../api/StartPrelabellingPage/api.js";
+import { cancelPrelabel } from "../../api/StartPrelabellingPage/api.js";
 
 const ORCH_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001";
 const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080"; //only for links do not move to api
@@ -52,15 +54,10 @@ export default function StartPrelabellingCard({ apiToken }) {
         system_prompt: systemPrompt,
         qal_file: qalFile,
         token,
-        questions_and_labels: questionsAndLabels 
+        questions_and_labels: questionsAndLabels,
       };
-      const res = await fetch(`${ORCH_BASE}/prelabel_project`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
+  
+      await prelabelProject(payload);
       setStatusMsg("✅ Prelabeling finished.");
     } catch (e) {
       setStatusMsg(`❌ ${e.message || "Failed to start."}`);
@@ -72,11 +69,11 @@ export default function StartPrelabellingCard({ apiToken }) {
   const handleCancel = async () => {
     if (!preJobId) return;
     try {
-      const res = await fetch(`${ORCH_BASE}/prelabel/cancel/${preJobId}`, { method: "POST" });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
+      const data = await cancelPrelabel(preJobId);
       setStatusMsg(
-        data.status === "cancel_requested" ? "🛑 Cancel requested." : "ℹ️ Already finished."
+        data.status === "cancel_requested"
+          ? "🛑 Cancel requested."
+          : "ℹ️ Already finished."
       );
     } catch (e) {
       setStatusMsg(`❌ ${e.message || "Cancel failed."}`);

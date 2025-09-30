@@ -74,3 +74,27 @@ export async function previewQal(projectName, fileName, base = ORCH_BASE) {
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
+
+
+export async function prelabelProject(payload, base = ORCH_BASE) {
+  const url = `${base.replace(/\/$/, "")}/prelabel_project`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
+  return data;
+}
+
+
+export async function cancelPrelabel(preJobId, base = ORCH_BASE) {
+    const url = `${base.replace(/\/$/, "")}/prelabel/cancel/${encodeURIComponent(preJobId)}`;
+    const res = await fetch(url, { method: "POST" });
+  
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
+    return data;
+  }
