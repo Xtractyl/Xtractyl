@@ -100,6 +100,12 @@ and enable legacy token there
 
 ---
 
+### 3. Current testing
+end to end test: make e2e
+clean after e2e manually when automatic cleaning fails: make e2e-down
+
+
+
 ## 📖 Usage
 
 1. **Open the frontend**  

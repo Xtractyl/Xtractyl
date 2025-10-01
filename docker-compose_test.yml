@@ -1,0 +1,23 @@
+services:
+  tester:
+    image: python:3.11-slim
+    depends_on:
+      orchestrator:
+        condition: service_started
+    working_dir: /opt
+    environment:
+      - BASE_URL=http://orchestrator:5001
+    volumes:
+      - ./tests:/opt/tests:ro
+      - ./pytest.ini:/opt/pytest.ini:ro
+      - ./requirements-test.txt:/opt/requirements-test.txt:ro
+    entrypoint: >
+      sh -lc "
+        apt-get update &&
+        apt-get install -y curl &&
+        rm -rf /var/lib/apt/lists/* &&
+        python -m pip install --upgrade pip &&
+        pip install -r /opt/requirements-test.txt &&
+        for i in $(seq 1 30); do curl -fsS http://orchestrator:5001/health && break || sleep 2; done;
+        pytest -c /opt/pytest.ini /opt/tests/e2e
+      "
