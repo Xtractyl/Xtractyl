@@ -49,7 +49,7 @@ def _send_predict(task_id: int, html: str, job_id: str, model: str, system_promp
             "ollama_model": model,
             "ollama_base": OLLAMA_BASE,
             "system_prompt": system_prompt,
-            "llm_timeout_seconds": "120"
+            "llm_timeout_seconds": "1200" #adapt for long pdfs and slow servers
         },
         "task": {"id": task_id, "data": {"html": html}},
         "questions_and_labels": questions_and_labels
