@@ -100,11 +100,14 @@ and enable legacy token there
 
 ---
 
-### 3. Current testing
-end to end test: make e2e
-clean after e2e manually when automatic cleaning fails: make e2e-down
+### 3. Current testing 
 
+In development. Information will be added soon.
 
+make test-smoke   # just smoke
+make test-e2e     # just e2e
+make test-all     # smoke then e2e
+make test-clean   # emergency cleanup
 
 ## 📖 Usage
 
