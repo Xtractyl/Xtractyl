@@ -1,14 +1,36 @@
+## Why this matters
+
+Extracting structured data from unstructured documents is a major challenge in regulated, data-intensive industries such as healthcare, life sciences, or public administration.  
+Xtractyl demonstrates how to design a **privacy-first, human-in-the-loop AI pipeline** that is modular, auditable, and extensible. Xtractyl aims at creating a database from the content of unstructured PDFs.
+While not a medical device, it addresses key challenges relevant to MedTech and compliance-driven fields:  
+- local, privacy-preserving processing 
+- AI-assisted annotation combined with human validation  
+- extensible pipeline architecture with Docker and modern ML tools
+
+⚠️ Note: Xtractyl is a research-only tool – not intended for commercial or medical use.
+
+
+
 ## Work in Progress
 
-The results page is still missing.  
-The backend requires optimization for accuracy and speed, now that iterative testing is possible via the frontend.  
-Both backend and frontend are at the early stages of refactoring.
+- The pipeline has so far been tested only with simple synthetic PDFs.
+
+- The backend still requires optimization for accuracy and speed especially with complex PDFs.
+
+- Testing is currently added.
+
+- The results page and its backend endpoints are still missing. The results page has to include functionality to transform model answers to categorical data and standardize answers to turn them into database-ready.
+
+- Pages and backend logic to evaluate AI metrics and finetune models are still missing.
+
+
 
 ## Project Management & Collaboration
 This project is managed using industry-standard tools:
 
 - [Jira Board (private, invitation only)](https://dueckerchristof.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog)  
 - [Miro Board (private, invitation only – link available on request)]
+
 
 
 # 🦕 Xtractyl – Extract structured data from messy medical PDFs
@@ -21,6 +43,8 @@ It converts PDFs → HTML → DOM → pre-labels them with an LLM → allows man
 
 ---
 
+
+
 ## 📜 License
 
 Xtractyl is licensed under the **Xtractyl Non-Commercial License v1.1**.  
@@ -32,10 +56,12 @@ See the [LICENSE](LICENSE) file for full terms.
 
 ---
 
+
+
 ## 🚀 Features
 
 - 🔒 Keeps all your data local — no cloud processing 
-- ✅ Convert medical PDFs into structured HTML via **Docling**  
+- ✅ Convert PDFs into structured HTML via **Docling**  
 - 🤖 Pre-label data with an LLM (**Ollama: Gemma3 12B** by default)  
 - 🧠 DOM-based XPath mapping and label matching  
 - 👩‍⚕️ Human validation with **Label Studio**  
@@ -53,50 +79,33 @@ See the [LICENSE](LICENSE) file for full terms.
 
 ---
 
+
+
+
 ## ⚙️ Setup
 
 ### 1. Requirements
 Before installing Xtractyl, ensure you have the following installed on your system
 
+- **GIT** 
 - **Docker** 
 
 ---
 
 ### 2. Installation
-Clone the repository then start the Docker containers:
+Clone the repository:
+git clone https://github.com/Xtractyl/xtractyl.git
 
-Name your database, user and password in root in the docker-compose.yml file
-password, username and dbname have to be identical for postgres and labelstudio
+Create a file named .env in the xtractyl folder (the .env.example file in /xtractyl is a template)
 
+Create a file named .env in root/frontend/src (the .env.example file in xtractyl/frontend/src is a template)
 
-in root in the docker-compose.yml file under 
+for testing you can simply rename the .env.example files to .env (this will use default passwords and ports)
 
-postgres:
-    environment:
-      POSTGRES_DB: dbname
-      POSTGRES_USER: username
-      POSTGRES_PASSWORD: yourpassword
- 
-
-and under: 
-
-labelstudio:
-    environment:
-      - POSTGRE_NAME=dbname
-      - POSTGRE_USER=username
-      - POSTGRE_PASSWORD=yourpassword
-
-
-```bash
-git clone https://github.com/<your-username>/xtractyl.git
-cd xtractyl
+ then start the Docker containers from the xtractyl folder with:
 docker compose up --build
-```
 
-you need the label studio legacy token for xtraxtyl NOT the personal access token
-go here: http://localhost:8080/organization?page=1
-go on API Tokens Settings there
-and enable legacy token there
+access the frontend via your browser at http://localhost:5173/ following the workflow shown below under Usage
 
 ---
 
@@ -109,45 +118,90 @@ make test-e2e     # just e2e
 make test-all     # smoke then e2e
 make test-clean   # emergency cleanup
 
+
+
 ## 📖 Usage
 
 1. **Open the frontend**  
-	Go to: [http://localhost:5173](http://localhost:5173)
+	Go to: [http://localhost:5173]
 
 2. **Upload your docs** (PDF → HTML conversion)  
    Page: **Upload & Convert** (`/`)  
-   - Choose or type a folder name  
+   - type a folder name  for your project
    - Select PDFs and click **Upload & Convert**  
    - You can monitor status and cancel a running job
 
+### Upload Page
+![Upload Page](assets/upload_and_convert.png)
+
+![Upload Page Running](assets/upload_and_convert_running.png)
+
+
 3. **Create a new project** in Label Studio  
    Page: **Create Project** (`/project`)  
-   - Save your Label Studio token  
-   - Enter project name, questions, and labels  
-   - Create the project (ML backend gets attached automatically)
+   - Save your Label Studio token:
+      click on "Get your legacy token" and create a user account for label studio
+      in label studio go to http://localhost:8080/organization and enable the legacy token via the API Tokens setting go on http://localhost:8080/user/account then and copy the legacy token to your xtractyl tab and click "Save Token"
+   - Enter project name, questions (one per line), and labels for each question (one per line
+      and in the same order as the questions)
+   - Create the project via the "Create project" button
+
+### Create Project Page
+![Create Project Page](assets/create_project.png)
+
 
 4. **Upload your tasks into the project**  
    Page: **Upload Tasks** (`/tasks`)  
-   - Pick the project name  
+   - Pick the project name  (same name as in step 3)
    - Select the HTML folder (from step 2)  
-   - Upload tasks to Label Studio
+   - Click "Upload HTML Tasks"
+
+### Upload Tasks Page
+![Upload Tasks Page](assets/upload_tasks.png)
+
 
 5. **Start AI prelabeling**  
    Page: **Start Prelabeling** (`/prelabelling`)  
-   - (Select LLM, system prompt, and the project)  
-   - Start prelabeling and monitor status (cancel if needed)
+   - Download an LLM (using the official model names from the linked ollama page)
+   - After downloading a new model reload the page to make it available
+   - Pick the project name  (same name as in step 3)
+   - Select a model from the dropdown list
+   - Enter a system prompt to advise the model for literal extraction (you see a suggestions
+      under "Show example")
+   - Select the json file with your questions and labels from the dropdown list (click the
+      the Preview button for review)
+   - Click the "Start prelabeling button"
+
+### Start AI Page
+![Start AI Page](assets/start_AI.png)
+
 
 6. **Review the AI**  
    Page: **Review in Label Studio** (`/review`)  
-   - Open Label Studio to validate/correct predictions
+   - Click the "Open Label Studio" to go to a to an overview of your label studio projects,
+      click on your project and validate/correct predictions for your files (in case you did not wait till prelabelling was finished, you have to reload to see the predictions added over time)
+
+### Review AI 
+![Review AI Page](assets/review_0.png)
+
+![Review AI 1](assets/review_1.png)
+
+![Review AI 2](assets/review_2.png)
+
+![Review AI 3](assets/review_3.png)
+
+![Review AI 4](assets/review_4.png)
+
+
+
+---
+
+### ⏭️ Coming Soon
 
 7. **Get your results**  
    Page: **Get Results** (`/results`)  
    - Export validated annotations for downstream use
 
----
-
-### ⏭️ Coming Soon
 8. **Evaluate the AI** (`/evaluate`)  
    - Compare predictions vs. ground truth, see metrics
 
