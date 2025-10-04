@@ -68,9 +68,8 @@ frontend/.vite/
 playwright-report/
 test-results/
 
-# 📝 Persönliche Instructions
-zentraleBefehle.md
-toDoChristof.md
-
 #logs
 logs/
+
+#folder with testing logs
+logs_testing/
