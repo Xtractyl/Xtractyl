@@ -80,6 +80,7 @@ services:
       - labelstudio
       - ollama
     volumes:
+      - ./ml_backend:/app
       - ${LOGS_DIR:-./logs}:/logs
     environment:
       - ML_BACKEND_PORT=${ML_BACKEND_PORT:-6789}
