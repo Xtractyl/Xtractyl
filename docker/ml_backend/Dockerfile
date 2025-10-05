@@ -2,14 +2,14 @@ FROM mcr.microsoft.com/playwright/python:v1.55.0-jammy
 
 WORKDIR /app
 
-# Requirements installieren
+# install requirements
 COPY docker/ml_backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# App-Code kopieren
+# copy app code
 COPY ml_backend/ /app/
 
 EXPOSE 6789
 
-# Direkt Flask-App starten
+# start flask
 CMD ["python", "-u", "app.py"]
