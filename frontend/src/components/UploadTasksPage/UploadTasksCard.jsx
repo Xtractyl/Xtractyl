@@ -53,7 +53,7 @@ export default function UploadTasksCard({ apiToken }) {
         {/* Token helper link */}
         <div>
           <a
-            href={`${LS_BASE}/user/account`}
+            href={`${LS_BASE}/user/account/legacy-token`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block bg-[#db7127] text-white text-base font-medium px-5 py-2 rounded shadow hover:bg-orange-600 transition"
@@ -66,7 +66,7 @@ export default function UploadTasksCard({ apiToken }) {
           <p className="mt-1 text-sm text-gray-500">
             ⚠️ If you see no legacy token there, go to{" "}
             <a
-              href={`${LS_BASE}/organization`}
+              href={`${LS_BASE}/user/account`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-[#6baa56] hover:underline"

@@ -44,7 +44,7 @@ export default function TokenInput({ onTokenSave }) {
       {/* Token helper + Eingabe */}
       <div className="mt-4">
         <a
-          href={`${LS_BASE}/user/account`}
+          href={`${LS_BASE}/user/account/legacy-token`}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-block bg-[#db7127] text-white text-base font-medium px-5 py-2 rounded shadow hover:bg-orange-600 transition"
