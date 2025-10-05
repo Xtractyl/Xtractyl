@@ -37,6 +37,38 @@ def test_golden_pipeline_end_to_end():
         # wait for docling job to finish
         state = _wait_for_docling_done(job_id, timeout=DOCLING_TIMEOUT)
         assert state == "done", f"Docling job not done, state={state}"
+
+        #list folders available for orchestrator
+        r = requests.get(orch("list_html_subfolders"), timeout=ORCH_TIMEOUT)
+        assert r.status_code == 200, r.text
+        subfolders = r.json()
+        assert folder in subfolders, f"folder '{folder}' not listed by orchestrator: {subfolders}"
+
+        # check if token was set
+        if not LS_TOKEN:
+            pytest.skip("LABEL_STUDIO_LEGACY_TOKEN not set; skipping LS upload step")
+
+        create_payload = {
+            "title": PROJECT_NAME,
+            "questions": ["What is the patient name?", "What is the diagnosis?"],
+            "labels":    ["PATIENT_NAME", "DIAGNOSIS"],
+            "token": LS_TOKEN,
+        }
+        r = requests.post(orch("create_project"), json=create_payload, timeout=ORCH_TIMEOUT)
+        assert r.status_code == 200, f"create_project failed: {r.status_code} {r.text}"
+        resp = r.json()
+        assert resp.get("status") == "success", f"create_project error: {resp}"
+
+        upload_payload = {
+            "project_name": PROJECT_NAME,
+            "token": LS_TOKEN,
+            "html_folder": folder,  # subfolder in data/htmls
+        }
+        r = requests.post(orch("upload_tasks"), json=upload_payload, timeout=ORCH_TIMEOUT)
+        assert r.status_code == 200, f"upload_tasks failed: {r.status_code} {r.text}"
+        body = r.json()
+        assert body.get("status") == "success", f"upload_tasks error: {body}"
+
     finally:
         _cleanup_test_folders(folder)
 
