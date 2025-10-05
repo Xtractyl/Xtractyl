@@ -66,7 +66,7 @@ export default function UploadTasksCard({ apiToken }) {
           <p className="mt-1 text-sm text-gray-500">
             ⚠️ If you see no legacy token there, go to{" "}
             <a
-              href={`${LS_BASE}/user/account`}
+              href={`${LS_BASE}/organization`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-[#6baa56] hover:underline"
