@@ -335,51 +335,67 @@ def ask_llm_with_timeout(params, prompt: str, timeout: int, model_name: str):
 # ----------------------------------
 @app.route("/predict", methods=["POST"])
 def predict():
-    data = request.get_json() or {}
-    params = data.get("config", {})
-    required = ["label_studio_url", "ls_token", "ollama_model", "ollama_base", "system_prompt", "llm_timeout_seconds"]
-    missing = [r for r in required if r not in params]
-    if missing:
-        return jsonify({"error": f"Missing config parameters: {', '.join(missing)}"}), 400
+    # robustes JSON-Parsing
+    data = request.get_json(silent=True) or {}
+    params = data.get("config") or data.get("params") or {}
 
-    job_id = request.headers.get("X-Prelabel-Job") or request.args.get("job_id") or data.get("job_id")
+    # Job / Log-Pfade (best effort)
+    job_id = request.headers.get("X-Prelabel-Job") or request.args.get("job_id") or data.get("job_id") or "no-job"
     job_paths = _job_log_paths(job_id)
     prediction_payload_path = job_paths["payload"]
     timeout_log_path = pathlib.Path(job_paths["timeouts"])
     dom_dump_path = pathlib.Path(job_paths["dom_dump"])
 
-    # task object
+    # Task-Objekt
     task_obj = data.get("task") or (data.get("tasks") or [{}])[0]
-    task_id = task_obj.get("id") or task_obj.get("pk") or task_obj.get("task_id") or data.get("task_id") or data.get("id")
-    if not task_id:
-        return jsonify({"error": "task id missing"}), 400
+    task_id = (
+        task_obj.get("id")
+        or task_obj.get("pk")
+        or task_obj.get("task_id")
+        or data.get("task_id")
+        or data.get("id")
+        or "unknown-task"
+    )
 
-    # HTML
+    # HTML aus task.data[...] oder Top-Level
     html_content = ""
     d = (task_obj.get("data") or data.get("data") or {})
     for k in ("html", "text", "content", "raw"):
-        if isinstance(d.get(k), str) and d[k].strip():
-            html_content = d[k]
+        v = d.get(k)
+        if isinstance(v, str) and v.strip():
+            html_content = v
             break
-    if not html_content and isinstance(data.get("html"), str):
-        html_content = data.get("html")
     if not html_content:
-        return jsonify({"error": "HTML content missing"}), 400
+        for k in ("html", "text", "content", "raw"):
+            v = data.get(k)
+            if isinstance(v, str) and v.strip():
+                html_content = v
+                break
+    if not html_content:
+        # minimaler Fehlerfall: ohne HTML können wir nichts tun, aber weiterhin ein Dict antworten
+        return jsonify({
+            "model_version": params.get("ollama_model", "stub"),
+            "score": 0.0,
+            "result": [],
+            "meta": {
+                "answers": [],
+                "diagnostics": [{"reason": "HTML content missing"}],
+                "status": "error",
+                "task_id": task_id,
+                "job_id": job_id,
+            },
+        }), 200
 
-    # Extract DOM
+    # DOM
     dom_data = extract_dom_with_chromium(html_content)
-
-    # Full DOM dump (toggle)
     if LOG_FULL_DOM:
         try:
             with open(dom_dump_path, "a", encoding="utf-8") as f:
                 for node in dom_data:
                     f.write(json.dumps(node, ensure_ascii=False) + "\n")
-            logging.info("🗂️ Full DOM dumped to %s (%d nodes)", str(dom_dump_path), len(dom_data))
         except Exception as e:
             logging.error("❌ Failed to write DOM dump: %s", e)
 
-    # Always write compact DOM summary to main log
     try:
         logging.debug(
             "📚 DOM summary: %s",
@@ -391,50 +407,68 @@ def predict():
     except Exception:
         pass
 
-    # Q&L
+    # Q&L (optional – kein 400, wenn fehlt)
     qa_config = data.get("questions_and_labels") or {}
-    questions = qa_config.get("questions", [])
-    labels = qa_config.get("labels", [])
-    if not questions or not labels:
-        return jsonify({"error": "questions_and_labels must include both 'questions' and 'labels'."}), 400
+    questions = qa_config.get("questions") or []
+    labels = qa_config.get("labels") or []
 
-    # Plain text for LLM
-    puretext = BeautifulSoup(html_content, "html.parser").get_text("\n", strip=True)
-
-    # LLM answers
+    # LLM nur bei vollständiger Konfig + Q&L
     answers, timed_out = [], False
-    for q, lab in zip(questions, labels):
-        prompt = f"{params['system_prompt']}\n\nQuestion: {q}\n\nText: {puretext}"
-        output = ask_llm_with_timeout(
-            params,
-            prompt,
-            timeout=int(params["llm_timeout_seconds"]),
-            model_name=params["ollama_model"],
-        )
-        if output == "<no answer>":
-            timed_out = True
+    have_llm_cfg = all(k in params for k in ("ollama_model", "ollama_base", "system_prompt", "llm_timeout_seconds"))
+    if have_llm_cfg and questions and labels:
+        puretext = BeautifulSoup(html_content or "", "html.parser").get_text("\n", strip=True)
+        for q, lab in zip(questions, labels):
+            prompt = f"{params['system_prompt']}\n\nQuestion: {q}\n\nText: {puretext}"
             try:
-                with open(timeout_log_path, "a", encoding="utf-8") as f:
-                    f.write(f"{task_id}: {q}\n")
-            except Exception:
-                pass
-        answers.append({"question": q, "label": lab, "answer": None if output == "<no answer>" else output})
+                output = ask_llm_with_timeout(
+                    params,
+                    prompt,
+                    timeout=int(params["llm_timeout_seconds"]),
+                    model_name=params["ollama_model"],
+                )
+            except Exception as e:
+                logging.warning("LLM call failed: %s", e)
+                output = "<no answer>"
+
+            if output == "<no answer>":
+                timed_out = True
+                try:
+                    with open(timeout_log_path, "a", encoding="utf-8") as f:
+                        f.write(f"{task_id}: {q}\n")
+                except Exception:
+                    pass
+
+            answers.append({"question": q, "label": lab, "answer": None if output == "<no answer>" else output})
 
     logging.info("🧠 Answers from LLM: %s", json.dumps(answers, indent=2, ensure_ascii=False))
 
-    # Match
-    prelabels, diagnostics = extract_xpath_matches_from_dom(dom_data, answers)
+    # Matching (funktioniert auch wenn answers leer ist)
+    try:
+        prelabels, diagnostics = extract_xpath_matches_from_dom(dom_data, answers)
+    except Exception as e:
+        logging.warning("extract_xpath_matches_from_dom failed: %s", e)
+        prelabels, diagnostics = [], [{"reason": "match_failed", "error": str(e)}]
 
-    # Log payload
-    payload_for_log = {"task": task_id, "model_version": params["ollama_model"], "result": prelabels}
-    with open(prediction_payload_path, "a", encoding="utf-8") as f:
-        f.write(json.dumps(payload_for_log, indent=2, ensure_ascii=False) + "\n")
+    # Audit-Log (best effort)
+    try:
+        payload_for_log = {"task": task_id, "model_version": params.get("ollama_model", "stub"), "result": prelabels}
+        with open(prediction_payload_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(payload_for_log, indent=2, ensure_ascii=False) + "\n")
+    except Exception as e:
+        logging.warning("Could not write prediction payload: %s", e)
 
-    # Send to Label Studio
-    save_predictions_to_labelstudio(params, task_id, prelabels)
+    # Optional: direkt in Label Studio speichern, wenn URL+Token vorhanden
+    if all(k in params for k in ("label_studio_url", "ls_token")):
+        try:
+            save_predictions_to_labelstudio(params, task_id, prelabels)
+        except Exception as e:
+            logging.warning("save_predictions_to_labelstudio failed: %s", e)
 
+    # >>> WICHTIG: EINZELNES DICT zurückgeben (kein Array, kein 'results'-Wrapper)
     return jsonify({
-        "results": [{"model_version": params["ollama_model"], "score": 1.0, "result": prelabels}],
+        "model_version": params.get("ollama_model", "stub"),
+        "score": 1.0 if prelabels else 0.0,
+        "result": prelabels,
         "meta": {
             "answers": answers,
             "diagnostics": diagnostics,
