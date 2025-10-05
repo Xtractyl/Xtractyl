@@ -113,11 +113,11 @@ access the frontend via your browser at http://localhost:5173/ following the wor
 
 In development. Information will be added soon.
 
-- Requires prior compose down of the containers
+- make your access token available for tests that require it
+export LABEL_STUDIO_LEGACY_TOKEN=your legacy token
+- the following requires prior compose down of the containers
 make test-smoke   # just smoke
 make test-e2e     # just e2e
-make test-all     # smoke then e2e
-make test-clean   # emergency cleanup
 
 
 
