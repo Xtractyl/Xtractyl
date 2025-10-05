@@ -20,6 +20,7 @@ PROJECT_NAME = os.getenv("E2E_PROJECT_NAME", "e2e_golden_pipeline")
 # Docling container paths
 PDFS_DIR = pathlib.Path("/pdfs")
 HTMLS_DIR = pathlib.Path("/htmls")
+PROJECTS_DIR = pathlib.Path("/projects")
 
 def test_golden_pipeline_end_to_end():
   
@@ -92,7 +93,7 @@ def _wait_for_docling_done(job_id: str, timeout: int = 180, poll_every: float = 
 
 def _cleanup_test_folders(folder_name: str):
     """Remove generated /pdfs/<folder> and /htmls/<folder> inside the Docling container volume."""
-    for base in (PDFS_DIR, HTMLS_DIR):
+    for base in (PDFS_DIR, HTMLS_DIR, PROJECTS_DIR):
         target = base / folder_name
         try:
             if target.exists():
