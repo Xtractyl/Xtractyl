@@ -5,6 +5,7 @@ import uuid
 import pathlib
 import requests
 import pytest
+import shutil
 
 from fixtures.endpoints_adapter import orch, doc
 
@@ -16,6 +17,10 @@ LS_TOKEN = os.getenv("LABEL_STUDIO_LEGACY_TOKEN") or os.getenv("LS_LEGACY_TOKEN"
 
 PROJECT_NAME = os.getenv("E2E_PROJECT_NAME", "e2e_golden_pipeline")
 
+# Docling container paths
+PDFS_DIR = pathlib.Path("/pdfs")
+HTMLS_DIR = pathlib.Path("/htmls")
+
 def test_golden_pipeline_end_to_end():
   
     pdfs = sorted(INPUT_DIR.glob("*.pdf"))
@@ -24,14 +29,17 @@ def test_golden_pipeline_end_to_end():
     folder = f"{PROJECT_NAME}"  
     files = [("files", (p.name, p.open("rb"), "application/pdf")) for p in pdfs]
     data = {"folder": folder}
+    try:
+        r = requests.post(doc("uploadpdfs"), files=files, data=data, timeout=60)
+        assert r.status_code in (200, 202), f"uploadpdfs failed: {r.status_code} {r.text}"
+        job_id = r.json()["job_id"]
 
-    r = requests.post(doc("uploadpdfs"), files=files, data=data, timeout=60)
-    assert r.status_code in (200, 202), f"uploadpdfs failed: {r.status_code} {r.text}"
-    job_id = r.json()["job_id"]
+        # wait for docling job to finish
+        state = _wait_for_docling_done(job_id, timeout=DOCLING_TIMEOUT)
+        assert state == "done", f"Docling job not done, state={state}"
+    finally:
+        _cleanup_test_folders(folder)
 
-    # wait for docling job to finish
-    state = _wait_for_docling_done(job_id, timeout=DOCLING_TIMEOUT)
-    assert state == "done", f"Docling job not done, state={state}"
 
 
 
@@ -48,3 +56,15 @@ def _wait_for_docling_done(job_id: str, timeout: int = 180, poll_every: float = 
                 return last
         time.sleep(poll_every)
     return last or "unknown"
+
+
+def _cleanup_test_folders(folder_name: str):
+    """Remove generated /pdfs/<folder> and /htmls/<folder> inside the Docling container volume."""
+    for base in (PDFS_DIR, HTMLS_DIR):
+        target = base / folder_name
+        try:
+            if target.exists():
+                shutil.rmtree(target)
+                print(f"[CLEANUP] Removed {target}")
+        except Exception as e:
+            print(f"[WARN] Failed to clean {target}: {e}")

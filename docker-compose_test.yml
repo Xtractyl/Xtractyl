@@ -17,6 +17,8 @@ x-tester-base: &tester_base
     - ./requirements-test.txt:/opt/requirements-test.txt:ro
     - ./logs_testing:/opt/logs_testing
     - ./tests/e2e/data/input_pdfs:/opt/input_pdfs:ro
+    - ./data/pdfs:/pdfs
+    - ./data/htmls:/htmls
 
 
 services:
