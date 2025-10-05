@@ -74,8 +74,6 @@ def test_golden_pipeline_end_to_end():
         _cleanup_test_folders(folder)
 
 
-
-
 def _wait_for_docling_done(job_id: str, timeout: int = 180, poll_every: float = 1.5) -> str:
     """Polls /job_status/<job_id> unti state in {'done','error','cancelled'} or Timeout."""
     deadline = time.time() + timeout
