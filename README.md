@@ -111,13 +111,15 @@ access the frontend via your browser at http://localhost:5173/ following the wor
 
 ### 3. Current testing 
 
-In development. Information will be added soon.
+In development. Further information will be added soon.
+For current testing:
 
-- make your access token available for tests that require it
-export LABEL_STUDIO_LEGACY_TOKEN=your legacy token
-- the following requires prior compose down of the containers
-make test-smoke   # just smoke
-make test-e2e     # just e2e
+- get you label studio legacy token from label studio starting xtractyl with: docker compose up --build 
+- then: docker compose down
+- make the label studio legacy token available with: export LABEL_STUDIO_LEGACY_TOKEN=your legacy token
+- then run the tests via 
+- make test-smoke   # just smoke test
+- make test-e2e     # just e2e test
 
 
 
