@@ -1,12 +1,13 @@
 # tests/e2e/test_golden_pipeline.py
 import os
 import time
-import uuid
 import pathlib
 import requests
 import pytest
 import shutil
-
+import json
+from urllib.parse import urljoin
+import uuid 
 from fixtures.endpoints_adapter import orch, doc
 
 INPUT_DIR = pathlib.Path(os.getenv("TEST_INPUT_DIR", "/opt/input_pdfs"))
@@ -23,6 +24,16 @@ PROJECT_NAME = os.getenv("E2E_PROJECT_NAME", "e2e_golden_pipeline")
 PDFS_DIR = pathlib.Path("/pdfs")
 HTMLS_DIR = pathlib.Path("/htmls")
 PROJECTS_DIR = pathlib.Path("/projects")
+
+LABELSTUDIO_HOST = os.getenv("LABELSTUDIO_CONTAINER_NAME", "labelstudio")
+LABELSTUDIO_PORT = os.getenv("LABELSTUDIO_PORT", "8080")
+LABEL_STUDIO_URL = f"http://{LABELSTUDIO_HOST}:{LABELSTUDIO_PORT}"
+
+REF_DIR = pathlib.Path("/opt/tests/e2e/data/ground_truth_and_baseline_results")
+REF_DIR.mkdir(parents=True, exist_ok=True)
+BASELINE_PATH = REF_DIR / "baseline_predictions.json"
+GROUNDTRUTH_PATH = REF_DIR / "ground_truth.json"
+REGEN_BASELINE = os.getenv("REGEN_BASELINE", "").lower() in {"1","true","yes"}
 
 SYSTEM_PROMPT = """You are a pure extraction model.
 
@@ -99,6 +110,44 @@ def test_golden_pipeline_end_to_end():
         body = r.json()
         assert body.get("status") == "success", f"prelabel_project error: {body}"
 
+
+        project_id = _ls_project_id_by_title(PROJECT_NAME, LS_TOKEN)
+        export_json = _export_predictions(project_id, LS_TOKEN)
+        pred_map = _canon_from_ls_export(export_json)
+
+        if REGEN_BASELINE or not BASELINE_PATH.exists():
+            with open(BASELINE_PATH, "w", encoding="utf-8") as f:
+                json.dump(pred_map, f, indent=2, ensure_ascii=False)
+            print(f"[BASELINE] wrote new baseline to {BASELINE_PATH}")
+
+        # load ground truth if missing skip
+        gt_map = {}
+        if GROUNDTRUTH_PATH.exists():
+            with open(GROUNDTRUTH_PATH, "r", encoding="utf-8") as f:
+                gt_map = json.load(f)
+        else:
+            print(f"[GROUNDTRUTH] missing: {GROUNDTRUTH_PATH} (skipping GT comparison)")
+
+        # load baseline
+        with open(BASELINE_PATH, "r", encoding="utf-8") as f:
+            baseline_map = json.load(f)
+
+        diff_vs_baseline = _diff(pred_map, baseline_map)
+        if diff_vs_baseline:
+            msg = "Predictions differ from baseline:\n" + "\n".join(diff_vs_baseline)
+            raise AssertionError(msg)
+        else:
+            print("[BASELINE CHECK] ✅ Predictions match baseline perfectly.")
+
+        if gt_map:
+            diff_vs_gt = _diff(pred_map, gt_map)
+            if diff_vs_gt:
+                msg = "Predictions differ from ground truth:\n" + "\n".join(diff_vs_gt)
+                raise AssertionError(msg)
+            else:
+                print("[GROUND TRUTH CHECK] ✅ Predictions match ground truth perfectly.")
+        else:
+            print("[GROUND TRUTH CHECK] ⚠️ Skipped (no ground truth file found).")
     finally:
         _cleanup_test_folders(folder)
 
@@ -117,7 +166,6 @@ def _wait_for_docling_done(job_id: str, timeout: int = 180, poll_every: float = 
         time.sleep(poll_every)
     return last or "unknown"
 
-
 def _cleanup_test_folders(folder_name: str):
     """Remove generated /pdfs/<folder> and /htmls/<folder> inside the Docling container volume."""
     for base in (PDFS_DIR, HTMLS_DIR, PROJECTS_DIR):
@@ -128,3 +176,55 @@ def _cleanup_test_folders(folder_name: str):
                 print(f"[CLEANUP] Removed {target}")
         except Exception as e:
             print(f"[WARN] Failed to clean {target}: {e}")
+
+def _ls_project_id_by_title(title: str, token: str) -> int:
+    r = requests.get(f"{LABEL_STUDIO_URL}/api/projects", headers={"Authorization": f"Token {token}"}, timeout=60)
+    r.raise_for_status()
+    items = r.json() if isinstance(r.json(), list) else r.json().get("results") or r.json().get("projects") or []
+    for p in items:
+        if p.get("title") == title:
+            return p["id"]
+    raise RuntimeError(f"Project not found: {title}")
+
+def _export_predictions(project_id: int, token: str) -> list[dict]:
+    """Fetch tasks with predictions via the project-scoped endpoint."""
+    url = f"{LABEL_STUDIO_URL}/api/projects/{project_id}/tasks/"
+    params = {"include": "predictions", "page_size": 1000}
+    r = requests.get(url, headers={"Authorization": f"Token {token}"}, params=params, timeout=120)
+    r.raise_for_status()
+    data = r.json()
+    # LS may return a list or a dict with 'tasks'/'results'
+    if isinstance(data, list):
+        return data
+    return data.get("tasks") or data.get("results") or []
+
+def _canon_from_ls_export(tasks_json: list[dict]) -> dict[str, dict[str, str]]:
+    out = {}
+    for t in tasks_json:
+        name = (t.get("data") or {}).get("name") or (t.get("data") or {}).get("filename") or f"task-{t.get('id')}"
+        pred_blocks = (t.get("predictions") or [])
+        # take the last prediction if multiple; adjust if you prefer first
+        if not pred_blocks:
+            out[name] = {}
+            continue
+        pred = pred_blocks[-1]
+        result = pred.get("result") or []
+        label_map = {}
+        for r in result:
+            val = r.get("value") or {}
+            labels = val.get("labels") or []
+            text = val.get("text")
+            if labels and isinstance(text, str) and text.strip():
+                label_map[labels[0]] = text
+        out[name] = label_map
+    return out
+
+# Simple strict comparisons; customize if you want case-insensitive or whitespace-normalized matching
+def _diff(a: dict, b: dict) -> list[str]:
+    msgs = []
+    keys = sorted(set(a.keys()) | set(b.keys()))
+    for k in keys:
+        va, vb = a.get(k), b.get(k)
+        if va != vb:
+            msgs.append(f"{k}: {va} != {vb}")
+    return msgs

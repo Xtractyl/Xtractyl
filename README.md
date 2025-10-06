@@ -116,7 +116,8 @@ For current testing:
 
 - get you label studio legacy token from label studio starting xtractyl with: docker compose up --build and copy it from http://localhost:8080/user/account/legacy-token,  download the model you want to use for the test via the download option here: http://localhost:5173/prelabelling
 - then: docker compose down
-- make the model available via export TEST_MODEL=gemma3:12b (or another model using the model names from here https://ollama.com/library)
+- make the model available via export TEST_MODEL=gemma3:12b (or another model using the model names from here https://ollama.com/library, but the included baseline_predictions.json has been created with gemma3:12b, to create your own baseline_predictions.json, just delete tests/e2e/data/ground_truth_and_baseline_results/baseline_predictions.json and a baseline_predictions.json with your model will be created on the first e2e test)
+- to modify the ground truth file just go to tests/e2e/data/ground_truth_and_baseline_results/ground_truth.json
 - make the label studio legacy token available with: export LABEL_STUDIO_LEGACY_TOKEN=your legacy token
 - then run the tests via 
 - make test-smoke   # just smoke test
