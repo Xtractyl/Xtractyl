@@ -29,7 +29,13 @@ def collect_html_tasks(folder: str):
             path = os.path.join(folder, filename)
             with open(path, "r", encoding="utf-8") as f:
                 html = f.read()
-                tasks.append({"data": {"html": html}})
+                # include filename as a task attribute
+                tasks.append({
+                    "data": {
+                        "html": html,
+                        "name": filename,  
+                    }
+                })
     return tasks
 
 

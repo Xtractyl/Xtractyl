@@ -62,14 +62,16 @@ def create_project_main_from_payload(payload: dict):
     label_tags = "\n    ".join([f'<Label value="{label}"/>' for label in labels])
     label_config = f"""
     <View>
+        <View style="padding: 0.5em 1em; background: #f7f7f7; border-radius: 4px; margin-bottom: 0.5em;">
+            <Header value="File: $name" style="font-weight:bold; font-size: 16px; color: #333;" />
+        </View>
         <View style="padding: 0 1em; margin: 1em 0; background: #f1f1f1; position: sticky; top: 0; border-radius: 3px; z-index:100">
-          <Labels name="label" toName="html">
-            {label_tags}
-          </Labels>
+            <Labels name="label" toName="html">
+                {label_tags}
+            </Labels>
         </View>
         <HyperText name="html" value="$html" granularity="symbol" />
-    </View>
-    """
+    </View>"""
 
     # Create project via API
     headers = {"Authorization": f"Token {token}", "Content-Type": "application/json"}
