@@ -12,15 +12,31 @@ from fixtures.endpoints_adapter import orch, doc
 INPUT_DIR = pathlib.Path(os.getenv("TEST_INPUT_DIR", "/opt/input_pdfs"))
 ORCH_TIMEOUT = int(os.getenv("ORCH_TIMEOUT_SECONDS", "120"))
 DOCLING_TIMEOUT = int(os.getenv("DOCLING_TIMEOUT_SECONDS", "1800"))
+PRELABEL_TIMEOUT = int(os.getenv("PRELABEL_TIMEOUT_SECONDS", "900"))
+
 
 LS_TOKEN = os.getenv("LABEL_STUDIO_LEGACY_TOKEN") or os.getenv("LS_LEGACY_TOKEN")
-
+TEST_MODEL = os.getenv("TEST_MODEL", "llama3.1:8b")
 PROJECT_NAME = os.getenv("E2E_PROJECT_NAME", "e2e_golden_pipeline")
 
 # Docling container paths
 PDFS_DIR = pathlib.Path("/pdfs")
 HTMLS_DIR = pathlib.Path("/htmls")
 PROJECTS_DIR = pathlib.Path("/projects")
+
+SYSTEM_PROMPT = """You are a pure extraction model.
+
+        When you are given a TEXT and a QUESTION, you must return exactly one literal text passage from the TEXT that best answers the QUESTION.
+
+        Output format (mandatory):
+        - Return EXACTLY ONE matching passage, with no introduction, no explanations, no Markdown, NO JSON, and no quotation marks around the answer.
+        - Preserve capitalization, spaces, and punctuation EXACTLY as in the TEXT.
+        - If there is NO matching passage: respond with <<<NO_MATCH>>>.
+
+        Additional rules:
+        - Never provide multiple passages or variations.
+        - If multiple passages fit, choose the most precise and shortest exact passage.
+        """
 
 def test_golden_pipeline_end_to_end():
   
@@ -69,6 +85,19 @@ def test_golden_pipeline_end_to_end():
         assert r.status_code == 200, f"upload_tasks failed: {r.status_code} {r.text}"
         body = r.json()
         assert body.get("status") == "success", f"upload_tasks error: {body}"
+
+        prelabel_payload = {
+            "project_name": PROJECT_NAME,
+            "model": TEST_MODEL, 
+            "system_prompt": SYSTEM_PROMPT,
+            "qal_file": "questions_and_labels.json",
+            "token": LS_TOKEN,
+        }
+
+        r = requests.post(orch("prelabel_project"), json=prelabel_payload, timeout=PRELABEL_TIMEOUT)
+        assert r.status_code == 200, f"prelabel_project failed: {r.status_code} {r.text}"
+        body = r.json()
+        assert body.get("status") == "success", f"prelabel_project error: {body}"
 
     finally:
         _cleanup_test_folders(folder)

@@ -11,6 +11,10 @@ x-tester-base: &tester_base
     - DOCLING_BASE=http://docling:5004   
     - LABEL_STUDIO_LEGACY_TOKEN=${LABEL_STUDIO_LEGACY_TOKEN}
     - PYTHONPATH=/opt/tests 
+    - TEST_MODEL=${TEST_MODEL}    
+    - PRELABEL_TIMEOUT_SECONDS=${PRELABEL_TIMEOUT_SECONDS:-900}
+    - ORCH_TIMEOUT_SECONDS=${ORCH_TIMEOUT_SECONDS:-120}
+    - DOCLING_TIMEOUT_SECONDS=${DOCLING_TIMEOUT_SECONDS:-1800}
   volumes:
     - ./tests:/opt/tests:ro
     - ./pytest.ini:/opt/pytest.ini:ro
