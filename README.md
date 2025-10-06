@@ -114,7 +114,7 @@ access the frontend via your browser at http://localhost:5173/ following the wor
 In development. Further information will be added soon.
 For current testing:
 
-- get you label studio legacy token from label studio starting xtractyl with: docker compose up --build 
+- get you label studio legacy token from label studio starting xtractyl with: docker compose up --build and copy it from http://localhost:8080/user/account/legacy-token,  download gemma3:12b or change the model used in the e2e test here: xtractyl/tests/e2e/test_golden_pipeline.py to a model you downloaded
 - then: docker compose down
 - make the label studio legacy token available with: export LABEL_STUDIO_LEGACY_TOKEN=your legacy token
 - then run the tests via 
