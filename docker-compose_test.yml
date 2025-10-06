@@ -19,7 +19,7 @@ x-tester-base: &tester_base
     - ./tests/e2e/data/input_pdfs:/opt/input_pdfs:ro
     - ./data/pdfs:/pdfs
     - ./data/htmls:/htmls
-
+    - ./data/projects:/projects
 
 services:
   # ---- Smoke suite ----
