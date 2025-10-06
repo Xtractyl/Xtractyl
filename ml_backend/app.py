@@ -322,7 +322,7 @@ def ask_llm_with_timeout(params, prompt: str, timeout: int, model_name: str):
     try:
         response = requests.post(
             f"{base}/api/generate",
-            json={"model": model_name, "prompt": prompt, "stream": False},
+            json={"model": model_name, "prompt": prompt, "stream": False,"options": {"temperature": 0},},
             timeout=timeout,
         )
         return response.json().get("response", "").strip()
