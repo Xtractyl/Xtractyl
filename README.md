@@ -1,15 +1,18 @@
 ## Why this matters
 
-Extracting structured data from unstructured documents is a major challenge in regulated, data-intensive industries such as healthcare, life sciences, or public administration.  
-Xtractyl demonstrates how to design a **privacy-first, human-in-the-loop AI pipeline** that is modular, auditable, and extensible. Xtractyl aims at creating a database from the content of unstructured PDFs.
-While not a medical device, it addresses key challenges relevant to MedTech and compliance-driven fields:  
-- local, privacy-preserving processing 
-- AI-assisted annotation combined with human validation  
-- extensible pipeline architecture with Docker and modern ML tools
+Extracting structured data from unstructured documents is a major challenge in regulated, data-intensive industries such as healthcare, life sciences, and public administration.
+Xtractyl is used to identify patterns and extract structured data to generate aggregated, group-level insights — helping researchers and developers build auditable, privacy-preserving data pipelines.
 
-⚠️ Note: Xtractyl is a research-only tool – not intended for commercial or medical use.
+Xtractyl demonstrates how to design a privacy-first, human-in-the-loop AI pipeline that is modular, auditable, and extensible.
+It aims to create structured databases from the content of unstructured PDFs, combining local AI processing with human validation and modern containerized architectures.
 
-⚠️ Note: The medical test data provided is fully synthetic data created with AI
+While not a medical device, Xtractyl addresses key challenges relevant to MedTech and other compliance-driven fields:
+	•	🔒 Local, privacy-preserving data processing
+	•	🤖 AI-assisted annotation with human validation
+	•	🧩 Extensible pipeline architecture using Docker and modern ML tools
+
+⚠️ Note: Xtractyl is a research-only tool — not intended for commercial or medical use.
+⚠️ Note: All included medical test data are fully synthetic and created with AI.
 
 
 ## Work in Progress
