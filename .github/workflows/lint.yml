@@ -1,0 +1,52 @@
+name: Lint
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  python-lint:
+    name: Python (ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install ruff
+        run: python -m pip install --upgrade pip && pip install ruff
+
+      - name: Enforce formatting (ruff format --check)
+        run: ruff format --check .
+
+      - name: Lint (ruff check)
+        run: ruff check . --output-format=github
+
+  frontend-lint:
+    name: Frontend (eslint)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install deps
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm i; fi
+
+      - name: Lint (eslint)
+        run: npx eslint .
