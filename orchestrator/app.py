@@ -89,7 +89,6 @@ def prelabel_project():
         "token": str                    # Label Studio legacy token
       }
     """
-    print( "oops" )
     payload = request.get_json() or {}
     return try_wrap(lambda: prelabel_complete_project_main(payload))
 
