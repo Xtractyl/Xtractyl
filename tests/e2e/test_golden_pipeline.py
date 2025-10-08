@@ -148,6 +148,15 @@ def test_golden_pipeline_end_to_end():
             print("[GROUND TRUTH CHECK] ⚠️ Skipped (no ground truth file found).")
     finally:
         _cleanup_test_folders(folder)
+        try:
+                deleted = _ls_delete_project_by_title(PROJECT_NAME, LS_TOKEN)
+                if deleted:
+                    print(f"[CLEANUP] Deleted LS project '{PROJECT_NAME}'")
+                else:
+                    print(f"[CLEANUP] LS project '{PROJECT_NAME}' not found (nothing to delete)")
+        except Exception as e:
+                print(f"[WARN] Failed to delete LS project '{PROJECT_NAME}': {e}")
+
 
 
 def _wait_for_docling_done(job_id: str, timeout: int = 180, poll_every: float = 1.5) -> str:
@@ -241,3 +250,17 @@ def _diff(a: dict, b: dict) -> list[str]:
         if va != vb:
             msgs.append(f"{k}: {va} != {vb}")
     return msgs
+
+def _ls_delete_project_by_title(title: str, token: str) -> bool:
+    """Delete a Label Studio project by its title. Returns True if deleted, False if not found."""
+    try:
+        project_id = _ls_project_id_by_title(title, token)
+    except RuntimeError:
+        return False
+    url = f"{LABEL_STUDIO_URL}/api/projects/{project_id}"
+    r = requests.delete(url, headers={"Authorization": f"Token {token}"}, timeout=60)
+    # 204 No Content (preferred) or 200 OK depending on LS version
+    if r.status_code in (200, 204):
+        return True
+    r.raise_for_status()
+    return True
