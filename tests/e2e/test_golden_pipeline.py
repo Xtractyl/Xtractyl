@@ -149,14 +149,13 @@ def test_golden_pipeline_end_to_end():
     finally:
         _cleanup_test_folders(folder)
         try:
-                deleted = _ls_delete_project_by_title(PROJECT_NAME, LS_TOKEN)
-                if deleted:
-                    print(f"[CLEANUP] Deleted LS project '{PROJECT_NAME}'")
-                else:
-                    print(f"[CLEANUP] LS project '{PROJECT_NAME}' not found (nothing to delete)")
+            deleted = _ls_delete_project_by_title(PROJECT_NAME, LS_TOKEN)
+            if deleted:
+                print(f"[CLEANUP] Deleted LS project '{PROJECT_NAME}'")
+            else:
+                print(f"[CLEANUP] LS project '{PROJECT_NAME}' not found (nothing to delete)")
         except Exception as e:
-                print(f"[WARN] Failed to delete LS project '{PROJECT_NAME}': {e}")
-
+            print(f"[WARN] Failed to delete LS project '{PROJECT_NAME}': {e}")
 
 
 def _wait_for_docling_done(job_id: str, timeout: int = 180, poll_every: float = 1.5) -> str:
@@ -250,6 +249,7 @@ def _diff(a: dict, b: dict) -> list[str]:
         if va != vb:
             msgs.append(f"{k}: {va} != {vb}")
     return msgs
+
 
 def _ls_delete_project_by_title(title: str, token: str) -> bool:
     """Delete a Label Studio project by its title. Returns True if deleted, False if not found."""
