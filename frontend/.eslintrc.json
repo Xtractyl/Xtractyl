@@ -1,0 +1,13 @@
+{
+  "root": true,
+  "env": { "browser": true, "es2022": true, "node": true },
+  "parserOptions": { "ecmaVersion": "latest", "sourceType": "module" },
+  "plugins": ["import"],
+  "extends": ["eslint:recommended", "plugin:import/recommended"],
+  "rules": {
+    "no-unused-vars": "error",
+    "no-undef": "error",
+    "import/no-unresolved": "error"
+  },
+  "ignorePatterns": ["dist/", "build/", ".vite/", "coverage/", "node_modules/"]
+}

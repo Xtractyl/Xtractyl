@@ -1,0 +1,10 @@
+target-version = "py310"
+line-length = 100
+extend-exclude = ["frontend", "assets", "data", "docs", "venv", ".venv", "node_modules"]
+
+[lint]
+select = ["E", "F", "I"]
+ignore = ["E203", "E266", "E501"]  # Format/Whitespace
+
+[lint.isort]
+known-first-party = ["docling", "ml_backend", "orchestrator", "tests"]
