@@ -1,8 +1,10 @@
 import os
 import time
+
 import requests
 
 BASE_URL = os.getenv("BASE_URL", "http://orchestrator:5001")
+
 
 def test_orchestrator_health():
     # simple smoke test checks /health for orchestrator

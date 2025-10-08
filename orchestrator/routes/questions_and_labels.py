@@ -1,7 +1,8 @@
 import json
 import logging
 import os
-from flask import request, jsonify
+
+from flask import jsonify, request
 
 # Fixed base dir (no env lookups)
 BASE_PROJECTS_DIR = os.path.join("data", "projects")
@@ -28,7 +29,8 @@ def list_projects_route():
         if not os.path.isdir(BASE_PROJECTS_DIR):
             return jsonify([]), 200
         items = sorted(
-            d for d in os.listdir(BASE_PROJECTS_DIR)
+            d
+            for d in os.listdir(BASE_PROJECTS_DIR)
             if os.path.isdir(os.path.join(BASE_PROJECTS_DIR, d))
         )
         return jsonify(items), 200
@@ -53,7 +55,8 @@ def list_qal_jsons_route():
             return jsonify([]), 200
 
         files = sorted(
-            f for f in os.listdir(project_dir)
+            f
+            for f in os.listdir(project_dir)
             if f.lower().endswith(".json") and os.path.isfile(os.path.join(project_dir, f))
         )
         return jsonify(files), 200
@@ -82,7 +85,7 @@ def preview_qal_route():
         if not os.path.isfile(file_path):
             return jsonify({"error": "file not found"}), 404
 
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             data = json.load(f)
         return jsonify(data), 200
     except ValueError:

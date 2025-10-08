@@ -1,7 +1,7 @@
-import os
 import json
+import os
 from datetime import datetime
-from typing import Any, Dict, Optional, Union
+from typing import Any
 
 # Base directory for per-job artifacts
 DOC_LOG_DIR = "/logs/docling_jobs"
@@ -37,7 +37,7 @@ def write_status(job_id: str, **payload: Any) -> None:
     os.replace(tmp, path)  # atomic on POSIX
 
 
-def read_latest_status(job_id: str) -> Optional[Dict[str, Any]]:
+def read_latest_status(job_id: str) -> dict[str, Any] | None:
     """
     Read the most recent job status from disk.
 
@@ -51,14 +51,14 @@ def read_latest_status(job_id: str) -> Optional[Dict[str, Any]]:
     if not os.path.isfile(path):
         return None
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return json.load(f)
     except json.JSONDecodeError:
         # File may be read mid-write; caller can retry later.
         return None
 
 
-def append_log(job_id: str, entry: Union[str, Dict[str, Any]]) -> None:
+def append_log(job_id: str, entry: str | dict[str, Any]) -> None:
     """
     Append a log entry for a job to a JSONL file.
 
@@ -75,7 +75,7 @@ def append_log(job_id: str, entry: Union[str, Dict[str, Any]]) -> None:
     - Each line is a standalone JSON object (JSONL).
     - Includes an ISO 8601 UTC timestamp under key "ts".
     """
-    record: Dict[str, Any]
+    record: dict[str, Any]
     if isinstance(entry, str):
         record = {"message": entry}
     else:

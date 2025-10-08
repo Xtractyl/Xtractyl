@@ -100,8 +100,8 @@ export async function cancelPrelabel(preJobId, base = ORCH_BASE) {
   }
 
 
-  export async function getPrelabelStatus(jobId, base = ORCH_BASE) {
-    const url = `${ORCH_BASE}/prelabel/status/${encodeURIComponent(jobId)}`;
+export async function getPrelabelStatus(jobId, base = ORCH_BASE) {
+    const url = `${(base || ORCH_BASE).replace(/\/$/, "")}/prelabel/status/${encodeURIComponent(jobId)}`;
     const res = await fetch(url);
   
     if (res.status === 404) {

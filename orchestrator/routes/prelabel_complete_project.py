@@ -1,18 +1,19 @@
 # routes/prelabel_complete_project.py
+import json
 import os
 import time
 import uuid
-import json
-from typing import Dict, Any, List
+from typing import Any
 
 from utils.prelabel_utils import (
-    resolve_project_id_by_title,
     get_tasks_without_predictions,
+    resolve_project_id_by_title,
     send_predict,
     wait_until_prediction_saved,
 )
 
-def prelabel_complete_project_main(payload: Dict[str, Any]) -> List[str]:
+
+def prelabel_complete_project_main(payload: dict[str, Any]) -> list[str]:
     """
     Synchronous pre-label run based on explicit payload.
     Expected payload:
@@ -23,16 +24,16 @@ def prelabel_complete_project_main(payload: Dict[str, Any]) -> List[str]:
       - token: str
       - (optional) job_id: str
     """
-    logs: List[str] = []
+    logs: list[str] = []
     for k in ("project_name", "model", "system_prompt", "qal_file", "token"):
         if not payload.get(k):
             raise ValueError(f"Missing field: {k}")
 
-    project_name  = payload["project_name"]
-    model         = payload["model"]
+    project_name = payload["project_name"]
+    model = payload["model"]
     system_prompt = payload["system_prompt"]
-    token         = payload["token"]
-    qal_file      = payload["qal_file"]
+    token = payload["token"]
+    qal_file = payload["qal_file"]
 
     # Job ID (use given or generate)
     job_id = payload.get("job_id") or f"sync-{uuid.uuid4()}"
@@ -51,7 +52,7 @@ def prelabel_complete_project_main(payload: Dict[str, Any]) -> List[str]:
     logs.append(f"[INFO] Found {len(tasks)} tasks without predictions.")
 
     total_time = 0.0
-    durations: List[float] = []
+    durations: list[float] = []
 
     for t in tasks:
         task_id = t["id"]
@@ -81,7 +82,9 @@ def prelabel_complete_project_main(payload: Dict[str, Any]) -> List[str]:
 
     if durations:
         avg = total_time / len(durations)
-        logs.append(f"[SUMMARY] Processed: {len(durations)} tasks | Total: {round(total_time,2)}s | Avg: {round(avg,2)}s")
+        logs.append(
+            f"[SUMMARY] Processed: {len(durations)} tasks | Total: {round(total_time, 2)}s | Avg: {round(avg, 2)}s"
+        )
 
     logs.append(f"[JOB] job_id={job_id}")
     return logs

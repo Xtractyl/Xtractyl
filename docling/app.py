@@ -1,13 +1,13 @@
-from flask import Flask, request, jsonify
-import os
 import logging
-from flask_cors import CORS
+import os
 import uuid
-from threading import Event
 from concurrent.futures import ThreadPoolExecutor
+from threading import Event
 
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 from utils.conversion_worker import run_conversion
-from utils.job_files import write_status, append_log, read_latest_status
+from utils.job_files import append_log, read_latest_status, write_status
 
 # In-memory job registry: job_id -> {"future": Future, "stop": Event}
 JOBS = {}
@@ -26,8 +26,8 @@ os.makedirs(DOC_LOG_DIR, exist_ok=True)
 
 logging.basicConfig(
     level=logging.INFO,
-    format='[%(asctime)s] %(levelname)s %(name)s:%(lineno)d | %(message)s',
-    handlers=[logging.FileHandler(LOGFILE_PATH), logging.StreamHandler()]
+    format="[%(asctime)s] %(levelname)s %(name)s:%(lineno)d | %(message)s",
+    handlers=[logging.FileHandler(LOGFILE_PATH), logging.StreamHandler()],
 )
 logger = logging.getLogger("docling-api")
 
@@ -38,17 +38,18 @@ executor = ThreadPoolExecutor(max_workers=2)
 # Job lifecycle endpoints
 # =========================
 
+
 @app.route("/uploadpdfs", methods=["POST"])
 def upload_and_convert():
     """
     Accept uploaded PDFs and start a background conversion job.
     Returns a job_id that can be polled for status/logs.
     """
-    if 'files' not in request.files or 'folder' not in request.form:
+    if "files" not in request.files or "folder" not in request.form:
         return jsonify({"error": "Missing 'files' or 'folder'"}), 400
 
-    folder = request.form['folder'].strip()
-    files = request.files.getlist('files')
+    folder = request.form["folder"].strip()
+    files = request.files.getlist("files")
 
     if not folder:
         return jsonify({"error": "Folder name is empty"}), 400
@@ -77,12 +78,7 @@ def upload_and_convert():
 
     stop_event = Event()
     future = executor.submit(
-        run_conversion,
-        job_id,
-        folder,
-        saved_pdf_paths,
-        html_target_dir,
-        stop_event
+        run_conversion, job_id, folder, saved_pdf_paths, html_target_dir, stop_event
     )
     JOBS[job_id] = {"future": future, "stop": stop_event}
 
@@ -107,7 +103,7 @@ def job_log(job_id):
         return jsonify({"error": "unknown job_id"}), 404
 
     def generate():
-        with open(log_file, "r", encoding="utf-8") as f:
+        with open(log_file, encoding="utf-8") as f:
             for line in f:
                 yield line
 
@@ -135,7 +131,9 @@ def cancel_job(job_id):
         pass
 
     append_log(job_id, "Cancel requested via API")
-    write_status(job_id, state="cancelling", progress=None, total=None, done=None, message="cancel requested")
+    write_status(
+        job_id, state="cancelling", progress=None, total=None, done=None, message="cancel requested"
+    )
 
     logger.info("Cancel requested for job %s", job_id)
     return jsonify({"status": "cancel_requested"}), 200
@@ -144,6 +142,7 @@ def cancel_job(job_id):
 # =========================
 # Helper listing endpoints
 # =========================
+
 
 @app.route("/list-subfolders", methods=["GET"])
 def list_subfolders():
@@ -170,7 +169,8 @@ def list_files_in_folder():
 
     try:
         files = [
-            f for f in os.listdir(target_dir)
+            f
+            for f in os.listdir(target_dir)
             if f.lower().endswith(".pdf") and os.path.isfile(os.path.join(target_dir, f))
         ]
         return jsonify(files)

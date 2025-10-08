@@ -216,6 +216,20 @@ For current testing:
 
 ---
 
+## 🧹 Code quality
+
+### python from repository root
+```bash
+ruff format .
+ruff check .
+```
+### js for frontend from frontend folder
+```bash
+cd frontend
+npx eslint .
+```
+
+---
 ## 📝 Additional Documentation
 For more details on how to use Label Studio (e.g. reviewing annotations, submitting, filtering), visit:
 👉 https://labelstud.io/guide

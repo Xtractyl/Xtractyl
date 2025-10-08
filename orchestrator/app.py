@@ -1,31 +1,33 @@
+import os
+
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-import os
+from routes.check_project_exists import check_project_exists
 
 # Route implementations
 from routes.create_project import create_project_main_from_payload
-
+from routes.list_html_folders import list_html_subfolders
 from routes.load_ollama_models import (
     load_ollama_models_main_wrapper as load_ollama_models_main,
 )
 from routes.prelabel_complete_project import prelabel_complete_project_main
-from routes.upload_tasks import upload_tasks_main_from_payload
-from routes.check_project_exists import check_project_exists
-from routes.list_html_folders import list_html_subfolders
 from routes.questions_and_labels import (
     list_projects_route,
     list_qal_jsons_route,
     preview_qal_route,
 )
-
+from routes.upload_tasks import upload_tasks_main_from_payload
 
 # --- Configuration constants (adjust here if needed) ---
-FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", f"http://localhost:{os.getenv('FRONTEND_PORT', '5173')}")
+FRONTEND_ORIGIN = os.getenv(
+    "FRONTEND_ORIGIN", f"http://localhost:{os.getenv('FRONTEND_PORT', '5173')}"
+)
 APP_PORT = int(os.getenv("ORCH_PORT", "5001"))
 # -------------------------------------------------------
 
 app = Flask(__name__)
 CORS(app, origins=[FRONTEND_ORIGIN])
+
 
 def try_wrap(fn):
     """
@@ -40,6 +42,7 @@ def try_wrap(fn):
         return jsonify({"status": "success", "logs": logs}), 200
     except Exception as e:
         return jsonify({"status": "error", "error": str(e)}), 500
+
 
 @app.route("/create_project", methods=["POST"])
 def create_project():
@@ -59,6 +62,7 @@ def create_project():
     """
     payload = request.get_json()
     return try_wrap(lambda: create_project_main_from_payload(payload))
+
 
 @app.route("/load_models", methods=["POST"])
 def load_models():
@@ -142,6 +146,7 @@ def list_html_subfolders_route():
     Response: ["folder_a", "folder_b", ...]
     """
     return list_html_subfolders()
+
 
 @app.route("/list_projects", methods=["GET"])
 def list_projects():

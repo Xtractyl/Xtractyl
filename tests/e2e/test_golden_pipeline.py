@@ -1,14 +1,13 @@
 # tests/e2e/test_golden_pipeline.py
-import os
-import time
-import pathlib
-import requests
-import pytest
-import shutil
 import json
-from urllib.parse import urljoin
-import uuid 
-from fixtures.endpoints_adapter import orch, doc
+import os
+import pathlib
+import shutil
+import time
+
+import pytest
+import requests
+from fixtures.endpoints_adapter import doc, orch
 
 INPUT_DIR = pathlib.Path(os.getenv("TEST_INPUT_DIR", "/opt/input_pdfs"))
 ORCH_TIMEOUT = int(os.getenv("ORCH_TIMEOUT_SECONDS", "120"))
@@ -33,7 +32,7 @@ REF_DIR = pathlib.Path("/opt/tests/e2e/data/ground_truth_and_baseline_results")
 REF_DIR.mkdir(parents=True, exist_ok=True)
 BASELINE_PATH = REF_DIR / "baseline_predictions.json"
 GROUNDTRUTH_PATH = REF_DIR / "ground_truth.json"
-REGEN_BASELINE = os.getenv("REGEN_BASELINE", "").lower() in {"1","true","yes"}
+REGEN_BASELINE = os.getenv("REGEN_BASELINE", "").lower() in {"1", "true", "yes"}
 
 SYSTEM_PROMPT = """You are a pure extraction model.
 
@@ -49,12 +48,12 @@ SYSTEM_PROMPT = """You are a pure extraction model.
         - If multiple passages fit, choose the most precise and shortest exact passage.
         """
 
+
 def test_golden_pipeline_end_to_end():
-  
     pdfs = sorted(INPUT_DIR.glob("*.pdf"))
     assert pdfs, f"No PDFs found in {INPUT_DIR}"
-    
-    folder = f"{PROJECT_NAME}"  
+
+    folder = f"{PROJECT_NAME}"
     files = [("files", (p.name, p.open("rb"), "application/pdf")) for p in pdfs]
     data = {"folder": folder}
     try:
@@ -66,7 +65,7 @@ def test_golden_pipeline_end_to_end():
         state = _wait_for_docling_done(job_id, timeout=DOCLING_TIMEOUT)
         assert state == "done", f"Docling job not done, state={state}"
 
-        #list folders available for orchestrator
+        # list folders available for orchestrator
         r = requests.get(orch("list_html_subfolders"), timeout=ORCH_TIMEOUT)
         assert r.status_code == 200, r.text
         subfolders = r.json()
@@ -79,7 +78,7 @@ def test_golden_pipeline_end_to_end():
         create_payload = {
             "title": PROJECT_NAME,
             "questions": ["What is the patient name?", "What is the diagnosis?"],
-            "labels":    ["PATIENT_NAME", "DIAGNOSIS"],
+            "labels": ["PATIENT_NAME", "DIAGNOSIS"],
             "token": LS_TOKEN,
         }
         r = requests.post(orch("create_project"), json=create_payload, timeout=ORCH_TIMEOUT)
@@ -99,7 +98,7 @@ def test_golden_pipeline_end_to_end():
 
         prelabel_payload = {
             "project_name": PROJECT_NAME,
-            "model": TEST_MODEL, 
+            "model": TEST_MODEL,
             "system_prompt": SYSTEM_PROMPT,
             "qal_file": "questions_and_labels.json",
             "token": LS_TOKEN,
@@ -109,7 +108,6 @@ def test_golden_pipeline_end_to_end():
         assert r.status_code == 200, f"prelabel_project failed: {r.status_code} {r.text}"
         body = r.json()
         assert body.get("status") == "success", f"prelabel_project error: {body}"
-
 
         project_id = _ls_project_id_by_title(PROJECT_NAME, LS_TOKEN)
         export_json = _export_predictions(project_id, LS_TOKEN)
@@ -123,13 +121,13 @@ def test_golden_pipeline_end_to_end():
         # load ground truth if missing skip
         gt_map = {}
         if GROUNDTRUTH_PATH.exists():
-            with open(GROUNDTRUTH_PATH, "r", encoding="utf-8") as f:
+            with open(GROUNDTRUTH_PATH, encoding="utf-8") as f:
                 gt_map = json.load(f)
         else:
             print(f"[GROUNDTRUTH] missing: {GROUNDTRUTH_PATH} (skipping GT comparison)")
 
         # load baseline
-        with open(BASELINE_PATH, "r", encoding="utf-8") as f:
+        with open(BASELINE_PATH, encoding="utf-8") as f:
             baseline_map = json.load(f)
 
         diff_vs_baseline = _diff(pred_map, baseline_map)
@@ -166,6 +164,7 @@ def _wait_for_docling_done(job_id: str, timeout: int = 180, poll_every: float = 
         time.sleep(poll_every)
     return last or "unknown"
 
+
 def _cleanup_test_folders(folder_name: str):
     """Remove generated /pdfs/<folder> and /htmls/<folder> inside the Docling container volume."""
     for base in (PDFS_DIR, HTMLS_DIR, PROJECTS_DIR):
@@ -177,14 +176,22 @@ def _cleanup_test_folders(folder_name: str):
         except Exception as e:
             print(f"[WARN] Failed to clean {target}: {e}")
 
+
 def _ls_project_id_by_title(title: str, token: str) -> int:
-    r = requests.get(f"{LABEL_STUDIO_URL}/api/projects", headers={"Authorization": f"Token {token}"}, timeout=60)
+    r = requests.get(
+        f"{LABEL_STUDIO_URL}/api/projects", headers={"Authorization": f"Token {token}"}, timeout=60
+    )
     r.raise_for_status()
-    items = r.json() if isinstance(r.json(), list) else r.json().get("results") or r.json().get("projects") or []
+    items = (
+        r.json()
+        if isinstance(r.json(), list)
+        else r.json().get("results") or r.json().get("projects") or []
+    )
     for p in items:
         if p.get("title") == title:
             return p["id"]
     raise RuntimeError(f"Project not found: {title}")
+
 
 def _export_predictions(project_id: int, token: str) -> list[dict]:
     """Fetch tasks with predictions via the project-scoped endpoint."""
@@ -198,11 +205,16 @@ def _export_predictions(project_id: int, token: str) -> list[dict]:
         return data
     return data.get("tasks") or data.get("results") or []
 
+
 def _canon_from_ls_export(tasks_json: list[dict]) -> dict[str, dict[str, str]]:
     out = {}
     for t in tasks_json:
-        name = (t.get("data") or {}).get("name") or (t.get("data") or {}).get("filename") or f"task-{t.get('id')}"
-        pred_blocks = (t.get("predictions") or [])
+        name = (
+            (t.get("data") or {}).get("name")
+            or (t.get("data") or {}).get("filename")
+            or f"task-{t.get('id')}"
+        )
+        pred_blocks = t.get("predictions") or []
         # take the last prediction if multiple; adjust if you prefer first
         if not pred_blocks:
             out[name] = {}
@@ -218,6 +230,7 @@ def _canon_from_ls_export(tasks_json: list[dict]) -> dict[str, dict[str, str]]:
                 label_map[labels[0]] = text
         out[name] = label_map
     return out
+
 
 # Simple strict comparisons; customize if you want case-insensitive or whitespace-normalized matching
 def _diff(a: dict, b: dict) -> list[str]:

@@ -1,8 +1,13 @@
-import time
-import requests
 import os
+import time
 
-OLLAMA_URL = os.getenv("OLLAMA_URL", f"http://{os.getenv('OLLAMA_CONTAINER_NAME', 'ollama')}:{os.getenv('OLLAMA_PORT', '11434')}")
+import requests
+
+OLLAMA_URL = os.getenv(
+    "OLLAMA_URL",
+    f"http://{os.getenv('OLLAMA_CONTAINER_NAME', 'ollama')}:{os.getenv('OLLAMA_PORT', '11434')}",
+)
+
 
 def load_ollama_models_main():
     logs = []
@@ -23,6 +28,7 @@ def load_ollama_models_main():
         time.sleep(5)
 
     return logs
+
 
 def load_ollama_models_main_wrapper():
     return load_ollama_models_main()

@@ -1,15 +1,17 @@
 # utils/prelabel_utils.py
 import os
 import time
-import uuid
-import json
+from typing import Any
+
 import requests
-from typing import List, Dict, Any, Optional
 
 # --- Base URLs / ports (read from env, with defaults) ---
 LABEL_STUDIO_URL = f"http://{os.getenv('LABELSTUDIO_CONTAINER_NAME', 'labelstudio')}:{os.getenv('LABELSTUDIO_PORT', '8080')}"
-ML_BACKEND_URL   = f"http://{os.getenv('ML_BACKEND_CONTAINER_NAME', 'ml_backend')}:{os.getenv('ML_BACKEND_PORT', '6789')}"
-OLLAMA_BASE      = os.getenv("OLLAMA_URL", f"http://{os.getenv('OLLAMA_CONTAINER_NAME', 'ollama')}:{os.getenv('OLLAMA_PORT', '11434')}")
+ML_BACKEND_URL = f"http://{os.getenv('ML_BACKEND_CONTAINER_NAME', 'ml_backend')}:{os.getenv('ML_BACKEND_PORT', '6789')}"
+OLLAMA_BASE = os.getenv(
+    "OLLAMA_URL",
+    f"http://{os.getenv('OLLAMA_CONTAINER_NAME', 'ollama')}:{os.getenv('OLLAMA_PORT', '11434')}",
+)
 
 PAGE_SIZE = 100
 
@@ -18,11 +20,12 @@ __all__ = [
     "ML_BACKEND_URL",
     "OLLAMA_BASE",
     "PAGE_SIZE",
-    "resolve_project_id_by_title",
     "get_tasks_without_predictions",
+    "resolve_project_id_by_title",
     "send_predict",
     "wait_until_prediction_saved",
 ]
+
 
 def resolve_project_id_by_title(title: str, token: str) -> int:
     headers = {"Authorization": f"Token {token}"}
@@ -36,12 +39,15 @@ def resolve_project_id_by_title(title: str, token: str) -> int:
             return p["id"]
     raise ValueError(f"Project '{title}' not found in Label Studio.")
 
-def get_tasks_without_predictions(project_id: int, token: str) -> List[Dict[str, Any]]:
+
+def get_tasks_without_predictions(project_id: int, token: str) -> list[dict[str, Any]]:
     headers = {"Authorization": f"Token {token}"}
     page = 1
-    all_tasks: List[Dict[str, Any]] = []
+    all_tasks: list[dict[str, Any]] = []
     while True:
-        url = f"{LABEL_STUDIO_URL}/api/projects/{project_id}/tasks?page={page}&page_size={PAGE_SIZE}"
+        url = (
+            f"{LABEL_STUDIO_URL}/api/projects/{project_id}/tasks?page={page}&page_size={PAGE_SIZE}"
+        )
         r = requests.get(url, headers=headers)
         if r.status_code == 404:
             break
@@ -53,6 +59,7 @@ def get_tasks_without_predictions(project_id: int, token: str) -> List[Dict[str,
         page += 1
     return [t for t in all_tasks if not t.get("predictions")]
 
+
 def send_predict(
     task_id: int,
     html: str,
@@ -60,7 +67,7 @@ def send_predict(
     model: str,
     system_prompt: str,
     token: str,
-    questions_and_labels: Dict[str, Any],
+    questions_and_labels: dict[str, Any],
     llm_timeout_seconds: int = 1200,
 ):
     payload = {
@@ -76,7 +83,10 @@ def send_predict(
         "questions_and_labels": questions_and_labels,
     }
     headers = {"X-Prelabel-Job": job_id}
-    return requests.post(f"{ML_BACKEND_URL}/predict", json=payload, headers=headers, timeout=llm_timeout_seconds)
+    return requests.post(
+        f"{ML_BACKEND_URL}/predict", json=payload, headers=headers, timeout=llm_timeout_seconds
+    )
+
 
 def wait_until_prediction_saved(task_id: int, token: str, timeout: int = 30000) -> bool:
     headers = {"Authorization": f"Token {token}"}

@@ -1,7 +1,7 @@
-import os
 import logging
+import os
+
 import requests
-from flask import request, jsonify
 
 # === Base URLs / Ports (from env with defaults) ===
 LABELSTUDIO_HOST = os.getenv("LABELSTUDIO_CONTAINER_NAME", "labelstudio")
@@ -27,15 +27,17 @@ def collect_html_tasks(folder: str):
     for filename in os.listdir(folder):
         if filename.endswith(".html"):
             path = os.path.join(folder, filename)
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 html = f.read()
                 # include filename as a task attribute
-                tasks.append({
-                    "data": {
-                        "html": html,
-                        "name": filename,  
+                tasks.append(
+                    {
+                        "data": {
+                            "html": html,
+                            "name": filename,
+                        }
                     }
-                })
+                )
     return tasks
 
 

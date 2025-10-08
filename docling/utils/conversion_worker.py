@@ -1,10 +1,12 @@
+import logging
 import os
 import subprocess
 import time
-import logging
-from .job_files import write_status, append_log
+
+from .job_files import append_log, write_status
 
 logger = logging.getLogger(__name__)
+
 
 def run_conversion(job_id, folder, pdf_paths, html_target_dir, stop_event):
     """
@@ -16,7 +18,14 @@ def run_conversion(job_id, folder, pdf_paths, html_target_dir, stop_event):
     done = 0
 
     # Initial status
-    write_status(job_id, state="running", progress=0.0 if total else 1.0, total=total, done=0, message="started")
+    write_status(
+        job_id,
+        state="running",
+        progress=0.0 if total else 1.0,
+        total=total,
+        done=0,
+        message="started",
+    )
     append_log(job_id, f"Started conversion: {total} file(s) in folder '{folder}'")
     logger.info("Job %s: started with %d file(s) → %s", job_id, total, folder)
 
@@ -30,7 +39,7 @@ def run_conversion(job_id, folder, pdf_paths, html_target_dir, stop_event):
                 progress=(done / total) if total else 0.0,
                 total=total,
                 done=done,
-                message="cancelled"
+                message="cancelled",
             )
             logger.info("Job %s: cancelled at %d/%d", job_id, done, total)
             return
@@ -48,9 +57,12 @@ def run_conversion(job_id, folder, pdf_paths, html_target_dir, stop_event):
             cmd = [
                 "docling",
                 pdf_path,
-                "--from", "pdf",
-                "--to", "html",
-                "--output", html_target_dir,
+                "--from",
+                "pdf",
+                "--to",
+                "html",
+                "--output",
+                html_target_dir,
             ]
 
             start = time.time()
@@ -77,14 +89,18 @@ def run_conversion(job_id, folder, pdf_paths, html_target_dir, stop_event):
                 progress=progress,
                 total=total,
                 done=done,
-                message=f"converted {os.path.basename(pdf_path)} in {duration:.2f}s"
+                message=f"converted {os.path.basename(pdf_path)} in {duration:.2f}s",
             )
             append_log(job_id, f"Converted {os.path.basename(pdf_path)} in {duration:.2f}s")
-            logger.info("Job %s: converted %s (%.2fs) [%d/%d]", job_id, pdf_path, duration, done, total)
+            logger.info(
+                "Job %s: converted %s (%.2fs) [%d/%d]", job_id, pdf_path, duration, done, total
+            )
 
         except subprocess.CalledProcessError as e:
             # Docling failed for this file → mark job as error and stop
-            msg = f"Docling failed for {os.path.basename(pdf_path)}: {e.stderr or e.stdout or str(e)}"
+            msg = (
+                f"Docling failed for {os.path.basename(pdf_path)}: {e.stderr or e.stdout or str(e)}"
+            )
             append_log(job_id, msg)
             write_status(
                 job_id,
@@ -92,7 +108,7 @@ def run_conversion(job_id, folder, pdf_paths, html_target_dir, stop_event):
                 progress=(done / total) if total else 0.0,
                 total=total,
                 done=done,
-                message="conversion failed"
+                message="conversion failed",
             )
             logger.exception("Job %s: %s", job_id, msg)
             return
@@ -106,7 +122,7 @@ def run_conversion(job_id, folder, pdf_paths, html_target_dir, stop_event):
                 progress=(done / total) if total else 0.0,
                 total=total,
                 done=done,
-                message=str(e)
+                message=str(e),
             )
             logger.exception("Job %s: %s", job_id, msg)
             return
@@ -120,7 +136,7 @@ def run_conversion(job_id, folder, pdf_paths, html_target_dir, stop_event):
                 progress=(done / total) if total else 0.0,
                 total=total,
                 done=done,
-                message="cancelled"
+                message="cancelled",
             )
             logger.info("Job %s: cancelled after converting %d/%d", job_id, done, total)
             return

@@ -1,11 +1,12 @@
-import os
 import json
-import requests
+import os
 from datetime import datetime
+
+import requests
 
 # === Base URLs / Ports (resolve from env or defaults) ===
 LABEL_STUDIO_URL = f"http://{os.getenv('LABELSTUDIO_CONTAINER_NAME', 'labelstudio')}:{os.getenv('LABELSTUDIO_PORT', '8080')}"
-ML_BACKEND_URL   = f"http://{os.getenv('ML_BACKEND_CONTAINER_NAME', 'ml_backend')}:{os.getenv('ML_BACKEND_PORT', '6789')}"
+ML_BACKEND_URL = f"http://{os.getenv('ML_BACKEND_CONTAINER_NAME', 'ml_backend')}:{os.getenv('ML_BACKEND_PORT', '6789')}"
 
 LOGFILE_PATH = "/logs/orchestrator.log"
 
@@ -78,7 +79,9 @@ def create_project_main_from_payload(payload: dict):
     project_payload = {"title": title, "label_config": label_config}
 
     try:
-        response = requests.post(f"{LABEL_STUDIO_URL}/api/projects", headers=headers, json=project_payload)
+        response = requests.post(
+            f"{LABEL_STUDIO_URL}/api/projects", headers=headers, json=project_payload
+        )
     except Exception as e:
         log_to_file(f"ERROR: Network error while creating project: {e}")
         raise

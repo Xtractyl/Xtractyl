@@ -5,6 +5,7 @@ import pathlib
 import re
 import unicodedata
 import uuid
+
 import requests
 from bs4 import BeautifulSoup
 from flask import Flask, jsonify, request
@@ -25,6 +26,7 @@ PORT = int(os.getenv("ML_BACKEND_PORT", "6789"))
 
 app = Flask(__name__)
 
+
 def origin_from_env(prefix: str, default_port: int, default_host: str = "localhost") -> str:
     origin = os.getenv(f"{prefix}_ORIGIN") or os.getenv(f"{prefix}_URL")
     if origin:
@@ -33,6 +35,7 @@ def origin_from_env(prefix: str, default_port: int, default_host: str = "localho
     port = os.getenv(f"{prefix}_PORT", str(default_port))
     scheme = os.getenv(f"{prefix}_SCHEME", "http")
     return f"{scheme}://{host}:{port}"
+
 
 FRONTEND_ORIGIN = origin_from_env("FRONTEND_PORT", 5173)
 LABELSTUDIO_ORIGIN = origin_from_env("LABELSTUDIO_PORT", 8080)
@@ -57,6 +60,7 @@ _fh.setLevel(logging.DEBUG)
 _fh.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
 logging.getLogger().addHandler(_fh)
 
+
 def _job_log_paths(job_id: str | None):
     """Return per-job file paths; fall back to general files if job_id is None."""
     if job_id:
@@ -74,6 +78,7 @@ def _job_log_paths(job_id: str | None):
             "dom_dump": os.path.join(LOG_DIR, "dom_dump.jsonl"),
         }
 
+
 # ----------------------------------
 # Normalization helpers
 # ----------------------------------
@@ -81,11 +86,12 @@ def _norm_char(c: str) -> str:
     # char-wise normalization without strip so lengths map correctly
     return (
         unicodedata.normalize("NFKC", c)
-        .replace("\u00AD", "")    # soft hyphen
-        .replace("\u00A0", " ")   # NBSP -> space
+        .replace("\u00ad", "")  # soft hyphen
+        .replace("\u00a0", " ")  # NBSP -> space
         .replace("\r", "")
         .replace("\n", "")
     )
+
 
 def build_norm_index(original_text: str):
     """
@@ -103,16 +109,18 @@ def build_norm_index(original_text: str):
             index_map.append(i)
     return "".join(norm_parts), index_map
 
+
 def normalize_text_block(text: str) -> str:
     # block normalization used for answers (trim OK)
     return (
         unicodedata.normalize("NFKC", text or "")
-        .replace("\u00AD", "")
-        .replace("\u00A0", " ")
+        .replace("\u00ad", "")
+        .replace("\u00a0", " ")
         .replace("\r", "")
         .replace("\n", "")
         .strip()
     )
+
 
 def clean_xpath(raw_xpath: str) -> str:
     raw_xpath = re.sub(r"^/html(\[1\])?/body(\[1\])?", "", raw_xpath)
@@ -120,6 +128,7 @@ def clean_xpath(raw_xpath: str) -> str:
     if not raw_xpath.startswith("/"):
         raw_xpath = "/" + raw_xpath
     return raw_xpath
+
 
 # ----------------------------------
 # DOM extraction (raw + normalized + index_map)
@@ -167,17 +176,20 @@ def extract_dom_with_chromium(html: str):
                     el,
                 )
                 cleaned_xpath = clean_xpath(xpath)
-                extracted.append({
-                    "xpath": cleaned_xpath,
-                    "raw": raw_text,
-                    "content": norm_text,
-                    "index_map": index_map,
-                })
+                extracted.append(
+                    {
+                        "xpath": cleaned_xpath,
+                        "raw": raw_text,
+                        "content": norm_text,
+                        "index_map": index_map,
+                    }
+                )
             except Exception:
                 continue
 
         browser.close()
     return extracted
+
 
 # ----------------------------------
 # Matching
@@ -189,7 +201,9 @@ def extract_xpath_matches_from_dom(dom_data, answers):
     """
     matches, diagnostics = [], []
 
-    logging.debug("🔎 Starting DOM matching: %d DOM blocks, %d answers", len(dom_data), len(answers))
+    logging.debug(
+        "🔎 Starting DOM matching: %d DOM blocks, %d answers", len(dom_data), len(answers)
+    )
 
     # sort by normalized content length asc (tighter nodes first)
     dom_sorted = sorted(dom_data, key=lambda el: len(el.get("content") or ""))
@@ -201,7 +215,10 @@ def extract_xpath_matches_from_dom(dom_data, answers):
         normalized_answer = normalize_text_block(ans["answer"])
         logging.debug(
             "🧩 [%d] Label=%s | normalized_answer=%r (len=%d)",
-            idx, ans["label"], normalized_answer, len(normalized_answer)
+            idx,
+            ans["label"],
+            normalized_answer,
+            len(normalized_answer),
         )
 
         found_match = False
@@ -217,58 +234,80 @@ def extract_xpath_matches_from_dom(dom_data, answers):
 
             index_map = el.get("index_map") or []
             if not index_map or offset_norm + len(normalized_answer) - 1 >= len(index_map):
-                diagnostics.append({
-                    "label": ans["label"],
-                    "xpath": xpath,
-                    "reason": "Index map missing/short"
-                })
+                diagnostics.append(
+                    {"label": ans["label"], "xpath": xpath, "reason": "Index map missing/short"}
+                )
                 logging.debug(
                     "❌ [%d] Index map missing/short | xpath=%s | offset_norm=%d | ans_len=%d | map_len=%d",
-                    idx, xpath, offset_norm, len(normalized_answer), len(index_map)
+                    idx,
+                    xpath,
+                    offset_norm,
+                    len(normalized_answer),
+                    len(index_map),
                 )
                 continue
 
             start_orig = index_map[offset_norm]
-            end_orig = index_map[offset_norm + len(normalized_answer) - 1] + 1  # slice end exclusive
+            end_orig = (
+                index_map[offset_norm + len(normalized_answer) - 1] + 1
+            )  # slice end exclusive
 
             if start_orig is None or end_orig is None or start_orig < 0 or end_orig <= start_orig:
-                diagnostics.append({"label": ans["label"], "xpath": xpath, "reason": "Offset mapping failed"})
+                diagnostics.append(
+                    {"label": ans["label"], "xpath": xpath, "reason": "Offset mapping failed"}
+                )
                 logging.debug(
                     "❌ [%d] Offset mapping failed | xpath=%s | offset_norm=%d | start_orig=%s | end_orig=%s",
-                    idx, xpath, offset_norm, start_orig, end_orig
+                    idx,
+                    xpath,
+                    offset_norm,
+                    start_orig,
+                    end_orig,
                 )
                 continue
 
-            matches.append({
-                "id": str(uuid.uuid4()),
-                "from_name": "label",
-                "to_name": "html",
-                "type": "labels",
-                "origin": "prediction",
-                "value": {
-                    "start": xpath,
-                    "end": xpath,
-                    "startOffset": start_orig,
-                    "endOffset": end_orig,
-                    "labels": [ans["label"]],
-                    "text": ans["answer"],
-                },
-            })
+            matches.append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "from_name": "label",
+                    "to_name": "html",
+                    "type": "labels",
+                    "origin": "prediction",
+                    "value": {
+                        "start": xpath,
+                        "end": xpath,
+                        "startOffset": start_orig,
+                        "endOffset": end_orig,
+                        "labels": [ans["label"]],
+                        "text": ans["answer"],
+                    },
+                }
+            )
             logging.debug(
                 "✅ [%d] Match | xpath=%s | start_orig=%d | end_orig=%d | norm_offset=%d",
-                idx, xpath, start_orig, end_orig, offset_norm
+                idx,
+                xpath,
+                start_orig,
+                end_orig,
+                offset_norm,
             )
             found_match = True
             break
 
         if not found_match:
             diagnostics.append({"label": ans["label"], "reason": "Not found in any content block"})
-            logging.debug("🔍 [%d] No match for label=%s | normalized_answer=%r", idx, ans["label"], normalized_answer)
+            logging.debug(
+                "🔍 [%d] No match for label=%s | normalized_answer=%r",
+                idx,
+                ans["label"],
+                normalized_answer,
+            )
 
     logging.info("🧾 Match summary: %d matches, %d diagnostics", len(matches), len(diagnostics))
     if diagnostics:
         logging.debug("🧪 Diagnostics: %s", json.dumps(diagnostics, ensure_ascii=False))
     return matches, diagnostics
+
 
 # ----------------------------------
 # LS, model, LLM
@@ -294,6 +333,7 @@ def save_predictions_to_labelstudio(params, task_id, prediction_result):
     except Exception as e:
         logging.error(f"❌ Error sending to Label Studio: {e}")
 
+
 def ensure_model_available(params, model_name: str):
     base = params["ollama_base"]
     try:
@@ -305,7 +345,9 @@ def ensure_model_available(params, model_name: str):
             return True
 
         logging.info(f"📦 Model '{model_name}' not present — pulling…")
-        pull = requests.post(f"{base}/api/pull", json={"name": model_name}, stream=True, timeout=600)
+        pull = requests.post(
+            f"{base}/api/pull", json={"name": model_name}, stream=True, timeout=600
+        )
         for line in pull.iter_lines():
             if line:
                 logging.debug("📥 %s", line.decode("utf-8"))
@@ -315,6 +357,7 @@ def ensure_model_available(params, model_name: str):
         logging.error(f"❌ Error ensuring model '{model_name}': {e}")
         return False
 
+
 def ask_llm_with_timeout(params, prompt: str, timeout: int, model_name: str):
     base = params["ollama_base"]
     if not ensure_model_available(params, model_name):
@@ -322,13 +365,19 @@ def ask_llm_with_timeout(params, prompt: str, timeout: int, model_name: str):
     try:
         response = requests.post(
             f"{base}/api/generate",
-            json={"model": model_name, "prompt": prompt, "stream": False,"options": {"temperature": 0},},
+            json={
+                "model": model_name,
+                "prompt": prompt,
+                "stream": False,
+                "options": {"temperature": 0},
+            },
             timeout=timeout,
         )
         return response.json().get("response", "").strip()
     except Exception as e:
         logging.error(f"❌ Timeout or error while calling LLM: {e}")
         return "<no answer>"
+
 
 # ----------------------------------
 # Routes
@@ -340,7 +389,12 @@ def predict():
     params = data.get("config") or data.get("params") or {}
 
     # Job / Log-Pfade (best effort)
-    job_id = request.headers.get("X-Prelabel-Job") or request.args.get("job_id") or data.get("job_id") or "no-job"
+    job_id = (
+        request.headers.get("X-Prelabel-Job")
+        or request.args.get("job_id")
+        or data.get("job_id")
+        or "no-job"
+    )
     job_paths = _job_log_paths(job_id)
     prediction_payload_path = job_paths["payload"]
     timeout_log_path = pathlib.Path(job_paths["timeouts"])
@@ -359,7 +413,7 @@ def predict():
 
     # HTML aus task.data[...] oder Top-Level
     html_content = ""
-    d = (task_obj.get("data") or data.get("data") or {})
+    d = task_obj.get("data") or data.get("data") or {}
     for k in ("html", "text", "content", "raw"):
         v = d.get(k)
         if isinstance(v, str) and v.strip():
@@ -373,18 +427,20 @@ def predict():
                 break
     if not html_content:
         # minimaler Fehlerfall: ohne HTML können wir nichts tun, aber weiterhin ein Dict antworten
-        return jsonify({
-            "model_version": params.get("ollama_model", "stub"),
-            "score": 0.0,
-            "result": [],
-            "meta": {
-                "answers": [],
-                "diagnostics": [{"reason": "HTML content missing"}],
-                "status": "error",
-                "task_id": task_id,
-                "job_id": job_id,
-            },
-        }), 200
+        return jsonify(
+            {
+                "model_version": params.get("ollama_model", "stub"),
+                "score": 0.0,
+                "result": [],
+                "meta": {
+                    "answers": [],
+                    "diagnostics": [{"reason": "HTML content missing"}],
+                    "status": "error",
+                    "task_id": task_id,
+                    "job_id": job_id,
+                },
+            }
+        ), 200
 
     # DOM
     dom_data = extract_dom_with_chromium(html_content)
@@ -400,7 +456,10 @@ def predict():
         logging.debug(
             "📚 DOM summary: %s",
             json.dumps(
-                [{"xpath": n["xpath"], "raw_len": len(n["raw"]), "norm_len": len(n["content"])} for n in dom_data],
+                [
+                    {"xpath": n["xpath"], "raw_len": len(n["raw"]), "norm_len": len(n["content"])}
+                    for n in dom_data
+                ],
                 ensure_ascii=False,
             ),
         )
@@ -414,10 +473,12 @@ def predict():
 
     # LLM nur bei vollständiger Konfig + Q&L
     answers, timed_out = [], False
-    have_llm_cfg = all(k in params for k in ("ollama_model", "ollama_base", "system_prompt", "llm_timeout_seconds"))
+    have_llm_cfg = all(
+        k in params for k in ("ollama_model", "ollama_base", "system_prompt", "llm_timeout_seconds")
+    )
     if have_llm_cfg and questions and labels:
         puretext = BeautifulSoup(html_content or "", "html.parser").get_text("\n", strip=True)
-        for q, lab in zip(questions, labels):
+        for q, lab in zip(questions, labels, strict=False):
             prompt = f"{params['system_prompt']}\n\nQuestion: {q}\n\nText: {puretext}"
             try:
                 output = ask_llm_with_timeout(
@@ -438,7 +499,9 @@ def predict():
                 except Exception:
                     pass
 
-            answers.append({"question": q, "label": lab, "answer": None if output == "<no answer>" else output})
+            answers.append(
+                {"question": q, "label": lab, "answer": None if output == "<no answer>" else output}
+            )
 
     logging.info("🧠 Answers from LLM: %s", json.dumps(answers, indent=2, ensure_ascii=False))
 
@@ -451,7 +514,11 @@ def predict():
 
     # Audit-Log (best effort)
     try:
-        payload_for_log = {"task": task_id, "model_version": params.get("ollama_model", "stub"), "result": prelabels}
+        payload_for_log = {
+            "task": task_id,
+            "model_version": params.get("ollama_model", "stub"),
+            "result": prelabels,
+        }
         with open(prediction_payload_path, "a", encoding="utf-8") as f:
             f.write(json.dumps(payload_for_log, indent=2, ensure_ascii=False) + "\n")
     except Exception as e:
@@ -465,27 +532,32 @@ def predict():
             logging.warning("save_predictions_to_labelstudio failed: %s", e)
 
     # >>> WICHTIG: EINZELNES DICT zurückgeben (kein Array, kein 'results'-Wrapper)
-    return jsonify({
-        "model_version": params.get("ollama_model", "stub"),
-        "score": 1.0 if prelabels else 0.0,
-        "result": prelabels,
-        "meta": {
-            "answers": answers,
-            "diagnostics": diagnostics,
-            "status": "timeout" if timed_out else "success",
-            "task_id": task_id,
-            "job_id": job_id
+    return jsonify(
+        {
+            "model_version": params.get("ollama_model", "stub"),
+            "score": 1.0 if prelabels else 0.0,
+            "result": prelabels,
+            "meta": {
+                "answers": answers,
+                "diagnostics": diagnostics,
+                "status": "timeout" if timed_out else "success",
+                "task_id": task_id,
+                "job_id": job_id,
+            },
         }
-    }), 200
+    ), 200
+
 
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "UP"}), 200
 
+
 # required from label studio for registration
 @app.route("/setup", methods=["GET", "POST"])
 def setup():
     return jsonify({"status": "ok"})
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=PORT, debug=True)
