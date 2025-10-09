@@ -1,4 +1,5 @@
 ## Why this matters
+Xtractyl runs fully locally and does not rely on external APIs or cloud services.
 
 Extracting structured data from unstructured documents is a major challenge in regulated, data-intensive industries such as healthcare, life sciences, and public administration.
 Xtractyl is used to identify patterns and extract structured data to generate aggregated, group-level insights — helping researchers and developers build auditable, privacy-preserving data pipelines.
@@ -13,9 +14,11 @@ While not a medical device, Xtractyl addresses key challenges relevant to MedTec
 
 ⚠️ Note: Xtractyl is a research-only tool — not intended for commercial or medical use.
 ⚠️ Note: All included medical test data are fully synthetic and created with AI.
-
+⚠️ Note: For development purposes data currently shows up in the local log files (be aware of that when working with real data)
 
 ## Work in Progress
+
+⚠️ Note: Xtractyl is supposed to run on a server with GPU. GPU support is currently switched off (CUDA and MPS). CUDA support will be switched on as soon as we have the hardware to test it.
 
 - The pipeline has so far been tested only with simple synthetic PDFs.
 
