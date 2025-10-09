@@ -13,7 +13,9 @@ While not a medical device, Xtractyl addresses key challenges relevant to MedTec
 	•	🧩 Extensible pipeline architecture using Docker and modern ML tools
 
 ⚠️ Note: Xtractyl is a research-only tool — not intended for commercial or medical use.
+
 ⚠️ Note: All included medical test data are fully synthetic and created with AI.
+
 ⚠️ Note: For development purposes data currently shows up in the local log files (be aware of that when working with real data)
 
 ## Work in Progress
