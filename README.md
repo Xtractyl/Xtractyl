@@ -28,7 +28,9 @@ While not a medical device, Xtractyl addresses key challenges relevant to MedTec
 
 - Testing is currently added.
 
-- The results page and its backend endpoints are still missing. The results page has to include functionality to transform model answers to categorical data and standardize answers to turn them into database-ready.
+- The results page has to include functionality to transform model answers to categorical data and standardize answers to turn them database-ready.
+
+- A dashboard has to be included to display the generated database
 
 - Pages and backend logic to evaluate AI metrics and finetune models are still missing.
 
