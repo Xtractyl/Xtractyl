@@ -6,6 +6,7 @@ from routes.check_project_exists import check_project_exists
 
 # Route implementations
 from routes.create_project import create_project_main_from_payload
+from routes.get_results_table import build_results_table
 from routes.list_html_folders import list_html_subfolders
 from routes.load_ollama_models import (
     load_ollama_models_main_wrapper as load_ollama_models_main,
@@ -184,6 +185,46 @@ def preview_qal():
     Response: <parsed JSON>  // dict or list, as stored in the file
     """
     return preview_qal_route()
+
+
+@app.route("/get_results_table", methods=["POST"])
+def get_results_table():
+    """
+    Build a tabular results view: one row per task, columns = filename + one column per predicted label.
+    Request JSON:
+      {
+        "project_name": str,
+        "token": str,
+        "limit": int (optional, default 50),
+        "offset": int (optional, default 0)
+      }
+    Response JSON:
+      {
+        "status": "success",
+        "logs": {
+          "columns": ["task_id", "filename", "LabelA", "LabelB", ...],
+          "rows": [
+            {"task_id": 123, "filename": "file1.pdf", "LabelA": "yes", "LabelB": "42"},
+            ...
+          ],
+          "total": 124,
+          "limit": 50,
+          "offset": 0
+        }
+      }
+    """
+    payload = request.get_json() or {}
+    project_name = payload.get("project_name")
+    token = payload.get("token")
+    limit = int(payload.get("limit", 50))
+    offset = int(payload.get("offset", 0))
+
+    def _run():
+        if not project_name or not token:
+            raise ValueError("project_name and token are required")
+        return build_results_table(token, project_name, limit=limit, offset=offset)
+
+    return try_wrap(_run)
 
 
 if __name__ == "__main__":
