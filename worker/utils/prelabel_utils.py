@@ -163,9 +163,11 @@ def send_predict(
             q_count = len(qs)
 
     # environment parameters (seconds)
-    llm_timeout_per_q = int(os.getenv("LLM_TIMEOUT", "20"))      # max seconds per question for LLM
-    llm_overhead_per_q = int(os.getenv("LLM_OVERHEAD", "5"))     # per-question overhead (DOM, parsing, etc.)
-    upload_margin = int(os.getenv("UPLOAD_MARGIN", "30"))        # fixed margin for POST + LS internals
+    llm_timeout_per_q = int(os.getenv("LLM_TIMEOUT", "20"))  # max seconds per question for LLM
+    llm_overhead_per_q = int(
+        os.getenv("LLM_OVERHEAD", "5")
+    )  # per-question overhead (DOM, parsing, etc.)
+    upload_margin = int(os.getenv("UPLOAD_MARGIN", "30"))  # fixed margin for POST + LS internals
 
     # total timeout grows linearly with question count
     request_timeout = q_count * (llm_timeout_per_q + llm_overhead_per_q) + upload_margin
