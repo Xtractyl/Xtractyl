@@ -76,12 +76,19 @@ export default function StartPrelabellingCard({ apiToken }) {
   const handleCancel = async () => {
     if (!preJobId) return;
     try {
-      const data = await cancelPrelabel(preJobId);
-      setStatusMsg(
-        data.status === "cancel_requested"
-          ? "🛑 Cancel requested."
-          : "ℹ️ Already finished."
-      );
+    await cancelPrelabel(preJobId);
+    // fetch fresh status to decide correct message
+    const s = await getPrelabelStatus(preJobId);
+    const st = String(s?.state || "").toUpperCase();
+    if (st === "CANCEL_REQUESTED") {
+      setStatusMsg("🛑 Cancel requested.");
+    } else if (st === "SUCCEEDED" || st === "DONE") {
+      setStatusMsg("ℹ️ Already finished.");
+    } else if (st === "ERROR") {
+      setStatusMsg("⚠️ Job errored before cancel.");
+    } else {
+      setStatusMsg(`ℹ️ State: ${st || "unknown"}`);
+   }
     } catch (e) {
       setStatusMsg(`❌ ${e.message || "Cancel failed."}`);
     }
@@ -107,10 +114,20 @@ export default function StartPrelabellingCard({ apiToken }) {
         }
   
         setPreStatus(s);
-  
-        if (["done", "error", "cancelled"].includes(s.state)) {
+        const st = String(s?.state || "").toLowerCase();
+        const pct = Number(s?.progress ?? 0);
+
+        if (["done", "error", "cancelled", "succeeded"].includes(st)) {
           localStorage.removeItem("prelabelJobId");
           setPreJobId("");
+          return;
+        }
+
+        // treat CANCEL_REQUESTED at 100% as finished
+        if (st === "cancel_requested" && pct >= 1) {
+          localStorage.removeItem("prelabelJobId");
+          setPreJobId("");
+          setStatusMsg("✅ Job finished (cancel request acknowledged).");
           return;
         }
   
