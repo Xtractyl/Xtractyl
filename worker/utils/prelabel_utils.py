@@ -154,8 +154,23 @@ def send_predict(
         payload["questions"] = questions_list
     if labels_list is not None:
         payload["labels"] = labels_list
+    # ---- dynamic timeout calculation (simple & linear) ----
+    # determine number of questions (at least 1)
+    q_count = 1
+    if isinstance(questions_and_labels, dict):
+        qs = questions_and_labels.get("questions")
+        if isinstance(qs, list) and len(qs) > 0:
+            q_count = len(qs)
 
-    return requests.post(url, json=payload, timeout=HTTP_TIMEOUT)
+    # environment parameters (seconds)
+    llm_timeout_per_q = int(os.getenv("LLM_TIMEOUT", "20"))      # max seconds per question for LLM
+    llm_overhead_per_q = int(os.getenv("LLM_OVERHEAD", "5"))     # per-question overhead (DOM, parsing, etc.)
+    upload_margin = int(os.getenv("UPLOAD_MARGIN", "30"))        # fixed margin for POST + LS internals
+
+    # total timeout grows linearly with question count
+    request_timeout = q_count * (llm_timeout_per_q + llm_overhead_per_q) + upload_margin
+
+    return requests.post(url, json=payload, timeout=request_timeout)
 
 
 def _task_has_predictions(task: Dict[str, Any]) -> bool:
