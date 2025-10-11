@@ -160,19 +160,6 @@ services:
       - LS_PORT=${LABELSTUDIO_PORT:-8080}
       - ML_BACKEND_HOST=ml_backend
       - ML_BACKEND_PORT=${ML_BACKEND_INTERNAL_PORT:-6789}
-
-      # ---------- timeout & tuning ----------
-      # seconds for the LLM to respond per single question for a single html 
-      - LLM_TIMEOUT=120
-      # seconds overhead per single question and single html (overhead for localisation of the LLM answer in the html)
-      - LLM_OVERHEAD=10
-      # fixed margin in seconds (network + Label Studio write time)
-      - UPLOAD_MARGIN=30
-      # polling: how long (in seconds) to wait for Label Studio to update database after sending prediction
-      - POLL_TIMEOUT=1800
-      # polling interval: how often to check Label Studio for saved prediction
-      - POLL_INTERVAL=2
-
     command: ["python", "-m", "worker.prelabel_worker"]
 
 volumes:
