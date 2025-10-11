@@ -83,10 +83,11 @@ services:
       - ./ml_backend:/app
       - ${LOGS_DIR:-./logs}:/logs
     environment:
-      - ML_BACKEND_PORT=${ML_BACKEND_PORT:-6789}
-      - ML_BACKEND_INTERNAL_PORT=${ML_BACKEND_INTERNAL_PORT:-6789}
-      - FRONTEND_PORT=${FRONTEND_PORT:-5173}
-      - LABELSTUDIO_PORT=${LABELSTUDIO_PORT:-8080}
+    - ML_BACKEND_PORT=${ML_BACKEND_PORT:-6789}
+    - ML_BACKEND_INTERNAL_PORT=${ML_BACKEND_INTERNAL_PORT:-6789}
+    - FRONTEND_PORT=${FRONTEND_PORT:-5173}
+    - LABELSTUDIO_HOST=labelstudio        
+    - LABELSTUDIO_PORT=${LABELSTUDIO_PORT:-8080}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${ML_BACKEND_INTERNAL_PORT:-6789}/health"]
       interval: 10s
@@ -122,6 +123,45 @@ services:
       - FRONTEND_PORT=${FRONTEND_PORT:-5173}
     command: ["sh", "-c", "flask run --host=0.0.0.0 --port=$DOCLING_PORT"]
 
+  job_queue:
+    image: redis:7
+    container_name: ${JOB_QUEUE_CONTAINER_NAME:-job_queue}
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - ${REDIS_DATA_VOLUME:-redis_data}:/data
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  worker_prelabel:
+    build:
+      context: .
+      dockerfile: docker/worker/Dockerfile
+    container_name: ${WORKER_PRELABEL_CONTAINER_NAME:-worker_prelabel}
+    depends_on:
+      job_queue:
+        condition: service_healthy
+      ml_backend:
+        condition: service_started
+    volumes:
+      - ./worker:/app/worker
+      - ${PROJECTS_DIR:-./data/projects}:/app/data/projects
+      - ${HTMLS_DIR:-./data/htmls}:/app/data/htmls
+      - ${LOGS_DIR:-./logs}:/logs
+    environment:
+      - REDIS_HOST=${REDIS_HOST:-job_queue}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - LS_HOST=labelstudio
+      - LS_PORT=${LABELSTUDIO_PORT:-8080}
+      - ML_BACKEND_HOST=ml_backend
+      - ML_BACKEND_PORT=${ML_BACKEND_INTERNAL_PORT:-6789}
+    command: ["python", "-m", "worker.prelabel_worker"]
+
 volumes:
   labelstudio_data:
   pgdata:
@@ -129,3 +169,4 @@ volumes:
   fontcache:
   xdg_cache:
   xdg_data:
+  redis_data:

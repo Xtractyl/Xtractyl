@@ -13,7 +13,9 @@ While not a medical device, Xtractyl addresses key challenges relevant to MedTec
 	•	🧩 Extensible pipeline architecture using Docker and modern ML tools
 
 ⚠️ Note: Xtractyl is a research-only tool — not intended for commercial or medical use.
+
 ⚠️ Note: All included medical test data are fully synthetic and created with AI.
+
 ⚠️ Note: For development purposes data currently shows up in the local log files (be aware of that when working with real data)
 
 ## Work in Progress
@@ -26,7 +28,9 @@ While not a medical device, Xtractyl addresses key challenges relevant to MedTec
 
 - Testing is currently added.
 
-- The results page and its backend endpoints are still missing. The results page has to include functionality to transform model answers to categorical data and standardize answers to turn them into database-ready.
+- The results page has to include functionality to transform model answers to categorical data and standardize answers to turn them database-ready.
+
+- A dashboard has to be included to display the generated database
 
 - Pages and backend logic to evaluate AI metrics and finetune models are still missing.
 
@@ -123,7 +127,7 @@ For current testing:
 
 - get you label studio legacy token from label studio starting xtractyl with: docker compose up --build and copy it from http://localhost:8080/user/account/legacy-token,  download the model you want to use for the test via the download option here: http://localhost:5173/prelabelling
 - then: docker compose down
-- make the model available via export TEST_MODEL=gemma3:12b (or another model using the model names from here https://ollama.com/library, but the included baseline_predictions.json has been created with gemma3:12b, to create your own baseline_predictions.json, just delete tests/e2e/data/ground_truth_and_baseline_results/baseline_predictions.json and a baseline_predictions.json with your model will be created on the first e2e test)
+- make the model available via: export TEST_MODEL=gemma3:12b (or another model using the model names from here https://ollama.com/library, but the included baseline_predictions.json has been created with gemma3:12b, to create your own baseline_predictions.json, just delete tests/e2e/data/ground_truth_and_baseline_results/baseline_predictions.json and a baseline_predictions.json with your model will be created on the first e2e test)
 - to modify the ground truth file just go to tests/e2e/data/ground_truth_and_baseline_results/ground_truth.json
 - make the label studio legacy token available with: export LABEL_STUDIO_LEGACY_TOKEN=your legacy token
 - then run the tests via 
