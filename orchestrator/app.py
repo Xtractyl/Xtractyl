@@ -111,12 +111,6 @@ def get_results_table_route():
 # ---------- async job endpoints (no blueprint) ----------
 
 
-@app.route("/prelabel_project_async", methods=["POST"])
-def route_enqueue_job():
-    payload = request.get_json() or {}
-    return ok(lambda: enqueue_prelabel_job(payload))
-
-
 @app.route("/jobs/<job_id>", methods=["GET"])
 def route_job_status(job_id):
     return ok(lambda: get_job_status(job_id))
