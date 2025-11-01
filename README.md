@@ -18,9 +18,166 @@ While not a medical device, Xtractyl addresses key challenges relevant to MedTec
 
 ⚠️ Note: For development purposes data currently shows up in the local log files (be aware of that when working with real data)
 
+## 🏗️ Architecture Overview
+
+Items with green background are already implemented ✅, items with red background are under construction 🧱
+
+```mermaid
+flowchart TD
+
+%% ====== TOP NODE ======
+T[Frontend]
+
+%% ====== ROW 1 ======
+subgraph Z["Single Question Mode"]
+direction LR
+ A1[Frontend - PDF library] --> B1[Docling]
+end
+
+subgraph ZA["Database Mode"]
+direction LR
+ A1A[Frontend - Upload & Convert Docs] --> B1A[Docling]
+end
+
+T --> Z
+T --> ZA
+
+%% ====== ROW 2 ======
+subgraph Z2[" "]
+direction LR
+ A2[Frontend - Ask question]
+ B2[Orchestrator]
+ C2[ML backend] 
+ D2[Question Library]
+ E2[Ollama]
+ F2[Redis] 
+ G2[Worker] 
+ H2[ML backend] 
+ I2[Ollama]
+ J2[Label Studio]
+end
+
+
+%% same node connecting to multiple targets
+A2 --> B2
+B2 --> C2
+C2 --> D2
+D2 --> C2
+C2 --> E2
+E2 --> C2
+B2 --> F2
+F2 --> G2
+G2 --> H2
+H2 --> I2
+I2 --> H2
+H2 --> J2
+
+subgraph ZA2[" "]
+direction LR
+ A2A[Frontend -Create Project] --> B2A[Orchestrator] --> C2A[Label Studio]
+end
+
+Z --> Z2
+ZA --> ZA2
+
+%% ====== ROW 3 ======
+subgraph Z3[" "]
+direction LR
+ A3[Frontend - Review Answers and Upload Answers to Library] --> B3[Label Studio] --> C3[Question Library] 
+end
+
+subgraph ZA3[" "]
+direction LR
+ A3A[Frontend - Upload Tasks] --> B3A[Orchestrator] --> C3A[Label Studio]
+end
+
+%% ====== CONNECTIONS BETWEEN ROWS ======
+Z2 --> Z3
+ZA2 --> ZA3
+
+%% ====== ROW 4 ======
+subgraph ZA4[" "]
+direction LR
+ A4A[Frontend - Ask question]
+ B4A[Orchestrator]
+ C4A[Redis] 
+ D4A[Worker] 
+ E4A[ML backend] 
+ F4A[Ollama]
+ G4A[Label Studio]
+end
+
+
+%% same node connecting to multiple targets
+A4A --> B4A
+B4A --> C4A
+C4A --> D4A
+D4A --> E4A
+E4A --> F4A
+F4A --> E4A
+E4A --> G4A
+
+%% ====== CONNECTIONS BETWEEN ROWS ======
+ZA3 --> ZA4
+
+%% ====== ROW 5 ======
+subgraph ZA5[" "]
+direction LR
+ A5A[Frontend - Review AI] --> B5A[Label Studio]
+end
+
+%% ====== CONNECTIONS BETWEEN ROWS ======
+ZA4 --> ZA5
+
+%% ====== ROW 6 ======
+subgraph ZA6[" "]
+direction LR
+ A6[Frontend - Get Results] --> B6A[Orchestrator] --> C6A[Label Studio]
+end
+
+%% ====== CONNECTIONS BETWEEN ROWS ======
+ZA5 --> ZA6
+
+%% ====== ROW 7 ======
+subgraph ZA7[" "]
+direction LR
+ A7[Frontend - Evaluate AI] 
+end
+
+%% ====== CONNECTIONS BETWEEN ROWS ======
+ZA6 --> ZA7
+
+
+%% ====== ROW 8 ======
+subgraph ZA8[" "]
+direction LR
+ A8[Frontend - Finetune AI] 
+end
+
+%% ====== CONNECTIONS BETWEEN ROWS ======
+ZA7 --> ZA8
+
+%% change the subgraph background color green
+style ZA fill:#A7F3D0,stroke:#88a,stroke-width:1px;
+style ZA2 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
+style ZA3 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
+style ZA4 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
+style ZA5 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
+style ZA6 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
+style ZA7 fill:#FCA5A5,stroke:#88a,stroke-width:1px;
+style ZA8 fill:#FCA5A5,stroke:#88a,stroke-width:1px;
+
+%% change the subgraph background color red
+style Z fill:#FCA5A5,stroke:#88a,stroke-width:1px;
+style Z2 fill:#FCA5A5,stroke:#88a,stroke-width:1px;
+style Z3 fill:#FCA5A5,stroke:#88a,stroke-width:1px;
+  ```
+
 ## Work in Progress
 
 ⚠️ Note: Xtractyl is supposed to run on a server with GPU. GPU support is currently switched off (CUDA and MPS). CUDA support will be switched on as soon as we have the hardware to test it.
+
+- A single question mode has to be implemented to ask a question to a large library of PDFs and save previous answers for more efficacy.
 
 - The pipeline has so far been tested only with simple synthetic PDFs.
 
@@ -30,7 +187,7 @@ While not a medical device, Xtractyl addresses key challenges relevant to MedTec
 
 - The results page has to include functionality to transform model answers to categorical data and standardize answers to turn them database-ready.
 
-- A dashboard has to be included to display the generated database
+- A dashboard has to be included to display the generated database.
 
 - Pages and backend logic to evaluate AI metrics and finetune models are still missing.
 
@@ -132,12 +289,23 @@ For current testing:
 - make the label studio legacy token available with: export LABEL_STUDIO_LEGACY_TOKEN=your legacy token
 - then run the tests via 
 - make test-smoke   # just smoke test
-- make test-e2e     # just e2e test
+- make test-e2e     # just e2e test 🔧 --currently under construction--
 
 
 
 ## 📖 Usage
+Usage includes 2 workflows:
+1. Single Question Mode
+2. Database Mode
 
+In Single Question Mode asks
+
+### 📖 Single Question Mode
+This mode is currently in preparation, see the following for the planned workflow
+1. 
+
+
+### 📖 Single Question Mode
 1. **Open the frontend**  
 	Go to: [http://localhost:5173]
 
@@ -181,6 +349,7 @@ For current testing:
    - Download an LLM (using the official model names from the linked ollama page)
    - After downloading a new model reload the page to make it available
    - Pick the project name  (same name as in step 3)
+   - Enter the label studio token
    - Select a model from the dropdown list
    - Enter a system prompt to advise the model for literal extraction (you see a suggestions
       under "Show example")
@@ -194,8 +363,9 @@ For current testing:
 
 6. **Review the AI**  
    Page: **Review in Label Studio** (`/review`)  
-   - Click the "Open Label Studio" to go to a to an overview of your label studio projects,
-      click on your project and validate/correct predictions for your files (in case you did not wait till prelabelling was finished, you have to reload to see the predictions added over time)
+   - Click the "Open Label Studio" to go to a to an overview of your label studio projects
+   - Click on your project and
+   - Validate/correct predictions for your files (in case you did not wait till prelabelling was finished, you have to reload to see the predictions added over time) and submit the changes
 
 ### Review AI 
 ![Review AI Page](assets/review_0.png)
@@ -206,23 +376,29 @@ For current testing:
 
 ![Review AI 3](assets/review_3.png)
 
-![Review AI 4](assets/review_4.png)
+7. **Result Page** 
+   Page: **Review in Label Studio** (`/results`)  
+   - Enter your project name 
+   - Enter the label studio token
+   - Click fetch to get the results (in case you did not wait till prelabelling was finished, you have to re-click fetch to see the predictions added over time)
+### Get Results 
+❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
-
+![Review AI 3](assets/results.png)
+❗❗THE ABOVE IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
 ---
 
 ### ⏭️ Coming Soon
-
-7. **Get your results**  
-   Page: **Get Results** (`/results`)  
-   - Export validated annotations for downstream use
 
 8. **Evaluate the AI** (`/evaluate`)  
    - Compare predictions vs. ground truth, see metrics
 
 9. **Fine-tune the AI** (`/finetune`) 
    - Use your labeled data to improve model performance
+
+10. **Second Workflow for Single Questions**
+   - Ask a PDF library a single question, check previously asked question, get previous and new answers inside the PDFs
 
 ---
 
