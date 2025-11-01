@@ -1,4 +1,4 @@
-// src/pages/UploadTasksPage.jsx
+// src/pages/UploadTasks.jsx
 import React from "react";
 import UploadTasksCard from "../components/UploadTasksPage/UploadTasksCard";
 

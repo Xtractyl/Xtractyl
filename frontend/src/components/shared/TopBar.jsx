@@ -11,7 +11,7 @@ export default function TopBar() {
         <span className="text-xl font-bold tracking-wide">Xtractyl</span>
       </div>
 
-      {/* Flow-Navigation */}
+      {/* Navigation Database Mode */}
       <nav className="bg-xtractyl-shadowgreen text-white px-8 py-6 flex items-center justify-center space-x-6">
         <NavLink
           to="/"
@@ -106,6 +106,44 @@ export default function TopBar() {
         Finetune AI
         </NavLink>       
       </nav>
+
+        {/* Navigation Single Question Mode */}
+        <nav className="bg-xtractyl-shadowgreen text-white px-8 py-6 flex items-center justify-center space-x-6">
+
+        <NavLink
+        to="/library"
+        className={({ isActive }) =>
+            `text-lg px-6 py-3 rounded-xl font-medium transition
+            ${isActive ? 'bg-xtractyl-green text-white' : 'hover:bg-xtractyl-green/80'}`
+        }
+        >
+        PDF library
+        </NavLink>   
+
+        <ChevronRight className="text-white w-5 h-5" />
+
+        <NavLink
+        to="/question"
+        className={({ isActive }) =>
+            `text-lg px-6 py-3 rounded-xl font-medium transition
+            ${isActive ? 'bg-xtractyl-green text-white' : 'hover:bg-xtractyl-green/80'}`
+        }
+        >
+        Ask Question
+        </NavLink>   
+
+        <ChevronRight className="text-white w-5 h-5" />
+
+        <NavLink
+        to="/uploadanswer"
+        className={({ isActive }) =>
+            `text-lg px-6 py-3 rounded-xl font-medium transition
+            ${isActive ? 'bg-xtractyl-green text-white' : 'hover:bg-xtractyl-green/80'}`
+        }
+        >
+        Review and Upload Answer
+        </NavLink>  
+    </nav>
     </header>
   )
 }

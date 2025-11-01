@@ -45,7 +45,7 @@ T --> ZA
 %% ====== ROW 2 ======
 subgraph Z2[" "]
 direction LR
- A2[Frontend - Ask question]
+ A2[Frontend - Ask Question]
  B2[Orchestrator]
  C2[ML backend] 
  D2[Question Library]
@@ -83,7 +83,7 @@ ZA --> ZA2
 %% ====== ROW 3 ======
 subgraph Z3[" "]
 direction LR
- A3[Frontend - Review Answers and Upload Answers to Library] --> B3[Label Studio] --> C3[Question Library] 
+ A3[Frontend - Review and Upload Answer] --> B3[Label Studio] --> C3[Question Library] 
 end
 
 subgraph ZA3[" "]

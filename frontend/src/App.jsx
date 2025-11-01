@@ -8,6 +8,9 @@ import ReviewAIPage from './pages/ReviewAI.jsx';
 import GetResultsPage from './pages/GetResults.jsx';
 import EvaluateAIPage from './pages/EvaluateAI.jsx';
 import FinetuneAIPage from './pages/FinetuneAI.jsx';
+import PDFLibraryPage from './pages/PDFLibrary.jsx';
+import AskQuestionPage from './pages/AskQuestion.jsx';
+import ReviewandUploadAnswerPage from './pages/ReviewandUploadAnswer.jsx';
 
 import { useState, useEffect } from 'react';
 
@@ -33,9 +36,12 @@ export default function App() {
           <Route path="/tasks" element={<UploadTasksPage apiToken={apiToken} />} />
           <Route path="/prelabelling" element={<StartPrelabellingPage apiToken={apiToken}  />} />
           <Route path="/review" element={<ReviewAIPage />} />
-          <Route path="/results" element={<GetResultsPage />} />
+          <Route path="/results" element={<GetResultsPage apiToken={apiToken}  />} />
           <Route path="/evaluate" element={<EvaluateAIPage />} />
           <Route path="/finetune" element={<FinetuneAIPage />} />
+         <Route path="/library" element={<PDFLibraryPage/>} />
+         <Route path="/question" element={<AskQuestionPage/>} />
+         <Route path="/uploadanswer" element={<ReviewandUploadAnswerPage/>} />
         </Routes>
       </Layout>
     </Router>
