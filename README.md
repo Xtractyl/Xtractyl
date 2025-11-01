@@ -310,7 +310,8 @@ This mode is currently in preparation, see the following for the planned workflo
 	Go to: [http://localhost:5173]
 
 2. **Upload your docs** (PDF → HTML conversion)  
-   Page: **Upload & Convert** (`/`)  
+
+   Page: **Upload & Convert Docs** (`/`)  
    - type a folder name  for your project
    - Select PDFs and click **Upload & Convert**  
    - You can monitor status and cancel a running job
@@ -324,6 +325,7 @@ This mode is currently in preparation, see the following for the planned workflo
 ---
 
 3. **Create a new project** in Label Studio  
+
    Page: **Create Project** (`/project`)  
    - Save your Label Studio token:
       click on "Get your legacy token" and create a user account for label studio
@@ -339,6 +341,7 @@ This mode is currently in preparation, see the following for the planned workflo
 ---
 
 4. **Upload your tasks into the project**  
+
    Page: **Upload Tasks** (`/tasks`)  
    - Pick the project name  (same name as in step 3)
    - Select the HTML folder (from step 2)  
@@ -352,6 +355,7 @@ This mode is currently in preparation, see the following for the planned workflo
 ---
 
 5. **Start AI prelabeling**  
+
    Page: **Start AI** (`/prelabelling`)  
    - Download an LLM (using the official model names from the linked ollama page)
    - After downloading a new model reload the page to make it available
@@ -370,7 +374,8 @@ This mode is currently in preparation, see the following for the planned workflo
 
 ---
 
-6. **Review the AI**  
+6. **Review the AI** 
+ 
    Page: **Review AI** (`/review`)  
    - Click the "Open Label Studio" to go to a to an overview of your label studio projects
    - Click on your project and
