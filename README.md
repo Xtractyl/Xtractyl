@@ -377,7 +377,6 @@ This mode is currently in preparation, see the following for the planned workflo
 ![Review AI 3](assets/review_3.png)
 
 7. **Result Page** 
-
    Page: **Get Results** (`/results`)  
    - Enter your project name 
    - Enter the label studio token
