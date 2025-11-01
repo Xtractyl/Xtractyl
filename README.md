@@ -345,7 +345,7 @@ This mode is currently in preparation, see the following for the planned workflo
 
 
 5. **Start AI prelabeling**  
-   Page: **Start Prelabeling** (`/prelabelling`)  
+   Page: **Start AI** (`/prelabelling`)  
    - Download an LLM (using the official model names from the linked ollama page)
    - After downloading a new model reload the page to make it available
    - Pick the project name  (same name as in step 3)
@@ -362,7 +362,7 @@ This mode is currently in preparation, see the following for the planned workflo
 
 
 6. **Review the AI**  
-   Page: **Review in Label Studio** (`/review`)  
+   Page: **Review AI** (`/review`)  
    - Click the "Open Label Studio" to go to a to an overview of your label studio projects
    - Click on your project and
    - Validate/correct predictions for your files (in case you did not wait till prelabelling was finished, you have to reload to see the predictions added over time) and submit the changes
@@ -377,7 +377,8 @@ This mode is currently in preparation, see the following for the planned workflo
 ![Review AI 3](assets/review_3.png)
 
 7. **Result Page** 
-   Page: **Review in Label Studio** (`/results`)  
+
+   Page: **Get Results** (`/results`)  
    - Enter your project name 
    - Enter the label studio token
    - Click fetch to get the results (in case you did not wait till prelabelling was finished, you have to re-click fetch to see the predictions added over time)
@@ -385,6 +386,7 @@ This mode is currently in preparation, see the following for the planned workflo
 ❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
 ![Review AI 3](assets/results.png)
+
 ❗❗THE ABOVE IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
 ---
@@ -397,7 +399,7 @@ This mode is currently in preparation, see the following for the planned workflo
 9. **Fine-tune the AI** (`/finetune`) 
    - Use your labeled data to improve model performance
 
-10. **Second Workflow for Single Questions**
+10. **Second Workflow**
    - Ask a PDF library a single question, check previously asked question, get previous and new answers inside the PDFs
 
 ---
