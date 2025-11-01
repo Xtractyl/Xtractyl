@@ -315,11 +315,13 @@ This mode is currently in preparation, see the following for the planned workflo
    - Select PDFs and click **Upload & Convert**  
    - You can monitor status and cancel a running job
 
+---
 ### Upload Page
 ![Upload Page](assets/upload_and_convert.png)
 
 ![Upload Page Running](assets/upload_and_convert_running.png)
 
+---
 
 3. **Create a new project** in Label Studio  
    Page: **Create Project** (`/project`)  
@@ -330,9 +332,11 @@ This mode is currently in preparation, see the following for the planned workflo
       and in the same order as the questions)
    - Create the project via the "Create project" button
 
+---
 ### Create Project Page
 ![Create Project Page](assets/create_project.png)
 
+---
 
 4. **Upload your tasks into the project**  
    Page: **Upload Tasks** (`/tasks`)  
@@ -340,9 +344,12 @@ This mode is currently in preparation, see the following for the planned workflo
    - Select the HTML folder (from step 2)  
    - Click "Upload HTML Tasks"
 
+---
+
 ### Upload Tasks Page
 ![Upload Tasks Page](assets/upload_tasks.png)
 
+---
 
 5. **Start AI prelabeling**  
    Page: **Start AI** (`/prelabelling`)  
@@ -357,15 +364,19 @@ This mode is currently in preparation, see the following for the planned workflo
       the Preview button for review)
    - Click the "Start prelabeling button"
 
+---
 ### Start AI Page
 ![Start AI Page](assets/start_AI.png)
 
+---
 
 6. **Review the AI**  
    Page: **Review AI** (`/review`)  
    - Click the "Open Label Studio" to go to a to an overview of your label studio projects
    - Click on your project and
    - Validate/correct predictions for your files (in case you did not wait till prelabelling was finished, you have to reload to see the predictions added over time) and submit the changes
+
+---
 
 ### Review AI 
 ![Review AI Page](assets/review_0.png)
@@ -376,11 +387,15 @@ This mode is currently in preparation, see the following for the planned workflo
 
 ![Review AI 3](assets/review_3.png)
 
-7. **Result Page** 
+---
+
+7. **Results Page** 
    Page: **Get Results** (`/results`)  
    - Enter your project name 
    - Enter the label studio token
    - Click fetch to get the results (in case you did not wait till prelabelling was finished, you have to re-click fetch to see the predictions added over time)
+
+---
 ### Get Results 
 ❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
