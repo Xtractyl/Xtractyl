@@ -390,6 +390,7 @@ This mode is currently in preparation, see the following for the planned workflo
 ---
 
 7. **Results Page** 
+
    Page: **Get Results** (`/results`)  
    - Enter your project name 
    - Enter the label studio token
