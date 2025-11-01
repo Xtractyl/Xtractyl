@@ -375,7 +375,7 @@ This mode is currently in preparation, see the following for the planned workflo
 ---
 
 6. **Review the AI** 
- 
+
    Page: **Review AI** (`/review`)  
    - Click the "Open Label Studio" to go to a to an overview of your label studio projects
    - Click on your project and
@@ -413,13 +413,13 @@ This mode is currently in preparation, see the following for the planned workflo
 
 ### ⏭️ Coming Soon
 
-8. **Evaluate the AI** (`/evaluate`)  
+8.**Evaluate the AI** (`/evaluate`)  
    - Compare predictions vs. ground truth, see metrics
 
-9. **Fine-tune the AI** (`/finetune`) 
+9.**Fine-tune the AI** (`/finetune`) 
    - Use your labeled data to improve model performance
 
-10. **Second Workflow**
+10.**Second Workflow**
    - Ask a PDF library a single question, check previously asked question, get previous and new answers inside the PDFs
 
 ---
