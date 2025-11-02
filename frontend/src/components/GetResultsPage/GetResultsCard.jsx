@@ -62,6 +62,8 @@ export default function GetResultsCard() {
   const pageCount = Math.max(1, Math.ceil(total / Math.max(1, limit)));
 
   return (
+    <div className="p-8 bg-[#e6e2cf] min-h-screen text-[#23211c]">
+
     <div style={cardStyle}>
       <h2 style={{ margin: 0, fontSize: 20 }}>Results</h2>
       <p style={{ marginTop: 6, color: "#6b7280" }}>
@@ -151,6 +153,7 @@ export default function GetResultsCard() {
       ) : null}
 
       <ResultsTable columns={columns} rows={rows} />
+    </div>
     </div>
   );
 }

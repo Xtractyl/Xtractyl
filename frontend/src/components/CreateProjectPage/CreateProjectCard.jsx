@@ -25,8 +25,12 @@ export default function ProjectCard({ onTokenSave }) {
   };
 
   return (
+    
     <div className="p-8 bg-[#e6e2cf] min-h-screen text-[#23211c]">
-      {/* ...Token helper links... */}
+      <h1 className="text-2xl font-semibold mb-4">Create Project</h1>
+      <p className="text-gray-600 mb-6">
+        Enter API token, choose a project name, enter your questions as well as labels for them.
+      </p>
       <TokenInput onTokenSave={handleLocalTokenSave} />
       {apiToken && <CreateProjectForm onSubmit={handleFormSubmit} />}
     </div>
