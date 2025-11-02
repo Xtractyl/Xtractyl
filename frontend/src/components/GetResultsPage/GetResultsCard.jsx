@@ -65,7 +65,7 @@ export default function GetResultsCard() {
     <div className="p-8 bg-[#e6e2cf] min-h-screen text-[#23211c]">
         <h1 className="text-2xl font-semibold mb-4">Get Results</h1>
         <p className="text-gray-600">
-          Enter your project name, enter your API token and fetch your database (Re-fetch your data to update in case the AI is still running).
+          Enter your project name, enter your API token and submit to get your database (re-submit your data to update in case the AI is still running).
         </p>
   <div className="mt-6 border border-gray-200 p-4 flex flex-col gap-4 bg-xtractyl-offwhite">
 
