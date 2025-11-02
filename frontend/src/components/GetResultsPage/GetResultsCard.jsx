@@ -63,94 +63,98 @@ export default function GetResultsCard() {
 
   return (
     <div className="p-8 bg-[#e6e2cf] min-h-screen text-[#23211c]">
+        <h1 className="text-2xl font-semibold mb-4">Get Results</h1>
+        <p className="text-gray-600">
+          Enter your project name, enter your API token and fetch your database (Re-fetch your data to update in case the AI is still running).
+        </p>
+  <div className="mt-6 border border-gray-200 p-4 flex flex-col gap-4 bg-xtractyl-offwhite">
 
-    <div style={cardStyle}>
-      <h2 style={{ margin: 0, fontSize: 20 }}>Results</h2>
-      <p style={{ marginTop: 6, color: "#6b7280" }}>
-        Enter project name and Label Studio token to fetch the tabular predictions.
-      </p>
+    <form onSubmit={onSubmit} className="flex flex-row items-end gap-4">
 
-      <form onSubmit={onSubmit} style={formRow}>
-        <div style={fieldCol}>
-          <label style={labelStyle}>Project name</label>
+      <div className="flex flex-col flex-1">
+        <label className="font-semibold mb-2">Project name</label>
           <input
             type="text"
             placeholder="e.g., results"
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
-            style={inputStyle}
             required
+            className="border border-gray-300 rounded-md text-sm px-3 py-2 outline-none w-full focus:ring-2 focus:ring-xtractyl-lightgreen"
           />
         </div>
 
-        <div style={fieldCol}>
-          <label style={labelStyle}>Label Studio token</label>
-          <input
-            type="password"
-            placeholder="Enter token"
-            value={token}
-            onChange={(e) => setToken(e.target.value)}
-            style={inputStyle}
-            required
-          />
-        </div>
+      <div className="flex flex-col flex-1">
+        <label className="font-semibold mb-2">Label Studio Token</label>
+        <input
+          type="password"
+          placeholder="Enter token"
+          value={token}
+          onChange={(e) => setToken(e.target.value)}
+          required
+          className="border border-gray-300 rounded-md text-sm px-3 py-2 outline-none w-full focus:ring-2 focus:ring-xtractyl-lightgreen"
+        />
+      </div>
 
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 8 }}>
-          <button type="submit" disabled={!canSubmit || loading} style={buttonStyle}>
-            {loading ? "Loading…" : "Fetch"}
-          </button>
-        </div>
+        <button
+          type="submit"
+          disabled={!canSubmit || loading}
+          className="px-3 py-2 bg-xtractyl-green text-white rounded-md cursor-pointer hover:bg-xtractyl-lightgreen hover:text-xtractyl-offwhite "
+        >
+          Submit
+        </button>
       </form>
 
-      <div style={controlsRow}>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <label style={labelStyleSm}>Limit</label>
-          <input
-            type="number"
-            min={1}
-            max={200}
-            value={limit}
-            onChange={(e) => setLimit(Math.max(1, Math.min(200, Number(e.target.value) || 1)))}
-            style={{ ...inputStyle, width: 100, padding: "6px 10px" }}
-          />
-          <label style={labelStyleSm}>Offset</label>
+        <div className="flex justify-between items-center mt-4 gap-2">
+        <label className="font-medium text-[13px] mb-1 text-gray-700">Limit</label>
+        <input
+          type="number"
+          min={1}
+          max={200}
+          value={limit}
+          onChange={(e) =>
+            setLimit(Math.max(1, Math.min(200, Number(e.target.value) || 1)))
+          }
+          className="border border-gray-300 rounded-md text-sm outline-none px-2.5 py-1.5 w-[100px] focus:ring-2 focus:ring-xtractyl-lightgreen"
+        />
+          <label className="font-medium text-[13px] mb-1 text-gray-700">Offset</label>
           <input
             type="number"
             min={0}
             value={offset}
             onChange={(e) => setOffset(Math.max(0, Number(e.target.value) || 0))}
-            style={{ ...inputStyle, width: 120, padding: "6px 10px" }}
+            className="border border-gray-300 rounded-md text-sm outline-none px-2.5 py-1.5 w-[100px] focus:ring-2 focus:ring-xtractyl-lightgreen"
+
           />
-          <span style={{ color: "#6b7280" }}>
+         <span className="text-gray-500">
             Page {page} / {pageCount} • Total {total}
           </span>
         </div>
-
-        <div style={{ display: "flex", gap: 8 }}>
+        <div className="flex gap-2">
           <button
             type="button"
             onClick={() => setOffset((o) => Math.max(0, o - limit))}
             disabled={offset <= 0 || loading}
-            style={buttonGhost}
+            className="px-3 py-2 bg-xtractyl-green text-white rounded-md cursor-pointer hover:bg-xtractyl-lightgreen hover:text-xtractyl-offwhite transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Prev
           </button>
+
           <button
             type="button"
             onClick={() => setOffset((o) => (o + limit < total ? o + limit : o))}
             disabled={offset + limit >= total || loading}
-            style={buttonGhost}
+            className="px-3 py-2 bg-xtractyl-green text-white rounded-md cursor-pointer hover:bg-xtractyl-lightgreen hover:text-xtractyl-offwhite transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Next
           </button>
-        </div>
       </div>
 
       {err ? (
-        <div style={errorBox}>
+        <div className="p-3 border border-red-200 bg-rose-50 text-rose-900 rounded-md">
           <strong>Error:</strong> {err}
         </div>
       ) : null}
+ 
 
       <ResultsTable columns={columns} rows={rows} />
     </div>
@@ -158,64 +162,6 @@ export default function GetResultsCard() {
   );
 }
 
-const cardStyle = {
-  border: "1px solid #e5e7eb",
-  borderRadius: 12,
-  padding: 16,
-  display: "flex",
-  flexDirection: "column",
-  gap: 16,
-  background: "white",
-};
 
-const formRow = {
-  display: "grid",
-  gridTemplateColumns: "minmax(220px, 1fr) minmax(260px, 1fr) auto",
-  gap: 12,
-  alignItems: "flex-end",
-};
 
-const controlsRow = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-};
 
-const fieldCol = { display: "flex", flexDirection: "column", gap: 6 };
-
-const labelStyle = { fontSize: 12, color: "#374151" };
-const labelStyleSm = { fontSize: 12, color: "#6b7280" };
-
-const inputStyle = {
-  border: "1px solid #d1d5db",
-  borderRadius: 8,
-  padding: "8px 12px",
-  outline: "none",
-  fontSize: 14,
-};
-
-const buttonStyle = {
-  background: "#111827",
-  color: "white",
-  border: "1px solid #111827",
-  borderRadius: 8,
-  padding: "10px 14px",
-  cursor: "pointer",
-};
-
-const buttonGhost = {
-  background: "white",
-  color: "#111827",
-  border: "1px solid #d1d5db",
-  borderRadius: 8,
-  padding: "8px 12px",
-  cursor: "pointer",
-};
-
-const errorBox = {
-  padding: 12,
-  border: "1px solid #fecaca",
-  background: "#fff1f2",
-  color: "#7f1d1d",
-  borderRadius: 8,
-};
