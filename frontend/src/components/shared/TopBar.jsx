@@ -18,9 +18,13 @@ export default function TopBar() {
   return (
     <header className="shadow-md">
       {/* Branding Line */}
-      <div className="bg-xtractyl-green text-white px-8 py-3 flex items-center space-x-3">
-        <img src={logo} alt="Xtractyl Logo" className="h-8 w-auto" />
-        <span className="text-xl font-bold tracking-wide">Xtractyl</span>
+<div className="bg-gradient-to-r from-xtractyl-offwhite to-white text-xtractyl-orange px-8 py-3 flex items-center space-x-3 shadow-md">        <img src={logo} alt="Xtractyl Logo" className="h-20 w-auto" />
+ <span
+  className="text-4xl font-bold tracking-wide antialiased"
+  style={{ textShadow: '0 1px 2px rgba(0,0,0,0.25)' }}
+>
+  Xtractyl
+</span>
       </div>
 
       {/* switch between workflows */}
