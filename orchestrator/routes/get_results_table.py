@@ -27,67 +27,30 @@ def _resolve_project_id(token: str, project_name: str) -> int:
     raise ValueError(f'Project "{project_name}" not found')
 
 
-def _fetch_tasks_page(
-    token: str, project_id: int, limit: int, offset: int
-) -> Tuple[List[dict], int]:
+def _fetch_tasks_page(token: str, project_id: int, limit: int = 0, offset: int = 0) -> Tuple[List[dict], int]:
     """
-    Fetch tasks including predictions using the project-scoped endpoint.
-    Maps offset/limit -> page/page_size for Label Studio.
+    Fetch all tasks (including predictions) for a project — without pagination.
+    Works for both dict and list responses from Label Studio.
     """
     headers = _auth_headers(token)
-    page = (offset // max(1, limit)) + 1
     url = f"{LABEL_STUDIO_URL}/api/projects/{project_id}/tasks"
-    params = {"include": "predictions", "page_size": limit, "page": page}
-    r = requests.get(url, headers=headers, params=params, timeout=30)
+    params = {"include": "predictions"}
+    
+    r = requests.get(url, headers=headers, params=params, timeout=60)
     r.raise_for_status()
     data = r.json()
+
     if isinstance(data, dict) and "results" in data:
         tasks = data.get("results", [])
         total = int(data.get("count", len(tasks)))
-        return tasks, total
-    if isinstance(data, list):
-        return data, len(data)
-    return [], 0
+    elif isinstance(data, list):
+        tasks = data
+        total = len(tasks)
+    else:
+        tasks = []
+        total = 0
 
-
-def _value_from_result_obj(res_obj: dict):
-    """
-    Return a normalized tuple (value_str, text_str) for non-'labels' types.
-    For 'labels' we handle separately in _prediction_map_per_class.
-    """
-    val = res_obj.get("value", {})
-    typ = res_obj.get("type")
-
-    if typ == "labels":
-        # handled elsewhere
-        labels = val.get("labels")
-        text = val.get("text", "")
-        if isinstance(labels, list):
-            return ", ".join(map(str, labels)), text
-        if isinstance(labels, str):
-            return labels, text
-        return "", text
-
-    if "choices" in val and isinstance(val["choices"], list):
-        s = ", ".join(map(str, val["choices"]))
-        return s, s
-    if "text" in val and isinstance(val["text"], list):
-        s = "\n".join(map(str, val["text"]))
-        return s, s
-    if "text" in val and isinstance(val["text"], str):
-        return val["text"], val["text"]
-    if "textarea" in val and isinstance(val["textarea"], list):
-        s = "\n".join(map(str, val["textarea"]))
-        return s, s
-    if "number" in val:
-        return str(val["number"]), ""
-    if "rating" in val:
-        return str(val["rating"]), ""
-    if isinstance(val, dict) and len(val) == 1:
-        v = next(iter(val.values()))
-        return (str(v), str(v)) if isinstance(v, (str, int, float)) else ("", "")
-
-    return "", ""
+    return tasks, total
 
 
 def _prediction_map(task: dict) -> dict:
@@ -180,7 +143,5 @@ def build_results_table(token: str, project_name: str, limit: int = 50, offset: 
     return {
         "columns": columns,
         "rows": rows,
-        "total": int(total),
-        "limit": int(limit),
-        "offset": int(offset),
+        "total": int(total)
     }
