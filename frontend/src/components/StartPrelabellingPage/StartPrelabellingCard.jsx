@@ -58,7 +58,7 @@ export default function StartPrelabellingCard({ apiToken }) {
         model,
         system_prompt: systemPrompt,
         qal_file: qalFile,
-        token,
+        token: localToken,
         questions_and_labels: questionsAndLabels,
       };
 
