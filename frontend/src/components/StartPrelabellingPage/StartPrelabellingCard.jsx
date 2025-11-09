@@ -205,7 +205,7 @@ export default function StartPrelabellingCard({ apiToken }) {
         <div className="mt-3">
           <label className="block text-sm font-medium mb-1">Label Studio Token</label>
           <input
-            type="text"
+            type="password"
             value={localToken}
             onChange={(e) => setToken(e.target.value)}
             placeholder={localToken || "Enter your Label Studio token"}
