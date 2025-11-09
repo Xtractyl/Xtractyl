@@ -21,8 +21,8 @@ export default function GetResultsCard({apiToken}) {
   }, [projectName]);
 
   useEffect(() => {
-    localStorage.setItem("ls_token", token);
-  }, [token]);
+      setToken(apiToken || "");
+    }, [apiToken]);
 
   const fetchData = useCallback(async () => {
     if (!canSubmit) return;

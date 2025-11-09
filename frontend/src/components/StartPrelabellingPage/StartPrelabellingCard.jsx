@@ -35,6 +35,10 @@ export default function StartPrelabellingCard({ apiToken }) {
   useEffect(() => { try { localStorage.setItem("xtractylSystemPrompt", systemPrompt || ""); } catch {} }, [systemPrompt]);
   useEffect(() => { try { localStorage.setItem("xtractylProjectName", projectName || ""); } catch {} }, [projectName]);
   useEffect(() => { try { localStorage.setItem("xtractylQALFile", qalFile || ""); } catch {} }, [qalFile]);
+  
+  useEffect(() => {
+      setToken(apiToken || "");
+    }, [apiToken]);
 
   const handleQalChange = (_project, file, json) => {
     setQalFile(file);

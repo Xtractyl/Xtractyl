@@ -1,5 +1,5 @@
 // src/components/UploadTasks/UploadTasksCard.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ProjectNameInput from "../shared/ProjectNameInput";
 import HtmlFolderSelect from "./HTMLFolderSelect";
 import { uploadTasks } from "../../api/UploadTasksPage/api.js";
@@ -12,6 +12,10 @@ export default function UploadTasksCard({ apiToken }) {
   const [localToken, setLocalToken] = useState(apiToken || "");
   const [status, setStatus] = useState(null);
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    setLocalToken(apiToken || "");
+  }, [apiToken]);
 
   const handleUpload = async () => {
     if (!projectName || !htmlFolder || !localToken) {
