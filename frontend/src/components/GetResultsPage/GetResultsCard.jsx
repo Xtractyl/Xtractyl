@@ -5,10 +5,9 @@ import { getResultsTable } from "../../api/GetResultsPage/api.js";
 
 const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080"; // only for links
 
-export default function GetResultsCard() {
+export default function GetResultsCard({apiToken}) {
   const [projectName, setProjectName] = useState(() => localStorage.getItem("ls_project_name") || "");
-  const [token, setToken] = useState(() => localStorage.getItem("ls_token") || "");
-
+  const [token, setToken] = useState(apiToken || "");
   const [columns, setColumns] = useState([]);
   const [rows, setRows] = useState([]);
 
