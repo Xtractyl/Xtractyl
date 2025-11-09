@@ -27,7 +27,9 @@ def _resolve_project_id(token: str, project_name: str) -> int:
     raise ValueError(f'Project "{project_name}" not found')
 
 
-def _fetch_tasks_page(token: str, project_id: int, limit: int = 0, offset: int = 0) -> Tuple[List[dict], int]:
+def _fetch_tasks_page(
+    token: str, project_id: int, limit: int = 0, offset: int = 0
+) -> Tuple[List[dict], int]:
     """
     Fetch all tasks (including predictions) for a project — without pagination.
     Works for both dict and list responses from Label Studio.
@@ -35,7 +37,7 @@ def _fetch_tasks_page(token: str, project_id: int, limit: int = 0, offset: int =
     headers = _auth_headers(token)
     url = f"{LABEL_STUDIO_URL}/api/projects/{project_id}/tasks"
     params = {"include": "predictions"}
-    
+
     r = requests.get(url, headers=headers, params=params, timeout=60)
     r.raise_for_status()
     data = r.json()
@@ -140,8 +142,4 @@ def build_results_table(token: str, project_name: str, limit: int = 50, offset: 
             flat[col] = r["labels"].get(col, "")
         rows.append(flat)
 
-    return {
-        "columns": columns,
-        "rows": rows,
-        "total": int(total)
-    }
+    return {"columns": columns, "rows": rows, "total": int(total)}
