@@ -86,7 +86,7 @@ export default function UploadTasksCard({ apiToken }) {
             type="text"
             value={localToken}
             onChange={(e) => setLocalToken(e.target.value)}
-            placeholder="Enter your Label Studio token"
+            placeholder={localToken || "Enter your Label Studio token"}
             className="w-full border rounded px-3 py-2"
           />
         </div>

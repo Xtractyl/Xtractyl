@@ -34,12 +34,12 @@ export default function UploadAndConvertCard() {
     <div className="p-6 bg-[#e6e2cf] min-h-screen text-[#23211c]">
       <h1 className="text-2xl font-semibold mb-4">Upload and Convert Docs</h1>
       <p className="text-gray-600 mb-6">
-        Select PDF files and specify a folder for HTML conversion.
+        Select PDF files and specify a working folder for HTML conversion.
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block font-medium mb-1">Type in folder name</label>
+          <label className="block font-medium mb-1">Type in the name for a new folder or that of an existing folder</label>
           <input
             list="folder-options"
             type="text"

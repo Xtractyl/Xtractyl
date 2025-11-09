@@ -29,7 +29,7 @@ export default function StartPrelabellingCard({ apiToken }) {
   const [preStatus, setPreStatus] = useState(null);
   const [busy, setBusy] = useState(false);
   const [statusMsg, setStatusMsg] = useState("");
-  const [token, setToken] = useState(apiToken || "");
+  const [localToken, setToken] = useState(apiToken || "");
 
   useEffect(() => { try { localStorage.setItem("ollamaModel", model || ""); } catch {} }, [model]);
   useEffect(() => { try { localStorage.setItem("xtractylSystemPrompt", systemPrompt || ""); } catch {} }, [systemPrompt]);
@@ -42,7 +42,7 @@ export default function StartPrelabellingCard({ apiToken }) {
   };
 
   const canStart =
-    !!projectName && !!model && !!systemPrompt.trim() && !!qalFile && !!token && !preJobId;
+    !!projectName && !!model && !!systemPrompt.trim() && !!qalFile && !!localToken && !preJobId;
 
   const handleStart = async () => {
     if (!canStart) return;
@@ -206,9 +206,9 @@ export default function StartPrelabellingCard({ apiToken }) {
           <label className="block text-sm font-medium mb-1">Label Studio Token</label>
           <input
             type="text"
-            value={token}
+            value={localToken}
             onChange={(e) => setToken(e.target.value)}
-            placeholder="Paste your legacy API token"
+            placeholder={localToken || "Enter your Label Studio token"}
             className="w-full border rounded px-3 py-2"
             autoComplete="off"
             spellCheck={false}

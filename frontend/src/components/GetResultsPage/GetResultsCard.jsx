@@ -3,6 +3,8 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import ResultsTable from "./ResultsTable";
 import { getResultsTable } from "../../api/GetResultsPage/api.js";
 
+const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080"; // only for links
+
 export default function GetResultsCard() {
   const [projectName, setProjectName] = useState(() => localStorage.getItem("ls_project_name") || "");
   const [token, setToken] = useState(() => localStorage.getItem("ls_token") || "");
@@ -58,7 +60,30 @@ export default function GetResultsCard() {
       <p className="text-gray-600">
         Enter your project name, enter your API token and submit to get your database (re-submit your data to update in case the AI is still running).
       </p>
-
+      <div className="mb-6"></div>
+          <a
+            href={`${LS_BASE}/user/account/legacy-token`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block bg-[#db7127] text-white text-base font-medium px-5 py-2 rounded shadow hover:bg-orange-600 transition"
+          >
+            Get your legacy token
+          </a>
+          <p className="mt-2 text-sm text-gray-500">
+            Return here after copying the token from Label Studio.
+          </p>
+          <p className="mt-1 text-sm text-gray-500">
+            ⚠️ If you see no legacy token there, go to{" "}
+            <a
+              href={`${LS_BASE}/organization/`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#6baa56] hover:underline"
+            >
+              {LS_BASE}/organization
+            </a>{" "}
+            and enable it via the API Tokens settings.
+          </p>        
       <div className="mt-6 border border-gray-200 p-4 flex flex-col gap-4 bg-xtractyl-offwhite">
         <form onSubmit={onSubmit} className="flex flex-row items-end gap-4">
           <div className="flex flex-col flex-1">
