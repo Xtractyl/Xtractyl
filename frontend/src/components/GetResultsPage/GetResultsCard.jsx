@@ -32,8 +32,10 @@ export default function GetResultsCard({ apiToken, projectName}) {
     setLoading(true);
     setErr("");
     try {
-      // Backend liefert jetzt ALLE Daten für das Projekt
-      const data = await getResultsTable({ localProjectName, token });
+      const data = await getResultsTable({
+        projectName: localProjectName,
+        token,
+      });
       setColumns(Array.isArray(data.columns) ? data.columns : []);
       setRows(Array.isArray(data.rows) ? data.rows : []);
     } catch (e) {
