@@ -45,7 +45,7 @@ export default function GetResultsCard({ apiToken, projectName}) {
     } finally {
       setLoading(false);
     }
-  }, [canSubmit, projectName, token]);
+    }, [canSubmit, localProjectName, token]);
 
   const onSubmit = (e) => {
     e.preventDefault();
