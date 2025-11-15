@@ -3,7 +3,7 @@ import useCreateProject from "../../hooks/CreateProjectPage/useCreateProject.js"
 import TokenInput from "./TokenInput";
 import CreateProjectForm from "./CreateProjectForm";
 
-export default function CreateProjectCard({ apiToken, onTokenSave }) {
+export default function CreateProjectCard({ apiToken, onTokenSave , projectName,  onProjectNamesave }) {
   const { checkProjectExists, createProject } = useCreateProject();
 
   const handleFormSubmit = async (formData) => {
