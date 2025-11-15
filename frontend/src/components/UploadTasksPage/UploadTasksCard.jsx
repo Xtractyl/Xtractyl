@@ -6,8 +6,8 @@ import { uploadTasks } from "../../api/UploadTasksPage/api.js";
 
 const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080";
 
-export default function UploadTasksCard({ apiToken }) {
-  const [projectName, setProjectName] = useState("");
+export default function UploadTasksCard({ apiToken, projectName }) {
+  const [localProjectName, setLocalProjectName] = useState(projectName || "");
   const [htmlFolder, setHtmlFolder] = useState("");
   const [localToken, setLocalToken] = useState(apiToken || "");
   const [status, setStatus] = useState(null);
@@ -17,22 +17,29 @@ export default function UploadTasksCard({ apiToken }) {
     setLocalToken(apiToken || "");
   }, [apiToken]);
 
+  useEffect(() => {
+    setLocalProjectName((prev) => {
+      if (prev && prev.trim().length > 0) return prev;
+      return projectName || "";
+    });
+  }, [projectName]);
+
   const handleUpload = async () => {
-    if (!projectName || !htmlFolder || !localToken) {
+    if (!localProjectName || !htmlFolder || !localToken) {
       alert("Please provide all fields.");
       return;
     }
-  
+
     try {
       setBusy(true);
       setStatus(null);
-  
+
       const result = await uploadTasks({
-        projectName,
+        projectName: localProjectName,
         token: localToken,
         htmlFolder,
       });
-  
+
       console.log("✅ Upload success:", result);
       setStatus("✅ Tasks uploaded successfully.");
     } catch (error) {
@@ -51,7 +58,7 @@ export default function UploadTasksCard({ apiToken }) {
       </p>
 
       <div className="space-y-6 bg-[#ede6d6] p-6 rounded shadow max-w-xl">
-        <ProjectNameInput value={projectName} onChange={setProjectName} />
+        <ProjectNameInput value={localProjectName} onChange={setLocalProjectName} />
         <HtmlFolderSelect selected={htmlFolder} onChange={setHtmlFolder} />
 
         {/* Token helper link */}
