@@ -87,6 +87,7 @@ export default function UploadTasksCard({ apiToken }) {
             Label Studio Token
           </label>
           <input
+            key={apiToken ?? "empty"}   
             type="password"
             value={localToken}
             onChange={(e) => setLocalToken(e.target.value)}
