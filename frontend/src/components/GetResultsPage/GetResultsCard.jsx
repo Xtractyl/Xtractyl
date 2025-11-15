@@ -5,8 +5,8 @@ import { getResultsTable } from "../../api/GetResultsPage/api.js";
 
 const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080"; // only for links
 
-export default function GetResultsCard({apiToken}) {
-  const [projectName, setProjectName] = useState(() => localStorage.getItem("ls_project_name") || "");
+export default function GetResultsCard({ apiToken, projectName}) {
+  const [localProjectName, setLocalProjectName] = useState(projectName || "");
   const [token, setToken] = useState(apiToken || "");
   const [columns, setColumns] = useState([]);
   const [rows, setRows] = useState([]);
@@ -14,10 +14,13 @@ export default function GetResultsCard({apiToken}) {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
 
-  const canSubmit = useMemo(() => projectName.trim() && token.trim(), [projectName, token]);
+  const canSubmit = useMemo(
+    () => localProjectName.trim() && token.trim(),
+    [localProjectName, token]
+  );
 
   useEffect(() => {
-    localStorage.setItem("ls_project_name", projectName);
+    setLocalProjectName(projectName || "");
   }, [projectName]);
 
   useEffect(() => {
@@ -30,7 +33,7 @@ export default function GetResultsCard({apiToken}) {
     setErr("");
     try {
       // Backend liefert jetzt ALLE Daten für das Projekt
-      const data = await getResultsTable({ projectName, token });
+      const data = await getResultsTable({ localProjectName, token });
       setColumns(Array.isArray(data.columns) ? data.columns : []);
       setRows(Array.isArray(data.rows) ? data.rows : []);
     } catch (e) {
@@ -90,8 +93,8 @@ export default function GetResultsCard({apiToken}) {
             <input
               type="text"
               placeholder="e.g., results"
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
+              value={localProjectName}
+              onChange={(e) => setLocalProjectName(e.target.value)}
               required
               className="border border-gray-300 rounded-md text-sm px-3 py-2 outline-none w-full focus:ring-2 focus:ring-xtractyl-lightgreen"
             />
