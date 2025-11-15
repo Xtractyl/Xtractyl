@@ -16,6 +16,7 @@ import { useState, useEffect } from 'react';
 
 export default function App() {
   const [apiToken, setApiToken] = useState("");
+  const [projectName, setProjectName] = useState("");
 
 useEffect(() => {
   const savedToken = localStorage.getItem("apiToken");
@@ -27,21 +28,31 @@ useEffect(() => {
     localStorage.setItem("apiToken", token);
   };
 
+useEffect(() => {
+  const saved = localStorage.getItem("projectName");
+  if (saved) setProjectName(saved);
+}, []);
+
+const handleProjectNameSave = (name) => {
+  setProjectName(name);
+  localStorage.setItem("projectName", name);
+};
+
   return (
     <Router>
       <Layout>
         <Routes>
-          <Route path="/" element={<UploadandConversionPage apiToken={apiToken} />} />
-          <Route path="/project" element={<CreateProjectPage apiToken={apiToken} onTokenSave={handleTokenSave} />} />
-          <Route path="/tasks" element={<UploadTasksPage apiToken={apiToken} />} />
+          <Route path="/" element={<UploadandConversionPage />} />
+          <Route path="/project" element={<CreateProjectPage apiToken={apiToken} onTokenSave={handleTokenSave} projectName={projectName} onProjectNameSave={handleProjectNameSave}  />} />
+          <Route path="/tasks" element={<UploadTasksPage apiToken={apiToken} ProjectName={projectName}  />} />
           <Route path="/prelabelling" element={<StartPrelabellingPage apiToken={apiToken}  />} />
-          <Route path="/review" element={<ReviewAIPage apiToken={apiToken} />} />
-          <Route path="/results" element={<GetResultsPage apiToken={apiToken}  />} />
-          <Route path="/evaluate" element={<EvaluateAIPage apiToken={apiToken} />} />
-          <Route path="/finetune" element={<FinetuneAIPage apiToken={apiToken} />} />
-          <Route path="/library" element={<PDFLibraryPage apiToken={apiToken} />} />
-          <Route path="/question" element={<AskQuestionPage apiToken={apiToken} />} />
-          <Route path="/uploadanswer" element={<ReviewandUploadAnswerPage apiToken={apiToken} />} />
+          <Route path="/review" element={<ReviewAIPage />} />
+          <Route path="/results" element={<GetResultsPage apiToken={apiToken} projectName={projectName}  />} />
+          <Route path="/evaluate" element={<EvaluateAIPage apiToken={apiToken} projectName={projectName} />} />
+          <Route path="/finetune" element={<FinetuneAIPage apiToken={apiToken} projectName={projectName} />} />
+          <Route path="/library" element={<PDFLibraryPage apiToken={apiToken} projectName={projectName} />} />
+          <Route path="/question" element={<AskQuestionPage apiToken={apiToken} projectName={projectName} />} />
+          <Route path="/uploadanswer" element={<ReviewandUploadAnswerPage apiToken={apiToken} projectName={projectName} />} />
         </Routes>
       </Layout>
     </Router>
