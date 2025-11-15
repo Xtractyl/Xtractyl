@@ -17,22 +17,10 @@ import { useState, useEffect } from 'react';
 export default function App() {
   const [apiToken, setApiToken] = useState("");
 
-  useEffect(() => {
-    // 1) Initial aus localStorage laden
-    const savedToken = localStorage.getItem("apiToken");
-    if (savedToken) setApiToken(savedToken);
-
-    // 2) Auf Änderungen in localStorage reagieren (auch aus anderen Tabs/Fenstern)
-    const handleStorageChange = (event) => {
-      if (event.key === "apiToken") {
-        setApiToken(event.newValue || "");
-      }
-    };
-    window.addEventListener("storage", handleStorageChange);
-
-    // Cleanup
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
+useEffect(() => {
+  const savedToken = localStorage.getItem("apiToken");
+  if (savedToken) setApiToken(savedToken);
+}, []);
 
   const handleTokenSave = (token) => {
     setApiToken(token);
