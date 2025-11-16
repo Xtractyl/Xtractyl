@@ -268,12 +268,14 @@ Create a file named .env in the xtractyl folder (the .env.example file in /xtrac
 
 Create a file named .env in root/frontend/src (the .env.example file in xtractyl/frontend/src is a template)
 
-for testing you can simply rename the .env.example files to .env (this will use default passwords and ports)
+For testing you can simply rename the .env.example files to .env (this will use default passwords and ports)
 
- then start the Docker containers from the xtractyl folder with:
+⚠️ **Warning:** The build currently downloads *all* Docling models (several GB) to ensure full offline functionality. This can be changed to the specific use case via modification of the file docker/docling/Dockerfile at the line: RUN docling-tools models download --all -o /opt/docling-models.
+
+ Then start the Docker containers from the xtractyl folder with:
 docker compose up --build
 
-access the frontend via your browser at http://localhost:5173/ following the workflow shown below under Usage
+Access the frontend via your browser at http://localhost:5173/ following the workflow shown below under Usage
 
 ---
 
