@@ -25,8 +25,8 @@ export default function TokenInput({ onTokenSave }) {
         Enter your Label Studio legacy token
       </label>
       <input
+        type="password"
         id="ls-token"
-        type="text"
         value={token}
         onChange={(e) => setToken(e.target.value)}
         placeholder="Paste your legacy token"

@@ -97,13 +97,11 @@ def get_results_table_route():
     payload = request.get_json() or {}
     project_name = payload.get("project_name")
     token = payload.get("token")
-    limit = int(payload.get("limit", 50))
-    offset = int(payload.get("offset", 0))
 
     def run():
         if not project_name or not token:
             raise ValueError("project_name and token are required")
-        return build_results_table(token, project_name, limit=limit, offset=offset)
+        return build_results_table(token, project_name)
 
     return ok(run)
 

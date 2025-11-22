@@ -1,6 +1,6 @@
 export default function FinetuneAICard() {
     return (
-      <div>
+        <div className="p-8 bg-[#e6e2cf] min-h-screen text-[#23211c]">
         <h1 className="text-2xl font-semibold mb-4">Finetune AI</h1>
         <p className="text-gray-600">
           This feature will be included in later releases. It will allow you

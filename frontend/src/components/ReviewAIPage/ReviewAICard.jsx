@@ -3,7 +3,7 @@ export default function ReviewAICard() {
     const PROJECT_ID = 1; // später gern dynamisch/aus Zustand
   
     return (
-      <div>
+    <div className="p-8 bg-[#e6e2cf] min-h-screen text-[#23211c]">
         <h1 className="text-2xl font-semibold mb-4">Review AI</h1>
         <p className="text-gray-600 mb-4">
           Check and correct the AI-generated results using Label Studio.

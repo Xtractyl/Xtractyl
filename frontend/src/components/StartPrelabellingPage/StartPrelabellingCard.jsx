@@ -10,15 +10,13 @@ import { prelabelProject, cancelPrelabel, getPrelabelStatus } from "../../api/St
 const ORCH_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001";
 const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080"; // only for links
 
-export default function StartPrelabellingCard({ apiToken }) {
+export default function StartPrelabellingCard({ apiToken, projectName }) {
   const [model, setModel] = useState(() => localStorage.getItem("ollamaModel") || "");
   const [refreshKey, setRefreshKey] = useState(0);
   const [systemPrompt, setSystemPrompt] = useState(
     () => localStorage.getItem("xtractylSystemPrompt") || ""
   );
-  const [projectName, setProjectName] = useState(
-    () => localStorage.getItem("xtractylProjectName") || ""
-  );
+  const [localProjectName, setLocalProjectName] = useState(projectName || "");    
   const [qalFile, setQalFile] = useState(
     () => localStorage.getItem("xtractylQALFile") || ""
   );
@@ -29,20 +27,26 @@ export default function StartPrelabellingCard({ apiToken }) {
   const [preStatus, setPreStatus] = useState(null);
   const [busy, setBusy] = useState(false);
   const [statusMsg, setStatusMsg] = useState("");
-  const [token, setToken] = useState(apiToken || "");
+  const [localToken, setToken] = useState(apiToken || "");
 
   useEffect(() => { try { localStorage.setItem("ollamaModel", model || ""); } catch {} }, [model]);
   useEffect(() => { try { localStorage.setItem("xtractylSystemPrompt", systemPrompt || ""); } catch {} }, [systemPrompt]);
-  useEffect(() => { try { localStorage.setItem("xtractylProjectName", projectName || ""); } catch {} }, [projectName]);
+  useEffect(() => {
+                    setLocalProjectName(projectName || "");
+                  }, [projectName]);
   useEffect(() => { try { localStorage.setItem("xtractylQALFile", qalFile || ""); } catch {} }, [qalFile]);
+  
+  useEffect(() => {
+      setToken(apiToken || "");
+    }, [apiToken]);
 
   const handleQalChange = (_project, file, json) => {
     setQalFile(file);
     setQuestionsAndLabels(json);
   };
 
-  const canStart =
-    !!projectName && !!model && !!systemPrompt.trim() && !!qalFile && !!token && !preJobId;
+const canStart =
+    !!localProjectName && !!model && !!systemPrompt.trim() && !!qalFile && !!localToken && !preJobId;
 
   const handleStart = async () => {
     if (!canStart) return;
@@ -50,11 +54,11 @@ export default function StartPrelabellingCard({ apiToken }) {
     setStatusMsg("");
     try {
       const payload = {
-        project_name: projectName,
+        project_name: localProjectName,
         model,
         system_prompt: systemPrompt,
         qal_file: qalFile,
-        token,
+        token: localToken,
         questions_and_labels: questionsAndLabels,
       };
 
@@ -163,7 +167,7 @@ export default function StartPrelabellingCard({ apiToken }) {
       </div>
 
       <div className="space-y-6 bg-[#ede6d6] p-6 rounded shadow max-w-3xl">
-        <ProjectNameInput value={projectName} onChange={setProjectName} />
+      <ProjectNameInput value={localProjectName} onChange={setLocalProjectName} />
         <div className="text-sm text-gray-600 -mt-2">
           <div>Forgot your project name?</div>
           <a
@@ -205,10 +209,10 @@ export default function StartPrelabellingCard({ apiToken }) {
         <div className="mt-3">
           <label className="block text-sm font-medium mb-1">Label Studio Token</label>
           <input
-            type="text"
-            value={token}
+            type="password"
+            value={localToken}
             onChange={(e) => setToken(e.target.value)}
-            placeholder="Paste your legacy API token"
+            placeholder={localToken || "Enter your Label Studio token"}
             className="w-full border rounded px-3 py-2"
             autoComplete="off"
             spellCheck={false}
@@ -224,14 +228,14 @@ export default function StartPrelabellingCard({ apiToken }) {
         />
 
         <QuestionsAndLabelsPicker
-          projectName={projectName}
+          projectName={localProjectName}
           selectedFile={qalFile}
           onChange={handleQalChange}
         />
 
         <div className="pt-2 text-sm text-gray-600">
           <div>
-            Project: <span className="font-mono">{projectName || "—"}</span>
+            Project: <span className="font-mono">{localProjectName || "—"}</span>
           </div>
           <div>
             Model: <span className="font-mono">{model || "—"}</span>
