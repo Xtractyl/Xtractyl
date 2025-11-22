@@ -125,7 +125,7 @@ export default function GetResultsCard({ apiToken, projectName}) {
 
         {err ? (
           <div className="p-3 border border-red-200 bg-rose-50 text-rose-900 rounded-md">
-            <strong>Error:</strong> {err}
+            <strong>Error, does the project already exist in labelstudio?</strong> {err}
           </div>
         ) : null}
 
