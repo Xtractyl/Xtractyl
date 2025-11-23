@@ -369,7 +369,7 @@ def ask_llm_with_timeout(params, prompt: str, timeout: int, model_name: str):
                 "model": model_name,
                 "prompt": prompt,
                 "stream": False,
-                "options": {"temperature": 0},
+                "options": {"temperature": 0, "seed": 42},  # 🧙‍♂️ The One True Seed
             },
             timeout=timeout,
         )
