@@ -1,0 +1,16 @@
+{
+  "questions": [
+    "What is the patient's name, NOT the doctor's name, do not include the title, only the name",
+    "What is the physician's name, NOT the patient's name, do not include the title, only the name",
+    "What is the HbA1c value of the patient, do not include the unit, only the number",
+    "What is the Date of Discharge, only the date",
+    "What is the TNM staging, only give me the Information on p on n on m, no extra information"
+  ],
+  "labels": [
+    "Patient",
+    "Physician",
+    "HbA1c",
+    "DateOfDischarge",
+    "TNM"
+  ]
+}
