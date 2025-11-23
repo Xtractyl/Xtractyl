@@ -36,8 +36,7 @@ def _fetch_tasks_page(
     """
     headers = _auth_headers(token)
     url = f"{LABEL_STUDIO_URL}/api/projects/{project_id}/tasks"
-    params = {"fields": "all",
-              "include": "predictions,annotations"}
+    params = {"fields": "all", "include": "predictions,annotations"}
 
     r = requests.get(url, headers=headers, params=params, timeout=60)
     r.raise_for_status()
@@ -87,8 +86,10 @@ def _prediction_map(task: dict) -> dict:
                 labels = val.get("labels")
                 text = val.get("text", "")
                 labels = (
-                    labels if isinstance(labels, list)
-                    else [labels] if isinstance(labels, str)
+                    labels
+                    if isinstance(labels, list)
+                    else [labels]
+                    if isinstance(labels, str)
                     else []
                 )
                 for cls in labels:
@@ -160,7 +161,7 @@ def build_results_table(token: str, project_name: str, limit: int = 50, offset: 
 
     for t in tasks:
         data = t.get("data") or {}
-        filename = data.get("name", "")  
+        filename = data.get("name", "")
 
         anns = t.get("annotations") or []
         # Bulk liefert nur [{}] oder leere result → dann nachladen
