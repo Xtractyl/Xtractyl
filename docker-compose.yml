@@ -63,6 +63,7 @@ services:
     volumes:
       - ${ORCH_APP_DIR:-./orchestrator}:/app
       - ${PROJECTS_DIR:-./data/projects}:/app/data/projects
+      - ${PROJECTS_DIR:-./data/projects}/Evaluation_Set_Do_Not_Delete:/app/data/projects/Evaluation_Set_Do_Not_Delete:ro
       - ${HTMLS_DIR:-./data/htmls}:/app/data/htmls
       - ${EVAL_DIR:-./evaluation}:/app/evaluation
       - ${LOGS_DIR:-./logs}:/logs
@@ -111,7 +112,9 @@ services:
       - "${DOCLING_PORT:-5004}:${DOCLING_PORT:-5004}"
     volumes:
       - ${PDFS_DIR:-./data/pdfs}:/pdfs
+      - ${PDFS_DIR:-./data/pdfs}/Evaluation_Set_Do_Not_Delete:/pdfs/Evaluation_Set_Do_Not_Delete:ro
       - ${DOC_HTMLS_DIR:-./data/htmls}:/htmls
+      - ${DOC_HTMLS_DIR:-./data/htmls}/Evaluation_Set_Do_Not_Delete:/htmls/Evaluation_Set_Do_Not_Delete:ro
       - ${LOGS_DIR:-./logs}:/logs
       - ${FONTCACHE_VOLUME:-fontcache}:/var/cache/fontconfig
       - ${XDG_CACHE_VOLUME:-xdg_cache}:/root/.cache
@@ -151,6 +154,7 @@ services:
     volumes:
       - ./worker:/app/worker
       - ${PROJECTS_DIR:-./data/projects}:/app/data/projects
+      - ${PROJECTS_DIR:-./data/projects}/Evaluation_Set_Do_Not_Delete:/app/data/projects/Evaluation_Set_Do_Not_Delete:ro
       - ${HTMLS_DIR:-./data/htmls}:/app/data/htmls
       - ${LOGS_DIR:-./logs}:/logs
     environment:
