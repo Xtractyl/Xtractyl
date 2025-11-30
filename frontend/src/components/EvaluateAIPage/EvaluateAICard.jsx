@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { fetchEvaluationProjects } from "../../api/EvaluateAIPage/api";
 
+const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080"; //just for the link
+
 export default function EvaluateAICard({ apiToken }) {
+  const [localToken, setToken] = useState(apiToken || "");
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -9,12 +12,12 @@ export default function EvaluateAICard({ apiToken }) {
 
   // Load project names from orchestrator
   useEffect(() => {
-    if (!apiToken) return;
+    if (!localToken) return;
 
     setLoading(true);
     setErrorMsg("");
 
-    fetchEvaluationProjects(apiToken)
+    fetchEvaluationProjects(localToken)
       .then((names) => {
         setProjects(names);
         if (names.length > 0) {
@@ -26,58 +29,97 @@ export default function EvaluateAICard({ apiToken }) {
         setErrorMsg("Failed to load Label Studio projects.");
       })
       .finally(() => setLoading(false));
-  }, [apiToken]);
+  }, [localToken]);
 
   return (
     <div className="p-8 bg-[#e6e2cf] min-h-screen text-[#23211c]">
       <h1 className="text-2xl font-semibold mb-4">Evaluate AI</h1>
+
       <p className="text-gray-600">
         This feature will be included in later releases. It will allow you
         to compare a model against others using metrics like precision,
         recall, and F1.
       </p>
 
+      {/* === TOKEN SECTION (same logic as your other page) === */}
       <div className="mt-8">
-        <h2 className="text-xl font-semibold mb-2">Select a project</h2>
+        <div>
+          <a
+            href={`${LS_BASE}/user/account/legacy-token`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block bg-[#db7127] text-white text-base font-medium px-5 py-2 rounded shadow hover:bg-orange-600 transition"
+          >
+            Get your legacy token
+          </a>
 
-        {!apiToken && (
-          <p className="text-sm text-red-700">
-            Please provide a Label Studio API token.
+          <p className="mt-2 text-sm text-gray-500">
+            Return here after copying the token from Label Studio.
           </p>
-        )}
 
-        {apiToken && (
-          <>
-            {loading && <p className="text-sm">Loading projects…</p>}
+          <p className="mt-1 text-sm text-gray-500">
+            ⚠️ If you see no legacy token there, go to{" "}
+            <a
+              href={`${LS_BASE}/organization/`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#6baa56] hover:underline"
+            >
+              {LS_BASE}/organization
+            </a>{" "}
+            and enable it via the API Tokens settings.
+          </p>
+        </div>
 
-            {errorMsg && (
-              <p className="text-sm text-red-600">{errorMsg}</p>
-            )}
+        <div className="mt-3">
+          <label className="block text-sm font-medium mb-1">
+            Label Studio Token
+          </label>
 
-            {!loading && !errorMsg && (
-              <>
-                <select
-                  className="w-full p-2 border rounded bg-white mt-2"
-                  value={selectedProject}
-                  onChange={(e) => setSelectedProject(e.target.value)}
-                >
-                  {projects.map((name, idx) => (
-                    <option key={idx} value={name}>
-                      {name}
-                    </option>
-                  ))}
-                </select>
-
-                {selectedProject && (
-                  <p className="mt-3 text-sm text-gray-700">
-                    Selected: <b>{selectedProject}</b>
-                  </p>
-                )}
-              </>
-            )}
-          </>
-        )}
+          <input
+            type="password"
+            value={localToken}
+            onChange={(e) => setToken(e.target.value)}
+            placeholder={localToken || "Enter your Label Studio token"}
+            className="w-full border rounded px-3 py-2"
+            autoComplete="off"
+            spellCheck={false}
+          />
+        </div>
       </div>
+
+      {/* === PROJECT SELECTION === */}
+      {localToken && (
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold mb-2">Select a project</h2>
+
+          {loading && <p className="text-sm">Loading projects…</p>}
+
+          {errorMsg && (
+            <p className="text-sm text-red-600">{errorMsg}</p>
+          )}
+
+          {!loading && !errorMsg && projects.length > 0 && (
+            <>
+              <select
+                className="w-full p-2 border rounded bg-white mt-2"
+                value={selectedProject}
+                onChange={(e) => setSelectedProject(e.target.value)}
+              >
+                {projects.map((name, idx) => (
+                  <option key={idx} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+
+              <p className="mt-3 text-sm text-gray-700">
+                Selected: <b>{selectedProject}</b>
+              </p>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
