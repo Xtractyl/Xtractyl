@@ -432,6 +432,7 @@ This mode is currently in preparation, see the following for the planned workflo
 ```bash
 ruff format .
 ruff check .
+ruff check . --fix
 ```
 ### js for frontend from frontend folder
 ```bash
