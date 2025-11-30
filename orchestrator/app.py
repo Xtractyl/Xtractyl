@@ -5,6 +5,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from routes.check_project_exists import check_project_exists
 from routes.create_project import create_project_main_from_payload
+from routes.evaluate_project import list_project_names
 from routes.get_results_table import build_results_table
 
 # async helpers (no blueprint)
@@ -102,6 +103,21 @@ def get_results_table_route():
         if not project_name or not token:
             raise ValueError("project_name and token are required")
         return build_results_table(token, project_name)
+
+    return ok(run)
+
+
+@app.route("/evaluate-ai/projects", methods=["GET"])
+def evaluate_ai_projects():
+    """
+    Returns a list of project names for the Evaluate AI UI.
+    """
+    token = request.args.get("token")
+    if not token:
+        return jsonify({"status": "error", "error": "token query parameter is required"}), 400
+
+    def run():
+        return list_project_names(token)
 
     return ok(run)
 
