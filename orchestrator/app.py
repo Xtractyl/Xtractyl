@@ -7,6 +7,7 @@ from routes.check_project_exists import check_project_exists
 from routes.create_project import create_project_main_from_payload
 from routes.evaluate_project import list_project_names
 from routes.get_results_table import build_results_table
+from routes.groundtruth_qal import get_groundtruth_qal
 
 # async helpers (no blueprint)
 from routes.jobs import (
@@ -120,6 +121,14 @@ def evaluate_ai_projects():
         return list_project_names(token)
 
     return ok(run)
+
+
+@app.route("/groundtruth_qal", methods=["GET"])
+def groundtruth_qal():
+    """
+    Returns the questions_and_labels.json of the Evaluation_Set_Do_Not_Delete project.
+    """
+    return ok(get_groundtruth_qal)
 
 
 # ---------- async job endpoints (no blueprint) ----------
