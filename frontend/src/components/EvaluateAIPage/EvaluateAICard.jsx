@@ -36,9 +36,7 @@ export default function EvaluateAICard({ apiToken }) {
       <h1 className="text-2xl font-semibold mb-4">Evaluate AI</h1>
 
       <p className="text-gray-600">
-        This feature will be included in later releases. It will allow you
-        to compare a model against others using metrics like precision,
-        recall, and F1.
+        Select a groundtruth project, select a prelabelled project on the same tasks to get evaluation metrics.
       </p>
 
       {/* === TOKEN SECTION (same logic as your other page) === */}
@@ -91,7 +89,7 @@ export default function EvaluateAICard({ apiToken }) {
       {/* === PROJECT SELECTION === */}
       {localToken && (
         <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-2">Select a project</h2>
+          <h2 className="text-sm font-medium mb-1">Select a groundtruth project</h2>
 
           {loading && <p className="text-sm">Loading projects…</p>}
 
