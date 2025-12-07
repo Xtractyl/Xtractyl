@@ -1,6 +1,6 @@
 // src/components/EvaluateAIPage/EvaluateAICard.jsx
 import React, { useEffect, useState } from "react";
-import { fetchEvaluationProjects } from "../../api/EvaluateAIPage/api";
+import { fetchEvaluationProjects, evaluateAI } from "../../api/EvaluateAIPage/api.js";
 import ComparisonSelection from "./ComparisonSelection.jsx";
 import EvaluationResults from "./EvaluationResults.jsx";
 
@@ -13,6 +13,9 @@ export default function EvaluateAICard({ apiToken }) {
   const [errorMsg, setErrorMsg] = useState("");
   const [groundtruthProject, setGroundtruthProject] = useState("");
   const [comparisonProject, setComparisonProject] = useState("");
+  const [evalLoading, setEvalLoading] = useState(false);
+  const [evalError, setEvalError] = useState("");
+  const [evalResult, setEvalResult] = useState(null);
 
   // Load project names from orchestrator
   useEffect(() => {
@@ -43,13 +46,25 @@ export default function EvaluateAICard({ apiToken }) {
       .finally(() => setLoading(false));
   }, [localToken]);
 
-  const handleRunEvaluation = () => {
-    // Hier später den evaluateAI-Call einhängen
-    console.log("Run evaluation with:", {
-      token: localToken,
-      groundtruthProject,
-      comparisonProject,
-    });
+  const handleRunEvaluation = async () => {
+    setEvalLoading(true);
+    setEvalError("");
+    setEvalResult(null);
+
+    try {
+      const result = await evaluateAI(
+        localToken,
+        groundtruthProject,
+        comparisonProject
+      );
+
+      setEvalResult(result);
+    } catch (err) {
+      console.error(err);
+      setEvalError("Evaluation failed. Please try again.");
+    } finally {
+      setEvalLoading(false);
+    }
   };
 
   return (
@@ -122,9 +137,12 @@ export default function EvaluateAICard({ apiToken }) {
         />
       )}
 
-      {/* === COMPARISON SELECTION === */}
+      {/* === EVALUATION RESULTS === */}
       {localToken && (
         <EvaluationResults
+          loading={evalLoading}
+          errorMsg={evalError}
+          result={evalResult}
         />
       )}
     </div>
