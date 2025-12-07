@@ -65,6 +65,7 @@ services:
       - ${PROJECTS_DIR:-./data/projects}:/app/data/projects
       - ${PROJECTS_DIR:-./data/projects}/Evaluation_Set_Do_Not_Delete:/app/data/projects/Evaluation_Set_Do_Not_Delete:ro
       - ${HTMLS_DIR:-./data/htmls}:/app/data/htmls
+      - ./data/labelstudio_Evaluation_Set_Do_Not_Delete:/app/data/labelstudio_Evaluation_Set_Do_Not_Delete:ro
       - ${EVAL_DIR:-./evaluation}:/app/evaluation
       - ${LOGS_DIR:-./logs}:/logs
     environment:

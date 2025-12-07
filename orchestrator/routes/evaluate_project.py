@@ -1,5 +1,6 @@
 # orchestrator/routes/evaluate_project.py
 
+from routes.utils.evaluate_project_utils import (create_evaluation_project, SPECIAL_PROJECT_TITLE)
 import os
 
 import requests
@@ -54,19 +55,32 @@ def _resolve_project_id(token: str, project_name: str) -> int:
 
 def evaluate_projects(token: str, groundtruth_project: str, comparison_project: str) -> dict:
     """
-    Resolve project IDs and (später) compute evaluation metrics.
-    Aktuell nur Stub / Platzhalter.
+    Resolve project IDs and compute evaluation metrics (future step).
+    If the Groundtruth-Projekt 'Evaluation_Set_Do_Not_Delete' does not exist,
+    it will be uploaded into labelstudio and resolved afterwards
     """
-    gt_id = _resolve_project_id(token, groundtruth_project)
+
+    # ---- Groundtruth-ID will be resolved ----
+    try:
+        gt_id = _resolve_project_id(token, groundtruth_project)
+    except ValueError:
+        if groundtruth_project == SPECIAL_PROJECT_TITLE:
+            # if Standard-Eval-Set does not exist it will be uploaded from file
+            gt_id = create_evaluation_project(token)
+        else:
+            # non existent name for any other project raises error
+            raise
+
+    # ---- Comparison project does not need the standard groundtruth project
     cmp_id = _resolve_project_id(token, comparison_project)
 
-    # TODO: hier später Tasks/Annotations laden und Metriken berechnen
+    # ---- here we will later include metrics calculations then integrated into utils/evaluate_project_utils.py ----
     return {
         "groundtruth_project": groundtruth_project,
         "groundtruth_project_id": gt_id,
         "comparison_project": comparison_project,
         "comparison_project_id": cmp_id,
-        "overall_metrics": {},
-        "task_metrics": [],
-        "answer_comparison": [],
+        "overall_metrics": {},      # fill later
+        "task_metrics": [],         # fill later
+        "answer_comparison": [],    # fill later
     }
