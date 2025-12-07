@@ -11,6 +11,10 @@ export default function ComparisonSelection({
   setComparisonProject,
   onSubmit,
 }) {
+
+  const SPECIAL = "Evaluation_Set_Do_Not_Delete";
+  const comparisonOptions = projects.filter((name) => name !== SPECIAL);
+  
   return (
     <div className="mt-8">
       <h2 className="text-sm font-medium mb-1">
@@ -54,7 +58,7 @@ export default function ComparisonSelection({
             value={comparisonProject}
             onChange={(e) => setComparisonProject(e.target.value)}
           >
-            {projects.map((name, idx) => (
+            {comparisonOptions.map((name, idx) => (
               <option key={idx} value={name}>
                 {name}
               </option>

@@ -18,7 +18,7 @@ export default function EvaluateAICard({ apiToken }) {
   const [evalResult, setEvalResult] = useState(null);
 
   // Load project names from orchestrator
-  useEffect(() => {
+    useEffect(() => {
     if (!localToken) return;
 
     setLoading(true);
@@ -26,21 +26,49 @@ export default function EvaluateAICard({ apiToken }) {
 
     fetchEvaluationProjects(localToken)
       .then((names) => {
-        setProjects(names || []);
-        if (names && names.length > 0) {
-          // Default beide auf das erste Projekt setzen
-          setGroundtruthProject((prev) => prev || names[0]);
-          setComparisonProject((prev) => prev || names[0]);
+        const SPECIAL = "Evaluation_Set_Do_Not_Delete";
+        const projectList = names || [];
+
+        const hasSpecial = projectList.includes(SPECIAL);
+
+        // Groundtruth-Projekte: SPECIAL genau einmal drin
+        const groundtruthOptions = hasSpecial
+          ? projectList
+          : [SPECIAL, ...projectList];
+
+        setProjects(groundtruthOptions);
+
+        // Defaults setzen
+        // Groundtruth: SPECIAL wenn möglich, sonst erstes Groundtruth-Projekt
+        if (groundtruthOptions.length > 0) {
+          const defaultGT = groundtruthOptions.includes(SPECIAL)
+            ? SPECIAL
+            : groundtruthOptions[0];
+          setGroundtruthProject((prev) => prev || defaultGT);
         } else {
           setGroundtruthProject("");
+        }
+
+        // Comparison: erstes Projekt, das NICHT SPECIAL ist
+        const comparisonCandidates = groundtruthOptions.filter(
+          (name) => name !== SPECIAL
+        );
+
+        if (comparisonCandidates.length > 0) {
+          setComparisonProject(
+            (prev) => prev || comparisonCandidates[0]
+          );
+        } else {
           setComparisonProject("");
         }
       })
       .catch((err) => {
         console.error(err);
         setErrorMsg("Failed to load Label Studio projects.");
-        setProjects([]);
-        setGroundtruthProject("");
+        const SPECIAL = "Evaluation_Set_Do_Not_Delete";
+        // Fallback: nur Groundtruth mit SPECIAL, Comparison leer
+        setProjects([SPECIAL]);
+        setGroundtruthProject(SPECIAL);
         setComparisonProject("");
       })
       .finally(() => setLoading(false));
