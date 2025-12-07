@@ -1,43 +1,33 @@
 // src/components/EvaluateAIPage/EvaluationResults.jsx
 import React from "react";
 
-export default function EvaluationResults() {
+export default function EvaluationResults({ loading, errorMsg, result }) {
   return (
-    <div className="mt-12">
+<div className="mt-8">
+  <h2 className="text-xl font-semibold text-[#444038] border-b border-[#cfcab5] pb-1">
+    General Project Information
+  </h2>
 
-      {/* Page Title */}
-      <h1 className="text-2xl font-semibold mb-6 text-[#23211c]">
-        Evaluation Results
-      </h1>
-
-      {/* SECTION 1 — GENERAL PROJECT INFORMATION */}
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold text-[#444038] border-b border-[#cfcab5] pb-1">
-          General Project Information
-        </h2>
+  {result && (
+    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+      <div className="p-3 bg-[#f4f1e6] rounded border border-[#d3ccb8]">
+        <div className="font-semibold text-[#23211c]">Groundtruth Project</div>
+        <div className="mt-1 text-[#444038]">
+          Name: <b>{result.groundtruth_project}</b>
+          <br />
+          ID: <span>{result.groundtruth_project_id}</span>
+        </div>
       </div>
-
-      {/* SECTION 2 — OVERALL EVALUATION METRICS */}
-      <div className="mt-10">
-        <h2 className="text-xl font-semibold text-[#444038] border-b border-[#cfcab5] pb-1">
-          Overall Evaluation Metrics
-        </h2>
+      <div className="p-3 bg-[#f4f1e6] rounded border border-[#d3ccb8]">
+        <div className="font-semibold text-[#23211c]">Comparison Project</div>
+        <div className="mt-1 text-[#444038]">
+          Name: <b>{result.comparison_project}</b>
+          <br />
+          ID: <span>{result.comparison_project_id}</span>
+        </div>
       </div>
-
-      {/* SECTION 3 — METRICS BY TASK */}
-      <div className="mt-10">
-        <h2 className="text-xl font-semibold text-[#444038] border-b border-[#cfcab5] pb-1">
-          Evaluation Metrics by Task
-        </h2>
-      </div>
-
-      {/* SECTION 4 — ANSWER COMPARISON */}
-      <div className="mt-10">
-        <h2 className="text-xl font-semibold text-[#444038] border-b border-[#cfcab5] pb-1">
-          Comparison of Answers
-        </h2>
-      </div>
-
     </div>
+  )}
+</div>
   );
 }
