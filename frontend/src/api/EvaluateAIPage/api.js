@@ -53,6 +53,6 @@ export async function evaluateAI(apiToken, groundtruthProject, comparisonProject
     throw new Error(data.error || "Unknown evaluation error");
   }
 
-  // Return complete evaluation payload
-  return data.result;
+  // wichtig: ok() packt alles unter "logs"
+  return data.logs;
 }

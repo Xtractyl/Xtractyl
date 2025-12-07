@@ -50,3 +50,23 @@ def _resolve_project_id(token: str, project_name: str) -> int:
             return int(p["id"])
 
     raise ValueError(f'Project "{project_name}" not found')
+
+
+def evaluate_projects(token: str, groundtruth_project: str, comparison_project: str) -> dict:
+    """
+    Resolve project IDs and (später) compute evaluation metrics.
+    Aktuell nur Stub / Platzhalter.
+    """
+    gt_id = _resolve_project_id(token, groundtruth_project)
+    cmp_id = _resolve_project_id(token, comparison_project)
+
+    # TODO: hier später Tasks/Annotations laden und Metriken berechnen
+    return {
+        "groundtruth_project": groundtruth_project,
+        "groundtruth_project_id": gt_id,
+        "comparison_project": comparison_project,
+        "comparison_project_id": cmp_id,
+        "overall_metrics": {},
+        "task_metrics": [],
+        "answer_comparison": [],
+    }

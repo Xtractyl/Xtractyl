@@ -5,7 +5,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from routes.check_project_exists import check_project_exists
 from routes.create_project import create_project_main_from_payload
-from routes.evaluate_project import list_project_names
+from routes.evaluate_project import evaluate_projects, list_project_names
 from routes.get_results_table import build_results_table
 from routes.groundtruth_qal import get_groundtruth_qal
 
@@ -129,6 +129,34 @@ def groundtruth_qal():
     Returns the questions_and_labels.json of the Evaluation_Set_Do_Not_Delete project.
     """
     return ok(get_groundtruth_qal)
+
+
+@app.route("/evaluate-ai", methods=["POST"])
+def evaluate_ai():
+    """
+    Runs evaluation between a groundtruth project and a comparison project.
+    """
+    payload = request.get_json() or {}
+
+    token = payload.get("token")
+    gt_name = payload.get("groundtruth_project")
+    cmp_name = payload.get("comparison_project")
+
+    if not token or not gt_name or not cmp_name:
+        return (
+            jsonify(
+                {
+                    "status": "error",
+                    "error": "token, groundtruth_project, comparison_project are required",
+                }
+            ),
+            400,
+        )
+
+    def run():
+        return evaluate_projects(token, gt_name, cmp_name)
+
+    return ok(run)
 
 
 # ---------- async job endpoints (no blueprint) ----------
