@@ -1,5 +1,6 @@
-import os
 import json
+import os
+
 import requests
 
 LABEL_STUDIO_URL = (
@@ -48,7 +49,7 @@ def create_evaluation_project(token: str) -> int:
         raise RuntimeError("No labels found in Evaluation_Set.json (value.labels).")
 
     # label_config dynamisch aus den Labelnamen bauen
-    labels_xml = "".join(f'<Label value="{l}"/>' for l in sorted(labels_set))
+    labels_xml = "".join(f'<Label value="{label}"/>' for label in sorted(labels_set))
 
     label_config = f"""
     <View>

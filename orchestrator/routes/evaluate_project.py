@@ -1,9 +1,9 @@
 # orchestrator/routes/evaluate_project.py
 
-from routes.utils.evaluate_project_utils import (create_evaluation_project, SPECIAL_PROJECT_TITLE)
 import os
 
 import requests
+from routes.utils.evaluate_project_utils import SPECIAL_PROJECT_TITLE, create_evaluation_project
 
 LABEL_STUDIO_URL = (
     f"http://{os.getenv('LABELSTUDIO_CONTAINER_NAME', 'labelstudio')}:"
@@ -80,7 +80,7 @@ def evaluate_projects(token: str, groundtruth_project: str, comparison_project: 
         "groundtruth_project_id": gt_id,
         "comparison_project": comparison_project,
         "comparison_project_id": cmp_id,
-        "overall_metrics": {},      # fill later
-        "task_metrics": [],         # fill later
-        "answer_comparison": [],    # fill later
+        "overall_metrics": {},  # fill later
+        "task_metrics": [],  # fill later
+        "answer_comparison": [],  # fill later
     }
