@@ -79,7 +79,7 @@ export default function TopBar() {
              ${isActive ? 'bg-xtractyl-green text-white' : 'hover:bg-xtractyl-green/80'}`
           }
         >
-          Create Project Files
+          Create Project Files and Labelstudio Project
         </NavLink>
 
         <ChevronRight className="text-white w-5 h-5" />
@@ -91,7 +91,7 @@ export default function TopBar() {
              ${isActive ? 'bg-xtractyl-green text-white' : 'hover:bg-xtractyl-green/80'}`
           }
           >
-          Create Project in Labelstudio<br />Upload Tasks
+          Upload Tasks in Labelstudio Project
         </NavLink>
 
         <ChevronRight className="text-white w-5 h-5" />
