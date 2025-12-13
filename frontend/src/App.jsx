@@ -11,6 +11,8 @@ import FinetuneAIPage from './pages/FinetuneAI.jsx';
 import PDFLibraryPage from './pages/PDFLibrary.jsx';
 import AskQuestionPage from './pages/AskQuestion.jsx';
 import ReviewandUploadAnswerPage from './pages/ReviewandUploadAnswer.jsx';
+import AboutPage from './pages/AboutPage.jsx';
+
 
 import { useState, useEffect } from 'react';
 
@@ -43,6 +45,7 @@ const handleProjectNameSave = (name) => {
       <Layout>
         <Routes>
           <Route path="/" element={<UploadandConversionPage />} />
+          <Route path="/aboutpage" element={<AboutPage />} />
           <Route path="/project" element={<CreateProjectPage apiToken={apiToken} onTokenSave={handleTokenSave} onProjectNameSave={handleProjectNameSave}  />} />
           <Route path="/tasks" element={<UploadTasksPage apiToken={apiToken} projectName={projectName}  />} />
           <Route path="/prelabelling" element={<StartPrelabellingPage apiToken={apiToken} projectName={projectName} />} />

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
-import logo from '../../assets/xtractyl_dinosaur_with_transparent_background.png'
+import logo from '../../assets/xtractyl_corporate_without_date_no_bg.png'
 import { ChevronRight } from 'lucide-react' 
+import { Link } from "react-router-dom";
 
 export default function TopBar() {
   const [activeFlow, setActiveFlow] = useState('database')
@@ -18,14 +19,15 @@ export default function TopBar() {
   return (
     <header className="shadow-md">
       {/* Branding Line */}
-<div className="bg-gradient-to-r from-xtractyl-offwhite to-white text-xtractyl-orange px-8 py-3 flex items-center space-x-3 shadow-md">        <img src={logo} alt="Xtractyl Logo" className="h-20 w-auto" />
- <span
-  className="text-4xl font-bold tracking-wide antialiased"
-  style={{ textShadow: '0 1px 2px rgba(0,0,0,0.25)' }}
->
-  Xtractyl
-</span>
-      </div>
+<div className="bg-xtractyl-lightgreen px-8  flex items-center space-x-3 shadow-md">
+  <Link to="/aboutpage">
+    <img
+      src={logo}
+      alt="Xtractyl Logo"
+      className="h-32 w-auto cursor-pointer"
+    />
+  </Link>
+</div>
 
       {/* switch between workflows */}
       <div className="bg-xtractyl-shadowgreen text-white px-8 py-4">
