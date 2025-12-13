@@ -90,7 +90,7 @@ export default function AboutPage() {
         <div className="mt-12 text-sm text-[#6b675c]">
           Contact:{" "}
           <a
-            href="mailto:research@xtractyl.com"
+            href="mailto:chris@xtractyl.com"
             className="underline hover:opacity-80"
           >
             chris@xtractyl.com
