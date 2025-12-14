@@ -1,86 +1,126 @@
-# orchestrator/routes/evaluate_project.py
-
-import os
-
-import requests
 from routes.utils.evaluate_project_utils import SPECIAL_PROJECT_TITLE, create_evaluation_project
-
-LABEL_STUDIO_URL = (
-    f"http://{os.getenv('LABELSTUDIO_CONTAINER_NAME', 'labelstudio')}:"
-    f"{os.getenv('LABELSTUDIO_PORT', '8080')}"
+from routes.utils.shared.label_studio_client import (
+    get_project,
+    resolve_project_id,
+    list_projects,
+    fetch_tasks_page,
+    fetch_task_annotations
 )
-
-
-def _auth_headers(token: str) -> dict:
-    """
-    Simple auth header generator.
-    If you have a shared version, replace this import accordingly.
-    """
-    return {"Authorization": f"Token {token}"}
-
+from routes.utils.calculate_metrics import compute_overall_metrics_from_rows
+from collections import defaultdict
 
 def list_project_names(token: str) -> list[str]:
-    """
-    Return a list of Label Studio project titles for the given token.
-    """
-    url = f"{LABEL_STUDIO_URL}/api/projects"
-    r = requests.get(url, headers=_auth_headers(token), timeout=20)
-    r.raise_for_status()
-
-    projects = r.json()
-    if isinstance(projects, dict) and "results" in projects:
-        projects = projects["results"]
-
+    projects = list_projects(token)
     return [p.get("title") for p in projects if p.get("title")]
 
 
-def _resolve_project_id(token: str, project_name: str) -> int:
+from collections import defaultdict
+
+def _bucket_from_results(results: list) -> dict:
     """
-    Resolve the Label Studio project ID for a project name.
+    Extract {label: text} from LS 'result' list (Labels tool only).
+    Single-valued assumption: if multiple, join by ' | '.
     """
-    url = f"{LABEL_STUDIO_URL}/api/projects"
-    r = requests.get(url, headers=_auth_headers(token), timeout=20)
-    r.raise_for_status()
+    bucket = defaultdict(list)
+    for r in results or []:
+        if r.get("type") != "labels":
+            continue
+        val = r.get("value", {}) or {}
+        labels = val.get("labels")
+        text = val.get("text", "")
 
-    projects = r.json()
-    if isinstance(projects, dict) and "results" in projects:
-        projects = projects["results"]
+        if isinstance(labels, str):
+            labels = [labels]
+        if not isinstance(labels, list):
+            labels = []
 
-    for p in projects:
-        if p.get("title") == project_name:
-            return int(p["id"])
+        for lab in labels:
+            bucket[str(lab)].append(str(text) if text is not None else "")
 
-    raise ValueError(f'Project "{project_name}" not found')
+    return {k: " | ".join(v for v in vs if v is not None) for k, vs in bucket.items()}
+
+
+def _chosen_annotation_bucket(task: dict) -> dict:
+    anns = [a for a in (task.get("annotations") or []) if isinstance(a, dict)]
+    if not anns:
+        return {}
+
+    gt_anns = [a for a in anns if a.get("ground_truth") is True]
+    candidates = gt_anns if gt_anns else anns
+    chosen = sorted(
+        candidates,
+        key=lambda a: a.get("created_at") or a.get("updated_at") or "",
+        reverse=True,
+    )[0]
+    return _bucket_from_results(chosen.get("result") or [])
+
+
+def _latest_prediction_bucket(task: dict) -> dict:
+    preds = [p for p in (task.get("predictions") or []) if isinstance(p, dict)]
+    if not preds:
+        return {}
+    chosen = sorted(
+        preds,
+        key=lambda p: p.get("created_at") or p.get("updated_at") or "",
+        reverse=True,
+    )[0]
+    return _bucket_from_results(chosen.get("result") or [])
+
+
+def _tasks_to_rows(token: str, project_id: int, mode: str) -> list[dict]:
+    """
+    mode='gt'   -> labels from annotations
+    mode='pred' -> labels from predictions
+    Returns: [{"filename": str, "task_id": int, "labels": {label: text}}]
+    """
+    tasks, _total = fetch_tasks_page(token, project_id)
+    rows = []
+
+    for t in tasks:
+        data = t.get("data") or {}
+        filename = data.get("name", "")
+
+        if mode == "gt":
+            anns = t.get("annotations") or []
+            if not any(a and (a.get("result") or []) for a in anns):
+                t["annotations"] = fetch_task_annotations(token, t.get("id"))
+            labels = _chosen_annotation_bucket(t)
+        else:
+            labels = _latest_prediction_bucket(t)
+
+        rows.append(
+            {
+                "task_id": t.get("id"),
+                "filename": filename,
+                "labels": labels,
+            }
+        )
+
+    return rows
 
 
 def evaluate_projects(token: str, groundtruth_project: str, comparison_project: str) -> dict:
-    """
-    Resolve project IDs and compute evaluation metrics (future step).
-    If the Groundtruth-Projekt 'Evaluation_Set_Do_Not_Delete' does not exist,
-    it will be uploaded into labelstudio and resolved afterwards
-    """
-
-    # ---- Groundtruth-ID will be resolved ----
     try:
-        gt_id = _resolve_project_id(token, groundtruth_project)
+        gt_id = resolve_project_id(token, groundtruth_project)
     except ValueError:
         if groundtruth_project == SPECIAL_PROJECT_TITLE:
-            # if Standard-Eval-Set does not exist it will be uploaded from file
             gt_id = create_evaluation_project(token)
         else:
-            # non existent name for any other project raises error
             raise
 
-    # ---- Comparison project does not need the standard groundtruth project
-    cmp_id = _resolve_project_id(token, comparison_project)
+    cmp_id = resolve_project_id(token, comparison_project)
 
-    # ---- here we will later include metrics calculations then integrated into utils/evaluate_project_utils.py ----
+    gt_rows = _tasks_to_rows(token, gt_id, mode="gt")
+    pred_rows = _tasks_to_rows(token, cmp_id, mode="pred")
+
+    overall = compute_overall_metrics_from_rows(gt_rows, pred_rows)
+
     return {
         "groundtruth_project": groundtruth_project,
         "groundtruth_project_id": gt_id,
         "comparison_project": comparison_project,
         "comparison_project_id": cmp_id,
-        "overall_metrics": {},  # fill later
-        "task_metrics": [],  # fill later
-        "answer_comparison": [],  # fill later
+        "overall_metrics": overall,
+        "task_metrics": [],
+        "answer_comparison": [],
     }

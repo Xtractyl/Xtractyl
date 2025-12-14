@@ -5,63 +5,11 @@ from typing import Any, Dict, List, Tuple
 
 import requests
 
-LABEL_STUDIO_URL = os.getenv(
-    "LABEL_STUDIO_URL",
-    f"http://{os.getenv('LABELSTUDIO_CONTAINER_NAME', 'labelstudio')}:{os.getenv('LABELSTUDIO_PORT', '8080')}",
+from routes.utils.shared.label_studio_client import (
+    resolve_project_id,
+    fetch_tasks_page,
+    fetch_task_annotations,
 )
-
-
-def _auth_headers(token: str) -> dict:
-    return {"Authorization": f"Token {token}"}
-
-
-def _resolve_project_id(token: str, project_name: str) -> int:
-    url = f"{LABEL_STUDIO_URL}/api/projects"
-    r = requests.get(url, headers=_auth_headers(token), timeout=20)
-    r.raise_for_status()
-    projects = r.json()
-    if isinstance(projects, dict) and "results" in projects:
-        projects = projects["results"]
-    for p in projects:
-        if p.get("title") == project_name:
-            return int(p["id"])
-    raise ValueError(f'Project "{project_name}" not found')
-
-
-def _fetch_tasks_page(
-    token: str, project_id: int, limit: int = 0, offset: int = 0
-) -> Tuple[List[dict], int]:
-    """
-    Fetch all tasks (including predictions) for a project — without pagination.
-    Works for both dict and list responses from Label Studio.
-    """
-    headers = _auth_headers(token)
-    url = f"{LABEL_STUDIO_URL}/api/projects/{project_id}/tasks"
-    params = {"fields": "all", "include": "predictions,annotations"}
-
-    r = requests.get(url, headers=headers, params=params, timeout=60)
-    r.raise_for_status()
-    data = r.json()
-
-    if isinstance(data, dict) and "results" in data:
-        tasks = data.get("results", [])
-        total = int(data.get("count", len(tasks)))
-    elif isinstance(data, list):
-        tasks = data
-        total = len(tasks)
-    else:
-        tasks = []
-        total = 0
-
-    return tasks, total
-
-
-def _fetch_task_annotations(token: str, task_id: int) -> List[dict]:
-    url = f"{LABEL_STUDIO_URL}/api/tasks/{task_id}/annotations"
-    r = requests.get(url, headers=_auth_headers(token), timeout=30)
-    r.raise_for_status()
-    data = r.json()
-    return data if isinstance(data, list) else []
 
 
 def _prediction_map(task: dict) -> dict:
@@ -154,8 +102,8 @@ def _prediction_map(task: dict) -> dict:
 
 
 def build_results_table(token: str, project_name: str, limit: int = 50, offset: int = 0) -> dict:
-    project_id = _resolve_project_id(token, project_name)
-    tasks, total = _fetch_tasks_page(token, project_id, limit=limit, offset=offset)
+    project_id = resolve_project_id(token, project_name)
+    tasks, total = fetch_tasks_page(token, project_id, limit=limit, offset=offset)
 
     label_columns: List[str] = []
     rows_proto: List[Dict[str, Any]] = []
@@ -167,7 +115,7 @@ def build_results_table(token: str, project_name: str, limit: int = 50, offset: 
         anns = t.get("annotations") or []
         # Bulk liefert nur [{}] oder leere result → dann nachladen
         if not any(a and (a.get("result") or []) for a in anns):
-            t["annotations"] = _fetch_task_annotations(token, t["id"])
+            t["annotations"] = fetch_task_annotations(token, t["id"])
 
         pred_map = _prediction_map(t)
 

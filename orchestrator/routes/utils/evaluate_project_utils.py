@@ -1,3 +1,4 @@
+# /orchestrator/routes/utils/evaluate_project_utils.py
 import json
 import os
 
@@ -60,7 +61,7 @@ def create_evaluation_project(token: str) -> int:
     </View>
     """.strip()
 
-    # 1) Projekt in Label Studio anlegen
+    # 1) create standard evaluation project if it has accidentally been removed
     create_payload = {
         "title": SPECIAL_PROJECT_TITLE,
         "description": "Auto-created standard evaluation project for Xtractyl Evaluate AI.",
