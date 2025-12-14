@@ -407,16 +407,27 @@ This mode is currently in preparation, see the following for the planned workflo
 ### Get Results 
 ❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
-![Review AI 3](assets/results.png)
+![Get results](assets/results.png)
 
 ❗❗THE ABOVE IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
 ---
 
-### ⏭️ Coming Soon
-
-8.**Evaluate the AI** (`/evaluate`)  
+8. **Evaluate the AI** (`/evaluate`)  
    - Compare predictions vs. ground truth, see metrics
+   - The following is a preview from the EvaluateAI feature branch (additional metrics will be added soon)
+
+---
+### Evaluate the AI 
+❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+
+![Review AI](assets/evaluation.png)
+
+❗❗THE ABOVE IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+
+--- 
+
+### ⏭️ Coming Soon
 
 9.**Fine-tune the AI** (`/finetune`) 
    - Use your labeled data to improve model performance
