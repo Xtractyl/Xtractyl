@@ -196,7 +196,7 @@ style Z3 fill:#FCA5A5,stroke:#88a,stroke-width:1px;
 ## Project Management & Collaboration
 This project is managed using industry-standard tools:
 
-- [Jira Board (private, invitation only)](https://dueckerchristof.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog)  
+- [Jira Board (private, invitation only – link available on request)]
 - [Miro Board (private, invitation only – link available on request)]
 
 
