@@ -1,4 +1,4 @@
-// src/components/EvaluateAIPage/EvaluationResults.jsx
+// src/components/EvaluateAIPage/ComparisonSelection.jsx
 import React from "react";
 
 export default function ComparisonSelection({
