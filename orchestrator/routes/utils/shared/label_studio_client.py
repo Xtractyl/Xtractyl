@@ -16,6 +16,8 @@ def list_projects(token: str) -> list[dict]:
     r.raise_for_status()
     data = r.json()
     return data.get("results", data) if isinstance(data, dict) else data
+
+
 def _auth_headers(token: str) -> dict:
     return {"Authorization": f"Token {token}"}
 

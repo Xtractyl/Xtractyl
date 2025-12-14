@@ -1,14 +1,11 @@
 # orchestrator/routes/get_results_table.py
-import os
 from collections import defaultdict
-from typing import Any, Dict, List, Tuple
-
-import requests
+from typing import Any, Dict, List
 
 from routes.utils.shared.label_studio_client import (
-    resolve_project_id,
-    fetch_tasks_page,
     fetch_task_annotations,
+    fetch_tasks_page,
+    resolve_project_id,
 )
 
 

@@ -1,20 +1,21 @@
+from collections import defaultdict
+
+from routes.utils.calculate_metrics import compute_overall_metrics_from_rows
 from routes.utils.evaluate_project_utils import SPECIAL_PROJECT_TITLE, create_evaluation_project
 from routes.utils.shared.label_studio_client import (
-    get_project,
-    resolve_project_id,
-    list_projects,
+    fetch_task_annotations,
     fetch_tasks_page,
-    fetch_task_annotations
+    list_projects,
+    resolve_project_id,
 )
-from routes.utils.calculate_metrics import compute_overall_metrics_from_rows
-from collections import defaultdict
+
 
 def list_project_names(token: str) -> list[str]:
     projects = list_projects(token)
     return [p.get("title") for p in projects if p.get("title")]
 
 
-from collections import defaultdict
+
 
 def _bucket_from_results(results: list) -> dict:
     """
