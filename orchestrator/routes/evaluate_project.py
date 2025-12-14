@@ -15,8 +15,6 @@ def list_project_names(token: str) -> list[str]:
     return [p.get("title") for p in projects if p.get("title")]
 
 
-
-
 def _bucket_from_results(results: list) -> dict:
     """
     Extract {label: text} from LS 'result' list (Labels tool only).
