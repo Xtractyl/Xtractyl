@@ -94,11 +94,24 @@ def compute_metrics_from_rows(
                 "status": status,
             }
 
-        per_label[lab] = {"tp": tp, "fp": fp, "fn": fn, "tn": tn}
         TP += tp
         FP += fp
         FN += fn
         TN += tn
+
+        precision = tp / (tp + fp) if (tp + fp) else 0.0
+        recall = tp / (tp + fn) if (tp + fn) else 0.0
+        f1 = (2 * precision * recall / (precision + recall)) if (precision + recall) else 0.0
+
+        per_label[lab] = {
+            "tp": tp,
+            "fp": fp,
+            "fn": fn,
+            "tn": tn,
+            "precision": precision,
+            "recall": recall,
+            "f1": f1,
+        }
 
     precision = TP / (TP + FP) if (TP + FP) else 0.0
     recall = TP / (TP + FN) if (TP + FN) else 0.0

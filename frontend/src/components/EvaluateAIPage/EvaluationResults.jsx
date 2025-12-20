@@ -70,6 +70,32 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
         </div>
       </div>
 
+      {/* ---------- Per-Label Metrics ---------- */}
+      <div>
+        <h2 className="text-xl font-semibold text-[#444038] border-b border-[#cfcab5] pb-1">
+          Per-Label Metrics
+        </h2>
+
+        <div className="mt-4 space-y-4">
+          {Object.entries(perLabel).map(([label, m]) => (
+            <div
+              key={label}
+              className="p-3 bg-[#f9f7ef] rounded border border-[#d3ccb8]"
+            >
+              <div className="font-semibold text-sm text-[#23211c] mb-2">
+                {label}
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                <Metric label="Precision" value={m.precision} />
+                <Metric label="Recall" value={m.recall} />
+                <Metric label="F1" value={m.f1} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* ---------- Per-Label Confusion ---------- */}
       <div>
         <h2 className="text-xl font-semibold text-[#444038] border-b border-[#cfcab5] pb-1">
