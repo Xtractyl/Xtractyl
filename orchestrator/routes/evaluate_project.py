@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from routes.utils.calculate_metrics import compute_overall_metrics_from_rows
+from routes.utils.calculate_metrics import compute_metrics_from_rows
 from routes.utils.evaluate_project_utils import SPECIAL_PROJECT_TITLE, create_evaluation_project
 from routes.utils.shared.label_studio_client import (
     fetch_task_annotations,
@@ -112,14 +112,13 @@ def evaluate_projects(token: str, groundtruth_project: str, comparison_project: 
     gt_rows = _tasks_to_rows(token, gt_id, mode="gt")
     pred_rows = _tasks_to_rows(token, cmp_id, mode="pred")
 
-    overall = compute_overall_metrics_from_rows(gt_rows, pred_rows)
+    overall = compute_metrics_from_rows(gt_rows, pred_rows)
 
     return {
         "groundtruth_project": groundtruth_project,
         "groundtruth_project_id": gt_id,
         "comparison_project": comparison_project,
         "comparison_project_id": cmp_id,
-        "overall_metrics": overall,
-        "task_metrics": [],
+        "metrics": overall,
         "answer_comparison": [],
     }

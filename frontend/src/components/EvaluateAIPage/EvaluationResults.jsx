@@ -6,9 +6,22 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
   if (errorMsg) return <div className="mt-6 text-red-600">{errorMsg}</div>;
   if (!result) return null;
 
-  const overall = result.overall_metrics || {};
-  const micro = overall.micro || {};
-  const perLabel = overall.per_label || {};
+  const payload = result.logs || result;
+  const metrics = payload.metrics || {};
+  const micro = metrics.micro || {};
+  const perLabel = metrics.per_label || {};
+  const taskMetrics = metrics.task_metrics || [];
+
+  function Metric({ label, value }) {
+    return (
+      <div className="p-3 bg-[#f4f1e6] rounded border border-[#d3ccb8]">
+        <div className="text-xs text-[#555]">{label}</div>
+        <div className="text-lg font-semibold text-[#23211c]">
+          {typeof value === "number" ? value.toFixed(3) : "—"}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-8 space-y-6">
@@ -22,18 +35,18 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
           <div className="p-3 bg-[#f4f1e6] rounded border border-[#d3ccb8]">
             <div className="font-semibold text-[#23211c]">Groundtruth Project</div>
             <div className="mt-1 text-[#444038]">
-              Name: <b>{result.groundtruth_project}</b>
+              Name: <b>{payload.groundtruth_project}</b>
               <br />
-              ID: <span>{result.groundtruth_project_id}</span>
+              ID: <span>{payload.groundtruth_project_id}</span>
             </div>
           </div>
 
           <div className="p-3 bg-[#f4f1e6] rounded border border-[#d3ccb8]">
             <div className="font-semibold text-[#23211c]">Comparison Project</div>
             <div className="mt-1 text-[#444038]">
-              Name: <b>{result.comparison_project}</b>
+              Name: <b>{payload.comparison_project}</b>
               <br />
-              ID: <span>{result.comparison_project_id}</span>
+              ID: <span>{payload.comparison_project_id}</span>
             </div>
           </div>
         </div>
@@ -88,16 +101,48 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
           </table>
         </div>
       </div>
-    </div>
-  );
-}
 
-function Metric({ label, value }) {
-  return (
-    <div className="p-3 bg-[#f4f1e6] rounded border border-[#d3ccb8]">
-      <div className="text-xs text-[#555]">{label}</div>
-      <div className="text-lg font-semibold text-[#23211c]">
-        {typeof value === "number" ? value.toFixed(3) : "—"}
+      {/* ---------- Per-Task Details ---------- */}
+      <div>
+        <h2 className="text-xl font-semibold text-[#444038] border-b border-[#cfcab5] pb-1">
+          Per-Task Details
+        </h2>
+
+        <div className="mt-4 space-y-4">
+          {taskMetrics.map((t) => (
+            <div
+              key={t.filename}
+              className="p-3 bg-[#f9f7ef] rounded border border-[#d3ccb8]"
+            >
+              <div className="font-semibold text-sm text-[#23211c] mb-2">
+                {t.filename}
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="min-w-full border text-xs">
+                  <thead className="bg-[#ebe7d8]">
+                    <tr>
+                      <th className="px-2 py-1 border">Label</th>
+                      <th className="px-2 py-1 border">GT</th>
+                      <th className="px-2 py-1 border">Pred</th>
+                      <th className="px-2 py-1 border">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.entries(t.per_label || {}).map(([lab, v]) => (
+                      <tr key={lab} className="odd:bg-[#f4f1e6]">
+                        <td className="px-2 py-1 border font-medium">{lab}</td>
+                        <td className="px-2 py-1 border">{v.gt || "—"}</td>
+                        <td className="px-2 py-1 border">{v.pred || "—"}</td>
+                        <td className="px-2 py-1 border">{v.status}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Dict, List
 
 
-def compute_overall_metrics_from_rows(
+def compute_metrics_from_rows(
     gt_rows: List[dict],
     pred_rows: List[dict],
     filename_key: str = "filename",
@@ -27,13 +27,14 @@ def compute_overall_metrics_from_rows(
       {
         "micro": {...},
         "per_label": {label: {tp,fp,fn,tn}}
+        "filenames_count": len(all_filenames),
+        "task_metrics": [task_metrics_by_fn[fn] for fn in all_filenames],
       }
     """
     gt_by_fn = {r.get(filename_key): r for r in gt_rows if r.get(filename_key)}
     pred_by_fn = {r.get(filename_key): r for r in pred_rows if r.get(filename_key)}
 
     all_filenames = sorted(set(gt_by_fn.keys()) | set(pred_by_fn.keys()))
-
     all_labels = set()
     for r in gt_rows:
         all_labels |= set((r.get(labels_key) or {}).keys())
@@ -42,6 +43,7 @@ def compute_overall_metrics_from_rows(
     all_labels = sorted(all_labels)
 
     per_label: Dict[str, dict] = {}
+    task_metrics_by_fn: Dict[str, dict] = {}
 
     TP = FP = FN = TN = 0
 
@@ -49,6 +51,13 @@ def compute_overall_metrics_from_rows(
         tp = fp = fn = tn = 0
 
         for fnm in all_filenames:
+            if fnm not in task_metrics_by_fn:
+                task_metrics_by_fn[fnm] = {
+                    "filename": fnm,
+                    "per_label": {},
+                    "counts": {"tp": 0, "fp": 0, "fn": 0, "tn": 0},
+                }
+
             gt_val = ((gt_by_fn.get(fnm, {}) or {}).get(labels_key) or {}).get(lab, "")
             pr_val = ((pred_by_fn.get(fnm, {}) or {}).get(labels_key) or {}).get(lab, "")
 
@@ -58,16 +67,32 @@ def compute_overall_metrics_from_rows(
             if gt_present and pr_present:
                 if gt_val == pr_val:
                     tp += 1
+                    status = "tp"
+                    task_metrics_by_fn[fnm]["counts"]["tp"] += 1
                 else:
                     # wrong value: counts as miss + spurious
                     fp += 1
                     fn += 1
+                    status = "fp_fn"
+                    task_metrics_by_fn[fnm]["counts"]["fp"] += 1
+                    task_metrics_by_fn[fnm]["counts"]["fn"] += 1
             elif gt_present and not pr_present:
                 fn += 1
+                status = "fn"
+                task_metrics_by_fn[fnm]["counts"]["fn"] += 1
             elif (not gt_present) and pr_present:
                 fp += 1
+                status = "fp"
+                task_metrics_by_fn[fnm]["counts"]["fp"] += 1
             else:
                 tn += 1
+                status = "tn"
+                task_metrics_by_fn[fnm]["counts"]["tn"] += 1
+            task_metrics_by_fn[fnm]["per_label"][lab] = {
+                "gt": gt_val,
+                "pred": pr_val,
+                "status": status,
+            }
 
         per_label[lab] = {"tp": tp, "fp": fp, "fn": fn, "tn": tn}
         TP += tp
@@ -94,4 +119,5 @@ def compute_overall_metrics_from_rows(
         "per_label": per_label,
         "labels": all_labels,
         "filenames_count": len(all_filenames),
+        "task_metrics": [task_metrics_by_fn[fn] for fn in all_filenames],
     }
