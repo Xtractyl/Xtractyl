@@ -340,7 +340,6 @@ def extract_xpath_matches_from_dom(dom_data, answers):
 # LS, model, LLM
 # ----------------------------------
 def save_predictions_to_labelstudio(params, task_id, prediction_result, meta: dict | None = None):
-
     url = params["label_studio_url"]
     token = params["ls_token"]
     mv = params["ollama_model"]
@@ -536,7 +535,9 @@ def predict():
                 "answer": None if output == "<no answer>" else output,
             }
 
-    logging.info("🧠 Answers from LLM: %s", json.dumps(answers_by_label, indent=2, ensure_ascii=False))
+    logging.info(
+        "🧠 Answers from LLM: %s", json.dumps(answers_by_label, indent=2, ensure_ascii=False)
+    )
 
     # Matching (funktioniert auch wenn answers leer ist)
     try:
@@ -572,7 +573,7 @@ def predict():
     # Optional: direkt in Label Studio speichern, wenn URL+Token vorhanden
     if all(k in params for k in ("label_studio_url", "ls_token")):
         try:
-            save_predictions_to_labelstudio(params, task_id, prelabels)   # ohne meta
+            save_predictions_to_labelstudio(params, task_id, prelabels)  # ohne meta
             attach_meta_to_task(params, int(task_id), meta)
         except Exception as e:
             logging.warning("label studio write failed: %s", e)
@@ -590,6 +591,7 @@ def predict():
             },
         }
     ), 200
+
 
 @app.route("/health", methods=["GET"])
 def health():
