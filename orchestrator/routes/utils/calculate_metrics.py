@@ -34,6 +34,12 @@ def compute_metrics_from_rows(
     gt_by_fn = {r.get(filename_key): r for r in gt_rows if r.get(filename_key)}
     pred_by_fn = {r.get(filename_key): r for r in pred_rows if r.get(filename_key)}
 
+    pred_meta_by_fn = {
+        r.get(filename_key): (r.get("meta") or {})
+        for r in pred_rows
+        if r.get(filename_key)
+    }
+    
     all_filenames = sorted(set(gt_by_fn.keys()) | set(pred_by_fn.keys()))
     all_labels = set()
     for r in gt_rows:
@@ -54,6 +60,7 @@ def compute_metrics_from_rows(
             if fnm not in task_metrics_by_fn:
                 task_metrics_by_fn[fnm] = {
                     "filename": fnm,
+                    "meta": pred_meta_by_fn.get(fnm, {}),  # 👈 HIER
                     "per_label": {},
                     "counts": {"tp": 0, "fp": 0, "fn": 0, "tn": 0},
                 }

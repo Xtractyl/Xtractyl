@@ -66,6 +66,24 @@ def _latest_prediction_bucket(task: dict) -> dict:
     return _bucket_from_results(chosen.get("result") or [])
 
 
+def _latest_prediction_meta(task: dict) -> dict:
+    # Prefer prediction.meta if LS returns it; fallback to task.data.ml_meta
+    preds = [p for p in (task.get("predictions") or []) if isinstance(p, dict)]
+    if preds:
+        chosen = sorted(
+            preds,
+            key=lambda p: p.get("created_at") or p.get("updated_at") or "",
+            reverse=True,
+        )[0]
+        meta = chosen.get("meta")
+        if isinstance(meta, dict) and meta:
+            return meta
+
+    data = task.get("data") or {}
+    ml_meta = data.get("ml_meta")
+    return ml_meta if isinstance(ml_meta, dict) else {}
+
+
 def _tasks_to_rows(token: str, project_id: int, mode: str) -> list[dict]:
     """
     mode='gt'   -> labels from annotations
@@ -87,11 +105,14 @@ def _tasks_to_rows(token: str, project_id: int, mode: str) -> list[dict]:
         else:
             labels = _latest_prediction_bucket(t)
 
+        meta = _latest_prediction_meta(t) if mode == "pred" else {}
+
         rows.append(
             {
                 "task_id": t.get("id"),
                 "filename": filename,
                 "labels": labels,
+                "meta": meta,
             }
         )
 

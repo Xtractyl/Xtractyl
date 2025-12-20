@@ -151,18 +151,36 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
                       <th className="px-2 py-1 border">Label</th>
                       <th className="px-2 py-1 border">GT</th>
                       <th className="px-2 py-1 border">Pred</th>
+                      <th className="px-2 py-1 border">Raw Answer</th>
+                      <th className="px-2 py-1 border">DOM</th>
                       <th className="px-2 py-1 border">Status</th>
                     </tr>
                   </thead>
+
                   <tbody>
-                    {Object.entries(t.per_label || {}).map(([lab, v]) => (
-                      <tr key={lab} className="odd:bg-[#f4f1e6]">
-                        <td className="px-2 py-1 border font-medium">{lab}</td>
-                        <td className="px-2 py-1 border">{v.gt || "—"}</td>
-                        <td className="px-2 py-1 border">{v.pred || "—"}</td>
-                        <td className="px-2 py-1 border">{v.status}</td>
-                      </tr>
-                    ))}
+                    {Object.entries(t.per_label || {}).map(([lab, v]) => {
+                      const rawAnswer =
+                        t.meta?.raw_llm_answers?.[lab]?.answer ?? "—";
+                      const domOk = t.meta?.dom_match_ok;
+
+                      return (
+                        <tr key={lab} className="odd:bg-[#f4f1e6]">
+                          <td className="px-2 py-1 border font-medium">{lab}</td>
+                          <td className="px-2 py-1 border">{v.gt || "—"}</td>
+                          <td className="px-2 py-1 border">{v.pred || "—"}</td>
+
+                          <td className="px-2 py-1 border whitespace-pre-wrap">
+                            {rawAnswer}
+                          </td>
+
+                          <td className="px-2 py-1 border text-center">
+                            {domOk === true ? "✓" : domOk === false ? "✗" : "—"}
+                          </td>
+
+                          <td className="px-2 py-1 border">{v.status}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
