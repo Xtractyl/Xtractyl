@@ -159,9 +159,8 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
 
                   <tbody>
                     {Object.entries(t.per_label || {}).map(([lab, v]) => {
-                      const rawAnswer =
-                        t.meta?.raw_llm_answers?.[lab]?.answer ?? "—";
-                      const domOk = t.meta?.dom_match_ok;
+                      const rawAnswer = t.meta?.raw_llm_answers?.[lab]?.answer ?? "—";
+                      const domOk = t.meta?.dom_match_by_label?.[lab]; 
 
                       return (
                         <tr key={lab} className="odd:bg-[#f4f1e6]">

@@ -236,7 +236,7 @@ def extract_xpath_matches_from_dom(dom_data, answers):
     dom_sorted = sorted(dom_data, key=lambda el: len(el.get("content") or ""))
 
     for idx, ans in enumerate(answers, start=1):
-        if not ans["answer"] or ans["answer"] in ("<no answer>", "<keine Antwort>"):
+        if not ans.get("answer"):
             continue
 
         normalized_answer = normalize_text_block(ans["answer"])
@@ -387,10 +387,16 @@ def ensure_model_available(params, model_name: str):
         return False
 
 
-def ask_llm_with_timeout(params, prompt: str, timeout: int, model_name: str):
+def ask_llm_with_timeout(params, prompt: str, timeout: int, model_name: str) -> dict:
+    """
+    Returns:
+      {"answer": str|None, "status": "ok"|"timeout"|"error"|"model_missing", "error": str|None}
+    """
     base = params["ollama_base"]
+
     if not ensure_model_available(params, model_name):
-        return "<no answer>"
+        return {"answer": None, "status": "model_missing", "error": "model_not_available"}
+
     try:
         response = requests.post(
             f"{base}/api/generate",
@@ -398,14 +404,20 @@ def ask_llm_with_timeout(params, prompt: str, timeout: int, model_name: str):
                 "model": model_name,
                 "prompt": prompt,
                 "stream": False,
-                "options": {"temperature": 0, "seed": 42},  # 🧙‍♂️ The One True Seed
+                "options": {"temperature": 0, "seed": 42},
             },
             timeout=timeout,
         )
-        return response.json().get("response", "").strip()
+        response.raise_for_status()
+
+        ans = (response.json().get("response") or "").strip()
+        return {"answer": ans if ans else None, "status": "ok", "error": None}
+
+    except requests.exceptions.Timeout:
+        return {"answer": None, "status": "timeout", "error": "timeout"}
+
     except Exception as e:
-        logging.error(f"❌ Timeout or error while calling LLM: {e}")
-        return "<no answer>"
+        return {"answer": None, "status": "error", "error": str(e)}
 
 
 # ----------------------------------
@@ -503,52 +515,71 @@ def predict():
     labels = qa_config.get("labels") or []
 
     # LLM nur bei vollständiger Konfig + Q&L
-    answers_by_label, timed_out = {}, False
+    answers_by_label = {}
+    timed_out = False
+
     have_llm_cfg = all(
         k in params for k in ("ollama_model", "ollama_base", "system_prompt", "llm_timeout_seconds")
     )
     if have_llm_cfg and questions and labels:
         puretext = BeautifulSoup(html_content or "", "html.parser").get_text("\n", strip=True)
+
         for q, lab in zip(questions, labels, strict=False):
             prompt = f"{params['system_prompt']}\n\nQuestion: {q}\n\nText: {puretext}"
-            try:
-                output = ask_llm_with_timeout(
-                    params,
-                    prompt,
-                    timeout=int(params["llm_timeout_seconds"]),
-                    model_name=params["ollama_model"],
-                )
-            except Exception as e:
-                logging.warning("LLM call failed: %s", e)
-                output = "<no answer>"
 
-            if output == "<no answer>":
+            llm = ask_llm_with_timeout(
+                params,
+                prompt,
+                timeout=int(params["llm_timeout_seconds"]),
+                model_name=params["ollama_model"],
+            )
+
+            # timeout bookkeeping (nur Flag + optional logfile)
+            if llm["status"] == "timeout":
                 timed_out = True
                 try:
                     with open(timeout_log_path, "a", encoding="utf-8") as f:
-                        f.write(f"{task_id}: {q}\n")
+                        f.write(f"{task_id}: {lab} :: {q}\n")
                 except Exception:
                     pass
 
-            answers_by_label[lab] = {
+            answers_by_label[str(lab)] = {
                 "question": q,
-                "answer": None if output == "<no answer>" else output,
+                "answer": llm["answer"],  # str|None
+                "answer_status": llm["status"],  # ok|timeout|error|model_missing
+                "error": llm.get("error"),
             }
 
     logging.info(
         "🧠 Answers from LLM: %s", json.dumps(answers_by_label, indent=2, ensure_ascii=False)
     )
 
-    # Matching (funktioniert auch wenn answers leer ist)
+    dom_match_by_label = {}
     try:
         answers_list = [
             {"label": lab, "question": v.get("question"), "answer": v.get("answer")}
-            for lab, v in answers_by_label.items()
+            for lab, v in (answers_by_label or {}).items()
         ]
         prelabels, diagnostics = extract_xpath_matches_from_dom(dom_data, answers_list)
+
+        diag_labels = {
+            d.get("label") for d in (diagnostics or []) if isinstance(d, dict) and d.get("label")
+        }
+
+        dom_match_by_label = {}
+        for lab, v in (answers_by_label or {}).items():
+            status = (v or {}).get("answer_status")
+            ans = (v or {}).get("answer")
+
+            if status != "ok" or not ans:
+                dom_match_by_label[lab] = None
+            else:
+                dom_match_by_label[lab] = lab not in diag_labels
+
     except Exception as e:
         logging.warning("extract_xpath_matches_from_dom failed: %s", e)
         prelabels, diagnostics = [], [{"reason": "match_failed", "error": str(e)}]
+        dom_match_by_label = {}
 
     # Audit-Log (best effort)
     try:
@@ -567,7 +598,7 @@ def predict():
         "system_prompt": params.get("system_prompt"),
         "model": params.get("ollama_model"),
         "dom_match_diagnostics": diagnostics,
-        "dom_match_ok": (len(diagnostics) == 0),
+        "dom_match_by_label": dom_match_by_label,
         "job_id": job_id,
     }
     # Optional: direkt in Label Studio speichern, wenn URL+Token vorhanden
