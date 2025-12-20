@@ -130,6 +130,33 @@ def clean_xpath(raw_xpath: str) -> str:
     return raw_xpath
 
 
+def attach_meta_to_task(params, task_id: int, meta: dict):
+    url = params["label_studio_url"]
+    token = params["ls_token"]
+
+    # 1) existing task data holen
+    r = requests.get(
+        f"{url}/api/tasks/{task_id}",
+        headers={"Authorization": f"Token {token}"},
+        timeout=15,
+    )
+    r.raise_for_status()
+    task = r.json()
+    data = task.get("data") or {}
+
+    # 2) mergen (nicht überschreiben)
+    data["ml_meta"] = meta
+
+    # 3) patch zurück
+    pr = requests.patch(
+        f"{url}/api/tasks/{task_id}",
+        headers={"Authorization": f"Token {token}", "Content-Type": "application/json"},
+        json={"data": data},
+        timeout=15,
+    )
+    pr.raise_for_status()
+
+
 # ----------------------------------
 # DOM extraction (raw + normalized + index_map)
 # ----------------------------------
@@ -312,13 +339,16 @@ def extract_xpath_matches_from_dom(dom_data, answers):
 # ----------------------------------
 # LS, model, LLM
 # ----------------------------------
-def save_predictions_to_labelstudio(params, task_id, prediction_result):
+def save_predictions_to_labelstudio(params, task_id, prediction_result, meta: dict | None = None):
+
     url = params["label_studio_url"]
     token = params["ls_token"]
     mv = params["ollama_model"]
     logging.info(f"📤 Saving predictions for task {task_id} (model: {mv})")
 
     payload = {"task": task_id, "model_version": mv, "result": prediction_result}
+    if meta:
+        payload["meta"] = meta
 
     try:
         response = requests.post(
@@ -426,15 +456,17 @@ def predict():
                 html_content = v
                 break
     if not html_content:
-        # minimaler Fehlerfall: ohne HTML können wir nichts tun, aber weiterhin ein Dict antworten
         return jsonify(
             {
                 "model_version": params.get("ollama_model", "stub"),
                 "score": 0.0,
                 "result": [],
                 "meta": {
-                    "answers": [],
-                    "diagnostics": [{"reason": "HTML content missing"}],
+                    "raw_llm_answers": {},
+                    "system_prompt": params.get("system_prompt"),
+                    "model": params.get("ollama_model"),
+                    "dom_match_diagnostics": [{"reason": "HTML content missing"}],
+                    "dom_match_ok": False,
                     "status": "error",
                     "task_id": task_id,
                     "job_id": job_id,
@@ -472,7 +504,7 @@ def predict():
     labels = qa_config.get("labels") or []
 
     # LLM nur bei vollständiger Konfig + Q&L
-    answers, timed_out = [], False
+    answers_by_label, timed_out = {}, False
     have_llm_cfg = all(
         k in params for k in ("ollama_model", "ollama_base", "system_prompt", "llm_timeout_seconds")
     )
@@ -499,15 +531,20 @@ def predict():
                 except Exception:
                     pass
 
-            answers.append(
-                {"question": q, "label": lab, "answer": None if output == "<no answer>" else output}
-            )
+            answers_by_label[lab] = {
+                "question": q,
+                "answer": None if output == "<no answer>" else output,
+            }
 
-    logging.info("🧠 Answers from LLM: %s", json.dumps(answers, indent=2, ensure_ascii=False))
+    logging.info("🧠 Answers from LLM: %s", json.dumps(answers_by_label, indent=2, ensure_ascii=False))
 
     # Matching (funktioniert auch wenn answers leer ist)
     try:
-        prelabels, diagnostics = extract_xpath_matches_from_dom(dom_data, answers)
+        answers_list = [
+            {"label": lab, "question": v.get("question"), "answer": v.get("answer")}
+            for lab, v in answers_by_label.items()
+        ]
+        prelabels, diagnostics = extract_xpath_matches_from_dom(dom_data, answers_list)
     except Exception as e:
         logging.warning("extract_xpath_matches_from_dom failed: %s", e)
         prelabels, diagnostics = [], [{"reason": "match_failed", "error": str(e)}]
@@ -524,29 +561,35 @@ def predict():
     except Exception as e:
         logging.warning("Could not write prediction payload: %s", e)
 
+    meta = {
+        "raw_llm_answers": answers_by_label,
+        "system_prompt": params.get("system_prompt"),
+        "model": params.get("ollama_model"),
+        "dom_match_diagnostics": diagnostics,
+        "dom_match_ok": (len(diagnostics) == 0),
+        "job_id": job_id,
+    }
     # Optional: direkt in Label Studio speichern, wenn URL+Token vorhanden
     if all(k in params for k in ("label_studio_url", "ls_token")):
         try:
-            save_predictions_to_labelstudio(params, task_id, prelabels)
+            save_predictions_to_labelstudio(params, task_id, prelabels)   # ohne meta
+            attach_meta_to_task(params, int(task_id), meta)
         except Exception as e:
-            logging.warning("save_predictions_to_labelstudio failed: %s", e)
+            logging.warning("label studio write failed: %s", e)
 
-    # >>> WICHTIG: EINZELNES DICT zurückgeben (kein Array, kein 'results'-Wrapper)
     return jsonify(
         {
             "model_version": params.get("ollama_model", "stub"),
             "score": 1.0 if prelabels else 0.0,
             "result": prelabels,
             "meta": {
-                "answers": answers,
-                "diagnostics": diagnostics,
+                **meta,
                 "status": "timeout" if timed_out else "success",
                 "task_id": task_id,
                 "job_id": job_id,
             },
         }
     ), 200
-
 
 @app.route("/health", methods=["GET"])
 def health():
