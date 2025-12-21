@@ -11,10 +11,9 @@ import requests
 from bs4 import BeautifulSoup
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from playwright.sync_api import sync_playwright
-
-from utils import origin_from_env
 from logging_setup import attach_file_logger
+from playwright.sync_api import sync_playwright
+from utils import origin_from_env
 
 # ----------------------------------
 # Toggle for full DOM logging
@@ -49,6 +48,7 @@ os.makedirs(JOBS_DIR, exist_ok=True)
 
 general_logfile = os.path.join(LOG_DIR, "ml_backend.log")
 attach_file_logger(general_logfile)
+
 
 def _job_log_paths(job_id: str | None):
     """Return per-job file paths; fall back to general files if job_id is None."""

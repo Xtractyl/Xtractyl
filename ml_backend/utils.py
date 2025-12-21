@@ -1,6 +1,7 @@
 # /ml_backend/utils.py
 import os
 
+
 def origin_from_env(prefix: str, default_port: int, default_host: str = "localhost") -> str:
     origin = os.getenv(f"{prefix}_ORIGIN") or os.getenv(f"{prefix}_URL")
     if origin:
