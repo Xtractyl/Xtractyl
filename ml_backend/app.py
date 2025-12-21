@@ -12,9 +12,6 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from label_studio import attach_meta_to_task, save_predictions_to_labelstudio
 from logging_setup import attach_file_logger
-from utils import (
-    origin_from_env,
-)
 
 # ----------------------------------
 # Toggle for full DOM logging
@@ -30,8 +27,8 @@ PORT = int(os.getenv("ML_BACKEND_PORT", "6789"))
 
 app = Flask(__name__)
 
-FRONTEND_ORIGIN = origin_from_env("FRONTEND_PORT", 5173)
-LABELSTUDIO_ORIGIN = origin_from_env("LABELSTUDIO_PORT", 8080)
+FRONTEND_ORIGIN = f"http://localhost:{int(os.getenv('FRONTEND_PORT', '5173'))}"
+LABELSTUDIO_ORIGIN = f"http://localhost:{int(os.getenv('LABELSTUDIO_PORT', '8080'))}"
 
 CORS(
     app,
