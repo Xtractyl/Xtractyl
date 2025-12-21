@@ -3,7 +3,6 @@ import json
 import logging
 import os
 import pathlib
-import re
 import uuid
 
 import requests
@@ -12,7 +11,12 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from logging_setup import attach_file_logger
 from playwright.sync_api import sync_playwright
-from utils import build_norm_index, normalize_text_block, origin_from_env
+from utils import (
+    build_norm_index,
+    normalize_text_block,
+    normalize_xpath_for_labelstudio,
+    origin_from_env,
+)
 
 # ----------------------------------
 # Toggle for full DOM logging
@@ -65,14 +69,6 @@ def _job_log_paths(job_id: str | None):
             "timeouts": os.path.join(LOG_DIR, "timeout_tasks.log"),
             "dom_dump": os.path.join(LOG_DIR, "dom_dump.jsonl"),
         }
-
-
-def clean_xpath(raw_xpath: str) -> str:
-    raw_xpath = re.sub(r"^/html(\[1\])?/body(\[1\])?", "", raw_xpath)
-    raw_xpath = re.sub(r"/text\(\)\[1\]$", "", raw_xpath)
-    if not raw_xpath.startswith("/"):
-        raw_xpath = "/" + raw_xpath
-    return raw_xpath
 
 
 def attach_meta_to_task(params, task_id: int, meta: dict):
@@ -147,7 +143,7 @@ def extract_dom_with_chromium(html: str):
                     }""",
                     el,
                 )
-                cleaned_xpath = clean_xpath(xpath)
+                cleaned_xpath = normalize_xpath_for_labelstudio(xpath)
                 extracted.append(
                     {
                         "xpath": cleaned_xpath,

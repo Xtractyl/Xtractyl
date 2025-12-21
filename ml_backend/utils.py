@@ -1,5 +1,6 @@
 # /ml_backend/utils.py
 import os
+import re
 import unicodedata
 
 
@@ -68,3 +69,21 @@ def normalize_text_block(text: str) -> str:
         .replace("\n", "")
         .strip()
     )
+
+
+def normalize_xpath_for_labelstudio(raw_xpath: str) -> str:
+    """
+    Normalize Chromium / Playwright-generated XPaths
+    so that they are compatible with Label Studio.
+
+    - removes /html/body prefix
+    - removes trailing /text()[1]
+    - ensures absolute XPath
+    """
+    raw_xpath = re.sub(r"^/html(\[1\])?/body(\[1\])?", "", raw_xpath)
+    raw_xpath = re.sub(r"/text\(\)\[1\]$", "", raw_xpath)
+
+    if not raw_xpath.startswith("/"):
+        raw_xpath = "/" + raw_xpath
+
+    return raw_xpath
