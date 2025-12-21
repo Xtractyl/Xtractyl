@@ -4,7 +4,6 @@ import logging
 import os
 import pathlib
 import re
-import unicodedata
 import uuid
 
 import requests
@@ -13,7 +12,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from logging_setup import attach_file_logger
 from playwright.sync_api import sync_playwright
-from utils import origin_from_env
+from utils import build_norm_index, normalize_text_block, origin_from_env
 
 # ----------------------------------
 # Toggle for full DOM logging
@@ -66,49 +65,6 @@ def _job_log_paths(job_id: str | None):
             "timeouts": os.path.join(LOG_DIR, "timeout_tasks.log"),
             "dom_dump": os.path.join(LOG_DIR, "dom_dump.jsonl"),
         }
-
-
-# ----------------------------------
-# Normalization helpers
-# ----------------------------------
-def _norm_char(c: str) -> str:
-    # char-wise normalization without strip so lengths map correctly
-    return (
-        unicodedata.normalize("NFKC", c)
-        .replace("\u00ad", "")  # soft hyphen
-        .replace("\u00a0", " ")  # NBSP -> space
-        .replace("\r", "")
-        .replace("\n", "")
-    )
-
-
-def build_norm_index(original_text: str):
-    """
-    Returns (norm_text, index_map)
-    index_map[j] = original index for the j-th character in norm_text.
-    """
-    norm_parts = []
-    index_map = []
-    for i, ch in enumerate(original_text):
-        n = _norm_char(ch)
-        if not n:
-            continue
-        norm_parts.append(n)
-        for _ in range(len(n)):
-            index_map.append(i)
-    return "".join(norm_parts), index_map
-
-
-def normalize_text_block(text: str) -> str:
-    # block normalization used for answers (trim OK)
-    return (
-        unicodedata.normalize("NFKC", text or "")
-        .replace("\u00ad", "")
-        .replace("\u00a0", " ")
-        .replace("\r", "")
-        .replace("\n", "")
-        .strip()
-    )
 
 
 def clean_xpath(raw_xpath: str) -> str:
