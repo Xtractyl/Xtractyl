@@ -3,6 +3,7 @@
 from playwright.sync_api import sync_playwright
 from utils import build_norm_index, normalize_xpath_for_labelstudio
 
+
 # ----------------------------------
 # DOM extraction (raw + normalized + index_map)
 # ----------------------------------
@@ -62,4 +63,3 @@ def extract_dom_with_chromium(html: str):
 
         browser.close()
     return extracted
-

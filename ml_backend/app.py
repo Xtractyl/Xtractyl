@@ -3,16 +3,16 @@ import json
 import logging
 import os
 import pathlib
-import uuid
 
 import requests
 from bs4 import BeautifulSoup
 from dom_extract import extract_dom_with_chromium
+from dom_match import extract_xpath_matches_from_dom
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from label_studio import attach_meta_to_task, save_predictions_to_labelstudio
 from logging_setup import attach_file_logger
 from utils import (
-    normalize_text_block,
     origin_from_env,
 )
 
@@ -67,178 +67,6 @@ def _job_log_paths(job_id: str | None):
             "timeouts": os.path.join(LOG_DIR, "timeout_tasks.log"),
             "dom_dump": os.path.join(LOG_DIR, "dom_dump.jsonl"),
         }
-
-
-def attach_meta_to_task(params, task_id: int, meta: dict):
-    url = params["label_studio_url"]
-    token = params["ls_token"]
-
-    # 1) existing task data holen
-    r = requests.get(
-        f"{url}/api/tasks/{task_id}",
-        headers={"Authorization": f"Token {token}"},
-        timeout=15,
-    )
-    r.raise_for_status()
-    task = r.json()
-    data = task.get("data") or {}
-
-    # 2) mergen (nicht überschreiben)
-    data["ml_meta"] = meta
-
-    # 3) patch zurück
-    pr = requests.patch(
-        f"{url}/api/tasks/{task_id}",
-        headers={"Authorization": f"Token {token}", "Content-Type": "application/json"},
-        json={"data": data},
-        timeout=15,
-    )
-    pr.raise_for_status()
-
-
-# ----------------------------------
-# Matching
-# ----------------------------------
-def extract_xpath_matches_from_dom(dom_data, answers):
-    """
-    dom_data: list of {"xpath", "raw", "content", "index_map"}
-    answers:  list of {"question", "label", "answer"}
-    """
-    matches, diagnostics = [], []
-
-    logging.debug(
-        "🔎 Starting DOM matching: %d DOM blocks, %d answers", len(dom_data), len(answers)
-    )
-
-    # sort by normalized content length asc (tighter nodes first)
-    dom_sorted = sorted(dom_data, key=lambda el: len(el.get("content") or ""))
-
-    for idx, ans in enumerate(answers, start=1):
-        if not ans.get("answer"):
-            continue
-
-        normalized_answer = normalize_text_block(ans["answer"])
-        logging.debug(
-            "🧩 [%d] Label=%s | normalized_answer=%r (len=%d)",
-            idx,
-            ans["label"],
-            normalized_answer,
-            len(normalized_answer),
-        )
-
-        found_match = False
-        for el in dom_sorted:
-            content = el.get("content") or ""
-            xpath = el.get("xpath") or ""
-            if not content or not xpath:
-                continue
-
-            offset_norm = content.find(normalized_answer)
-            if offset_norm == -1:
-                continue
-
-            index_map = el.get("index_map") or []
-            if not index_map or offset_norm + len(normalized_answer) - 1 >= len(index_map):
-                diagnostics.append(
-                    {"label": ans["label"], "xpath": xpath, "reason": "Index map missing/short"}
-                )
-                logging.debug(
-                    "❌ [%d] Index map missing/short | xpath=%s | offset_norm=%d | ans_len=%d | map_len=%d",
-                    idx,
-                    xpath,
-                    offset_norm,
-                    len(normalized_answer),
-                    len(index_map),
-                )
-                continue
-
-            start_orig = index_map[offset_norm]
-            end_orig = (
-                index_map[offset_norm + len(normalized_answer) - 1] + 1
-            )  # slice end exclusive
-
-            if start_orig is None or end_orig is None or start_orig < 0 or end_orig <= start_orig:
-                diagnostics.append(
-                    {"label": ans["label"], "xpath": xpath, "reason": "Offset mapping failed"}
-                )
-                logging.debug(
-                    "❌ [%d] Offset mapping failed | xpath=%s | offset_norm=%d | start_orig=%s | end_orig=%s",
-                    idx,
-                    xpath,
-                    offset_norm,
-                    start_orig,
-                    end_orig,
-                )
-                continue
-
-            matches.append(
-                {
-                    "id": str(uuid.uuid4()),
-                    "from_name": "label",
-                    "to_name": "html",
-                    "type": "labels",
-                    "origin": "prediction",
-                    "value": {
-                        "start": xpath,
-                        "end": xpath,
-                        "startOffset": start_orig,
-                        "endOffset": end_orig,
-                        "labels": [ans["label"]],
-                        "text": ans["answer"],
-                    },
-                }
-            )
-            logging.debug(
-                "✅ [%d] Match | xpath=%s | start_orig=%d | end_orig=%d | norm_offset=%d",
-                idx,
-                xpath,
-                start_orig,
-                end_orig,
-                offset_norm,
-            )
-            found_match = True
-            break
-
-        if not found_match:
-            diagnostics.append({"label": ans["label"], "reason": "Not found in any content block"})
-            logging.debug(
-                "🔍 [%d] No match for label=%s | normalized_answer=%r",
-                idx,
-                ans["label"],
-                normalized_answer,
-            )
-
-    logging.info("🧾 Match summary: %d matches, %d diagnostics", len(matches), len(diagnostics))
-    if diagnostics:
-        logging.debug("🧪 Diagnostics: %s", json.dumps(diagnostics, ensure_ascii=False))
-    return matches, diagnostics
-
-
-# ----------------------------------
-# LS, model, LLM
-# ----------------------------------
-def save_predictions_to_labelstudio(params, task_id, prediction_result, meta: dict | None = None):
-    url = params["label_studio_url"]
-    token = params["ls_token"]
-    mv = params["ollama_model"]
-    logging.info(f"📤 Saving predictions for task {task_id} (model: {mv})")
-
-    payload = {"task": task_id, "model_version": mv, "result": prediction_result}
-    if meta:
-        payload["meta"] = meta
-
-    try:
-        response = requests.post(
-            f"{url}/api/predictions",
-            headers={"Authorization": f"Token {token}", "Content-Type": "application/json"},
-            json=payload,
-        )
-        response.raise_for_status()
-        logging.info(f"✅ Prediction stored in Label Studio (task {task_id})")
-    except requests.exceptions.HTTPError as http_err:
-        logging.error(f"❌ HTTP Error: {http_err} - {response.status_code} {response.text}")
-    except Exception as e:
-        logging.error(f"❌ Error sending to Label Studio: {e}")
 
 
 def ensure_model_available(params, model_name: str):
