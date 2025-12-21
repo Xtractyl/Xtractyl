@@ -1,3 +1,4 @@
+# /ml_backend/app.py
 import json
 import logging
 import os
@@ -12,6 +13,9 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from playwright.sync_api import sync_playwright
 
+from utils import origin_from_env
+from logging_setup import attach_file_logger
+
 # ----------------------------------
 # Toggle for full DOM logging
 # ----------------------------------
@@ -25,17 +29,6 @@ logging.basicConfig(level=logging.DEBUG, format="%(asctime)s [%(levelname)s] %(m
 PORT = int(os.getenv("ML_BACKEND_PORT", "6789"))
 
 app = Flask(__name__)
-
-
-def origin_from_env(prefix: str, default_port: int, default_host: str = "localhost") -> str:
-    origin = os.getenv(f"{prefix}_ORIGIN") or os.getenv(f"{prefix}_URL")
-    if origin:
-        return origin
-    host = os.getenv(f"{prefix}_HOST", default_host)
-    port = os.getenv(f"{prefix}_PORT", str(default_port))
-    scheme = os.getenv(f"{prefix}_SCHEME", "http")
-    return f"{scheme}://{host}:{port}"
-
 
 FRONTEND_ORIGIN = origin_from_env("FRONTEND_PORT", 5173)
 LABELSTUDIO_ORIGIN = origin_from_env("LABELSTUDIO_PORT", 8080)
@@ -55,11 +48,7 @@ os.makedirs(LOG_DIR, exist_ok=True)
 os.makedirs(JOBS_DIR, exist_ok=True)
 
 general_logfile = os.path.join(LOG_DIR, "ml_backend.log")
-_fh = logging.FileHandler(general_logfile, encoding="utf-8")
-_fh.setLevel(logging.DEBUG)
-_fh.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
-logging.getLogger().addHandler(_fh)
-
+attach_file_logger(general_logfile)
 
 def _job_log_paths(job_id: str | None):
     """Return per-job file paths; fall back to general files if job_id is None."""
