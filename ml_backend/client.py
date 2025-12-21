@@ -1,7 +1,8 @@
 # /ml_backend/client.py
+import logging
+
 import requests
 
-import logging
 
 def ensure_model_available(params, model_name: str):
     base = params["ollama_base"]

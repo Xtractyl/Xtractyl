@@ -5,6 +5,7 @@ import os
 import pathlib
 
 from bs4 import BeautifulSoup
+from client import ask_llm_with_timeout
 from dom_extract import extract_dom_with_chromium
 from dom_match import extract_xpath_matches_from_dom
 from flask import Flask, jsonify, request
@@ -14,7 +15,6 @@ from logging_setup import attach_file_logger
 from utils import (
     origin_from_env,
 )
-from client import ask_llm_with_timeout
 
 # ----------------------------------
 # Toggle for full DOM logging
