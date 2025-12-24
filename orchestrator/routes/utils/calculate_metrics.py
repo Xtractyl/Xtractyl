@@ -22,6 +22,7 @@ def compute_metrics_from_rows(
       - FN if GT present, pred missing
       - FP if pred present, GT missing
       - TN if both missing
+      - TIMEOUT if model timed out (does NOT count as FP/FN/TN/TP)
 
     Returns:
       {
@@ -53,15 +54,20 @@ def compute_metrics_from_rows(
 
     for lab in all_labels:
         tp = fp = fn = tn = 0
-
+        timeout = 0
         for fnm in all_filenames:
             if fnm not in task_metrics_by_fn:
                 task_metrics_by_fn[fnm] = {
                     "filename": fnm,
-                    "meta": pred_meta_by_fn.get(fnm, {}),  # 👈 HIER
+                    "meta": pred_meta_by_fn.get(fnm, {}),
                     "per_label": {},
-                    "counts": {"tp": 0, "fp": 0, "fn": 0, "tn": 0},
+                    "counts": {"tp": 0, "fp": 0, "fn": 0, "tn": 0, "timeout": 0},
                 }
+
+            meta = pred_meta_by_fn.get(fnm, {}) or {}
+            raw = meta.get("raw_llm_answers") or {}
+            ans = raw.get(lab) or {}
+            timed_out = ans.get("status") == "timeout" or bool(ans.get("timed_out"))
 
             gt_val = ((gt_by_fn.get(fnm, {}) or {}).get(labels_key) or {}).get(lab, "")
             pr_val = ((pred_by_fn.get(fnm, {}) or {}).get(labels_key) or {}).get(lab, "")
@@ -69,30 +75,38 @@ def compute_metrics_from_rows(
             gt_present = bool(gt_val)
             pr_present = bool(pr_val)
 
-            if gt_present and pr_present:
+            if timed_out:
+                status = "timeout"
+                task_metrics_by_fn[fnm]["counts"]["timeout"] += 1
+                timeout += 1
+
+            elif gt_present and pr_present:
                 if gt_val == pr_val:
                     tp += 1
                     status = "tp"
                     task_metrics_by_fn[fnm]["counts"]["tp"] += 1
                 else:
-                    # wrong value: counts as miss + spurious
                     fp += 1
                     fn += 1
                     status = "fp_fn"
                     task_metrics_by_fn[fnm]["counts"]["fp"] += 1
                     task_metrics_by_fn[fnm]["counts"]["fn"] += 1
+
             elif gt_present and not pr_present:
                 fn += 1
                 status = "fn"
                 task_metrics_by_fn[fnm]["counts"]["fn"] += 1
+
             elif (not gt_present) and pr_present:
                 fp += 1
                 status = "fp"
                 task_metrics_by_fn[fnm]["counts"]["fp"] += 1
+
             else:
                 tn += 1
                 status = "tn"
                 task_metrics_by_fn[fnm]["counts"]["tn"] += 1
+
             task_metrics_by_fn[fnm]["per_label"][lab] = {
                 "gt": gt_val,
                 "pred": pr_val,

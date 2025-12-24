@@ -126,16 +126,18 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
                 <th className="px-2 py-1 border">FP</th>
                 <th className="px-2 py-1 border">FN</th>
                 <th className="px-2 py-1 border">TN</th>
+                <th className="px-2 py-1 border">Timeout</th>
               </tr>
             </thead>
             <tbody>
               {Object.entries(perLabel).map(([label, m]) => (
                 <tr key={label} className="odd:bg-[#f9f7ef]">
                   <td className="px-2 py-1 border font-medium">{label}</td>
-                  <td className="px-2 py-1 border">{m.tp}</td>
-                  <td className="px-2 py-1 border">{m.fp}</td>
-                  <td className="px-2 py-1 border">{m.fn}</td>
-                  <td className="px-2 py-1 border">{m.tn}</td>
+                  <td className="px-2 py-1 border text-center">{m.tp}</td>
+                  <td className="px-2 py-1 border text-center">{m.fp}</td>
+                  <td className="px-2 py-1 border text-center">{m.fn}</td>
+                  <td className="px-2 py-1 border text-center">{m.tn}</td>
+                  <td className="px-2 py-1 border text-center">{m.timeout ?? 0}</td>
                 </tr>
               ))}
             </tbody>
