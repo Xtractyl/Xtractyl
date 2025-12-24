@@ -11,7 +11,9 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
   const micro = metrics.micro || {};
   const perLabel = metrics.per_label || {};
   const taskMetrics = metrics.task_metrics || [];
-
+  const cmpMeta =
+    taskMetrics.find((t) => t?.meta && Object.keys(t.meta).length > 0)?.meta || {};
+    
   function Metric({ label, value }) {
     return (
       <div className="p-3 bg-[#f4f1e6] rounded border border-[#d3ccb8]">
@@ -41,16 +43,29 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
             </div>
           </div>
 
-          <div className="p-3 bg-[#f4f1e6] rounded border border-[#d3ccb8]">
-            <div className="font-semibold text-[#23211c]">Comparison Project</div>
-            <div className="mt-1 text-[#444038]">
-              Name: <b>{payload.comparison_project}</b>
-              <br />
-              ID: <span>{payload.comparison_project_id}</span>
-            </div>
+        <div className="p-3 bg-[#f4f1e6] rounded border border-[#d3ccb8]">
+          <div className="font-semibold text-[#23211c]">Comparison Project</div>
+          <div className="mt-1 text-[#444038]">
+            Name: <b>{payload.comparison_project}</b>
+            <br />
+            ID: <span>{payload.comparison_project_id}</span>
+          <br />
+          Model: <span>{cmpMeta.model ?? "—"}</span>
           </div>
         </div>
+        </div>
       </div>
+
+      {cmpMeta.system_prompt && (
+        <div className="mt-4 p-3 bg-[#f9f7ef] rounded border border-[#d3ccb8]">
+          <div className="font-semibold text-sm text-[#23211c] mb-1">
+            System Prompt (Comparison Project)
+          </div>
+          <pre className="text-xs text-[#444038] whitespace-pre-wrap">
+            {cmpMeta.system_prompt}
+          </pre>
+        </div>
+      )}
 
       {/* ---------- Overall Metrics ---------- */}
       <div>
