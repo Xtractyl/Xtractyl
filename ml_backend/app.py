@@ -134,7 +134,7 @@ def predict():
         ), 200
 
     # DOM
-    with perf.measure("req.dom_extract"):
+    with perf.measure("dom_extract"):
         dom_data = extract_dom_with_chromium(html_content)
     if LOG_FULL_DOM:
         try:
@@ -195,7 +195,7 @@ def predict():
             answers_by_label[str(lab)] = {
                 "question": q,
                 "answer": llm["answer"],  # str|None
-                "answer_status": llm["status"],  # ok|timeout|error|model_missing
+                "status": llm["status"],  # ok|timeout|error|model_missing
                 "error": llm.get("error"),
             }
 
@@ -217,7 +217,7 @@ def predict():
 
         dom_match_by_label = {}
         for lab, v in (answers_by_label or {}).items():
-            status = (v or {}).get("answer_status")
+            status = (v or {}).get("status")
             ans = (v or {}).get("answer")
 
             if status != "ok" or not ans:

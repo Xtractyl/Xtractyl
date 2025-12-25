@@ -53,8 +53,7 @@ def compute_metrics_from_rows(
     TP = FP = FN = TN = 0
 
     for lab in all_labels:
-        tp = fp = fn = tn = 0
-        timeout = 0
+        tp = fp = fn = tn = timeout = 0
         for fnm in all_filenames:
             if fnm not in task_metrics_by_fn:
                 task_metrics_by_fn[fnm] = {
@@ -67,7 +66,7 @@ def compute_metrics_from_rows(
             meta = pred_meta_by_fn.get(fnm, {}) or {}
             raw = meta.get("raw_llm_answers") or {}
             ans = raw.get(lab) or {}
-            timed_out = ans.get("status") == "timeout" or bool(ans.get("timed_out"))
+            timed_out = ans.get("status") == "timeout"
 
             gt_val = ((gt_by_fn.get(fnm, {}) or {}).get(labels_key) or {}).get(lab, "")
             pr_val = ((pred_by_fn.get(fnm, {}) or {}).get(labels_key) or {}).get(lab, "")
@@ -127,6 +126,7 @@ def compute_metrics_from_rows(
             "fp": fp,
             "fn": fn,
             "tn": tn,
+            "timeout": timeout,
             "precision": precision,
             "recall": recall,
             "f1": f1,
