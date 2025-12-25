@@ -12,6 +12,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from label_studio import attach_meta_to_task, save_predictions_to_labelstudio
 from logging_setup import attach_file_logger
+from perf_collector import PerfCollector
 
 # ----------------------------------
 # Toggle for full DOM logging
@@ -71,7 +72,8 @@ def _job_log_paths(job_id: str | None):
 # ----------------------------------
 @app.route("/predict", methods=["POST"])
 def predict():
-    # robustes JSON-Parsing
+    perf = PerfCollector()
+    # robust JSON-Parsing
     data = request.get_json(silent=True) or {}
     params = data.get("config") or data.get("params") or {}
 
@@ -132,7 +134,8 @@ def predict():
         ), 200
 
     # DOM
-    dom_data = extract_dom_with_chromium(html_content)
+    with perf.measure("req.dom_extract"):
+        dom_data = extract_dom_with_chromium(html_content)
     if LOG_FULL_DOM:
         try:
             with open(dom_dump_path, "a", encoding="utf-8") as f:
@@ -246,8 +249,9 @@ def predict():
         "dom_match_diagnostics": diagnostics,
         "dom_match_by_label": dom_match_by_label,
         "job_id": job_id,
+        "performance": perf.to_dict(include_events=False),
     }
-    # Optional: direkt in Label Studio speichern, wenn URL+Token vorhanden
+
     if all(k in params for k in ("label_studio_url", "ls_token")):
         try:
             save_predictions_to_labelstudio(params, task_id, prelabels)  # ohne meta
