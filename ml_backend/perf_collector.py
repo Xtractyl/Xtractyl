@@ -53,7 +53,6 @@ class PerfCollector:
 
         llm = events("llm.")
         dom = events("dom.")
-        # task = events("task.") später nutzen
 
         llm_ms = sum(e.ms for e in llm)
         dom_ms = sum(e.ms for e in dom)

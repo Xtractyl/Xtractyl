@@ -201,7 +201,43 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
                 </table>
               </div>
             </div>
+            
           ))}
+                {/* ---------- Performance Metrics ---------- */}
+      {cmpMeta.performance?.request && (
+        <div>
+          <h2 className="text-xl font-semibold text-[#444038] border-b border-[#cfcab5] pb-1">
+            Performance (Backend)
+          </h2>
+
+          <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <Metric
+              label="Total Time (ms)"
+              value={cmpMeta.performance.request.total_ms}
+            />
+            <Metric
+              label="DOM Extract (ms)"
+              value={cmpMeta.performance.request.dom_ms}
+            />
+            <Metric
+              label="LLM Time (ms)"
+              value={cmpMeta.performance.request.llm_ms}
+            />
+            <Metric
+              label="LLM Calls"
+              value={cmpMeta.performance.request.n_llm_calls}
+            />
+          </div>
+
+          <div className="mt-3 text-xs text-[#555]">
+            Timeouts: {cmpMeta.performance.request.n_timeouts} ·
+            Avg LLM Call:{" "}
+            {cmpMeta.performance.request.avg_llm_call_ms.toFixed(1)} ms ·
+            Median LLM Call:{" "}
+            {cmpMeta.performance.request.median_llm_call_ms.toFixed(1)} ms
+          </div>
+        </div>
+      )}
         </div>
       </div>
     </div>

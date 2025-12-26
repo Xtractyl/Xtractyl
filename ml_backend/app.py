@@ -134,7 +134,7 @@ def predict():
         ), 200
 
     # DOM
-    with perf.measure("dom_extract"):
+    with perf.measure("dom.extract"):
         dom_data = extract_dom_with_chromium(html_content)
     if LOG_FULL_DOM:
         try:
