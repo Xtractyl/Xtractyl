@@ -41,6 +41,9 @@ services:
     volumes:
       - ${LABELSTUDIO_DATA_VOLUME:-labelstudio_data}:/label-studio/data
     environment:
+      - collect_analytics=0
+      - FRONTEND_SENTRY_DSN=
+      - SENTRY_DSN=
       - DJANGO_DB=${DJANGO_DB:-default}
       - POSTGRE_NAME=${POSTGRES_DB:-dbname}
       - POSTGRE_USER=${POSTGRES_USER:-username}
