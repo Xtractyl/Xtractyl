@@ -191,7 +191,7 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
                 </h2>
 
                 <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                  <Metric label="Average Time Per Task (ms)" value={metrics.performance.task_ms_total_avg} />
+                  <Metric label="Average Time Per Task [DOM extraction + LLM + DOM matching] (ms)" value={metrics.performance.task_ms_total_avg} />
                   <Metric label="Average DOM Extraction Time Per Task (ms)" value={metrics.performance.task_ms_dom_extract_avg} />
                   <Metric label="Average DOM Matching Time Per Task (ms)" value={metrics.performance.task_ms_dom_match_avg} />
                   <Metric label="Average LLM Time Per Task (ms)" value={metrics.performance.task_ms_llm_total_avg} />
@@ -199,8 +199,8 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
 
                 <div className="mt-3 text-xs text-[#555]">
                   Number of Tasks: {metrics.performance.n_tasks_with_perf} ·{" "}
-                  Time Per Task p95: {metrics.performance.task_ms_total_p95.toFixed(1)} ms ·{" "}
-                  LLM Time Per Task p95: {metrics.performance.task_ms_llm_total_p95.toFixed(1)} ms
+                  p95 for Time Per Task [DOM extraction + LLM + DOM matching]: {metrics.performance.task_ms_total_p95.toFixed(1)} ms ·{" "}
+                  p95 for LLM Time Per Task: {metrics.performance.task_ms_llm_total_p95.toFixed(1)} ms
                 </div>
               </div>
             )}
