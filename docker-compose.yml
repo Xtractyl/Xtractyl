@@ -163,6 +163,10 @@ services:
       - ${HTMLS_DIR:-./data/htmls}:/app/data/htmls
       - ${LOGS_DIR:-./logs}:/logs
     environment:
+      - LLM_TIMEOUT=${LLM_TIMEOUT:-20}
+      - LLM_OVERHEAD=${LLM_OVERHEAD:-5}
+      - UPLOAD_MARGIN=${UPLOAD_MARGIN:-30}
+      - OLLAMA_BASE=${OLLAMA_BASE:-http://ollama:11434}
       - REDIS_HOST=${REDIS_HOST:-job_queue}
       - REDIS_PORT=${REDIS_PORT:-6379}
       - LS_HOST=labelstudio
