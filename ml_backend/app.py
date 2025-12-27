@@ -77,7 +77,7 @@ def predict():
     data = request.get_json(silent=True) or {}
     params = data.get("config") or data.get("params") or {}
 
-    # Job / Log-Pfade (best effort)
+    # Job / Log-paths (best effort)
     job_id = (
         request.headers.get("X-Prelabel-Job")
         or request.args.get("job_id")
@@ -100,7 +100,7 @@ def predict():
         or "unknown-task"
     )
 
-    # HTML aus task.data[...] oder Top-Level
+    # HTML from task.data[...] or top level
     html_content = ""
     d = task_obj.get("data") or data.get("data") or {}
     for k in ("html", "text", "content", "raw"):
@@ -163,7 +163,7 @@ def predict():
     questions = qa_config.get("questions") or []
     labels = qa_config.get("labels") or []
 
-    # LLM nur bei vollständiger Konfig + Q&L
+    # LLM only if config is complete + Q&L
     answers_by_label = {}
     timed_out = False
 
@@ -175,60 +175,62 @@ def predict():
 
         for q, lab in zip(questions, labels, strict=False):
             prompt = f"{params['system_prompt']}\n\nQuestion: {q}\n\nText: {puretext}"
+            with perf.measure("llm.call", label=str(lab)) as t:
+                llm = ask_llm_with_timeout(
+                    params,
+                    prompt,
+                    timeout=int(params["llm_timeout_seconds"]),
+                    model_name=params["ollama_model"],
+                )
+                t["status"] = llm.get("status")
+                # timeout bookkeeping (nur Flag + optional logfile)
+                if llm["status"] == "timeout":
+                    timed_out = True
+                    try:
+                        with open(timeout_log_path, "a", encoding="utf-8") as f:
+                            f.write(f"{task_id}: {lab} :: {q}\n")
+                    except Exception:
+                        pass
 
-            llm = ask_llm_with_timeout(
-                params,
-                prompt,
-                timeout=int(params["llm_timeout_seconds"]),
-                model_name=params["ollama_model"],
-            )
-
-            # timeout bookkeeping (nur Flag + optional logfile)
-            if llm["status"] == "timeout":
-                timed_out = True
-                try:
-                    with open(timeout_log_path, "a", encoding="utf-8") as f:
-                        f.write(f"{task_id}: {lab} :: {q}\n")
-                except Exception:
-                    pass
-
-            answers_by_label[str(lab)] = {
-                "question": q,
-                "answer": llm["answer"],  # str|None
-                "status": llm["status"],  # ok|timeout|error|model_missing
-                "error": llm.get("error"),
-            }
+                answers_by_label[str(lab)] = {
+                    "question": q,
+                    "answer": llm["answer"],  # str|None
+                    "status": llm["status"],  # ok|timeout|error|model_missing
+                    "error": llm.get("error"),
+                }
 
     logging.info(
         "🧠 Answers from LLM: %s", json.dumps(answers_by_label, indent=2, ensure_ascii=False)
     )
-
-    dom_match_by_label = {}
-    try:
-        answers_list = [
-            {"label": lab, "question": v.get("question"), "answer": v.get("answer")}
-            for lab, v in (answers_by_label or {}).items()
-        ]
-        prelabels, diagnostics = extract_xpath_matches_from_dom(dom_data, answers_list)
-
-        diag_labels = {
-            d.get("label") for d in (diagnostics or []) if isinstance(d, dict) and d.get("label")
-        }
-
+    with perf.measure("dom.match"):
         dom_match_by_label = {}
-        for lab, v in (answers_by_label or {}).items():
-            status = (v or {}).get("status")
-            ans = (v or {}).get("answer")
+        try:
+            answers_list = [
+                {"label": lab, "question": v.get("question"), "answer": v.get("answer")}
+                for lab, v in (answers_by_label or {}).items()
+            ]
+            prelabels, diagnostics = extract_xpath_matches_from_dom(dom_data, answers_list)
 
-            if status != "ok" or not ans:
-                dom_match_by_label[lab] = None
-            else:
-                dom_match_by_label[lab] = lab not in diag_labels
+            diag_labels = {
+                d.get("label")
+                for d in (diagnostics or [])
+                if isinstance(d, dict) and d.get("label")
+            }
 
-    except Exception as e:
-        logging.warning("extract_xpath_matches_from_dom failed: %s", e)
-        prelabels, diagnostics = [], [{"reason": "match_failed", "error": str(e)}]
-        dom_match_by_label = {}
+            dom_match_by_label = {}
+            for lab, v in (answers_by_label or {}).items():
+                status = (v or {}).get("status")
+                ans = (v or {}).get("answer")
+
+                if status != "ok" or not ans:
+                    dom_match_by_label[lab] = None
+                else:
+                    dom_match_by_label[lab] = lab not in diag_labels
+
+        except Exception as e:
+            logging.warning("extract_xpath_matches_from_dom failed: %s", e)
+            prelabels, diagnostics = [], [{"reason": "match_failed", "error": str(e)}]
+            dom_match_by_label = {}
 
     # Audit-Log (best effort)
     try:
