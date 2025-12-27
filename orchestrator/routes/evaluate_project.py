@@ -1,4 +1,8 @@
+import json
+import os
 from collections import defaultdict
+from datetime import datetime, timezone
+from pathlib import Path
 
 from routes.utils.calculate_metrics import compute_metrics_from_rows
 from routes.utils.evaluate_project_utils import SPECIAL_PROJECT_TITLE, create_evaluation_project
@@ -8,6 +12,8 @@ from routes.utils.shared.label_studio_client import (
     list_projects,
     resolve_project_id,
 )
+
+EVAL_OUT_DIR = Path(os.getenv("EVAL_DIR", "/app/data/evaluation"))
 
 
 def list_project_names(token: str) -> list[str]:
@@ -84,6 +90,16 @@ def _latest_prediction_meta(task: dict) -> dict:
     return ml_meta if isinstance(ml_meta, dict) else {}
 
 
+def _write_eval_result(payload: dict, gt_id: int, cmp_id: int) -> str:
+    EVAL_OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    out_path = EVAL_OUT_DIR / f"eval_gt{gt_id}_cmp{cmp_id}_{ts}.json"
+
+    out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    return str(out_path)
+
+
 def _tasks_to_rows(token: str, project_id: int, mode: str) -> list[dict]:
     """
     mode='gt'   -> labels from annotations
@@ -134,8 +150,7 @@ def evaluate_projects(token: str, groundtruth_project: str, comparison_project: 
     pred_rows = _tasks_to_rows(token, cmp_id, mode="pred")
 
     overall = compute_metrics_from_rows(gt_rows, pred_rows)
-
-    return {
+    result = {
         "groundtruth_project": groundtruth_project,
         "groundtruth_project_id": gt_id,
         "comparison_project": comparison_project,
@@ -143,3 +158,6 @@ def evaluate_projects(token: str, groundtruth_project: str, comparison_project: 
         "metrics": overall,
         "answer_comparison": [],
     }
+
+    result["evaluation_output_path"] = _write_eval_result(result, gt_id, cmp_id)
+    return result

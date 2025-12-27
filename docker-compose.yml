@@ -69,9 +69,10 @@ services:
       - ${PROJECTS_DIR:-./data/projects}/Evaluation_Set_Do_Not_Delete:/app/data/projects/Evaluation_Set_Do_Not_Delete:ro
       - ${HTMLS_DIR:-./data/htmls}:/app/data/htmls
       - ./data/labelstudio_Evaluation_Set_Do_Not_Delete:/app/data/labelstudio_Evaluation_Set_Do_Not_Delete:ro
-      - ${EVAL_DIR:-./evaluation}:/app/evaluation
+      - ${EVAL_DIR:-./data/evaluation}:/app/data/evaluation
       - ${LOGS_DIR:-./logs}:/logs
     environment:
+      - EVAL_DIR=/app/data/evaluation
       - FRONTEND_PORT=${FRONTEND_PORT:-5173}
 
   ml_backend:

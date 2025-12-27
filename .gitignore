@@ -18,8 +18,6 @@ pip-wheel-metadata/
 
 # 🐳 Docker
 **/screenshots/
-evaluation/
-evaluation_compare/
 docker/ml_backend/__pycache__/
 docker/orchestrator/__pycache__/
 docker/frontend/node_modules/
@@ -28,6 +26,7 @@ docker/frontend/node_modules/
 data/pdfs/
 data/htmls/
 data/projects/
+data/evaluation/
 data/tmp/
 
 # Trotzdem erlauben:
