@@ -36,14 +36,14 @@ class PerfCollector:
 
         t0 = perf_counter()
         try:
-            yield
+            yield tags
         finally:
             t1 = perf_counter()
             self._events.append(
                 PerfEvent(
                     name=name,
                     ms=(t1 - t0) * 1000.0,
-                    tags=tags,
+                    tags=dict(tags),
                 )
             )
 
@@ -54,8 +54,11 @@ class PerfCollector:
         llm = events("llm.")
         dom = events("dom.")
 
+        dom_extract_ms = sum(e.ms for e in dom if e.name == "dom.extract")
+        dom_match_ms = sum(e.ms for e in dom if e.name == "dom.match")
+        dom_ms = dom_extract_ms + dom_match_ms
+
         llm_ms = sum(e.ms for e in llm)
-        dom_ms = sum(e.ms for e in dom)
         total_ms = sum(e.ms for e in self._events)
 
         llm_calls = [e.ms for e in llm if e.name == "llm.call"]
@@ -69,7 +72,9 @@ class PerfCollector:
                 "total_ms": total_ms,
                 "llm_ms": llm_ms,
                 "dom_ms": dom_ms,
-                "n_llm_calls": len([e for e in llm if e.name == "llm.call"]),
+                "dom_extract_ms": dom_extract_ms,
+                "dom_match_ms": dom_match_ms,
+                "n_llm_calls": sum(1 for e in llm if e.name == "llm.call"),
                 "n_timeouts": timeouts,
                 "avg_llm_call_ms": avg_call_ms,
                 "median_llm_call_ms": median_call_ms,
