@@ -203,41 +203,27 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
             </div>
             
           ))}
-                {/* ---------- Performance Metrics ---------- */}
-      {cmpMeta.performance?.request && (
-        <div>
-          <h2 className="text-xl font-semibold text-[#444038] border-b border-[#cfcab5] pb-1">
-            Performance (Backend)
-          </h2>
+          {/* ---------- Performance Metrics ---------- */}
+          {metrics.performance && (
+            <div>
+              <h2 className="text-xl font-semibold text-[#444038] border-b border-[#cfcab5] pb-1">
+                Performance (Backend)
+              </h2>
 
-          <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <Metric
-              label="Total Time (ms)"
-              value={cmpMeta.performance.request.total_ms}
-            />
-            <Metric
-              label="DOM Extract (ms)"
-              value={cmpMeta.performance.request.dom_ms}
-            />
-            <Metric
-              label="LLM Time (ms)"
-              value={cmpMeta.performance.request.llm_ms}
-            />
-            <Metric
-              label="LLM Calls"
-              value={cmpMeta.performance.request.n_llm_calls}
-            />
-          </div>
+              <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <Metric label="Total Time (avg ms)" value={metrics.performance.total_ms_avg} />
+                <Metric label="DOM Extract (avg ms)" value={metrics.performance.dom_extract_ms_avg} />
+                <Metric label="DOM Match (avg ms)" value={metrics.performance.dom_match_ms_avg} />
+                <Metric label="LLM Time (avg ms)" value={metrics.performance.llm_ms_avg} />
+              </div>
 
-          <div className="mt-3 text-xs text-[#555]">
-            Timeouts: {cmpMeta.performance.request.n_timeouts} ·
-            Avg LLM Call:{" "}
-            {cmpMeta.performance.request.avg_llm_call_ms.toFixed(1)} ms ·
-            Median LLM Call:{" "}
-            {cmpMeta.performance.request.median_llm_call_ms.toFixed(1)} ms
-          </div>
-        </div>
-      )}
+              <div className="mt-3 text-xs text-[#555]">
+                Tasks w/ perf: {metrics.performance.n_tasks_with_perf} ·{" "}
+                Total p95: {metrics.performance.total_ms_p95.toFixed(1)} ms ·{" "}
+                LLM p95: {metrics.performance.llm_ms_p95.toFixed(1)} ms
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
