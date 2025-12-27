@@ -63,10 +63,10 @@ def compute_metrics_from_rows(
     task_metrics_by_fn: Dict[str, dict] = {}
 
     TP = FP = FN = TN = 0
-    perf_total_ms: List[float] = []
-    perf_llm_ms: List[float] = []
-    perf_dom_extract_ms: List[float] = []
-    perf_dom_match_ms: List[float] = []
+    perf_task_ms_total: List[float] = []
+    perf_task_ms_llm_total: List[float] = []
+    perf_task_ms_dom_extract: List[float] = []
+    perf_task_ms_dom_match: List[float] = []
     n_tasks_with_perf = 0
 
     for lab in all_labels:
@@ -86,17 +86,17 @@ def compute_metrics_from_rows(
             if not task_metrics_by_fn[fnm].get("_perf_collected"):
                 req = (meta.get("performance") or {}).get("request") or {}
                 has_any_perf = False
-                if isinstance(req.get("total_ms"), (int, float)):
-                    perf_total_ms.append(float(req["total_ms"]))
+                if isinstance(req.get("task_ms_total"), (int, float)):
+                    perf_task_ms_total.append(float(req["task_ms_total"]))
                     has_any_perf = True
-                if isinstance(req.get("llm_ms"), (int, float)):
-                    perf_llm_ms.append(float(req["llm_ms"]))
+                if isinstance(req.get("task_ms_llm_total"), (int, float)):
+                    perf_task_ms_llm_total.append(float(req["task_ms_llm_total"]))
                     has_any_perf = True
-                if isinstance(req.get("dom_extract_ms"), (int, float)):
-                    perf_dom_extract_ms.append(float(req["dom_extract_ms"]))
+                if isinstance(req.get("task_ms_dom_extract"), (int, float)):
+                    perf_task_ms_dom_extract.append(float(req["task_ms_dom_extract"]))
                     has_any_perf = True
-                if isinstance(req.get("dom_match_ms"), (int, float)):
-                    perf_dom_match_ms.append(float(req["dom_match_ms"]))
+                if isinstance(req.get("task_ms_dom_match"), (int, float)):
+                    perf_task_ms_dom_match.append(float(req["task_ms_dom_match"]))
                     has_any_perf = True
                 if has_any_perf:
                     n_tasks_with_perf += 1
@@ -176,16 +176,16 @@ def compute_metrics_from_rows(
 
     performance = {
         "n_tasks_with_perf": n_tasks_with_perf,
-        "total_ms_sum": sum(perf_total_ms),
-        "total_ms_avg": _avg(perf_total_ms),
-        "total_ms_p95": _p95(perf_total_ms),
-        "llm_ms_sum": sum(perf_llm_ms),
-        "llm_ms_avg": _avg(perf_llm_ms),
-        "llm_ms_p95": _p95(perf_llm_ms),
-        "dom_extract_ms_sum": sum(perf_dom_extract_ms),
-        "dom_extract_ms_avg": _avg(perf_dom_extract_ms),
-        "dom_match_ms_sum": sum(perf_dom_match_ms),
-        "dom_match_ms_avg": _avg(perf_dom_match_ms),
+        "task_ms_total_sum": sum(perf_task_ms_total),
+        "task_ms_total_avg": _avg(perf_task_ms_total),
+        "task_ms_total_p95": _p95(perf_task_ms_total),
+        "task_ms_llm_total_sum": sum(perf_task_ms_llm_total),
+        "task_ms_llm_total_avg": _avg(perf_task_ms_llm_total),
+        "task_ms_llm_total_p95": _p95(perf_task_ms_llm_total),
+        "task_ms_dom_extract_sum": sum(perf_task_ms_dom_extract),
+        "task_ms_dom_extract_avg": _avg(perf_task_ms_dom_extract),
+        "task_ms_dom_match_sum": sum(perf_task_ms_dom_match),
+        "task_ms_dom_match_avg": _avg(perf_task_ms_dom_match),
     }
 
     # remove internal guard flags from output

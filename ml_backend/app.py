@@ -251,7 +251,7 @@ def predict():
         "dom_match_diagnostics": diagnostics,
         "dom_match_by_label": dom_match_by_label,
         "job_id": job_id,
-        "performance": perf.to_dict(include_events=False),
+        "performance": perf.to_dict(include_events=True),
     }
 
     if all(k in params for k in ("label_studio_url", "ls_token")):

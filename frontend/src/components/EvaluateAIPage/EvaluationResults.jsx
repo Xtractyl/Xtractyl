@@ -211,16 +211,16 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
               </h2>
 
               <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <Metric label="Total Time (avg ms)" value={metrics.performance.total_ms_avg} />
-                <Metric label="DOM Extract (avg ms)" value={metrics.performance.dom_extract_ms_avg} />
-                <Metric label="DOM Match (avg ms)" value={metrics.performance.dom_match_ms_avg} />
-                <Metric label="LLM Time (avg ms)" value={metrics.performance.llm_ms_avg} />
+                <Metric label="Average Time Per Task (ms)" value={metrics.performance.task_ms_total_avg} />
+                <Metric label="Average DOM Extraction Time Per Task (ms)" value={metrics.performance.task_ms_dom_extract_avg} />
+                <Metric label="Average DOM Matching Time Per Task (ms)" value={metrics.performance.task_ms_dom_match_avg} />
+                <Metric label="Average LLM Time Per Task (ms)" value={metrics.performance.task_ms_llm_total_avg} />
               </div>
 
               <div className="mt-3 text-xs text-[#555]">
-                Tasks w/ perf: {metrics.performance.n_tasks_with_perf} ·{" "}
-                Total p95: {metrics.performance.total_ms_p95.toFixed(1)} ms ·{" "}
-                LLM p95: {metrics.performance.llm_ms_p95.toFixed(1)} ms
+                Number of Tasks: {metrics.performance.n_tasks_with_perf} ·{" "}
+                Time Per Task p95: {metrics.performance.task_ms_total_p95.toFixed(1)} ms ·{" "}
+                LLM Time Per Task p95: {metrics.performance.task_ms_llm_total_p95.toFixed(1)} ms
               </div>
             </div>
           )}

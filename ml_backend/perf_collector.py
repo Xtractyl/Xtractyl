@@ -54,12 +54,12 @@ class PerfCollector:
         llm = events("llm.")
         dom = events("dom.")
 
-        dom_extract_ms = sum(e.ms for e in dom if e.name == "dom.extract")
-        dom_match_ms = sum(e.ms for e in dom if e.name == "dom.match")
-        dom_ms = dom_extract_ms + dom_match_ms
+        task_ms_dom_extract = sum(e.ms for e in dom if e.name == "dom.extract")
+        task_ms_dom_match = sum(e.ms for e in dom if e.name == "dom.match")
+        dom_ms = task_ms_dom_extract + task_ms_dom_match
 
-        llm_ms = sum(e.ms for e in llm)
-        total_ms = sum(e.ms for e in self._events)
+        task_ms_llm_total = sum(e.ms for e in llm)
+        task_ms_total = sum(e.ms for e in self._events)
 
         llm_calls = [e.ms for e in llm if e.name == "llm.call"]
         avg_call_ms = statistics.mean(llm_calls) if llm_calls else 0.0
@@ -69,11 +69,11 @@ class PerfCollector:
 
         out = {
             "request": {
-                "total_ms": total_ms,
-                "llm_ms": llm_ms,
+                "task_ms_total": task_ms_total,
+                "task_ms_llm_total": task_ms_llm_total,
                 "dom_ms": dom_ms,
-                "dom_extract_ms": dom_extract_ms,
-                "dom_match_ms": dom_match_ms,
+                "task_ms_dom_extract": task_ms_dom_extract,
+                "task_ms_dom_match": task_ms_dom_match,
                 "n_llm_calls": sum(1 for e in llm if e.name == "llm.call"),
                 "n_timeouts": timeouts,
                 "avg_llm_call_ms": avg_call_ms,
