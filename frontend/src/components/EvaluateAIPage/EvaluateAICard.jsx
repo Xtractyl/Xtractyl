@@ -85,11 +85,17 @@ export default function EvaluateAICard({ apiToken }) {
         groundtruthProject,
         comparisonProject
       );
-
       setEvalResult(result);
     } catch (err) {
       console.error(err);
-      setEvalError("Evaluation failed. Please try again.");
+
+      const msg =
+        err?.body?.error ||
+        err?.body?.message ||
+        err?.message ||
+        `HTTP ${err?.status ?? "unknown"}`;
+
+      setEvalError(`Evaluation failed: ${msg}`);
     } finally {
       setEvalLoading(false);
     }

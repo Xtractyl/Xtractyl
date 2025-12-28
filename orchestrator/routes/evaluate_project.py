@@ -149,6 +149,30 @@ def evaluate_projects(token: str, groundtruth_project: str, comparison_project: 
     gt_rows = _tasks_to_rows(token, gt_id, mode="gt")
     pred_rows = _tasks_to_rows(token, cmp_id, mode="pred")
 
+    gt_set = {r.get("filename") for r in gt_rows if r.get("filename")}
+    pr_set = {r.get("filename") for r in pred_rows if r.get("filename")}
+
+    if gt_set != pr_set:
+        missing_in_pred = sorted(gt_set - pr_set)
+        extra_in_pred = sorted(pr_set - gt_set)
+        raise ValueError(
+            f"Filename mismatch: missing_in_pred={missing_in_pred[:20]} extra_in_pred={extra_in_pred[:20]}"
+        )
+    gt_label_set = set()
+    for r in gt_rows:
+        gt_label_set |= set((r.get("labels") or {}).keys())
+
+    pred_label_set = set()
+    for r in pred_rows:
+        pred_label_set |= set((r.get("labels") or {}).keys())
+
+    if gt_label_set != pred_label_set:
+        missing_in_pred = sorted(gt_label_set - pred_label_set)
+        extra_in_pred = sorted(pred_label_set - gt_label_set)
+        raise ValueError(
+            f"Label set mismatch: missing_in_pred={missing_in_pred} extra_in_pred={extra_in_pred}"
+        )
+
     overall = compute_metrics_from_rows(gt_rows, pred_rows)
     result = {
         "groundtruth_project": groundtruth_project,

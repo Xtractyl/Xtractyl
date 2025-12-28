@@ -1,5 +1,6 @@
 # orchestrator/app.py
 import os
+import traceback
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -39,9 +40,19 @@ CORS(app, origins=[FRONTEND_ORIGIN])
 def ok(fn):
     try:
         data = fn()
-        return jsonify({"status": "success", "logs": data}), 200
+        return jsonify(data), 200
+    except ValueError as e:
+        # deine Guards (Filename mismatch etc.)
+        return jsonify({"status": "error", "error": str(e)}), 400
     except Exception as e:
-        return jsonify({"status": "error", "error": str(e)}), 500
+        return jsonify(
+            {
+                "status": "error",
+                "error": str(e),
+                # optional für dev:
+                "trace": traceback.format_exc(),
+            }
+        ), 500
 
 
 # ---------- sync endpoints (unchanged) ----------
@@ -133,9 +144,6 @@ def groundtruth_qal():
 
 @app.route("/evaluate-ai", methods=["POST"])
 def evaluate_ai():
-    """
-    Runs evaluation between a groundtruth project and a comparison project.
-    """
     payload = request.get_json() or {}
 
     token = payload.get("token")
@@ -143,15 +151,10 @@ def evaluate_ai():
     cmp_name = payload.get("comparison_project")
 
     if not token or not gt_name or not cmp_name:
-        return (
-            jsonify(
-                {
-                    "status": "error",
-                    "error": "token, groundtruth_project, comparison_project are required",
-                }
-            ),
-            400,
-        )
+        return jsonify({
+            "status": "error",
+            "error": "token, groundtruth_project, comparison_project are required",
+        }), 400
 
     def run():
         return evaluate_projects(token, gt_name, cmp_name)
