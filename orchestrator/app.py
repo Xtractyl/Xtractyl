@@ -40,19 +40,19 @@ CORS(app, origins=[FRONTEND_ORIGIN])
 def ok(fn):
     try:
         data = fn()
-        return jsonify(data), 200
+
+        # already wrapped? then pass through
+        if isinstance(data, dict) and data.get("status") in ("success", "error"):
+            return jsonify(data), 200 if data["status"] == "success" else 400
+
+        # default: old frontend contract
+        return jsonify({"status": "success", "logs": data}), 200
+
     except ValueError as e:
-        # deine Guards (Filename mismatch etc.)
         return jsonify({"status": "error", "error": str(e)}), 400
+
     except Exception as e:
-        return jsonify(
-            {
-                "status": "error",
-                "error": str(e),
-                # optional für dev:
-                "trace": traceback.format_exc(),
-            }
-        ), 500
+        return jsonify({"status": "error", "error": str(e), "trace": traceback.format_exc()}), 500
 
 
 # ---------- sync endpoints (unchanged) ----------
