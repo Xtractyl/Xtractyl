@@ -41,6 +41,9 @@ services:
     volumes:
       - ${LABELSTUDIO_DATA_VOLUME:-labelstudio_data}:/label-studio/data
     environment:
+      - COLLECT_ANALYTICS=0
+      - FRONTEND_SENTRY_DSN=
+      - SENTRY_DSN=
       - DJANGO_DB=${DJANGO_DB:-default}
       - POSTGRE_NAME=${POSTGRES_DB:-dbname}
       - POSTGRE_USER=${POSTGRES_USER:-username}
@@ -61,12 +64,19 @@ services:
     ports:
       - "${ORCH_PORT:-5001}:5001"
     volumes:
-      - ${ORCH_APP_DIR:-./orchestrator}:/app
       - ${PROJECTS_DIR:-./data/projects}:/app/data/projects
+      - ${PROJECTS_DIR:-./data/projects}/Evaluation_Set_Do_Not_Delete:/app/data/projects/Evaluation_Set_Do_Not_Delete:ro
       - ${HTMLS_DIR:-./data/htmls}:/app/data/htmls
-      - ${EVAL_DIR:-./evaluation}:/app/evaluation
+      - ./data/labelstudio_Evaluation_Set_Do_Not_Delete:/app/data/labelstudio_Evaluation_Set_Do_Not_Delete:ro
+      - ${EVAL_DIR:-./data/evaluation}:/app/data/evaluation
+      - ${RESULTS_DIR:-./data/results}:/app/data/results
       - ${LOGS_DIR:-./logs}:/logs
     environment:
+      - PROJECTS_DIR=/app/data/projects
+      - HTMLS_DIR=/app/data/htmls
+      - RESULTS_DIR=/app/data/results     
+      - EVAL_DIR=/app/data/evaluation
+      - LOGS_DIR=/logs
       - FRONTEND_PORT=${FRONTEND_PORT:-5173}
 
   ml_backend:
@@ -111,7 +121,9 @@ services:
       - "${DOCLING_PORT:-5004}:${DOCLING_PORT:-5004}"
     volumes:
       - ${PDFS_DIR:-./data/pdfs}:/pdfs
+      - ${PDFS_DIR:-./data/pdfs}/Evaluation_Set_Do_Not_Delete:/pdfs/Evaluation_Set_Do_Not_Delete:ro
       - ${DOC_HTMLS_DIR:-./data/htmls}:/htmls
+      - ${DOC_HTMLS_DIR:-./data/htmls}/Evaluation_Set_Do_Not_Delete:/htmls/Evaluation_Set_Do_Not_Delete:ro
       - ${LOGS_DIR:-./logs}:/logs
       - ${FONTCACHE_VOLUME:-fontcache}:/var/cache/fontconfig
       - ${XDG_CACHE_VOLUME:-xdg_cache}:/root/.cache
@@ -151,9 +163,14 @@ services:
     volumes:
       - ./worker:/app/worker
       - ${PROJECTS_DIR:-./data/projects}:/app/data/projects
+      - ${PROJECTS_DIR:-./data/projects}/Evaluation_Set_Do_Not_Delete:/app/data/projects/Evaluation_Set_Do_Not_Delete:ro
       - ${HTMLS_DIR:-./data/htmls}:/app/data/htmls
       - ${LOGS_DIR:-./logs}:/logs
     environment:
+      - LLM_TIMEOUT=${LLM_TIMEOUT:-20}
+      - LLM_OVERHEAD=${LLM_OVERHEAD:-5}
+      - UPLOAD_MARGIN=${UPLOAD_MARGIN:-30}
+      - OLLAMA_BASE=${OLLAMA_BASE:-http://ollama:11434}
       - REDIS_HOST=${REDIS_HOST:-job_queue}
       - REDIS_PORT=${REDIS_PORT:-6379}
       - LS_HOST=labelstudio

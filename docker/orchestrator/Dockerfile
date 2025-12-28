@@ -7,9 +7,7 @@ WORKDIR /app
 COPY docker/orchestrator/requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
-# Code is bind-mounted at runtime by docker compose:
-#   - ${ORCH_APP_DIR:-./orchestrator}:/app
-# so we don't COPY the source here.
+COPY orchestrator/ /app/
 
 EXPOSE 5001
 CMD ["python", "app.py"]

@@ -13,6 +13,7 @@ export default function GetResultsCard({ apiToken, projectName}) {
 
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+  const [submitted, setSubmitted] = useState(false);
 
   const canSubmit = useMemo(
     () => localProjectName.trim() && token.trim(),
@@ -21,10 +22,16 @@ export default function GetResultsCard({ apiToken, projectName}) {
 
   useEffect(() => {
     setLocalProjectName(projectName || "");
+    setSubmitted(false);
+    setColumns([]);
+    setRows([]);
   }, [projectName]);
 
   useEffect(() => {
       setToken(apiToken || "");
+      setSubmitted(false);
+      setColumns([]);
+      setRows([]);
     }, [apiToken]);
 
   const fetchData = useCallback(async () => {
@@ -49,14 +56,9 @@ export default function GetResultsCard({ apiToken, projectName}) {
 
   const onSubmit = (e) => {
     e.preventDefault();
+    setSubmitted(true);
     fetchData();
   };
-
-  // Optional: automatisch laden, sobald beides vorhanden ist
-  useEffect(() => {
-    if (canSubmit) fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canSubmit]);
 
   return (
     <div className="p-8 bg-[#e6e2cf] min-h-screen text-[#23211c]">
@@ -119,17 +121,17 @@ export default function GetResultsCard({ apiToken, projectName}) {
             disabled={!canSubmit || loading}
             className="px-3 py-2 bg-xtractyl-green text-white rounded-md cursor-pointer hover:bg-xtractyl-lightgreen hover:text-xtractyl-offwhite "
           >
-            {loading ? "Loading…" : "Submit"}
+            {loading ? "Loading…" : "Submit & Save as CSV"}
           </button>
         </form>
 
         {err ? (
           <div className="p-3 border border-red-200 bg-rose-50 text-rose-900 rounded-md">
-            <strong>Error:</strong> {err}
+            <strong>Error, does the project already exist in labelstudio?</strong> {err}
           </div>
         ) : null}
 
-        <ResultsTable columns={columns} rows={rows} />
+         {submitted ? <ResultsTable columns={columns} rows={rows} /> : null}
       </div>
     </div>
   );

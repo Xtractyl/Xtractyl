@@ -29,76 +29,33 @@ flowchart TD
 T[Frontend]
 
 %% ====== ROW 1 ======
-subgraph Z["Single Question Mode"]
-direction LR
- A1[Frontend - PDF library] --> B1[Docling]
-end
-
-subgraph ZA["Database Mode"]
+subgraph ZA[" "]
 direction LR
  A1A[Frontend - Upload & Convert Docs] --> B1A[Docling]
 end
 
-T --> Z
 T --> ZA
 
 %% ====== ROW 2 ======
-subgraph Z2[" "]
-direction LR
- A2[Frontend - Ask Question]
- B2[Orchestrator]
- C2[ML backend] 
- D2[Question Library]
- E2[Ollama]
- F2[Redis] 
- G2[Worker] 
- H2[ML backend] 
- I2[Ollama]
- J2[Label Studio]
-end
-
-
-%% same node connecting to multiple targets
-A2 --> B2
-B2 --> C2
-C2 --> D2
-D2 --> C2
-C2 --> E2
-E2 --> C2
-B2 --> F2
-F2 --> G2
-G2 --> H2
-H2 --> I2
-I2 --> H2
-H2 --> J2
-
 subgraph ZA2[" "]
 direction LR
- A2A[Frontend -Create Project] --> B2A[Orchestrator] --> C2A[Label Studio]
+ A2A[Frontend - Create Project] --> B2A[Orchestrator] --> C2A[Label Studio]
 end
 
-Z --> Z2
 ZA --> ZA2
 
 %% ====== ROW 3 ======
-subgraph Z3[" "]
-direction LR
- A3[Frontend - Review and Upload Answer] --> B3[Label Studio] --> C3[Question Library] 
-end
-
 subgraph ZA3[" "]
 direction LR
  A3A[Frontend - Upload Tasks] --> B3A[Orchestrator] --> C3A[Label Studio]
 end
 
-%% ====== CONNECTIONS BETWEEN ROWS ======
-Z2 --> Z3
 ZA2 --> ZA3
 
 %% ====== ROW 4 ======
 subgraph ZA4[" "]
 direction LR
- A4A[Frontend - Ask question]
+ A4A[Frontend - Start AI]
  B4A[Orchestrator]
  C4A[Redis] 
  D4A[Worker] 
@@ -107,8 +64,6 @@ direction LR
  G4A[Label Studio]
 end
 
-
-%% same node connecting to multiple targets
 A4A --> B4A
 B4A --> C4A
 C4A --> D4A
@@ -117,7 +72,6 @@ E4A --> F4A
 F4A --> E4A
 E4A --> G4A
 
-%% ====== CONNECTIONS BETWEEN ROWS ======
 ZA3 --> ZA4
 
 %% ====== ROW 5 ======
@@ -126,7 +80,6 @@ direction LR
  A5A[Frontend - Review AI] --> B5A[Label Studio]
 end
 
-%% ====== CONNECTIONS BETWEEN ROWS ======
 ZA4 --> ZA5
 
 %% ====== ROW 6 ======
@@ -135,18 +88,15 @@ direction LR
  A6[Frontend - Get Results] --> B6A[Orchestrator] --> C6A[Label Studio]
 end
 
-%% ====== CONNECTIONS BETWEEN ROWS ======
 ZA5 --> ZA6
 
 %% ====== ROW 7 ======
 subgraph ZA7[" "]
 direction LR
- A7[Frontend - Evaluate AI] 
+ A7[Frontend - Evaluate AI] --> B7A[Orchestrator] --> C7A[Label Studio] 
 end
 
-%% ====== CONNECTIONS BETWEEN ROWS ======
 ZA6 --> ZA7
-
 
 %% ====== ROW 8 ======
 subgraph ZA8[" "]
@@ -154,30 +104,22 @@ direction LR
  A8[Frontend - Finetune AI] 
 end
 
-%% ====== CONNECTIONS BETWEEN ROWS ======
 ZA7 --> ZA8
 
-%% change the subgraph background color green
+%% ====== STYLING ======
 style ZA fill:#A7F3D0,stroke:#88a,stroke-width:1px;
 style ZA2 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
 style ZA3 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
 style ZA4 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
 style ZA5 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
 style ZA6 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
-style ZA7 fill:#FCA5A5,stroke:#88a,stroke-width:1px;
+style ZA7 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
 style ZA8 fill:#FCA5A5,stroke:#88a,stroke-width:1px;
-
-%% change the subgraph background color red
-style Z fill:#FCA5A5,stroke:#88a,stroke-width:1px;
-style Z2 fill:#FCA5A5,stroke:#88a,stroke-width:1px;
-style Z3 fill:#FCA5A5,stroke:#88a,stroke-width:1px;
   ```
 
 ## Work in Progress
 
 ⚠️ Note: Xtractyl is supposed to run on a server with GPU. GPU support is currently switched off (CUDA and MPS). CUDA support will be switched on as soon as we have the hardware to test it.
-
-- A single question mode has to be implemented to ask a question to a large library of PDFs and save previous answers for more efficacy.
 
 - The pipeline has so far been tested only with simple synthetic PDFs.
 
@@ -196,7 +138,7 @@ style Z3 fill:#FCA5A5,stroke:#88a,stroke-width:1px;
 ## Project Management & Collaboration
 This project is managed using industry-standard tools:
 
-- [Jira Board (private, invitation only)](https://dueckerchristof.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog)  
+- [Jira Board (private, invitation only – link available on request)]
 - [Miro Board (private, invitation only – link available on request)]
 
 
@@ -296,18 +238,7 @@ For current testing:
 
 
 ## 📖 Usage
-Usage includes 2 workflows:
-1. Single Question Mode
-2. Database Mode
 
-In Single Question Mode asks
-
-### 📖 Single Question Mode
-This mode is currently in preparation, see the following for the planned workflow
-1. 
-
-
-### 📖 Single Question Mode
 1. **Open the frontend**  
 	Go to: [http://localhost:5173]
 
@@ -407,22 +338,30 @@ This mode is currently in preparation, see the following for the planned workflo
 ### Get Results 
 ❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
-![Review AI 3](assets/results.png)
+![Get results](assets/results.png)
 
 ❗❗THE ABOVE IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
 ---
 
-### ⏭️ Coming Soon
-
-8.**Evaluate the AI** (`/evaluate`)  
+8. **Evaluate the AI** (`/evaluate`)  
    - Compare predictions vs. ground truth, see metrics
+   - The following is a preview from the EvaluateAI feature branch (additional metrics will be added soon)
+
+---
+### Evaluate the AI 
+❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+
+![Review AI](assets/evaluation.png)
+
+❗❗THE ABOVE IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+
+--- 
+
+### ⏭️ Coming Soon
 
 9.**Fine-tune the AI** (`/finetune`) 
    - Use your labeled data to improve model performance
-
-10.**Second Workflow**
-   - Ask a PDF library a single question, check previously asked question, get previous and new answers inside the PDFs
 
 ---
 
@@ -432,6 +371,7 @@ This mode is currently in preparation, see the following for the planned workflo
 ```bash
 ruff format .
 ruff check .
+ruff check . --fix
 ```
 ### js for frontend from frontend folder
 ```bash

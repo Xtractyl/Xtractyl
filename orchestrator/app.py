@@ -1,11 +1,14 @@
 # orchestrator/app.py
 import os
+import traceback
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from routes.check_project_exists import check_project_exists
 from routes.create_project import create_project_main_from_payload
+from routes.evaluate_project import evaluate_projects, list_project_names
 from routes.get_results_table import build_results_table
+from routes.groundtruth_qal import get_groundtruth_qal
 
 # async helpers (no blueprint)
 from routes.jobs import (
@@ -37,9 +40,19 @@ CORS(app, origins=[FRONTEND_ORIGIN])
 def ok(fn):
     try:
         data = fn()
+
+        # already wrapped? then pass through
+        if isinstance(data, dict) and data.get("status") in ("success", "error"):
+            return jsonify(data), 200 if data["status"] == "success" else 400
+
+        # default: old frontend contract
         return jsonify({"status": "success", "logs": data}), 200
+        # expected errors (guards)
+    except ValueError as e:
+        return jsonify({"status": "error", "error": str(e)}), 400
+        # unexpected errors (bugs)
     except Exception as e:
-        return jsonify({"status": "error", "error": str(e)}), 500
+        return jsonify({"status": "error", "error": str(e), "trace": traceback.format_exc()}), 500
 
 
 # ---------- sync endpoints (unchanged) ----------
@@ -102,6 +115,51 @@ def get_results_table_route():
         if not project_name or not token:
             raise ValueError("project_name and token are required")
         return build_results_table(token, project_name)
+
+    return ok(run)
+
+
+@app.route("/evaluate-ai/projects", methods=["GET"])
+def evaluate_ai_projects():
+    """
+    Returns a list of project names for the Evaluate AI UI.
+    """
+    token = request.args.get("token")
+    if not token:
+        return jsonify({"status": "error", "error": "token query parameter is required"}), 400
+
+    def run():
+        return list_project_names(token)
+
+    return ok(run)
+
+
+@app.route("/groundtruth_qal", methods=["GET"])
+def groundtruth_qal():
+    """
+    Returns the questions_and_labels.json of the Evaluation_Set_Do_Not_Delete project.
+    """
+    return ok(get_groundtruth_qal)
+
+
+@app.route("/evaluate-ai", methods=["POST"])
+def evaluate_ai():
+    payload = request.get_json() or {}
+
+    token = payload.get("token")
+    gt_name = payload.get("groundtruth_project")
+    cmp_name = payload.get("comparison_project")
+
+    if not token or not gt_name or not cmp_name:
+        return jsonify(
+            {
+                "status": "error",
+                "error": "token, groundtruth_project, comparison_project are required",
+            }
+        ), 400
+
+    def run():
+        return evaluate_projects(token, gt_name, cmp_name)
 
     return ok(run)
 

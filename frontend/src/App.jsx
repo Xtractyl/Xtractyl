@@ -8,9 +8,8 @@ import ReviewAIPage from './pages/ReviewAI.jsx';
 import GetResultsPage from './pages/GetResults.jsx';
 import EvaluateAIPage from './pages/EvaluateAI.jsx';
 import FinetuneAIPage from './pages/FinetuneAI.jsx';
-import PDFLibraryPage from './pages/PDFLibrary.jsx';
-import AskQuestionPage from './pages/AskQuestion.jsx';
-import ReviewandUploadAnswerPage from './pages/ReviewandUploadAnswer.jsx';
+import AboutPage from './pages/AboutPage.jsx';
+
 
 import { useState, useEffect } from 'react';
 
@@ -43,6 +42,7 @@ const handleProjectNameSave = (name) => {
       <Layout>
         <Routes>
           <Route path="/" element={<UploadandConversionPage />} />
+          <Route path="/aboutpage" element={<AboutPage />} />
           <Route path="/project" element={<CreateProjectPage apiToken={apiToken} onTokenSave={handleTokenSave} onProjectNameSave={handleProjectNameSave}  />} />
           <Route path="/tasks" element={<UploadTasksPage apiToken={apiToken} projectName={projectName}  />} />
           <Route path="/prelabelling" element={<StartPrelabellingPage apiToken={apiToken} projectName={projectName} />} />
@@ -50,9 +50,6 @@ const handleProjectNameSave = (name) => {
           <Route path="/results" element={<GetResultsPage apiToken={apiToken} projectName={projectName}  />} />
           <Route path="/evaluate" element={<EvaluateAIPage apiToken={apiToken} projectName={projectName} />} />
           <Route path="/finetune" element={<FinetuneAIPage apiToken={apiToken} projectName={projectName} />} />
-          <Route path="/library" element={<PDFLibraryPage apiToken={apiToken} projectName={projectName} />} />
-          <Route path="/question" element={<AskQuestionPage apiToken={apiToken} projectName={projectName} />} />
-          <Route path="/uploadanswer" element={<ReviewandUploadAnswerPage apiToken={apiToken} projectName={projectName} />} />
         </Routes>
       </Layout>
     </Router>

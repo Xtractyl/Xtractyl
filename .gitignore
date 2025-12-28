@@ -18,8 +18,6 @@ pip-wheel-metadata/
 
 # 🐳 Docker
 **/screenshots/
-evaluation/
-evaluation_compare/
 docker/ml_backend/__pycache__/
 docker/orchestrator/__pycache__/
 docker/frontend/node_modules/
@@ -28,8 +26,19 @@ docker/frontend/node_modules/
 data/pdfs/
 data/htmls/
 data/projects/
+data/evaluation/
+data/results/
 data/tmp/
-!data/.gitkeep  
+
+# Trotzdem erlauben:
+!data/pdfs/Evaluation_Set_Do_Not_Delete/
+!data/pdfs/Evaluation_Set_Do_Not_Delete/**
+
+!data/htmls/Evaluation_Set_Do_Not_Delete/
+!data/htmls/Evaluation_Set_Do_Not_Delete/**
+
+!data/projects/Evaluation_Set_Do_Not_Delete/
+!data/projects/Evaluation_Set_Do_Not_Delete/**
 
 # 🔍 Label Studio
 label-studio/frontend/dist/

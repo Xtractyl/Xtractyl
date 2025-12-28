@@ -1,4 +1,4 @@
-# routes/check_project_exists.py
+# orchestrator/routes/check_project_exists.py
 import os
 
 from flask import jsonify, request

@@ -32,4 +32,18 @@ export async function createProjectAPI({ title, questions, labels, token }) {
     return res.json();
   }
 
+export async function fetchGroundtruthQuestionsAndLabels() {
+  const resp = await fetch(`${ORCH_BASE}/groundtruth_qal`);
 
+  if (!resp.ok) {
+    throw new Error(`Failed to fetch groundtruth Q&L (${resp.status})`);
+  }
+
+  const data = await resp.json();
+
+  if (data.status !== "success") {
+    throw new Error(data.error || "Unknown error fetching groundtruth Q&L");
+  }
+
+  return data.logs; // the JSON content of questions_and_labels.json
+}

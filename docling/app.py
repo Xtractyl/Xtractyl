@@ -149,7 +149,11 @@ def list_subfolders():
     """List subdirectories inside /pdfs to help the UI suggest targets."""
     try:
         entries = os.listdir(PDF_DIR)
-        subfolders = [n for n in entries if os.path.isdir(os.path.join(PDF_DIR, n))]
+        subfolders = [
+            n
+            for n in entries
+            if os.path.isdir(os.path.join(PDF_DIR, n)) and n != "Evaluation_Set_Do_Not_Delete"
+        ]
         return jsonify(subfolders)
     except Exception:
         logger.exception("Failed to list subfolders in %s", PDF_DIR)
