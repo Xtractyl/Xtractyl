@@ -42,13 +42,10 @@ def get_project(token: str, project_id: int) -> dict:
     return r.json()
 
 
-def fetch_tasks_page(
-    token: str, project_id: int, limit: int = 0, offset: int = 0
-) -> Tuple[List[dict], int]:
+def fetch_tasks_page(token: str, project_id: int) -> Tuple[List[dict], int]:
     """
     Fetch all tasks (including predictions) for a project — without pagination.
     Works for both dict and list responses from Label Studio.
-    NOTE: limit/offset currently unused (kept to avoid breaking callers).
     """
     headers = _auth_headers(token)
     url = f"{LABEL_STUDIO_URL}/api/projects/{project_id}/tasks"

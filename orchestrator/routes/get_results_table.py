@@ -137,9 +137,9 @@ def _write_results_table_csv(
     return str(out)
 
 
-def build_results_table(token: str, project_name: str, limit: int = 50, offset: int = 0) -> dict:
+def build_results_table(token: str, project_name: str) -> dict:
     project_id = resolve_project_id(token, project_name)
-    tasks, total = fetch_tasks_page(token, project_id, limit=limit, offset=offset)
+    tasks, total = fetch_tasks_page(token, project_id)
 
     label_columns: List[str] = []
     rows_proto: List[Dict[str, Any]] = []

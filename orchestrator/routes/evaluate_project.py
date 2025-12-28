@@ -106,7 +106,7 @@ def _tasks_to_rows(token: str, project_id: int, mode: str) -> list[dict]:
     mode='pred' -> labels from predictions
     Returns: [{"filename": str, "task_id": int, "labels": {label: text}}]
     """
-    tasks, _total = fetch_tasks_page(token, project_id)
+    tasks, total = fetch_tasks_page(token, project_id)
     rows = []
 
     for t in tasks:

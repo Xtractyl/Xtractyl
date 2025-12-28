@@ -1,5 +1,5 @@
 // frontend/src/api/getResultsTable.js
-export async function getResultsTable({ projectName, token, limit = 50, offset = 0 }) {
+export async function getResultsTable({ projectName, token }) {
   const baseUrl = import.meta.env.VITE_ORCH_URL || "http://localhost:5001";
   const url = `${baseUrl}/get_results_table`;
 
@@ -9,8 +9,6 @@ export async function getResultsTable({ projectName, token, limit = 50, offset =
     body: JSON.stringify({
       project_name: projectName,
       token,
-      limit,
-      offset,
     }),
   });
 
@@ -29,7 +27,5 @@ export async function getResultsTable({ projectName, token, limit = 50, offset =
     columns: Array.isArray(data.columns) ? data.columns : [],
     rows: Array.isArray(data.rows) ? data.rows : [],
     total: typeof data.total === "number" ? data.total : 0,
-    limit: typeof data.limit === "number" ? data.limit : limit,
-    offset: typeof data.offset === "number" ? data.offset : offset,
   };
 }
