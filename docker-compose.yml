@@ -69,10 +69,12 @@ services:
       - ${HTMLS_DIR:-./data/htmls}:/app/data/htmls
       - ./data/labelstudio_Evaluation_Set_Do_Not_Delete:/app/data/labelstudio_Evaluation_Set_Do_Not_Delete:ro
       - ${EVAL_DIR:-./data/evaluation}:/app/data/evaluation
+      - ${RESULTS_DIR:-./data/results}:/app/data/results
       - ${LOGS_DIR:-./logs}:/logs
     environment:
       - PROJECTS_DIR=/app/data/projects
       - HTMLS_DIR=/app/data/htmls
+      - RESULTS_DIR=/app/data/results     
       - EVAL_DIR=/app/data/evaluation
       - LOGS_DIR=/logs
       - FRONTEND_PORT=${FRONTEND_PORT:-5173}

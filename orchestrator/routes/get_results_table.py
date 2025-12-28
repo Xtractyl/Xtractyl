@@ -1,6 +1,9 @@
 # orchestrator/routes/get_results_table.py
 from collections import defaultdict
 from typing import Any, Dict, List
+from pathlib import Path
+import os, json
+from datetime import datetime, timezone
 
 from routes.utils.shared.label_studio_client import (
     fetch_task_annotations,
@@ -8,6 +11,7 @@ from routes.utils.shared.label_studio_client import (
     resolve_project_id,
 )
 
+RESULTS_DIR = Path(os.getenv("RESULTS_DIR", "/app/data/results"))
 
 def _prediction_map(task: dict) -> dict:
     """
@@ -98,6 +102,15 @@ def _prediction_map(task: dict) -> dict:
     return out
 
 
+def _write_results_table(payload: dict, project_id: int, project_name: str) -> str:
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    safe_name = "".join(c if c.isalnum() or c in "-_." else "_" for c in (project_name or "project"))[:80]
+    out = RESULTS_DIR / f"results_{safe_name}_pid{project_id}_{ts}.json"
+    out.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    return str(out)
+
+
 def build_results_table(token: str, project_name: str, limit: int = 50, offset: int = 0) -> dict:
     project_id = resolve_project_id(token, project_name)
     tasks, total = fetch_tasks_page(token, project_id, limit=limit, offset=offset)
@@ -135,5 +148,6 @@ def build_results_table(token: str, project_name: str, limit: int = 50, offset: 
         for col in label_columns:
             flat[col] = r["labels"].get(col, "")
         rows.append(flat)
-
-    return {"columns": columns, "rows": rows, "total": int(total)}
+    payload = {"columns": columns, "rows": rows, "total": int(total)}
+    payload["results_output_path"] = _write_results_table(payload, project_id, project_name)
+    return payload
