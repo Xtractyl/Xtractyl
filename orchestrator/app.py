@@ -47,10 +47,10 @@ def ok(fn):
 
         # default: old frontend contract
         return jsonify({"status": "success", "logs": data}), 200
-        #expected errors (guards)
+        # expected errors (guards)
     except ValueError as e:
         return jsonify({"status": "error", "error": str(e)}), 400
-        #unexpected errors (bugs)
+        # unexpected errors (bugs)
     except Exception as e:
         return jsonify({"status": "error", "error": str(e), "trace": traceback.format_exc()}), 500
 

@@ -1,4 +1,5 @@
 # orchestrator/routes/get_results_table.py
+import csv
 import json
 import os
 from collections import defaultdict
@@ -104,14 +105,35 @@ def _prediction_map(task: dict) -> dict:
     return out
 
 
-def _write_results_table(payload: dict, project_id: int, project_name: str) -> str:
+def _format_cell(value) -> str:
+    # exakt wie dein Frontend formatCell()
+    if value is None:
+        return ""
+    if isinstance(value, (dict, list)):
+        try:
+            return json.dumps(value, ensure_ascii=False)
+        except Exception:
+            return str(value)
+    return str(value)
+
+
+def _write_results_table_csv(
+    columns: list[str], rows: list[dict], project_id: int, project_name: str
+) -> str:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+
     ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     safe_name = "".join(
         c if c.isalnum() or c in "-_." else "_" for c in (project_name or "project")
     )[:80]
-    out = RESULTS_DIR / f"results_{safe_name}_pid{project_id}_{ts}.json"
-    out.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    out = RESULTS_DIR / f"results_{safe_name}_pid{project_id}_{ts}.csv"
+
+    with out.open("w", encoding="utf-8", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(columns)
+        for row in rows:
+            w.writerow([_format_cell(row.get(col)) for col in columns])
+
     return str(out)
 
 
@@ -153,5 +175,7 @@ def build_results_table(token: str, project_name: str, limit: int = 50, offset: 
             flat[col] = r["labels"].get(col, "")
         rows.append(flat)
     payload = {"columns": columns, "rows": rows, "total": int(total)}
-    payload["results_output_path"] = _write_results_table(payload, project_id, project_name)
+    payload["results_output_path_csv"] = _write_results_table_csv(
+        columns, rows, project_id, project_name
+    )
     return payload
