@@ -151,10 +151,12 @@ def evaluate_ai():
     cmp_name = payload.get("comparison_project")
 
     if not token or not gt_name or not cmp_name:
-        return jsonify({
-            "status": "error",
-            "error": "token, groundtruth_project, comparison_project are required",
-        }), 400
+        return jsonify(
+            {
+                "status": "error",
+                "error": "token, groundtruth_project, comparison_project are required",
+            }
+        ), 400
 
     def run():
         return evaluate_projects(token, gt_name, cmp_name)
