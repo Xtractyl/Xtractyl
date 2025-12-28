@@ -64,7 +64,6 @@ services:
     ports:
       - "${ORCH_PORT:-5001}:5001"
     volumes:
-      - ${ORCH_APP_DIR:-./orchestrator}:/app
       - ${PROJECTS_DIR:-./data/projects}:/app/data/projects
       - ${PROJECTS_DIR:-./data/projects}/Evaluation_Set_Do_Not_Delete:/app/data/projects/Evaluation_Set_Do_Not_Delete:ro
       - ${HTMLS_DIR:-./data/htmls}:/app/data/htmls
@@ -72,7 +71,10 @@ services:
       - ${EVAL_DIR:-./data/evaluation}:/app/data/evaluation
       - ${LOGS_DIR:-./logs}:/logs
     environment:
+      - PROJECTS_DIR=/app/data/projects
+      - HTMLS_DIR=/app/data/htmls
       - EVAL_DIR=/app/data/evaluation
+      - LOGS_DIR=/logs
       - FRONTEND_PORT=${FRONTEND_PORT:-5173}
 
   ml_backend:
