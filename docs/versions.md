@@ -23,3 +23,9 @@
 - Image: postgres
 - Digest: sha256:c189d272e4fcdd1ac419adee675d30be3d389c22ee770d593f15819d22a68a0d
 - Pinned at: 2026-01-10
+
+### Orchestrator (xtractyl-orchestrator)
+- Base image: python:3.10.19-slim
+- Requirements (top-level): docker/orchestrator/requirements.txt
+- Requirements (lock): docker/orchestrator/requirements.lock.txt
+- Pinned at: 2026-01-10
