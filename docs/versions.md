@@ -57,6 +57,14 @@
 - Requirements (lock): docker/worker/requirements.lock.txt
 - Pinned at: 2026-01-10
 
+### Frontend (xtractyl-frontend)
+- Base image: node:20.19.5-bullseye
+- Runtime: Node v20.19.5
+- Package manager: npm 10.8.2
+- Lockfile: frontend/package-lock.json (lockfileVersion 3)
+- Install: `npm ci`
+- Pinned at: 2026-01-10
+
 ## Updating pinned versions
 - Change top-level requirements.txt (if needed)
 - Rebuild container
