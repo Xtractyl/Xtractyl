@@ -39,3 +39,13 @@
 - Requirements file: docker/docling/requirements.txt
 - Pinned at: 2026-01-10
 - System dependencies: tesseract-ocr, libgl1
+- Requirements (lock): docker/docling/requirements.lock.txt
+
+### ML Backend (xtractyl-ml_backend)
+- Base image: mcr.microsoft.com/playwright/python:v1.55.0-jammy
+- Base digest: sha256:0ff30156b1035e3bc24d92f67fb57e86bd1fef126b544f32c699ce1ae9b3b692
+- Runtime: Python 3.10.12
+- Playwright: 1.55.0
+- Requirements file: docker/ml_backend/requirements.txt
+- Pinned at: 2026-01-10
+- Requirements (lock): docker/ml_backend/requirements.lock.txt
