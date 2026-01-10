@@ -56,3 +56,9 @@
 - Requirements (top-level): docker/worker/requirements.txt
 - Requirements (lock): docker/worker/requirements.lock.txt
 - Pinned at: 2026-01-10
+
+## Updating pinned versions
+- Change top-level requirements.txt (if needed)
+- Rebuild container
+- Regenerate requirements.lock.txt via `pip freeze` from the running container
+- Update this file and commit together
