@@ -105,7 +105,7 @@ services:
       retries: 60
 
   ollama:
-    image: ${OLLAMA_IMAGE:-ollama/ollama}
+    image: ${OLLAMA_IMAGE:-ollama/ollama@sha256:c622a7adec67cf5bd7fe1802b7e26aa583a955a54e91d132889301f50c3e0bd0}
     container_name: ${OLLAMA_CONTAINER_NAME:-ollama}
     ports:
       - "${OLLAMA_PORT:-11434}:11434"
