@@ -1,7 +1,7 @@
 # =========================
 # Stage 1: load models
 # =========================
-FROM python:3.10-slim AS docling_models
+FROM python:3.10.19-slim AS docling_models
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
@@ -25,7 +25,7 @@ RUN docling-tools models download --all -o /opt/docling-models
 # =========================
 # Stage 2: Runtime / App
 # =========================
-FROM python:3.10-slim
+FROM python:3.10.19-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1

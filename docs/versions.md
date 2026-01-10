@@ -29,3 +29,13 @@
 - Requirements (top-level): docker/orchestrator/requirements.txt
 - Requirements (lock): docker/orchestrator/requirements.lock.txt
 - Pinned at: 2026-01-10
+
+### Docling
+- Installed via: pip (docling==2.63.0)
+- Version: 2.63.0
+- Base image: python:3.10.19-slim
+- Image: xtractyl-docling (custom build)
+- Models: preloaded via `docling-tools models download --all`
+- Requirements file: docker/docling/requirements.txt
+- Pinned at: 2026-01-10
+- System dependencies: tesseract-ocr, libgl1
