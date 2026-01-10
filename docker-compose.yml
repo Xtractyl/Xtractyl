@@ -13,7 +13,7 @@ services:
     working_dir: /app
 
   postgres:
-    image: ${POSTGRES_IMAGE:-postgres:15}
+    image: ${POSTGRES_IMAGE:-postgres@sha256:c189d272e4fcdd1ac419adee675d30be3d389c22ee770d593f15819d22a68a0d}
     container_name: ${POSTGRES_CONTAINER_NAME:-postgres}
     restart: unless-stopped
     ports:
@@ -136,7 +136,7 @@ services:
     command: ["sh", "-c", "flask run --host=0.0.0.0 --port=$DOCLING_PORT"]
 
   job_queue:
-    image: redis:7
+    image: redis@sha256:d7432711a2a5c99c2e9dd0e006061cd274d7cb7a9e77f07ffe2ea99e21244677
     container_name: ${JOB_QUEUE_CONTAINER_NAME:-job_queue}
     restart: unless-stopped
     ports:
