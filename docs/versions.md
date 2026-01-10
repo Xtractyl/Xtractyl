@@ -37,9 +37,9 @@
 - Image: xtractyl-docling (custom build)
 - Models: preloaded via `docling-tools models download --all`
 - Requirements file: docker/docling/requirements.txt
-- Pinned at: 2026-01-10
 - System dependencies: tesseract-ocr, libgl1
 - Requirements (lock): docker/docling/requirements.lock.txt
+- Pinned at: 2026-01-10
 
 ### ML Backend (xtractyl-ml_backend)
 - Base image: mcr.microsoft.com/playwright/python:v1.55.0-jammy
@@ -47,5 +47,12 @@
 - Runtime: Python 3.10.12
 - Playwright: 1.55.0
 - Requirements file: docker/ml_backend/requirements.txt
-- Pinned at: 2026-01-10
 - Requirements (lock): docker/ml_backend/requirements.lock.txt
+- Pinned at: 2026-01-10
+
+### Worker Prelabel (xtractyl-worker_prelabel)
+- Base image: python:3.11.14-slim
+- Runtime: Python 3.11.14
+- Requirements (top-level): docker/worker/requirements.txt
+- Requirements (lock): docker/worker/requirements.lock.txt
+- Pinned at: 2026-01-10
