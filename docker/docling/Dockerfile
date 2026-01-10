@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Docling & Co from requirements
-COPY docker/docling/requirements.txt /app/requirements.txt
+COPY docker/docling/requirements.lock.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # pull all models (reduce to the models you need if preferred)
@@ -38,7 +38,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Python-Dependencies for app
-COPY docker/docling/requirements.txt /app/requirements.txt
+COPY docker/docling/requirements.lock.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # copy models from stage 1
