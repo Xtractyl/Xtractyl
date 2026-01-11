@@ -94,11 +94,6 @@ def upload_tasks():
     return ok(lambda: upload_tasks_main_from_payload(payload))
 
 
-@app.route("/health", methods=["GET"])
-def health():
-    return jsonify({"status": "ok"}), 200
-
-
 @app.route("/project_exists", methods=["POST"])
 def project_exists():
     return check_project_exists()

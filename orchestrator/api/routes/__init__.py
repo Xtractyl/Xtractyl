@@ -1,9 +1,7 @@
 # orchestrator/api/routes/__init__.py
 
+from .health import register as register_health
+
 
 def register_routes(app):
-    """
-    Central registry for API routes.
-    Route modules will be registered incrementally.
-    """
-    return
+    register_health(app)
