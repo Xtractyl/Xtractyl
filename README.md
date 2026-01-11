@@ -1,3 +1,20 @@
+<p align="center">
+  <img src="assets/xtractyl_corporate_without_date_no_bg.png" alt="Xtractyl logo" width="160"/>
+</p>
+
+# 🦕 Extract structured data from messy medical PDFs
+
+**Xtractyl** is a modular, local, human-in-the-loop AI pipeline that searches unstructured PDF documents for specific cases and builds a structured database from them.
+
+It converts PDFs → HTML → DOM → pre-labels them with an LLM → enables manual review via Label Studio → and 🦕 **xtracts** structured data for downstream analysis.
+
+Xtractyl provides evaluation and performance metrics for the LLM used, allowing comparison of speed–accuracy trade-offs across different models, question formulations, and system prompts.  
+Planned: local fine-tuning of models on domain-specific data to further improve performance.
+
+🔍 Designed for **privacy-first**, human-validated data extraction with built-in evaluation and comparison tools.
+
+---
+
 ## Why this matters
 Xtractyl runs fully locally and does not rely on external APIs or cloud services.
 
@@ -18,9 +35,11 @@ While not a medical device, Xtractyl addresses key challenges relevant to MedTec
 
 ⚠️ Note: For development purposes data currently shows up in the local log files (be aware of that when working with real data)
 
+---
+
 ## 🏗️ Architecture Overview
 
-Items with green background are already implemented ✅, items with red background are under construction 🧱
+Items with green background are already implemented end-to-end ✅, items with red background are under construction 🧱
 
 ```mermaid
 flowchart TD
@@ -117,67 +136,36 @@ style ZA7 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
 style ZA8 fill:#FCA5A5,stroke:#88a,stroke-width:1px;
   ```
 
+  ---
+
 ## Work in Progress
 
 ⚠️ Note: Xtractyl is supposed to run on a server with GPU. GPU support is currently switched off (CUDA and MPS). CUDA support will be switched on as soon as we have the hardware to test it.
 
 - The pipeline has so far been tested only with simple synthetic PDFs.
 
-- The backend still requires optimization for accuracy and speed especially with complex PDFs.
+- The backend still requires optimization for accuracy and speed especially with complex PDFs. This optimization is now possible, because evaluation and performance metrics have been integrated
 
-- Testing is currently added.
+- Testing is currently being added.
 
-- The results page has to include functionality to transform model answers to categorical data and standardize answers to turn them database-ready.
-
-- A dashboard has to be included to display the generated database.
-
-- Pages and backend logic to evaluate AI metrics and finetune models are still missing.
-
-
-
-## Project Management & Collaboration
-This project is managed using industry-standard tools:
-
-- [Jira Board (private, invitation only – link available on request)]
-- [Miro Board (private, invitation only – link available on request)]
-
-
-
-# 🦕 Xtractyl – Extract structured data from messy medical PDFs
-
-**Xtractyl** is a modular, local, human-in-the-loop AI pipeline that searches unstructured PDF documents for specific cases in your data and builds a structured database from them.  
-
-It converts PDFs → HTML → DOM → pre-labels them with an LLM → allows manual review via Label Studio → and 🦕 **xtracts** them into your database.
-
-🔍 Designed for **privacy-first**, human-validated data extraction with evaluation & comparison tools built in.
+- Pages and backend logic to finetune models are still missing.
 
 ---
-
-
-
-## 📜 License
-
-Xtractyl is licensed under the **Xtractyl Non-Commercial License v1.1**.  
-You are free to use, copy, modify, and distribute this software **only for non-commercial purposes**.  
-Any commercial use requires a separate commercial license from the copyright holders.
-
-🔒 **No Commercial Use Allowed Without Permission**  
-See the [LICENSE](LICENSE) file for full terms.
-
----
-
 
 
 ## 🚀 Features
 
-- 🔒 Keeps all your data local — no cloud processing 
-- ✅ Convert PDFs into structured HTML via **Docling**  
-- 🤖 Pre-label data with an LLM (**Ollama: Gemma3 12B** by default)  
-- 🧠 DOM-based XPath mapping and label matching  
-- 👩‍⚕️ Human validation with **Label Studio**  
-- 🔍 Find specific cases in your documents  
-- 🦕 Extract a database from your previously unstructured data  
-- 🐳 Modular **Docker** architecture  
+- 🔒 Keeps all your data local — no cloud processing
+- 📄 Convert PDFs into structured HTML via Docling
+- 🤖 AI-assisted pre-labeling with local LLMs (Ollama: Gemma3 12B by default)
+- 🧠 DOM-based XPath mapping and label matching
+- 👩‍⚕️ Human validation with Label Studio
+- 🔍 Identify specific cases across large document collections
+- 🦕 Extract structured databases from previously unstructured data
+- 📊 Built-in evaluation of AI predictions (precision, recall, F1, accuracy)
+- ⏱️ Performance metrics (end-to-end runtime, per-document and per-question latency)
+- ⚖️ Speed–accuracy comparison across models, prompts, and question formulations
+- 🐳 Modular, containerized Docker architecture
 
 ---
 
@@ -189,8 +177,13 @@ See the [LICENSE](LICENSE) file for full terms.
 
 ---
 
+## Project Management & Collaboration
+This project is managed using industry-standard tools:
 
+- [Jira Board (private, invitation only – link available on request)]
+- [Miro Board (private, invitation only – link available on request)]
 
+---
 
 ## ⚙️ Setup
 
@@ -199,8 +192,6 @@ Before installing Xtractyl, ensure you have the following installed on your syst
 
 - **GIT** 
 - **Docker** 
-
----
 
 ### 2. Installation
 Clone the repository:
@@ -221,20 +212,12 @@ Access the frontend via your browser at http://localhost:5173/ following the wor
 
 ---
 
-### 3. Current testing 
+### 3. Testing 
 
-In development. Further information will be added soon.
-For current testing:
+Currently API contracts are hardened and testing is added.
 
-- get you label studio legacy token from label studio starting xtractyl with: docker compose up --build and copy it from http://localhost:8080/user/account/legacy-token,  download the model you want to use for the test via the download option here: http://localhost:5173/prelabelling
-- then: docker compose down
-- make the model available via: export TEST_MODEL=gemma3:12b (or another model using the model names from here https://ollama.com/library, but the included baseline_predictions.json has been created with gemma3:12b, to create your own baseline_predictions.json, just delete tests/e2e/data/ground_truth_and_baseline_results/baseline_predictions.json and a baseline_predictions.json with your model will be created on the first e2e test)
-- to modify the ground truth file just go to tests/e2e/data/ground_truth_and_baseline_results/ground_truth.json
-- make the label studio legacy token available with: export LABEL_STUDIO_LEGACY_TOKEN=your legacy token
-- then run the tests via 
-- make test-smoke   # just smoke test
-- make test-e2e     # just e2e test 🔧 --currently under construction--
 
+---
 
 
 ## 📖 Usage
@@ -332,7 +315,7 @@ For current testing:
    Page: **Get Results** (`/results`)  
    - Enter your project name 
    - Enter the label studio token
-   - Click fetch to get the results (in case you did not wait till prelabelling was finished, you have to re-click fetch to see the predictions added over time)
+   - Click "Submit & Save as CSV" to get the results (in case you did not wait till prelabelling was finished, you have to re-click to see the predictions added over time)
 
 ---
 ### Get Results 
@@ -345,16 +328,29 @@ For current testing:
 ---
 
 8. **Evaluate the AI** (`/evaluate`)  
-   - Compare predictions vs. ground truth, see metrics
-   - The following is a preview from the EvaluateAI feature branch (additional metrics will be added soon)
+   - Enter the label studio token
+   - Select a project with your groundtruth information
+   - Select a project to compare against the groundtruth 
+   - Click "Run Evaluation and Save as JSON"
+   - Get metrics (Precision, Recall, F1, Accuracy) on an overall basis and per question/label
+   - Get a per task (per PDF document) overview with groundtruth answer, predicted answer and raw LLM answer
+   - Get performance metrics (time per task [per PDF document], LLM time per tasks, time per question, LLM time per question etc.)
 
 ---
 ### Evaluate the AI 
 ❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
-![Review AI](assets/evaluation.png)
+![Evaluate AI 1](assets/evaluation_0.png)
 
-❗❗THE ABOVE IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+
+![Evaluate AI 2](assets/evaluation_1.png)
+
+❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+
+![Evaluate AI 3](assets/evaluation_2.png)
+
+❗❗THE ABOVE IMAGES SHOW SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
 --- 
 
@@ -378,11 +374,22 @@ ruff check . --fix
 cd frontend
 npx eslint .
 ```
-
 ---
+
 ## 📝 Additional Documentation
 For more details on how to use Label Studio (e.g. reviewing annotations, submitting, filtering), visit:
 👉 https://labelstud.io/guide
+
+---
+
+## 📜 License
+
+Xtractyl is licensed under the **Xtractyl Non-Commercial License v1.1**.  
+You are free to use, copy, modify, and distribute this software **only for non-commercial purposes**.  
+Any commercial use requires a separate commercial license from the copyright holders.
+
+🔒 **No Commercial Use Allowed Without Permission**  
+See the [LICENSE](LICENSE) file for full terms.
 
 ---
 
