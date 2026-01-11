@@ -1,10 +1,10 @@
-FROM python:3.10-slim
+FROM python:3.10.19-slim
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
 # Install deps
-COPY docker/orchestrator/requirements.txt /app/requirements.txt
+COPY docker/orchestrator/requirements.lock.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 COPY orchestrator/ /app/

@@ -1,7 +1,7 @@
 # =========================
 # Stage 1: load models
 # =========================
-FROM python:3.10-slim AS docling_models
+FROM python:3.10.19-slim AS docling_models
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Docling & Co from requirements
-COPY docker/docling/requirements.txt /app/requirements.txt
+COPY docker/docling/requirements.lock.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # pull all models (reduce to the models you need if preferred)
@@ -25,7 +25,7 @@ RUN docling-tools models download --all -o /opt/docling-models
 # =========================
 # Stage 2: Runtime / App
 # =========================
-FROM python:3.10-slim
+FROM python:3.10.19-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
@@ -38,7 +38,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Python-Dependencies for app
-COPY docker/docling/requirements.txt /app/requirements.txt
+COPY docker/docling/requirements.lock.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # copy models from stage 1

@@ -1,5 +1,5 @@
 # Use Node.js 20 with Debian Bullseye as the base image
-FROM node:20-bullseye
+FROM node:20.19.5-bullseye
 
 # Set the working directory inside the container
 WORKDIR /app

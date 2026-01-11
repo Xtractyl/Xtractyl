@@ -13,7 +13,7 @@ services:
     working_dir: /app
 
   postgres:
-    image: ${POSTGRES_IMAGE:-postgres:15}
+    image: ${POSTGRES_IMAGE:-postgres@sha256:c189d272e4fcdd1ac419adee675d30be3d389c22ee770d593f15819d22a68a0d}
     container_name: ${POSTGRES_CONTAINER_NAME:-postgres}
     restart: unless-stopped
     ports:
@@ -31,7 +31,7 @@ services:
       timeout: 5s
 
   labelstudio:
-    image: ${LABELSTUDIO_IMAGE:-heartexlabs/label-studio:latest}
+    image: ${LABELSTUDIO_IMAGE:-heartexlabs/label-studio@sha256:046db042674bca7e9535b7c3a9688683405d4cbf37114cc0e3a0d5dd85de0e7a}
     container_name: ${LABELSTUDIO_CONTAINER_NAME:-labelstudio}
     ports:
       - "${LABELSTUDIO_PORT:-8080}:8080"
@@ -105,7 +105,7 @@ services:
       retries: 60
 
   ollama:
-    image: ${OLLAMA_IMAGE:-ollama/ollama}
+    image: ${OLLAMA_IMAGE:-ollama/ollama@sha256:c622a7adec67cf5bd7fe1802b7e26aa583a955a54e91d132889301f50c3e0bd0}
     container_name: ${OLLAMA_CONTAINER_NAME:-ollama}
     ports:
       - "${OLLAMA_PORT:-11434}:11434"
@@ -136,7 +136,7 @@ services:
     command: ["sh", "-c", "flask run --host=0.0.0.0 --port=$DOCLING_PORT"]
 
   job_queue:
-    image: redis:7
+    image: redis@sha256:d7432711a2a5c99c2e9dd0e006061cd274d7cb7a9e77f07ffe2ea99e21244677
     container_name: ${JOB_QUEUE_CONTAINER_NAME:-job_queue}
     restart: unless-stopped
     ports:
