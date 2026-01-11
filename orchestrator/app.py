@@ -28,13 +28,32 @@ from routes.questions_and_labels import (
 )
 from routes.upload_tasks import upload_tasks_main_from_payload
 
+from orchestrator.api.routes import register_routes
+
 FRONTEND_ORIGIN = os.getenv(
     "FRONTEND_ORIGIN", f"http://localhost:{os.getenv('FRONTEND_PORT', '5173')}"
 )
 APP_PORT = int(os.getenv("ORCH_PORT", "5001"))
 
-app = Flask(__name__)
-CORS(app, origins=[FRONTEND_ORIGIN])
+
+def create_app() -> Flask:
+    app = Flask(__name__)
+
+    # CORS: keep browser frontend working
+    CORS(app, origins=[FRONTEND_ORIGIN])
+
+    # central registry (currently empty/no-op)
+    register_routes(app)
+
+    return app
+
+
+app = create_app()
+
+# -------------------------------------------------------------------
+# Keep existing @app.route(...) endpoints BELOW THIS LINE for now.
+# XC-138 will move them into orchestrator/api/routes/*.py
+# -------------------------------------------------------------------
 
 
 def ok(fn):
