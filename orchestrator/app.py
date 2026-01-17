@@ -7,7 +7,6 @@ from flask_cors import CORS
 from routes.check_project_exists import check_project_exists
 from routes.create_project import create_project_main_from_payload
 from routes.get_results_table import build_results_table
-
 from routes.list_html_folders import list_html_subfolders
 from routes.load_ollama_models import (
     load_ollama_models_main_wrapper as load_ollama_models_main,
@@ -120,6 +119,3 @@ def get_results_table_route():
         return build_results_table(token, project_name)
 
     return ok(run)
-
-
-
