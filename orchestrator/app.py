@@ -7,9 +7,6 @@ from flask_cors import CORS
 from routes.check_project_exists import check_project_exists
 from routes.create_project import create_project_main_from_payload
 from routes.list_html_folders import list_html_subfolders
-from routes.load_ollama_models import (
-    load_ollama_models_main_wrapper as load_ollama_models_main,
-)
 from routes.questions_and_labels import (
     list_projects_route,
     list_qal_jsons_route,
@@ -68,11 +65,6 @@ app = create_app()
 def create_project():
     payload = request.get_json()
     return ok(lambda: create_project_main_from_payload(payload))
-
-
-@app.route("/load_models", methods=["POST"])
-def load_models():
-    return ok(load_ollama_models_main)
 
 
 @app.route("/upload_tasks", methods=["POST"])
