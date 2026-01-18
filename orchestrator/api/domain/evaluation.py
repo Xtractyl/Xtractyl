@@ -1,16 +1,23 @@
+# orchestrator/api/domain/evaluation.py
+
 import json
 import os
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
-from routes.utils.calculate_metrics import compute_metrics_from_rows
-from routes.utils.evaluate_project_utils import SPECIAL_PROJECT_TITLE, create_evaluation_project
-from routes.utils.shared.label_studio_client import (
+from .utils.calculate_metrics import compute_metrics_from_rows
+from .utils.evaluate_project_utils import SPECIAL_PROJECT_TITLE, create_evaluation_project
+from .utils.shared.label_studio_client import (
     fetch_task_annotations,
     fetch_tasks_page,
     list_projects,
     resolve_project_id,
+)
+
+GROUNDTRUTH_QAL_PATH = os.getenv(
+    "GROUNDTRUTH_QAL_PATH",
+    "/app/data/projects/Evaluation_Set_Do_Not_Delete/questions_and_labels.json",
 )
 
 EVAL_OUT_DIR = Path(os.getenv("EVAL_DIR", "/app/data/evaluation"))
@@ -185,3 +192,12 @@ def evaluate_projects(token: str, groundtruth_project: str, comparison_project: 
 
     result["evaluation_output_path"] = _write_eval_result(result, gt_id, cmp_id)
     return result
+
+
+def get_groundtruth_qal():
+    """
+    Return the questions_and_labels.json content for the groundtruth project.
+    """
+    with open(GROUNDTRUTH_QAL_PATH, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return data
