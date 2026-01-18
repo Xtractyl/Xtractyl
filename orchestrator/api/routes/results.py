@@ -1,7 +1,8 @@
 # orchestrator/api/routes/results.py
 
 from flask import request
-from routes.get_results_table import build_results_table
+
+from api.domain.results import build_results_table
 
 
 def register(app, ok):
