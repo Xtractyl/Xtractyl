@@ -2,7 +2,7 @@
 
 from flask import request
 
-from orchestrator.api.domain.jobs import (
+from api.domain.jobs import (
     cancel_prelabel_job,
     enqueue_prelabel_job,
     get_job_logs_since,

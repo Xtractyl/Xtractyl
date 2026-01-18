@@ -1,15 +1,16 @@
 # orchestrator/api/routes/projects.py
 
 from flask import request
-from routes.check_project_exists import check_project_exists
-from routes.create_project import create_project_main_from_payload
-from routes.list_html_folders import list_html_subfolders
-from routes.questions_and_labels import (
+
+from api.domain.projects import (
+    check_project_exists,
+    create_project_main_from_payload,
+    list_html_subfolders,
     list_projects_route,
     list_qal_jsons_route,
     preview_qal_route,
+    upload_tasks_main_from_payload,
 )
-from routes.upload_tasks import upload_tasks_main_from_payload
 
 
 def register(app, ok):
