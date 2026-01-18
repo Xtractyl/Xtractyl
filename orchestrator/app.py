@@ -2,10 +2,9 @@
 import os
 import traceback
 
+from api.routes import register_routes
 from flask import Flask, jsonify
 from flask_cors import CORS
-
-from orchestrator.api.routes import register_routes
 
 FRONTEND_ORIGIN = os.getenv(
     "FRONTEND_ORIGIN", f"http://localhost:{os.getenv('FRONTEND_PORT', '5173')}"
@@ -42,3 +41,6 @@ def create_app() -> Flask:
 
 
 app = create_app()
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=APP_PORT)
