@@ -1,7 +1,8 @@
 # orchestrator/api/routes/jobs.py
 
 from flask import request
-from routes.jobs import (
+
+from orchestrator.api.domain.jobs import (
     cancel_prelabel_job,
     enqueue_prelabel_job,
     get_job_logs_since,
