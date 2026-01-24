@@ -82,7 +82,7 @@ export default function UploadAndConvertCard() {
         {filesError && <div className="text-sm text-xtractyl-orange mt-2">Failed to load files.</div>}
 
         {filesInSelectedFolder.length > 0 && (
-          <div className="mt-2 bg-xtractyl-offwhite p-4 rounded">
+          <div className="mt-2 bg-xtractyl-white p-4 rounded">
             <h3 className="font-semibold mb-2">Files in selected folder:</h3>
             <ul className="list-disc pl-5 text-sm text-xtractyl-darktext">
               {filesInSelectedFolder.map((f, i) => (
