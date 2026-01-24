@@ -27,7 +27,7 @@ export default function AboutPage() {
               href="https://www.xtractyl.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-center justify-between rounded-xl border border-black/5 bg-xtractyl-offwhite/70 px-4 py-3 hover:bg-xtractyl-offwhite transition"
+              className="group flex items-center justify-between rounded-xl border border-black/5 bg-xtractyl-white px-4 py-3 hover:bg-xtractyl-offwhite transition"
             >
               <div className="flex items-center gap-3">
                 <span className="text-lg">🌐</span>
@@ -43,7 +43,7 @@ export default function AboutPage() {
               href="https://github.com/Xtractyl/Xtractyl"
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-center justify-between rounded-xl border border-black/5 bg-xtractyl-offwhite/70 px-4 py-3 hover:bg-xtractyl-offwhite transition"
+              className="group flex items-center justify-between rounded-xl border border-black/5 bg-xtractyl-white px-4 py-3 hover:bg-xtractyl-offwhite transition"
             >
               <div className="flex items-center gap-3">
                 <span className="text-lg">💻</span>
@@ -59,7 +59,7 @@ export default function AboutPage() {
               href="https://github.com/Xtractyl/Xtractyl/blob/master/LICENSE"
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-center justify-between rounded-xl border border-black/5 bg-xtractyl-offwhite/70 px-4 py-3 hover:bg-xtractyl-offwhite transition"
+              className="group flex items-center justify-between rounded-xl border border-black/5 bg-xtractyl-white px-4 py-3 hover:bg-xtractyl-offwhite transition"
             >
               <div className="flex items-center gap-3">
                 <span className="text-lg">📄</span>
@@ -73,11 +73,11 @@ export default function AboutPage() {
           </div>
         </div>
 
-        <div className="mt-8 rounded-2xl border border-black/5 bg-xtractyl-offwhite/50 p-6 text-sm text-xtractyl-outline/80 shadow-sm">
+        <div className="mt-8 rounded-2xl border border-black/5 bg-xtractyl-offwhite/50 p-6 text-sm text-xtractyl-outline/100 shadow-sm">
           <div className="flex flex-wrap gap-2 mb-3">
-            <span className="rounded-full bg-xtractyl-offwhite/70 px-3 py-1">Not a medical device</span>
-            <span className="rounded-full bg-xtractyl-offwhite/70 px-3 py-1">Synthetic example data</span>
-            <span className="rounded-full bg-xtractyl-offwhite/70 px-3 py-1">Research-only</span>
+            <span className="rounded-full bg-xtractyl-white px-3 py-1">Not a medical device</span>
+            <span className="rounded-full bg-xtractyl-white px-3 py-1">Synthetic example data</span>
+            <span className="rounded-full bg-xtractyl-white px-3 py-1">Research-only</span>
           </div>
 
           <p>
