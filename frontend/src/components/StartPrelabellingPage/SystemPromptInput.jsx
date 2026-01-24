@@ -70,7 +70,7 @@ export default function SystemPromptInput({
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="text-sm underline text-[#6baa56] hover:text-[#5b823f]"
+          className="text-sm underline text-xtractyl-greenhover: text-xtractyl-green"
         >
           {open ? "Hide example" : "Show example"}
         </button>

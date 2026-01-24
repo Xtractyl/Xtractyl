@@ -5,7 +5,7 @@ export default function ResultsTable({ columns, rows }) {
   if (!rows?.length) return <div className="muted">No data.</div>;
 
   return (
-    <div className="p-8 xtractyl-offwhite min-h-screen text-[#23211c]">
+    <div className="p-8 xtractyl-offwhite min-h-screen text-xtractyl-darktext">
 
       {/* Horizontal scroll wrapper */}
       <div className="overflow-x-auto border rounded-lg bg-xtractyl-white shadow-sm">

@@ -31,7 +31,7 @@ export default function UploadAndConvertCard() {
   const handleFolderChange = (e) => setFolder(e.target.value.trim());
 
   return (
-    <div className="p-6 bg-xtractyl-background min-h-screen text-[#23211c]">
+    <div className="p-6 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
       <h1 className="text-2xl font-semibold mb-4">Upload and Convert Docs</h1>
       <p className="text-gray-600 mb-6">
         Select PDF files and specify a working folder for HTML conversion.
@@ -62,12 +62,12 @@ export default function UploadAndConvertCard() {
         {existingFolders.length > 0 && (
           <div className="mt-4 bg-xtractyl-offwhite p-4 rounded">
             <h3 className="font-semibold mb-2">Existing folders:</h3>
-            <ul className="list-disc pl-5 text-sm text-[#23211c]">
+            <ul className="list-disc pl-5 text-sm text-xtractyl-darktext">
               {existingFolders.map((f, i) => (
                 <li
                   key={i}
                   className={`cursor-pointer hover:underline ${
-                    folder === f ? "font-bold text-[#6baa56]" : ""
+                    folder === f ? "font-bold text-xtractyl-green" : ""
                   }`}
                   onClick={() => setFolder(f)}
                 >
@@ -84,7 +84,7 @@ export default function UploadAndConvertCard() {
         {filesInSelectedFolder.length > 0 && (
           <div className="mt-2 bg-xtractyl-offwhite p-4 rounded">
             <h3 className="font-semibold mb-2">Files in selected folder:</h3>
-            <ul className="list-disc pl-5 text-sm text-[#23211c]">
+            <ul className="list-disc pl-5 text-sm text-xtractyl-darktext">
               {filesInSelectedFolder.map((f, i) => (
                 <li key={i}>{f}</li>
               ))}

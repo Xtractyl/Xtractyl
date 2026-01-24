@@ -37,7 +37,7 @@ export default function ModelDownloadInput({
             href="https://ollama.com/library"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#6baa56] hover:underline"
+            className="text-xtractyl-greenhover:underline"
         >
             official names
         </a>

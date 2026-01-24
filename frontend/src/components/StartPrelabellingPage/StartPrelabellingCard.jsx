@@ -156,7 +156,7 @@ const canStart =
   const progressPct = Math.round(Number(preStatus?.progress ?? 0));
 
   return (
-    <div className="p-6 bg-xtractyl-background min-h-screen text-[#23211c]">
+    <div className="p-6 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
       <h1 className="text-2xl font-semibold mb-4">Start AI</h1>
       <p className="text-gray-600 mb-6">
         Download a model (if needed), enter your project, pick an installed model, set a system prompt, choose your Questions & Labels JSON, then start prelabeling.
@@ -174,7 +174,7 @@ const canStart =
             href="http://localhost:8080/projects/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block text-[#6baa56] hover:underline"
+            className="inline-block text-xtractyl-greenhover:underline"
           >
             Open Label Studio projects
           </a>
@@ -185,7 +185,7 @@ const canStart =
             href={`${LS_BASE}/user/account/legacy-token`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block bg-xtractyl-orange text-white text-base font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange-600 transition"
+            className="inline-block bg-xtractyl-orange text-white  text-xtractyl-outline/70ase font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange-600 transition"
           >
             Get your legacy token
           </a>
@@ -198,7 +198,7 @@ const canStart =
               href={`${LS_BASE}/organization/`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#6baa56] hover:underline"
+              className="text-xtractyl-greenhover:underline"
             >
               {LS_BASE}/organization
             </a>{" "}

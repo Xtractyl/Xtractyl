@@ -56,7 +56,7 @@ export default function CreateProjectCard({ apiToken, onTokenSave , onProjectNam
   };
 
   return (
-    <div className="p-8 bg-xtractyl-background min-h-screen text-[#23211c]">
+    <div className="p-8 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
       <h1 className="text-2xl font-semibold mb-4">Create Project</h1>
       <p className="text-gray-600 mb-6">
         Enter API token, choose a project name, enter your questions as well as labels for them.
@@ -70,7 +70,7 @@ export default function CreateProjectCard({ apiToken, onTokenSave , onProjectNam
 
           {/* Groundtruth helper section */}
       <div className="mt-4 border rounded p-3 bg-xtractyl-offwhite">
-        <h2 className="text-base font-medium mb-1 text-gray-700">
+        <h2 className=" text-xtractyl-outline/70ase font-medium mb-1 text-gray-700">
           Use questions & labels from standard groundtruth project
         </h2>
         <p className="text-xs text-gray-500 mb-1">

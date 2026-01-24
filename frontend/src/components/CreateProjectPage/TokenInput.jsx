@@ -47,7 +47,7 @@ export default function TokenInput({ onTokenSave }) {
           href={`${LS_BASE}/user/account/legacy-token`}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block bg-xtractyl-orange text-white text-base font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange-600 transition"
+          className="inline-block bg-xtractyl-orange text-white  text-xtractyl-outline/70ase font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange-600 transition"
         >
           Get your legacy token
         </a>
@@ -60,7 +60,7 @@ export default function TokenInput({ onTokenSave }) {
             href={`${LS_BASE}/organization`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#6baa56] hover:underline"
+            className="text-xtractyl-greenhover:underline"
           >
             {LS_BASE}/organization
           </a>{" "}
