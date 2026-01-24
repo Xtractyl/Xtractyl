@@ -95,18 +95,18 @@ export default function QuestionsAndLabelsPicker({
           type="button"
           onClick={() => selectedFile && handlePreview(selectedFile)}
           disabled={!selectedFile}
-          className={`px-3 py-2 rounded ${selectedFile ? "bg-xtractyl-green text-xtractyl-white hover:bg-xtractyl-green/80"    : "bg-xtractyl-offwhite text-gray-400 cursor-not-allowed"}`}
+          className={`px-3 py-2 rounded ${selectedFile ? "bg-xtractyl-green text-xtractyl-white hover:bg-xtractyl-green/80"    : "bg-xtractyl-offwhite text-xtractyl-outline/50 cursor-not-allowed"}`}
         >
           Preview
         </button>
       </div>
 
-      <div className="text-xs text-gray-500">
+      <div className="text-xs  text-xtractyl-outline/60">
         Or upload a JSON file:
         <input type="file" accept="application/json" className="ml-2" onChange={handleFileSelect} />
       </div>
 
-      {loading && <div className="text-sm text-gray-600">Loading…</div>}
+      {loading && <div className="text-sm  text-xtractyl-outline/70">Loading…</div>}
       {err && <div className="text-sm text-xtractyl-orange">❌ {err}</div>}
 
       {previewOpen && (
@@ -115,7 +115,7 @@ export default function QuestionsAndLabelsPicker({
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold">Preview: {selectedFile}</h3>
               <button
-                className="px-2 py-1 rounded text-white bg-xtractyl-green hover:bg-xtractyl-green/80"
+                className="px-2 py-1 rounded text-xtractyl-white bg-xtractyl-green hover:bg-xtractyl-green/80"
                 onClick={() => setPreviewOpen(false)}
               >
                 Close
@@ -123,7 +123,7 @@ export default function QuestionsAndLabelsPicker({
             </div>
             <div className="max-h-[60vh] overflow-auto">
               {previewErr && <div className="text-sm text-xtractyl-orange mb-2">❌ {previewErr}</div>}
-              {!preview && !previewErr && <div className="text-sm text-gray-600">Loading…</div>}
+              {!preview && !previewErr && <div className="text-sm  text-xtractyl-outline/70">Loading…</div>}
               {preview && (
                 <pre className="text-xs whitespace-pre-wrap break-words">
                   {JSON.stringify(preview, null, 2)}

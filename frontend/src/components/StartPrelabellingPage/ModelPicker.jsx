@@ -45,7 +45,7 @@ export default function ModelPicker({
         ))}
       </select>
 
-      <div className="flex items-center gap-2 text-xs text-gray-500">
+      <div className="flex items-center gap-2 text-xs  text-xtractyl-outline/60">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="h-3.5 w-3.5"
@@ -66,7 +66,7 @@ export default function ModelPicker({
         </span>
       </div>
 
-      {loading && <div className="text-sm text-gray-600">Loading models…</div>}
+      {loading && <div className="text-sm  text-xtractyl-outline/70">Loading models…</div>}
       {err && <div className="text-sm text-xtractyl-orange">❌ {err}</div>}
     </div>
   );

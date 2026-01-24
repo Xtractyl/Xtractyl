@@ -1,10 +1,10 @@
 /* Xtractyl Buttons */
 .btn-xtractyl {
-    @apply bg-xtractyl-green text-white px-4 py-2 rounded-xl shadow hover:bg-xtractyl-shadowgreen transition;
+    @apply bg-xtractyl-green text-xtractyl-white px-4 py-2 rounded-xl shadow hover:bg-xtractyl-shadowgreen transition;
   }
   
   .btn-xtractyl-outline {
-    @apply border-2 border-xtractyl-green text-xtractyl-green px-4 py-2 rounded-xl hover:bg-xtractyl-green hover:text-white transition;
+    @apply border-2 border-xtractyl-green text-xtractyl-green px-4 py-2 rounded-xl hover:bg-xtractyl-green hover:text-xtractyl-white transition;
   }
   
   /* Cards */

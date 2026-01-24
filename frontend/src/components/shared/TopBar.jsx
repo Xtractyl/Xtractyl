@@ -17,90 +17,90 @@ export default function TopBar() {
       </div>
 
       {/* Navigation (Database Mode only) */}
-      <div className="bg-xtractyl-lightgreen text-white px-8 py-4">
+      <div className="bg-xtractyl-lightgreen text-xtractyl-white px-8 py-4">
         <nav className="bg-xtractyl-lightgreen text-xtractyl-darktext px-8 py-6 flex items-center justify-center space-x-6">
           <NavLink
             to="/"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-semibold transition
-             ${isActive ? 'bg-xtractyl-green text-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
+             ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
           >
             Convert Docs
           </NavLink>
 
-          <ChevronRight className="text-white w-5 h-5" />
+          <ChevronRight className="text-xtractyl-white w-5 h-5" />
 
           <NavLink
             to="/project"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-semibold transition
-             ${isActive ? 'bg-xtractyl-green text-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
+             ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
           >
             Create Labelstudio Project
           </NavLink>
 
-          <ChevronRight className="text-white w-5 h-5" />
+          <ChevronRight className="text-xtractyl-white w-5 h-5" />
 
           <NavLink
             to="/tasks"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-semibold transition
-             ${isActive ? 'bg-xtractyl-green text-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
+             ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
           >
             Upload in Labelstudio Project
           </NavLink>
 
-          <ChevronRight className="text-white w-5 h-5" />
+          <ChevronRight className="text-xtractyl-white w-5 h-5" />
 
           <NavLink
             to="/prelabelling"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-semibold transition
-             ${isActive ? 'bg-xtractyl-green text-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
+             ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
           >
             Start AI
           </NavLink>
 
-          <ChevronRight className="text-white w-5 h-5" />
+          <ChevronRight className="text-xtractyl-white w-5 h-5" />
 
           <NavLink
             to="/review"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-semibold transition
-             ${isActive ? 'bg-xtractyl-green text-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
+             ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
           >
             Review AI
           </NavLink>
 
-          <ChevronRight className="text-white w-5 h-5" />
+          <ChevronRight className="text-xtractyl-white w-5 h-5" />
 
           <NavLink
             to="/results"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-semibold transition
-             ${isActive ? 'bg-xtractyl-green text-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
+             ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
           >
             Get Results
           </NavLink>
 
-          <ChevronRight className="text-white w-5 h-5" />
+          <ChevronRight className="text-xtractyl-white w-5 h-5" />
 
           <NavLink
             to="/evaluate"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-semibold transition
-             ${isActive ? 'bg-xtractyl-green text-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
+             ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
           >
             Evaluate AI
           </NavLink>
 
-          <ChevronRight className="text-white w-5 h-5" />
+          <ChevronRight className="text-xtractyl-white w-5 h-5" />
 
           <NavLink
             to="/finetune"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-semibold transition
-             ${isActive ? 'bg-xtractyl-green text-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
+             ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
           >
             Finetune AI
           </NavLink>

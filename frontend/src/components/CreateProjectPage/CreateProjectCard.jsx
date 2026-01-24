@@ -58,7 +58,7 @@ export default function CreateProjectCard({ apiToken, onTokenSave , onProjectNam
   return (
     <div className="p-8 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
       <h1 className="text-2xl font-semibold mb-4">Create Project</h1>
-      <p className="text-gray-600 mb-6">
+      <p className=" text-xtractyl-outline/70 mb-6">
         Enter API token, choose a project name, enter your questions as well as labels for them.
       </p>
 
@@ -70,10 +70,10 @@ export default function CreateProjectCard({ apiToken, onTokenSave , onProjectNam
 
           {/* Groundtruth helper section */}
       <div className="mt-4 border rounded p-3 bg-xtractyl-offwhite">
-        <h2 className=" text-xtractyl-outline/70ase font-medium mb-1 text-gray-700">
+        <h2 className=" text-xtractyl-outline/70ase font-medium mb-1 text-xtractyl-outline">
           Use questions & labels from standard groundtruth project
         </h2>
-        <p className="text-xs text-gray-500 mb-1">
+        <p className="text-xs  text-xtractyl-outline/60 mb-1">
           Click the button to show the questions and labels from the
           Evaluation_Set_Do_Not_Delete project.
         </p>
@@ -81,7 +81,7 @@ export default function CreateProjectCard({ apiToken, onTokenSave , onProjectNam
         <button
           type="button"
           onClick={handleLoadGroundtruth}
-          className="text-sm px-3 py-1.5 rounded bg-xtractyl-offwhite text-gray-700 hover:bg-xtractyl-offwhite disabled:opacity-50"
+          className="text-sm px-3 py-1.5 rounded bg-xtractyl-offwhite text-xtractyl-outline hover:bg-xtractyl-offwhite disabled:opacity-50"
           disabled={groundtruthLoading}
         >
           {groundtruthLoading
@@ -98,7 +98,7 @@ export default function CreateProjectCard({ apiToken, onTokenSave , onProjectNam
             <h3 className="font-semibold mb-2">
               Groundtruth questions_and_labels.json
             </h3>
-            <p className="text-xs text-gray-600 mb-2">
+            <p className="text-xs  text-xtractyl-outline/70 mb-2">
               Copy relevant questions and labels into your own project
               configuration.
             </p>

@@ -26,7 +26,7 @@ export default function ComparisonSelection({
       {errorMsg && <p className="text-sm text-xtractyl-orange">{errorMsg}</p>}
 
       {!loading && !errorMsg && projects.length === 0 && (
-        <p className="text-sm text-gray-600">
+        <p className="text-sm  text-xtractyl-outline/70">
           No projects available for evaluation.
         </p>
       )}
@@ -65,7 +65,7 @@ export default function ComparisonSelection({
             ))}
           </select>
 
-          <p className="mt-3 text-xs text-gray-700">
+          <p className="mt-3 text-xs text-xtractyl-outline">
             Groundtruth: <b>{groundtruthProject}</b>
             <br />
             Comparison: <b>{comparisonProject}</b>
@@ -74,7 +74,7 @@ export default function ComparisonSelection({
           <button
             type="button"
             onClick={onSubmit}
-            className="mt-4 inline-flex items-center justify-center px-4 py-2 rounded bg-xtractyl-green text-white text-sm font-medium shadow hover:bg-xtractyl-green transition disabled:opacity-60 disabled:cursor-not-allowed"
+            className="mt-4 inline-flex items-center justify-center px-4 py-2 rounded bg-xtractyl-green text-xtractyl-white text-sm font-medium shadow hover:bg-xtractyl-green transition disabled:opacity-60 disabled:cursor-not-allowed"
             disabled={!groundtruthProject || !comparisonProject}
           >
             Run Evaluation and Save as JSON

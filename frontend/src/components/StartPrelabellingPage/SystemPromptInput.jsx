@@ -61,7 +61,7 @@ export default function SystemPromptInput({
         rows={6}
         className="w-full p-3 border rounded"
       />
-      <div className="mt-1 text-xs text-gray-600">
+      <div className="mt-1 text-xs  text-xtractyl-outline/70">
         {chars}/{maxLength} characters
       </div>
 
@@ -82,7 +82,7 @@ export default function SystemPromptInput({
               <button
                 type="button"
                 onClick={() => onChange(exampleText)}
-                className="px-3 py-2 rounded bg-xtractyl-green text-white hover:bg-xtractyl-green"
+                className="px-3 py-2 rounded bg-xtractyl-green text-xtractyl-white hover:bg-xtractyl-green"
               >
                 Use this example
               </button>

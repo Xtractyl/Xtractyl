@@ -36,7 +36,7 @@ export default function TokenInput({ onTokenSave }) {
       />
       <button
         type="submit"
-        className="bg-xtractyl-orange text-white px-4 py-2 rounded hover:bg-xtractyl-orange-600 transition"
+        className="bg-xtractyl-orange text-xtractyl-white px-4 py-2 rounded hover:bg-xtractyl-orange-600 transition"
       >
         Save Token
       </button>
@@ -47,14 +47,14 @@ export default function TokenInput({ onTokenSave }) {
           href={`${LS_BASE}/user/account/legacy-token`}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block bg-xtractyl-orange text-white  text-xtractyl-outline/70ase font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange-600 transition"
+          className="inline-block bg-xtractyl-orange text-xtractyl-white  text-xtractyl-outline/70ase font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange-600 transition"
         >
           Get your legacy token
         </a>
-        <p className="mt-2 text-sm text-gray-500">
+        <p className="mt-2 text-sm  text-xtractyl-outline/60">
           Return here after copying the token from Label Studio.
         </p>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm  text-xtractyl-outline/60">
           ⚠️ If you see no legacy token there, go to{" "}
           <a
             href={`${LS_BASE}/organization`}

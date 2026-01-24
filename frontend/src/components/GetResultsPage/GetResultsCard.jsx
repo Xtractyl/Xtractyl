@@ -63,7 +63,7 @@ export default function GetResultsCard({ apiToken, projectName}) {
   return (
     <div className="p-8 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
       <h1 className="text-2xl font-semibold mb-4">Get Results</h1>
-      <p className="text-gray-600">
+      <p className=" text-xtractyl-outline/70">
         Enter your project name, enter your API token and submit to get your database (re-submit your data to update in case the AI is still running).
       </p>
       <div className="mb-6"></div>
@@ -71,14 +71,14 @@ export default function GetResultsCard({ apiToken, projectName}) {
             href={`${LS_BASE}/user/account/legacy-token`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block bg-xtractyl-orange text-white  text-xtractyl-outline/70ase font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange-600 transition"
+            className="inline-block bg-xtractyl-orange text-xtractyl-white  text-xtractyl-outline/70ase font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange-600 transition"
           >
             Get your legacy token
           </a>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm  text-xtractyl-outline/60">
             Return here after copying the token from Label Studio.
           </p>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm  text-xtractyl-outline/60">
             ⚠️ If you see no legacy token there, go to{" "}
             <a
               href={`${LS_BASE}/organization/`}
@@ -119,14 +119,14 @@ export default function GetResultsCard({ apiToken, projectName}) {
           <button
             type="submit"
             disabled={!canSubmit || loading}
-            className="px-3 py-2 bg-xtractyl-green text-white rounded-md cursor-pointer hover:bg-xtractyl-lightgreen hover:text-xtractyl-offwhite "
+            className="px-3 py-2 bg-xtractyl-green text-xtractyl-white rounded-md cursor-pointer hover:bg-xtractyl-lightgreen hover:text-xtractyl-offwhite "
           >
             {loading ? "Loading…" : "Submit & Save as CSV"}
           </button>
         </form>
 
         {err ? (
-          <div className="p-3 border border-red-200 bg-xtractyl-offwhite text-rose-900 rounded-md">
+          <div className="p-3 border border-red-200 bg-xtractyl-offwhite text-xtractyl-darktext rounded-md">
             <strong>Error, does the project already exist in labelstudio?</strong> {err}
           </div>
         ) : null}

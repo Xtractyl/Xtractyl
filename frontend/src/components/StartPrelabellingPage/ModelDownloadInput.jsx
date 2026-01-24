@@ -56,13 +56,13 @@ export default function ModelDownloadInput({
           type="button"
           onClick={handlePull}
           disabled={!name.trim() || pulling}
-          className={`px-3 py-2 rounded ${pulling ? "opacity-60 cursor-not-allowed" : "bg-xtractyl-green text-white hover:bg-xtractyl-green"}`}
+          className={`px-3 py-2 rounded ${pulling ? "opacity-60 cursor-not-allowed" : "bg-xtractyl-green text-xtractyl-white hover:bg-xtractyl-green"}`}
         >
           {pulling ? "Pulling…" : "Download"}
         </button>
       </div>
 
-      {progress && <div className="text-sm text-gray-700">Progress: {progress}</div>}
+      {progress && <div className="text-sm text-xtractyl-outline">Progress: {progress}</div>}
       {error && <div className="text-sm text-xtractyl-orange">❌ {error}</div>}
 
     </div>

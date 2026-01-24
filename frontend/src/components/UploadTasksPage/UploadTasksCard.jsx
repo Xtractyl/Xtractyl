@@ -53,7 +53,7 @@ export default function UploadTasksCard({ apiToken, projectName }) {
   return (
     <div className="p-6 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
       <h1 className="text-2xl font-semibold mb-4">Upload Tasks</h1>
-      <p className="text-gray-600 mb-6">
+      <p className=" text-xtractyl-outline/70 mb-6">
         Select your project, API token, and HTML folder to upload tasks.
       </p>
 
@@ -67,14 +67,14 @@ export default function UploadTasksCard({ apiToken, projectName }) {
             href={`${LS_BASE}/user/account/legacy-token`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block bg-xtractyl-orange text-white  text-xtractyl-outline/70ase font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange-600 transition"
+            className="inline-block bg-xtractyl-orange text-xtractyl-white  text-xtractyl-outline/70ase font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange-600 transition"
           >
             Get your legacy token
           </a>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm  text-xtractyl-outline/60">
             Return here after copying the token from Label Studio.
           </p>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm  text-xtractyl-outline/60">
             ⚠️ If you see no legacy token there, go to{" "}
             <a
               href={`${LS_BASE}/organization`}
@@ -106,7 +106,7 @@ export default function UploadTasksCard({ apiToken, projectName }) {
         <button
           onClick={handleUpload}
           disabled={busy}
-          className={`px-4 py-2 rounded text-white ${
+          className={`px-4 py-2 rounded text-xtractyl-white ${
             busy
               ? "bg-xtractyl-green/50 cursor-not-allowed"
               : "bg-xtractyl-green hover:bg-xtractyl-green"
