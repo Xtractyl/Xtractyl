@@ -23,7 +23,7 @@ export default function ComparisonSelection({
 
       {loading && <p className="text-sm">Loading projects…</p>}
 
-      {errorMsg && <p className="text-sm text-red-600">{errorMsg}</p>}
+      {errorMsg && <p className="text-sm text-xtractyl-orange">{errorMsg}</p>}
 
       {!loading && !errorMsg && projects.length === 0 && (
         <p className="text-sm text-gray-600">

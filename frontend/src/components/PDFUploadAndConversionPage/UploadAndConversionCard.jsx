@@ -57,7 +57,7 @@ export default function UploadAndConvertCard() {
         </div>
 
         {loadingFolders && <div className="text-sm">Loading folders…</div>}
-        {foldersError && <div className="text-sm text-red-600">Failed to load folders.</div>}
+        {foldersError && <div className="text-sm text-xtractyl-orange">Failed to load folders.</div>}
 
         {existingFolders.length > 0 && (
           <div className="mt-4 bg-xtractyl-offwhite p-4 rounded">
@@ -79,7 +79,7 @@ export default function UploadAndConvertCard() {
         )}
 
         {loadingFiles && <div className="text-sm mt-2">Loading files…</div>}
-        {filesError && <div className="text-sm text-red-600 mt-2">Failed to load files.</div>}
+        {filesError && <div className="text-sm text-xtractyl-orange mt-2">Failed to load files.</div>}
 
         {filesInSelectedFolder.length > 0 && (
           <div className="mt-2 bg-xtractyl-offwhite p-4 rounded">

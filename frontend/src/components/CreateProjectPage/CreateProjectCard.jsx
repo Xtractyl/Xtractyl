@@ -90,11 +90,11 @@ export default function CreateProjectCard({ apiToken, onTokenSave , onProjectNam
         </button>
 
         {groundtruthError && (
-          <p className="mt-2 text-sm text-red-600">{groundtruthError}</p>
+          <p className="mt-2 text-sm text-xtractyl-orange">{groundtruthError}</p>
         )}
 
         {groundtruth && (
-          <div className="mt-4 bg-xtractyl-offwhite p-4 rounded max-h-96 overflow-auto">
+          <div className="mt-4 bg-xtractyl-white p-4 rounded max-h-96 overflow-auto">
             <h3 className="font-semibold mb-2">
               Groundtruth questions_and_labels.json
             </h3>

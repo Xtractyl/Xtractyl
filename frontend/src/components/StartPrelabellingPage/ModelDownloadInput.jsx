@@ -63,7 +63,7 @@ export default function ModelDownloadInput({
       </div>
 
       {progress && <div className="text-sm text-gray-700">Progress: {progress}</div>}
-      {error && <div className="text-sm text-red-600">❌ {error}</div>}
+      {error && <div className="text-sm text-xtractyl-orange">❌ {error}</div>}
 
     </div>
   );

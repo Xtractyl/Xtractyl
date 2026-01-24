@@ -107,7 +107,7 @@ export default function QuestionsAndLabelsPicker({
       </div>
 
       {loading && <div className="text-sm text-gray-600">Loading…</div>}
-      {err && <div className="text-sm text-red-600">❌ {err}</div>}
+      {err && <div className="text-sm text-xtractyl-orange">❌ {err}</div>}
 
       {previewOpen && (
         <div className="fixed inset-0 bg-xtractyl-darktext/40 flex items-center justify-center z-50">
@@ -122,7 +122,7 @@ export default function QuestionsAndLabelsPicker({
               </button>
             </div>
             <div className="max-h-[60vh] overflow-auto">
-              {previewErr && <div className="text-sm text-red-600 mb-2">❌ {previewErr}</div>}
+              {previewErr && <div className="text-sm text-xtractyl-orange mb-2">❌ {previewErr}</div>}
               {!preview && !previewErr && <div className="text-sm text-gray-600">Loading…</div>}
               {preview && (
                 <pre className="text-xs whitespace-pre-wrap break-words">

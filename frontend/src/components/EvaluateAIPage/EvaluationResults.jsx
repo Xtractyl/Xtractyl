@@ -3,7 +3,7 @@ import React from "react";
 
 export default function EvaluationResults({ loading, errorMsg, result }) {
   if (loading) return <div className="mt-6">Running evaluation…</div>;
-  if (errorMsg) return <div className="mt-6 text-red-600">{errorMsg}</div>;
+  if (errorMsg) return <div className="mt-6 text-xtractyl-orange">{errorMsg}</div>;
   if (!result) return null;
 
   const payload = result.logs || result;

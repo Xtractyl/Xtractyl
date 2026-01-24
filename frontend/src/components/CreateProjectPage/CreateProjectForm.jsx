@@ -107,7 +107,7 @@ export default function CreateProjectForm({ onSubmit }) {
   );
 })()}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-xtractyl-orange">{error}</p>}
 
       <button type="submit" className="bg-xtractyl-green text-white px-4 py-2 rounded hover:bg-xtractyl-green transition">
         Create project
