@@ -126,7 +126,7 @@ export default function GetResultsCard({ apiToken, projectName}) {
         </form>
 
         {err ? (
-          <div className="p-3 border border-red-200 bg-xtractyl-offwhite text-xtractyl-darktext rounded-md">
+          <div className="p-3 border border-xtractyl-orange/30 bg-xtractyl-offwhite text-xtractyl-darktext rounded-md">
             <strong>Error, does the project already exist in labelstudio?</strong> {err}
           </div>
         ) : null}
