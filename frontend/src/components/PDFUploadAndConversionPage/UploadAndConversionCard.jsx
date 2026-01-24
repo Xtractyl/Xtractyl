@@ -155,7 +155,7 @@ export default function UploadAndConvertCard() {
               type="button"
               onClick={handleCancel}
               disabled={cancelBusy}
-              className={`px-3 py-2 rounded bg-xtractyl-orangetext-xtractyl-white hover:bg-xtractyl-orange ${
+              className={`px-3 py-2 rounded bg-xtractyl-orange text-xtractyl-white hover:bg-xtractyl-orange ${
                 cancelBusy ? "opacity-60 cursor-not-allowed" : ""
               }`}
             >
@@ -164,7 +164,7 @@ export default function UploadAndConvertCard() {
 
             <button
               type="button"
-              className="px-3 py-2 rounded bg-xtractyl-offwhite hover:bg-xtractyl-offwhite"
+              className="px-3 py-2 rounded bg-xtractyl-orange text-xtractyl-white hover:bg-xtractyl-orange"
               onClick={clearJob}
             >
               Clear Job ID (local)
