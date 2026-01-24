@@ -71,7 +71,7 @@ export default function GetResultsCard({ apiToken, projectName}) {
             href={`${LS_BASE}/user/account/legacy-token`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block bg-xtractyl-orange text-xtractyl-white  text-xtractyl-outline/70ase font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange-600 transition"
+            className="inline-block bg-xtractyl-orange text-xtractyl-white font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange/80 transition"
           >
             Get your legacy token
           </a>
@@ -84,7 +84,7 @@ export default function GetResultsCard({ apiToken, projectName}) {
               href={`${LS_BASE}/organization/`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xtractyl-greenhover:underline"
+              className="text-xtractyl-green hover:underline"
             >
               {LS_BASE}/organization
             </a>{" "}
@@ -119,7 +119,7 @@ export default function GetResultsCard({ apiToken, projectName}) {
           <button
             type="submit"
             disabled={!canSubmit || loading}
-            className="px-3 py-2 bg-xtractyl-green text-xtractyl-white rounded-md cursor-pointer hover:bg-xtractyl-lightgreen hover:text-xtractyl-offwhite "
+            className="px-3 py-2 bg-xtractyl-green text-xtractyl-white rounded-md cursor-pointer hover:bg-xtractyl-green/80"
           >
             {loading ? "Loading…" : "Submit & Save as CSV"}
           </button>
