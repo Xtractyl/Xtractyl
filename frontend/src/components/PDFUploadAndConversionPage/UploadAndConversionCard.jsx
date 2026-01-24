@@ -31,7 +31,7 @@ export default function UploadAndConvertCard() {
   const handleFolderChange = (e) => setFolder(e.target.value.trim());
 
   return (
-    <div className="p-6 bg-[#e6e2cf] min-h-screen text-[#23211c]">
+    <div className="p-6 bg-xtractyl-background min-h-screen text-[#23211c]">
       <h1 className="text-2xl font-semibold mb-4">Upload and Convert Docs</h1>
       <p className="text-gray-600 mb-6">
         Select PDF files and specify a working folder for HTML conversion.
@@ -60,7 +60,7 @@ export default function UploadAndConvertCard() {
         {foldersError && <div className="text-sm text-red-600">Failed to load folders.</div>}
 
         {existingFolders.length > 0 && (
-          <div className="mt-4 bg-[#ede6d6] p-4 rounded">
+          <div className="mt-4 bg-xtractyl-offwhite p-4 rounded">
             <h3 className="font-semibold mb-2">Existing folders:</h3>
             <ul className="list-disc pl-5 text-sm text-[#23211c]">
               {existingFolders.map((f, i) => (
@@ -82,7 +82,7 @@ export default function UploadAndConvertCard() {
         {filesError && <div className="text-sm text-red-600 mt-2">Failed to load files.</div>}
 
         {filesInSelectedFolder.length > 0 && (
-          <div className="mt-2 bg-[#ede6d6] p-4 rounded">
+          <div className="mt-2 bg-xtractyl-offwhite p-4 rounded">
             <h3 className="font-semibold mb-2">Files in selected folder:</h3>
             <ul className="list-disc pl-5 text-sm text-[#23211c]">
               {filesInSelectedFolder.map((f, i) => (
@@ -112,7 +112,7 @@ export default function UploadAndConvertCard() {
         <button
           type="submit"
           disabled={submitBusy || !!jobId}
-          className={`bg-[#6baa56] text-white px-4 py-2 rounded hover:bg-[#5b823f] ${
+          className={`bg-xtractyl-green text-white px-4 py-2 rounded hover:bg-xtractyl-green${
             submitBusy || jobId ? "opacity-60 cursor-not-allowed" : ""
           }`}
         >
@@ -124,16 +124,16 @@ export default function UploadAndConvertCard() {
 
       {/* Status panel */}
       {jobId && jobStatus && (
-        <div className="mt-4 bg-[#cdc0a3] p-4 rounded">
+        <div className="mt-4 bg-xtractyl-offwhite p-4 rounded">
           <div className="font-medium mb-1">
             Status: {jobStatus.state}{" "}
             {typeof jobStatus.progress === "number"
               ? `— ${Math.round((jobStatus.progress || 0) * 100)}%`
               : ""}
           </div>
-          <div className="w-full h-2 bg-gray-200 rounded">
+          <div className="w-full h-2 bg-xtractyl-offwhite rounded">
             <div
-              className="h-2 bg-[#6baa56] rounded"
+              className="h-2 bg-xtractyl-green rounded"
               style={{ width: `${Math.round((jobStatus.progress || 0) * 100)}%` }}
             />
           </div>
@@ -146,7 +146,7 @@ export default function UploadAndConvertCard() {
 
       {/* Active job controls */}
       {jobId && (
-        <div className="mt-6 bg-[#ede6d6] p-4 rounded">
+        <div className="mt-6 bg-xtractyl-offwhite p-4 rounded">
           <div className="font-semibold">Active conversion job</div>
           <div className="text-sm break-all">Job ID: {jobId}</div>
 
@@ -155,7 +155,7 @@ export default function UploadAndConvertCard() {
               type="button"
               onClick={handleCancel}
               disabled={cancelBusy}
-              className={`px-3 py-2 rounded bg-red-600 text-white hover:bg-red-700 ${
+              className={`px-3 py-2 rounded bg-xtractyl-orangetext-white hover:bg-xtractyl-orange ${
                 cancelBusy ? "opacity-60 cursor-not-allowed" : ""
               }`}
             >
@@ -164,7 +164,7 @@ export default function UploadAndConvertCard() {
 
             <button
               type="button"
-              className="px-3 py-2 rounded bg-gray-200 hover:bg-gray-300"
+              className="px-3 py-2 rounded bg-xtractyl-offwhite hover:bg-xtractyl-offwhite"
               onClick={clearJob}
             >
               Clear Job ID (local)

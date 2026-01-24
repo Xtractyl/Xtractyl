@@ -156,7 +156,7 @@ const canStart =
   const progressPct = Math.round(Number(preStatus?.progress ?? 0));
 
   return (
-    <div className="p-6 bg-[#e6e2cf] min-h-screen text-[#23211c]">
+    <div className="p-6 bg-xtractyl-background min-h-screen text-[#23211c]">
       <h1 className="text-2xl font-semibold mb-4">Start AI</h1>
       <p className="text-gray-600 mb-6">
         Download a model (if needed), enter your project, pick an installed model, set a system prompt, choose your Questions & Labels JSON, then start prelabeling.
@@ -166,7 +166,7 @@ const canStart =
         <ModelDownloadInput onDone={() => setRefreshKey((k) => k + 1)} />
       </div>
 
-      <div className="space-y-6 bg-[#ede6d6] p-6 rounded shadow max-w-3xl">
+      <div className="space-y-6 bg-xtractyl-offwhite p-6 rounded shadow max-w-3xl">
       <ProjectNameInput value={localProjectName} onChange={setLocalProjectName} />
         <div className="text-sm text-gray-600 -mt-2">
           <div>Forgot your project name?</div>
@@ -185,7 +185,7 @@ const canStart =
             href={`${LS_BASE}/user/account/legacy-token`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block bg-[#db7127] text-white text-base font-medium px-5 py-2 rounded shadow hover:bg-orange-600 transition"
+            className="inline-block bg-xtractyl-orange text-white text-base font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange-600 transition"
           >
             Get your legacy token
           </a>
@@ -251,7 +251,7 @@ const canStart =
             onClick={handleStart}
             disabled={!canStart || busy}
             className={`px-4 py-2 rounded text-white ${
-              !canStart || busy ? "bg-[#6baa56]/50 cursor-not-allowed" : "bg-[#6baa56] hover:bg-[#5b823f]"
+              !canStart || busy ? "bg-xtractyl-green/50 cursor-not-allowed" : "bg-xtractyl-green hover:bg-xtractyl-green"
             }`}
           >
             {busy ? "Starting…" : "Start Prelabeling"}
@@ -263,8 +263,8 @@ const canStart =
             disabled={!preJobId}
             className={`px-4 py-2 rounded ${
               preJobId
-                ? "bg-red-600 text-white hover:bg-red-700"
-                : "bg-gray-200 text-gray-700 cursor-not-allowed"
+                ? "bg-xtractyl-orangetext-white hover:bg-xtractyl-orange"
+                : "bg-xtractyl-offwhite text-gray-700 cursor-not-allowed"
             }`}
           >
             Cancel
@@ -272,14 +272,14 @@ const canStart =
         </div>
 
         {(preJobId || preStatus) && (
-          <div className="mt-4 bg-[#cdc0a3] p-4 rounded">
+          <div className="mt-4 bg-xtractyl-offwhite p-4 rounded">
             <div className="font-medium mb-1">
               Status: {preStatus?.state || "queued"}{" "}
               {Number.isFinite(progressPct) ? `— ${progressPct}%` : ""}
             </div>
-            <div className="w-full h-2 bg-gray-200 rounded">
+            <div className="w-full h-2 bg-xtractyl-offwhite rounded">
               <div
-                className="h-2 bg-[#6baa56] rounded"
+                className="h-2 bg-xtractyl-green rounded"
                 style={{ width: `${Number.isFinite(progressPct) ? progressPct : 0}%` }}
               />
             </div>

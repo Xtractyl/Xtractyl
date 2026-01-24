@@ -95,7 +95,7 @@ export default function QuestionsAndLabelsPicker({
           type="button"
           onClick={() => selectedFile && handlePreview(selectedFile)}
           disabled={!selectedFile}
-          className={`px-3 py-2 rounded ${selectedFile ? "bg-gray-200 hover:bg-gray-300" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
+          className={`px-3 py-2 rounded ${selectedFile ? "bg-xtractyl-offwhite hover:bg-xtractyl-offwhite" : "bg-xtractyl-offwhite text-gray-400 cursor-not-allowed"}`}
         >
           Preview
         </button>
@@ -110,12 +110,12 @@ export default function QuestionsAndLabelsPicker({
       {err && <div className="text-sm text-red-600">❌ {err}</div>}
 
       {previewOpen && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white max-w-2xl w-full rounded shadow p-4">
+        <div className="fixed inset-0 bg-xtractyl-darktext/40 flex items-center justify-center z-50">
+          <div className="bg-xtractyl-offwhite max-w-2xl w-full rounded shadow p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold">Preview: {selectedFile}</h3>
               <button
-                className="px-2 py-1 rounded bg-gray-200 hover:bg-gray-300"
+                className="px-2 py-1 rounded bg-xtractyl-offwhite hover:bg-xtractyl-offwhite"
                 onClick={() => setPreviewOpen(false)}
               >
                 Close

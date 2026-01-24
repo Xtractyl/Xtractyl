@@ -38,7 +38,7 @@ export default function ComparisonSelection({
             Groundtruth Project
           </label>
           <select
-            className="w-full p-2 border rounded bg-white"
+            className="w-full p-2 border rounded bg-xtractyl-offwhite"
             value={groundtruthProject}
             onChange={(e) => setGroundtruthProject(e.target.value)}
           >
@@ -54,7 +54,7 @@ export default function ComparisonSelection({
             Comparison Project
           </label>
           <select
-            className="w-full p-2 border rounded bg-white"
+            className="w-full p-2 border rounded bg-xtractyl-offwhite"
             value={comparisonProject}
             onChange={(e) => setComparisonProject(e.target.value)}
           >
@@ -74,7 +74,7 @@ export default function ComparisonSelection({
           <button
             type="button"
             onClick={onSubmit}
-            className="mt-4 inline-flex items-center justify-center px-4 py-2 rounded bg-[#6baa56] text-white text-sm font-medium shadow hover:bg-green-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
+            className="mt-4 inline-flex items-center justify-center px-4 py-2 rounded bg-xtractyl-green text-white text-sm font-medium shadow hover:bg-xtractyl-green transition disabled:opacity-60 disabled:cursor-not-allowed"
             disabled={!groundtruthProject || !comparisonProject}
           >
             Run Evaluation and Save as JSON

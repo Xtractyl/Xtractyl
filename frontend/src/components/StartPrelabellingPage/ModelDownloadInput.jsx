@@ -56,7 +56,7 @@ export default function ModelDownloadInput({
           type="button"
           onClick={handlePull}
           disabled={!name.trim() || pulling}
-          className={`px-3 py-2 rounded ${pulling ? "opacity-60 cursor-not-allowed" : "bg-[#6baa56] text-white hover:bg-[#5b823f]"}`}
+          className={`px-3 py-2 rounded ${pulling ? "opacity-60 cursor-not-allowed" : "bg-xtractyl-green text-white hover:bg-xtractyl-green"}`}
         >
           {pulling ? "Pulling…" : "Download"}
         </button>

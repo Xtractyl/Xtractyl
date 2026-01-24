@@ -76,20 +76,20 @@ export default function SystemPromptInput({
         </button>
 
         {open && (
-          <div className="mt-2 bg-[#ede6d6] p-3 rounded border">
+          <div className="mt-2 bg-xtractyl-offwhite p-3 rounded border">
             <pre className="whitespace-pre-wrap text-sm">{exampleText}</pre>
             <div className="mt-3 flex gap-2">
               <button
                 type="button"
                 onClick={() => onChange(exampleText)}
-                className="px-3 py-2 rounded bg-[#6baa56] text-white hover:bg-[#5b823f]"
+                className="px-3 py-2 rounded bg-xtractyl-green text-white hover:bg-xtractyl-green"
               >
                 Use this example
               </button>
               <button
                 type="button"
                 onClick={() => navigator.clipboard?.writeText(exampleText)}
-                className="px-3 py-2 rounded bg-gray-200 hover:bg-gray-300"
+                className="px-3 py-2 rounded bg-xtractyl-offwhite hover:bg-xtractyl-offwhite"
               >
                 Copy example
               </button>

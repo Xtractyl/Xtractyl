@@ -8,7 +8,7 @@ export default function ResultsTable({ columns, rows }) {
     <div className="p-8 xtractyl-offwhite min-h-screen text-[#23211c]">
 
       {/* Horizontal scroll wrapper */}
-      <div className="overflow-x-auto border rounded-lg bg-white shadow-sm">
+      <div className="overflow-x-auto border rounded-lg bg-xtractyl-offwhite shadow-sm">
 
         <table className="border-collapse text-sm whitespace-nowrap min-w-max w-full">
           <thead className="sticky top-0 bg-xtractyl-offwhite z-10">
@@ -31,7 +31,7 @@ export default function ResultsTable({ columns, rows }) {
 
           <tbody>
             {rows.map((row, ridx) => (
-              <tr key={ridx} className="border-b bg-white border-slate-100">
+              <tr key={ridx} className="border-b bg-xtractyl-offwhite border-slate-100">
                 {columns.map((col) => (
                   <td key={col} className="px-3 py-2 align-top">
                     {formatCell(row[col])}

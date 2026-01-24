@@ -29,7 +29,7 @@ export default function CreateProjectForm({ onSubmit }) {
   };
 
   return (
-    <form onSubmit={handleFormSubmit} className="space-y-6 mt-10 bg-beige p-6 rounded shadow w-full">
+    <form onSubmit={handleFormSubmit} className="space-y-6 mt-10 bg-xtractyl-offwhite p-6 rounded shadow w-full">
       <div>
         <label className="block text-sm font-medium mb-1">Project name</label>
         <input
@@ -73,7 +73,7 @@ export default function CreateProjectForm({ onSubmit }) {
   return (
     <div className="mt-4 border border-gray-300 rounded-md overflow-hidden">
       {/* Header */}
-    <div className="grid grid-cols-[3rem,1fr,1fr] bg-gray-100 text-xs font-semibold px-3 py-2 border-b border-gray-300">
+    <div className="grid grid-cols-[3rem,1fr,1fr] bg-xtractyl-offwhite text-xs font-semibold px-3 py-2 border-b border-gray-300">
       <div>#</div>
       <div className="border-l border-gray-300 border-r pl-2 pr-2">Question</div>
       <div>Label</div>
@@ -109,7 +109,7 @@ export default function CreateProjectForm({ onSubmit }) {
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <button type="submit" className="bg-xtractyl-green text-white px-4 py-2 rounded hover:bg-green-700 transition">
+      <button type="submit" className="bg-xtractyl-green text-white px-4 py-2 rounded hover:bg-xtractyl-green transition">
         Create project
       </button>
     </form>

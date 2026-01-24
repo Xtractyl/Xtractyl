@@ -56,7 +56,7 @@ export default function CreateProjectCard({ apiToken, onTokenSave , onProjectNam
   };
 
   return (
-    <div className="p-8 bg-[#e6e2cf] min-h-screen text-[#23211c]">
+    <div className="p-8 bg-xtractyl-background min-h-screen text-[#23211c]">
       <h1 className="text-2xl font-semibold mb-4">Create Project</h1>
       <p className="text-gray-600 mb-6">
         Enter API token, choose a project name, enter your questions as well as labels for them.
@@ -69,7 +69,7 @@ export default function CreateProjectCard({ apiToken, onTokenSave , onProjectNam
       {apiToken && <CreateProjectForm onSubmit={handleFormSubmit} />}
 
           {/* Groundtruth helper section */}
-      <div className="mt-4 border rounded p-3 bg-[#f5f1e7]">
+      <div className="mt-4 border rounded p-3 bg-xtractyl-offwhite">
         <h2 className="text-base font-medium mb-1 text-gray-700">
           Use questions & labels from standard groundtruth project
         </h2>
@@ -81,7 +81,7 @@ export default function CreateProjectCard({ apiToken, onTokenSave , onProjectNam
         <button
           type="button"
           onClick={handleLoadGroundtruth}
-          className="text-sm px-3 py-1.5 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+          className="text-sm px-3 py-1.5 rounded bg-xtractyl-offwhite text-gray-700 hover:bg-xtractyl-offwhite disabled:opacity-50"
           disabled={groundtruthLoading}
         >
           {groundtruthLoading
@@ -94,7 +94,7 @@ export default function CreateProjectCard({ apiToken, onTokenSave , onProjectNam
         )}
 
         {groundtruth && (
-          <div className="mt-4 bg-[#ede6d6] p-4 rounded max-h-96 overflow-auto">
+          <div className="mt-4 bg-xtractyl-offwhite p-4 rounded max-h-96 overflow-auto">
             <h3 className="font-semibold mb-2">
               Groundtruth questions_and_labels.json
             </h3>

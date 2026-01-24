@@ -102,7 +102,7 @@ export default function EvaluateAICard({ apiToken }) {
   };
 
   return (
-    <div className="p-8 bg-[#e6e2cf] min-h-screen text-[#23211c]">
+    <div className="p-8 bg-xtractyl-background min-h-screen text-[#23211c]">
       <h1 className="text-2xl font-semibold mb-4">Evaluate AI</h1>
 
       <p className="text-gray-600">
@@ -117,7 +117,7 @@ export default function EvaluateAICard({ apiToken }) {
             href={`${LS_BASE}/user/account/legacy-token`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block bg-[#db7127] text-white text-base font-medium px-5 py-2 rounded shadow hover:bg-orange-600 transition"
+            className="inline-block bg-xtractyl-orange text-white text-base font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange-600 transition"
           >
             Get your legacy token
           </a>

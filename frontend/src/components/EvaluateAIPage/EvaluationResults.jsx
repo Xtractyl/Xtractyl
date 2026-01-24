@@ -17,7 +17,7 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
 
   function Metric({ label, value }) {
     return (
-      <div className="p-3 bg-[#f4f1e6] rounded border border-[#d3ccb8]">
+      <div className="p-3 bg-xtractyl-offwhite rounded border border-[#d3ccb8]">
         <div className="text-xs text-[#555]">{label}</div>
         <div className="text-lg font-semibold text-[#23211c]">
           {typeof value === "number" ? value.toFixed(3) : "—"}
@@ -36,7 +36,7 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
         </h2>
 
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          <div className="p-3 bg-[#f4f1e6] rounded border">
+          <div className="p-3 bg-xtractyl-offwhite rounded border">
             <div className="font-semibold">Groundtruth Project</div>
             <div className="mt-1">
               Name: <b>{payload.groundtruth_project}</b><br />
@@ -44,7 +44,7 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
             </div>
           </div>
 
-          <div className="p-3 bg-[#f4f1e6] rounded border">
+          <div className="p-3 bg-xtractyl-offwhite rounded border">
             <div className="font-semibold">Comparison Project</div>
             <div className="mt-1">
               Name: <b>{payload.comparison_project}</b><br />
@@ -56,7 +56,7 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
       </div>
 
       {cmpMeta.system_prompt && (
-        <div className="p-3 bg-[#f9f7ef] rounded border">
+        <div className="p-3 bg-xtractyl-offwhite rounded border">
           <div className="font-semibold text-sm mb-1">System Prompt</div>
           <pre className="text-xs whitespace-pre-wrap">
             {cmpMeta.system_prompt}
@@ -90,7 +90,7 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
 
         <div className="mt-4 space-y-4">
           {Object.entries(perLabel).map(([label, m]) => (
-            <div key={label} className="p-3 bg-[#f9f7ef] rounded border">
+            <div key={label} className="p-3 bg-xtractyl-offwhite rounded border">
               <div className="font-semibold text-sm mb-2">{label}</div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
                 <Metric label="Precision" value={m.precision} />
@@ -121,13 +121,13 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
                 }));
 
             return (
-              <div key={t.filename} className="p-3 bg-[#f9f7ef] rounded border">
+              <div key={t.filename} className="p-3 bg-xtractyl-offwhite rounded border">
                 <div className="font-semibold text-sm mb-2">
                   {t.filename}
                 </div>
 
                 <table className="min-w-full border text-xs mb-3">
-                  <thead className="bg-[#ebe7d8]">
+                  <thead className="bg-xtractyl-offwhite">
                     <tr>
                       <th className="border px-2 py-1">Label</th>
                       <th className="border px-2 py-1">GT</th>
@@ -161,7 +161,7 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
 
                 {/* ---------- LLM Calls ---------- */}
                 {llmCalls.length > 0 && (
-                  <div className="p-3 bg-[#f4f1e6] rounded border">
+                  <div className="p-3 bg-xtractyl-offwhite rounded border">
                     <div className="text-sm font-semibold mb-2">
                       LLM call durations (ms)
                     </div>
