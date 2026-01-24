@@ -90,7 +90,7 @@ export default function GetResultsCard({ apiToken, projectName}) {
             </a>{" "}
             and enable it via the API Tokens settings.
           </p>        
-      <div className="mt-6 border border-gray-200 p-4 flex flex-col gap-4 bg-xtractyl-offwhite">
+      <div className="mt-6 border border-xtractyl-outline/20 p-4 flex flex-col gap-4 bg-xtractyl-offwhite">
         <form onSubmit={onSubmit} className="flex flex-row items-end gap-4">
           <div className="flex flex-col flex-1">
             <label className="font-semibold mb-2">Project name</label>
@@ -100,7 +100,7 @@ export default function GetResultsCard({ apiToken, projectName}) {
               value={localProjectName}
               onChange={(e) => setLocalProjectName(e.target.value)}
               required
-              className="border border-gray-300 rounded-md text-sm px-3 py-2 outline-none w-full focus:ring-2 focus:ring-xtractyl-lightgreen"
+              className="border border-xtractyl-outline/30 rounded-md text-sm px-3 py-2 outline-none w-full focus:ring-2 focus:ring-xtractyl-lightgreen"
             />
           </div>
 
@@ -112,7 +112,7 @@ export default function GetResultsCard({ apiToken, projectName}) {
               value={token}
               onChange={(e) => setToken(e.target.value)}
               required
-              className="border border-gray-300 rounded-md text-sm px-3 py-2 outline-none w-full focus:ring-2 focus:ring-xtractyl-lightgreen"
+              className="border border-xtractyl-outline/30 rounded-md text-sm px-3 py-2 outline-none w-full focus:ring-2 focus:ring-xtractyl-lightgreen"
             />
           </div>
 
