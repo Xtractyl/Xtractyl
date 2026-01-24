@@ -105,7 +105,7 @@ export default function EvaluateAICard({ apiToken }) {
     <div className="p-8 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
       <h1 className="text-2xl font-semibold mb-4">Evaluate AI</h1>
 
-      <p className=" text-xtractyl-outline/70">
+      <p className="text-xtractyl-outline/70">
         Select a groundtruth project and a prelabelled project on the same tasks
         to get evaluation metrics.
       </p>
@@ -117,22 +117,22 @@ export default function EvaluateAICard({ apiToken }) {
             href={`${LS_BASE}/user/account/legacy-token`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block bg-xtractyl-orange text-xtractyl-white  text-xtractyl-outline/70ase font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange-600 transition"
+            className="inline-block bg-xtractyl-orange text-xtractyl-white font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange/80 transition"
           >
             Get your legacy token
           </a>
 
-          <p className="mt-2 text-sm  text-xtractyl-outline/60">
+          <p className="mt-2 text-sm text-xtractyl-outline/60">
             Return here after copying the token from Label Studio.
           </p>
 
-          <p className="mt-1 text-sm  text-xtractyl-outline/60">
+          <p className="mt-1 text-sm text-xtractyl-outline/60">
             ⚠️ If you see no legacy token there, go to{" "}
             <a
               href={`${LS_BASE}/organization/`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xtractyl-greenhover:underline"
+              className="text-xtractyl-green hover:underline"
             >
               {LS_BASE}/organization
             </a>{" "}
@@ -150,7 +150,7 @@ export default function EvaluateAICard({ apiToken }) {
             value={localToken}
             onChange={(e) => setToken(e.target.value)}
             placeholder={localToken || "Enter your Label Studio token"}
-            className="w-full border rounded px-3 py-2"
+            className="w-full border border-xtractyl-outline/30 rounded px-3 py-2 bg-xtractyl-white text-xtractyl-darktext"
             autoComplete="off"
             spellCheck={false}
           />

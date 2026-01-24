@@ -158,7 +158,7 @@ const canStart =
   return (
     <div className="p-6 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
       <h1 className="text-2xl font-semibold mb-4">Start AI</h1>
-      <p className=" text-xtractyl-outline/70 mb-6">
+      <p className="text-xtractyl-outline/70 mb-6">
         Download a model (if needed), enter your project, pick an installed model, set a system prompt, choose your Questions & Labels JSON, then start prelabeling.
       </p>
 
@@ -168,13 +168,13 @@ const canStart =
 
       <div className="space-y-6 bg-xtractyl-offwhite p-6 rounded shadow max-w-3xl">
       <ProjectNameInput value={localProjectName} onChange={setLocalProjectName} />
-        <div className="text-sm  text-xtractyl-outline/70 -mt-2">
+        <div className="text-sm text-xtractyl-outline/70 -mt-2">
           <div>Forgot your project name?</div>
           <a
             href="http://localhost:8080/projects/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block text-xtractyl-greenhover:underline"
+            className="inline-block text-xtractyl-green hover:underline"
           >
             Open Label Studio projects
           </a>
@@ -189,16 +189,16 @@ const canStart =
           >
             Get your legacy token
           </a>
-          <p className="mt-2 text-sm  text-xtractyl-outline/60">
+          <p className="mt-2 text-sm text-xtractyl-outline/60">
             Return here after copying the token from Label Studio.
           </p>
-          <p className="mt-1 text-sm  text-xtractyl-outline/60">
+          <p className="mt-1 text-sm text-xtractyl-outline/60">
             ⚠️ If you see no legacy token there, go to{" "}
             <a
               href={`${LS_BASE}/organization/`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xtractyl-greenhover:underline"
+              className="text-xtractyl-green hover:underline"
             >
               {LS_BASE}/organization
             </a>{" "}
@@ -233,7 +233,7 @@ const canStart =
           onChange={handleQalChange}
         />
 
-        <div className="pt-2 text-sm  text-xtractyl-outline/70">
+        <div className="pt-2 text-sm text-xtractyl-outline/70">
           <div>
             Project: <span className="font-mono">{localProjectName || "—"}</span>
           </div>
@@ -251,7 +251,7 @@ const canStart =
             onClick={handleStart}
             disabled={!canStart || busy}
             className={`px-4 py-2 rounded text-xtractyl-white ${
-              !canStart || busy ? "bg-xtractyl-green/50 cursor-not-allowed" : "bg-xtractyl-green hover:bg-xtractyl-green"
+              !canStart || busy ? "bg-xtractyl-green/50 cursor-not-allowed" : "bg-xtractyl-green hover:bg-xtractyl-green/80 transition"
             }`}
           >
             {busy ? "Starting…" : "Start Prelabeling"}
@@ -263,7 +263,7 @@ const canStart =
             disabled={!preJobId}
             className={`px-4 py-2 rounded ${
               preJobId
-                ? "bg-xtractyl-orangetext-xtractyl-white hover:bg-xtractyl-orange"
+                ? "bg-xtractyl-orange text-xtractyl-white hover:bg-xtractyl-orange/80 transition"
                 : "bg-xtractyl-offwhite text-xtractyl-outline cursor-not-allowed"
             }`}
           >
@@ -285,7 +285,7 @@ const canStart =
             </div>
             {preStatus?.message && <div className="text-sm mt-2">{preStatus.message}</div>}
             {preJobId && (
-              <div className="text-xs  text-xtractyl-outline/70 mt-1">
+              <div className="text-xs text-xtractyl-outline/70 mt-1">
                 Job ID: <span className="break-all">{preJobId}</span>
               </div>
             )}

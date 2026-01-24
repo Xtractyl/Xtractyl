@@ -37,7 +37,7 @@ export default function ModelDownloadInput({
             href="https://ollama.com/library"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xtractyl-greenhover:underline"
+            className="text-xtractyl-green hover:underline"
         >
             official names
         </a>
@@ -56,7 +56,7 @@ export default function ModelDownloadInput({
           type="button"
           onClick={handlePull}
           disabled={!name.trim() || pulling}
-          className={`px-3 py-2 rounded ${pulling ? "opacity-60 cursor-not-allowed" : "bg-xtractyl-green text-xtractyl-white hover:bg-xtractyl-green"}`}
+          className={`px-3 py-2 rounded ${pulling ? "opacity-60 cursor-not-allowed" : "bg-xtractyl-green text-xtractyl-white hover:bg-xtractyl-green/80 transition"}`}
         >
           {pulling ? "Pulling…" : "Download"}
         </button>

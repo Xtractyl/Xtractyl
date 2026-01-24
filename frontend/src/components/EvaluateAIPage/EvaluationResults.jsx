@@ -17,7 +17,7 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
 
   function Metric({ label, value }) {
     return (
-      <div className="p-3 bg-xtractyl-white rounded border border-[#d3ccb8]">
+      <div className="p-3 bg-xtractyl-white rounded border border-xtractyl-outline/20">
         <div className="text-xs text-xtractyl-outline/80">{label}</div>
         <div className="text-lg font-semibold text-xtractyl-darktext">
           {typeof value === "number" ? value.toFixed(3) : "—"}
@@ -31,7 +31,7 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
 
       {/* ---------- Project Info ---------- */}
       <div>
-        <h2 className="text-xl font-semibold text-xtractyl-outlineborder-b pb-1">
+        <h2 className="text-xl font-semibold text-xtractyl-outline border-b pb-1">
           Project Information
         </h2>
 
@@ -146,7 +146,7 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
                         <td className="border px-2 py-1 whitespace-pre-wrap">
                           {t.meta?.raw_llm_answers?.[lab]?.answer ?? "—"}
                         </td>
-                        <td className="border px-2 py-1  text-xtractyl-outline/70enter">
+                        <td className="border px-2 py-1 text-xtractyl-outline/70">
                           {t.meta?.dom_match_by_label?.[lab] === true
                             ? "✓"
                             : t.meta?.dom_match_by_label?.[lab] === false
@@ -186,7 +186,7 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
                       {/* ---------- Performance Metrics (Aggregated) ---------- */}
             {metrics.performance && (
               <div>
-                <h2 className="text-xl font-semibold text-xtractyl-outlineborder-b border-[#cfcab5] pb-1">
+                <h2 className="text-xl font-semibold text-xtractyl-outline border-b border-xtractyl-outline/20 pb-1">
                   Performance (Backend)
                 </h2>
 

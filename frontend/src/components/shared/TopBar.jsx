@@ -17,13 +17,13 @@ export default function TopBar() {
       </div>
 
       {/* Navigation (Database Mode only) */}
-      <div className="bg-xtractyl-lightgreen text-xtractyl-white px-8 py-4">
-        <nav className="bg-xtractyl-lightgreen text-xtractyl-outline/70 px-8 py-6 flex items-center justify-center space-x-6">
+ <div className="px-8 py-4 bg-xtractyl-lightgreen">
+   <nav className="text-xtractyl-outline/70 py-6 flex items-center justify-center space-x-6">
           <NavLink
             to="/"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-medium transition
-             ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
+            ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40'}`}
           >
             Convert Docs
           </NavLink>
@@ -34,7 +34,7 @@ export default function TopBar() {
             to="/project"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-medium transition
-             ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
+            ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40'}`}
           >
             Create Labelstudio Project
           </NavLink>
@@ -45,7 +45,7 @@ export default function TopBar() {
             to="/tasks"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-medium transition
-             ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
+            ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40'}`}
           >
             Upload in Labelstudio Project
           </NavLink>
@@ -56,7 +56,7 @@ export default function TopBar() {
             to="/prelabelling"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-medium transition
-             ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
+            ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40'}`}
           >
             Start AI
           </NavLink>
@@ -67,7 +67,7 @@ export default function TopBar() {
             to="/review"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-medium transition
-             ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
+            ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40'}`}
           >
             Review AI
           </NavLink>
@@ -78,7 +78,7 @@ export default function TopBar() {
             to="/results"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-medium transition
-             ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
+            ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40'}`}
           >
             Get Results
           </NavLink>
@@ -89,7 +89,7 @@ export default function TopBar() {
             to="/evaluate"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-medium transition
-             ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
+            ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40'}`}
           >
             Evaluate AI
           </NavLink>
@@ -100,7 +100,7 @@ export default function TopBar() {
             to="/finetune"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-medium transition
-             ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'hover:bg-xtractyl-offwhite/40'}`            }
+            ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40'}`}
           >
             Finetune AI
           </NavLink>

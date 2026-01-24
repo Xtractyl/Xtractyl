@@ -95,18 +95,18 @@ export default function QuestionsAndLabelsPicker({
           type="button"
           onClick={() => selectedFile && handlePreview(selectedFile)}
           disabled={!selectedFile}
-          className={`px-3 py-2 rounded ${selectedFile ? "bg-xtractyl-green text-xtractyl-white hover:bg-xtractyl-green/80"    : "bg-xtractyl-offwhite text-xtractyl-outline/50 cursor-not-allowed"}`}
+          className={`px-3 py-2 rounded ${selectedFile ? "bg-xtractyl-green text-xtractyl-white hover:bg-xtractyl-green/80 transition" : "bg-xtractyl-offwhite text-xtractyl-outline/50 cursor-not-allowed"}`}
         >
           Preview
         </button>
-      </div>
+      </div>  
 
-      <div className="text-xs  text-xtractyl-outline/60">
+      <div className="text-xs text-xtractyl-outline/60">
         Or upload a JSON file:
         <input type="file" accept="application/json" className="ml-2" onChange={handleFileSelect} />
       </div>
 
-      {loading && <div className="text-sm  text-xtractyl-outline/70">Loading…</div>}
+      {loading && <div className="text-sm text-xtractyl-outline/70">Loading…</div>}
       {err && <div className="text-sm text-xtractyl-orange">❌ {err}</div>}
 
       {previewOpen && (
@@ -123,7 +123,7 @@ export default function QuestionsAndLabelsPicker({
             </div>
             <div className="max-h-[60vh] overflow-auto">
               {previewErr && <div className="text-sm text-xtractyl-orange mb-2">❌ {previewErr}</div>}
-              {!preview && !previewErr && <div className="text-sm  text-xtractyl-outline/70">Loading…</div>}
+              {!preview && !previewErr && <div className="text-sm text-xtractyl-outline/70">Loading…</div>}
               {preview && (
                 <pre className="text-xs whitespace-pre-wrap break-words">
                   {JSON.stringify(preview, null, 2)}

@@ -63,7 +63,7 @@ export default function GetResultsCard({ apiToken, projectName}) {
   return (
     <div className="p-8 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
       <h1 className="text-2xl font-semibold mb-4">Get Results</h1>
-      <p className=" text-xtractyl-outline/70">
+      <p className="text-xtractyl-outline/70">
         Enter your project name, enter your API token and submit to get your database (re-submit your data to update in case the AI is still running).
       </p>
       <div className="mb-6"></div>
@@ -75,10 +75,10 @@ export default function GetResultsCard({ apiToken, projectName}) {
           >
             Get your legacy token
           </a>
-          <p className="mt-2 text-sm  text-xtractyl-outline/60">
+          <p className="mt-2 text-sm text-xtractyl-outline/60">
             Return here after copying the token from Label Studio.
           </p>
-          <p className="mt-1 text-sm  text-xtractyl-outline/60">
+          <p className="mt-1 text-sm text-xtractyl-outline/60">
             ⚠️ If you see no legacy token there, go to{" "}
             <a
               href={`${LS_BASE}/organization/`}

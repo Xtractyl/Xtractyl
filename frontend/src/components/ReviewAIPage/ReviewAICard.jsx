@@ -13,7 +13,7 @@ export default function ReviewAICard() {
           href={`${LS_BASE}/projects/`}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block bg-xtractyl-orange text-xtractyl-white  text-xtractyl-outline/70ase font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange-600 transition"
+          className="inline-block bg-xtractyl-orange text-xtractyl-white text-xtractyl-outline/70ase font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange-600 transition"
         >
           Open in Label Studio
         </a>

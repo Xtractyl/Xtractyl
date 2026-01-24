@@ -70,7 +70,7 @@ export default function SystemPromptInput({
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="text-sm underline text-xtractyl-greenhover: text-xtractyl-green"
+          className="text-sm underline text-xtractyl-green hover:text-xtractyl-green"
         >
           {open ? "Hide example" : "Show example"}
         </button>
@@ -82,8 +82,7 @@ export default function SystemPromptInput({
               <button
                 type="button"
                 onClick={() => onChange(exampleText)}
-                className="px-3 py-2 rounded bg-xtractyl-green text-xtractyl-white hover:bg-xtractyl-green"
-              >
+                className="px-3 py-2 rounded bg-xtractyl-green text-xtractyl-white hover:bg-xtractyl-green/80 transition"              >
                 Use this example
               </button>
               <button

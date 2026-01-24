@@ -80,7 +80,7 @@ export default function CreateProjectForm({ onSubmit }) {
     </div>
 
       {/* Rows */}
-      <div className="divide-y divide-gray-200">
+      <div className="divide-y divide-xtractyl-outline/20">
         {Array.from({ length: rowCount }).map((_, idx) => (
           <div key={idx} className="grid grid-cols-[3rem,1fr,1fr] px-3 py-2 items-center">
             <div className="text-xs  text-xtractyl-outline/60">{idx + 1}</div>
@@ -109,7 +109,7 @@ export default function CreateProjectForm({ onSubmit }) {
 
       {error && <p className="text-sm text-xtractyl-orange">{error}</p>}
 
-      <button type="submit" className="bg-xtractyl-green text-xtractyl-white px-4 py-2 rounded hover:bg-xtractyl-green transition">
+      <button type="submit" className="bg-xtractyl-green text-xtractyl-white px-4 py-2 rounded hover:bg-xtractyl-green/80 transition">
         Create project
       </button>
     </form>

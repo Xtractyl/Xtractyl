@@ -33,7 +33,7 @@ export default function UploadAndConvertCard() {
   return (
     <div className="p-6 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
       <h1 className="text-2xl font-semibold mb-4">Upload and Convert Docs</h1>
-      <p className=" text-xtractyl-outline/70 mb-6">
+      <p className="text-xtractyl-outline/70 mb-6">
         Select PDF files and specify a working folder for HTML conversion.
       </p>
 
@@ -112,8 +112,7 @@ export default function UploadAndConvertCard() {
         <button
           type="submit"
           disabled={submitBusy || !!jobId}
-          className={`bg-xtractyl-green text-xtractyl-white px-4 py-2 rounded hover:bg-xtractyl-green${
-            submitBusy || jobId ? "opacity-60 cursor-not-allowed" : ""
+          className={`bg-xtractyl-green text-xtractyl-white px-4 py-2 rounded hover:bg-xtractyl-green/80 transition ${            submitBusy || jobId ? "opacity-60 cursor-not-allowed" : ""
           }`}
         >
           {submitBusy ? "Submitting…" : jobId ? "Job running…" : "Upload & Convert"}
@@ -138,7 +137,7 @@ export default function UploadAndConvertCard() {
             />
           </div>
           {jobStatus.message && <div className="text-sm mt-2">{jobStatus.message}</div>}
-          <div className="text-xs  text-xtractyl-outline/70 mt-1">
+          <div className="text-xs text-xtractyl-outline/70 mt-1">
             {jobStatus.done ?? 0}/{jobStatus.total ?? 0} files
           </div>
         </div>
@@ -164,7 +163,7 @@ export default function UploadAndConvertCard() {
 
             <button
               type="button"
-              className="px-3 py-2 rounded bg-xtractyl-orange text-xtractyl-white hover:bg-xtractyl-orange"
+              className="px-3 py-2 rounded bg-xtractyl-orange text-xtractyl-white hover:bg-xtractyl-orange/80 transition"
               onClick={clearJob}
             >
               Clear Job ID (local)

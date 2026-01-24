@@ -20,7 +20,7 @@ export default function AboutPage() {
         </div>
 
         <div className="rounded-2xl bg-xtractyl-offwhite/70 backdrop-blur-sm shadow-md border border-xtractyl-outline/10 p-6 md:p-8">
-          <h2 className=" text-xtractyl-outline/70ase font-medium mb-4">Links</h2>
+          <h2 className=" text-xtractyl-outline/70 font-medium mb-4">Links</h2>
 
           <div className="grid gap-3">
             <a

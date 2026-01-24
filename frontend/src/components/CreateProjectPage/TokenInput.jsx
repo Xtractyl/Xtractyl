@@ -30,13 +30,13 @@ export default function TokenInput({ onTokenSave }) {
         value={token}
         onChange={(e) => setToken(e.target.value)}
         placeholder="Paste your legacy token"
-        className="w-full px-3 py-2 border rounded mb-3"
+        className="w-full px-3 py-2 border border-xtractyl-outline/30 rounded mb-3 bg-xtractyl-white text-xtractyl-darktext"
         autoComplete="off"
         spellCheck={false}
       />
       <button
         type="submit"
-        className="bg-xtractyl-orange text-xtractyl-white px-4 py-2 rounded hover:bg-xtractyl-orange-600 transition"
+        className="bg-xtractyl-orange text-xtractyl-white px-4 py-2 rounded hover:bg-xtractyl-orange/80 transition"
       >
         Save Token
       </button>
@@ -47,20 +47,20 @@ export default function TokenInput({ onTokenSave }) {
           href={`${LS_BASE}/user/account/legacy-token`}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block bg-xtractyl-orange text-xtractyl-white  text-xtractyl-outline/70ase font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange-600 transition"
+          className="inline-block bg-xtractyl-orange text-xtractyl-white font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange/80 transition"
         >
           Get your legacy token
         </a>
-        <p className="mt-2 text-sm  text-xtractyl-outline/60">
+        <p className="mt-2 text-sm text-xtractyl-outline/60">
           Return here after copying the token from Label Studio.
         </p>
-        <p className="mt-1 text-sm  text-xtractyl-outline/60">
+        <p className="mt-1 text-sm text-xtractyl-outline/60">
           ⚠️ If you see no legacy token there, go to{" "}
           <a
             href={`${LS_BASE}/organization`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xtractyl-greenhover:underline"
+            className="text-xtractyl-green hover:underline"
           >
             {LS_BASE}/organization
           </a>{" "}
