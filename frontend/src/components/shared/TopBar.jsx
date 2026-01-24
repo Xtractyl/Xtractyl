@@ -6,7 +6,7 @@ export default function TopBar() {
   return (
     <header className="shadow-md">
       {/* Branding Line */}
-      <div className="bg-xtractyl-green px-8 flex items-center space-x-3 shadow-md">
+      <div className="bg-xtractyl-green px-8 flex items-center space-x-3 shadow-md hover:brightness-110 transition cursor-pointer">
         <Link to="/aboutpage">
           <img
             src={logo}
