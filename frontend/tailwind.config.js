@@ -5,6 +5,7 @@ export default {
     extend: {
       colors: {
         xtractyl: {
+          white: '#ffffff',          // pure white (tables, data-heavy UI)
           green: '#5b823f',         // primary green (conservative: use as main brand/primary UI)
           orange: '#db7127',        // Call-to-Action / status signal (use sparingly)
           background: '#e6e2cf',    // warm cream background

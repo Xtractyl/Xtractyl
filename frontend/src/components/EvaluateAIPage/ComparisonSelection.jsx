@@ -38,7 +38,7 @@ export default function ComparisonSelection({
             Groundtruth Project
           </label>
           <select
-            className="w-full p-2 border rounded bg-xtractyl-offwhite"
+            className="w-full p-2 border rounded bg-xtractyl-white"
             value={groundtruthProject}
             onChange={(e) => setGroundtruthProject(e.target.value)}
           >
@@ -54,7 +54,7 @@ export default function ComparisonSelection({
             Comparison Project
           </label>
           <select
-            className="w-full p-2 border rounded bg-xtractyl-offwhite"
+            className="w-full p-2 border rounded bg-xtractyl-white"
             value={comparisonProject}
             onChange={(e) => setComparisonProject(e.target.value)}
           >
