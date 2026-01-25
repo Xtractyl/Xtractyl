@@ -1,12 +1,11 @@
 # orchestrator/api/routes/evaluation.py
 
-from flask import jsonify, request
-
 from domain.evaluation import (
     evaluate_projects,
     get_groundtruth_qal,
     list_project_names,
 )
+from flask import jsonify, request
 
 
 def register(app, ok):

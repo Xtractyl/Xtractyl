@@ -1,7 +1,5 @@
 # orchestrator/api/routes/projects.py
 
-from flask import request
-
 from domain.projects import (
     check_project_exists,
     create_project_main_from_payload,
@@ -11,6 +9,7 @@ from domain.projects import (
     preview_qal_route,
     upload_tasks_main_from_payload,
 )
+from flask import request
 
 
 def register(app, ok):
