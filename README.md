@@ -212,10 +212,26 @@ Access the frontend via your browser at http://localhost:5173/ following the wor
 
 ---
 
-### 3. Testing 
+### 3. Testing
 
-Currently API contracts are hardened and testing is added.
+#### Smoke tests (pytest)
 
+Currently in implementation.
+
+#####  Smoke test for the orchestrator:
+
+```bash
+docker compose run --rm orchestrator pytest -q
+```
+
+#### Unit tests (pytest)
+Currently in implementation.
+
+#### Integration tests (pytest)
+Currently in implementation.
+
+#### E2E tests
+Planned next.
 
 ---
 
