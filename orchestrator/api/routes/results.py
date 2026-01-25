@@ -4,7 +4,7 @@ from flask import request
 from pydantic import ValidationError
 
 from api.contracts.results import GetResultsTableRequest
-from api.domain.results import build_results_table
+from domain.results import build_results_table
 
 
 def _extract_token(req) -> str | None:

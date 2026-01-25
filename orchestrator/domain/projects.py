@@ -1,4 +1,4 @@
-# orchestrator/api/domain/projects.py
+# orchestrator/domain/projects.py
 
 import json
 import logging

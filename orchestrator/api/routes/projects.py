@@ -2,7 +2,7 @@
 
 from flask import request
 
-from api.domain.projects import (
+from domain.projects import (
     check_project_exists,
     create_project_main_from_payload,
     list_html_subfolders,

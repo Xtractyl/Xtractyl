@@ -2,7 +2,7 @@
 
 from flask import jsonify, request
 
-from api.domain.evaluation import (
+from domain.evaluation import (
     evaluate_projects,
     get_groundtruth_qal,
     list_project_names,
