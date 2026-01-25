@@ -1,5 +1,6 @@
 # orchestrator/api/routes/results.py
 
+from domain.models.results import GetResultsTableCommand
 from domain.results import build_results_table
 from flask import request
 from pydantic import ValidationError
@@ -33,4 +34,6 @@ def register(app, ok):
         if not token:
             raise ValueError("token is required")
 
-        return ok(lambda: build_results_table(token, contract.project_name))
+        cmd = GetResultsTableCommand.from_contract(contract, token)
+
+        return ok(lambda: build_results_table(cmd))
