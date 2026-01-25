@@ -5,7 +5,9 @@ WORKDIR /app
 
 # Install deps
 COPY docker/orchestrator/requirements.lock.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r /app/requirements.txt
+COPY docker/orchestrator/requirements-dev.txt /app/requirements-dev.txt
+
+RUN pip install --no-cache-dir -r /app/requirements.txt -r /app/requirements-dev.txt
 
 COPY orchestrator/ /app/
 
