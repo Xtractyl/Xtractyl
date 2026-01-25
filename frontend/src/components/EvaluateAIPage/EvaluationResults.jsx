@@ -6,7 +6,7 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
   if (errorMsg) return <div className="mt-6 text-xtractyl-orange">{errorMsg}</div>;
   if (!result) return null;
 
-  const payload = result.logs || result;
+  const payload = result?.data ?? result?.logs ?? result;
   const metrics = payload.metrics || {};
   const micro = metrics.micro || {};
   const perLabel = metrics.per_label || {};

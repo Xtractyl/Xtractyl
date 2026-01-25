@@ -87,8 +87,8 @@ export async function prelabelProject(payload, base = ORCH_BASE) {
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
 
-  // Orchestrator wraps under { status, logs: {...} }
-  return data?.logs ?? data;
+  // Orchestrator wraps under { status, data: {...} } (legacy: logs)
+  return data?.data ?? data?.logs ?? data;
 }
 
 /** Ask backend to cancel a running job (best effort). */
@@ -97,7 +97,8 @@ export async function cancelPrelabel(jobId, base = ORCH_BASE) {
   const res = await fetch(url, { method: "POST" });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
-  return data?.logs ?? data;
+  // Orchestrator wraps under { status, data: {...} } (legacy: logs)
+  return data?.data ?? data?.logs ?? data;
 }
 
 /**
@@ -116,5 +117,6 @@ export async function getPrelabelStatus(jobId, base = ORCH_BASE) {
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
 
-  return data?.logs ?? data;
+  // Orchestrator wraps under { status, data: {...} } (legacy: logs)
+  return data?.data ?? data?.logs ?? data;
 }

@@ -1,6 +1,6 @@
 // frontend/src/api/getResultsTable.js
 export async function getResultsTable({ projectName, token }) {
-  const baseUrl = import.meta.env.VITE_ORCH_URL || "http://localhost:5001";
+  const baseUrl = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001";
   const url = `${baseUrl}/results/table`;
 
   const res = await fetch(url, {

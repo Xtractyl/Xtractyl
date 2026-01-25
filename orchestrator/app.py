@@ -20,21 +20,21 @@ def ok(fn):
         if isinstance(data, dict) and data.get("status") in ("success", "error"):
             return jsonify(data), 200 if data["status"] == "success" else 400
 
-        # default: old frontend contract
-        return jsonify({"status": "success", "logs": data}), 200
-        # expected errors (guards)
+        # default: standard contract
+        return jsonify({"status": "success", "data": data}), 200
     except ValueError as e:
+        # expected errors (guards)
         return jsonify({"status": "error", "error": str(e)}), 400
-        # unexpected errors (bugs)
     except Exception as e:
+        # unexpected errors (bugs)
         return jsonify({"status": "error", "error": str(e), "trace": traceback.format_exc()}), 500
 
 
 def create_app() -> Flask:
     app = Flask(__name__)
 
-    # CORS: keep browser frontend working
-    CORS(app, origins=[FRONTEND_ORIGIN])
+    # CORS: keep browser frontend working (incl. Authorization header)
+    CORS(app, origins=[FRONTEND_ORIGIN], allow_headers=["Content-Type", "Authorization"])
 
     register_routes(app, ok)
     return app
