@@ -218,14 +218,22 @@ Access the frontend via your browser at http://localhost:5173/ following the wor
 
 Currently in implementation.
 
-#####  Smoke test for the orchestrator:
+Included so far:
+orchestrator
 
 ```bash
-docker compose run --rm orchestrator pytest -q
+make deps
+make up
+make smoke
+make down
 ```
 
 #### Unit tests (pytest)
 Currently in implementation.
+
+```bash
+docker compose run --rm orchestrator pytest -q
+```
 
 #### Integration tests (pytest)
 Currently in implementation.
