@@ -231,8 +231,11 @@ make down
 #### Unit tests (pytest)
 Currently in implementation.
 
+Included so far:
+test_results_table_minimal
+
 ```bash
-docker compose run --rm orchestrator pytest -q
+docker compose run --rm orchestrator python -m pytest -q tests/unit
 ```
 
 #### Integration tests (pytest)
