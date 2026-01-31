@@ -1,0 +1,23 @@
+name: Unit
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Start stack
+        run: docker compose up -d orchestrator
+
+      - name: Run unit tests inside orchestrator container
+        run: docker compose run --rm orchestrator python -m pytest -q tests/unit
+
+      - name: Tear down stack
+        if: always()
+        run: docker compose down -v

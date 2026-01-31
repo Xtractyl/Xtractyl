@@ -388,7 +388,7 @@ Planned next.
 
 ---
 
-## 🧹 Code quality
+## 🧹 Code quality (integrated into CI)
 
 ### python from repository root
 ```bash
@@ -401,6 +401,21 @@ ruff check . --fix
 cd frontend
 npx eslint .
 ```
+### Tests (see also "3. Testing" above for tests integrated into CI)
+
+## Smoke tests
+```bash
+make deps
+make up
+make smoke
+make down
+```
+
+## Unit tests 
+```bash
+docker compose run --rm orchestrator python -m pytest -q tests/unit
+```
+
 ---
 
 ## 📝 Additional Documentation
