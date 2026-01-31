@@ -7,7 +7,7 @@ up:
 	docker compose up -d orchestrator
 
 down:
-	docker compose down -v
+	docker compose down 
 
 smoke:
 	python -m pytest -q tests/smoke
