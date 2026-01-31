@@ -221,6 +221,8 @@ Currently in implementation.
 Included so far:
 orchestrator
 
+* Be aware that the compose up excludes docling to avoid model pull
+
 ```bash
 make deps
 make up
