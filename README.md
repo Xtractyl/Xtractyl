@@ -221,7 +221,14 @@ Currently in implementation.
 Included so far:
 orchestrator
 
-* Be aware that the compose up excludes docling to avoid model pull
+* Be aware that the compose up in the Makefile starts:
+		postgres 
+		labelstudio 
+		ollama 
+		ml_backend 
+		orchestrator 
+		frontend
+* Be aware that the compose up in the Makefile does not start docling as it will pull too many models 
 
 ```bash
 make deps
