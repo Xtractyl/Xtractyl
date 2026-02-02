@@ -216,28 +216,20 @@ Access the frontend via your browser at http://localhost:5173/ following the wor
 
 #### Smoke tests (pytest)
 
-Currently in implementation.
+Included:
+- orchestrator
+- frontend
+- ml_backend
+- labelstudio 
+- postgres (indirectly via labelstudio which depends on it)
+- job_queue
+- ollama
 
-Included so far:
-orchestrator
-frontend
-ml_backend
-labelstudio 
-postgres (indirectly via labelstudio which depends on it)
-job_queue
+Explicitly not included
+	- docling (excluded because smoke tests are integrated in CI and docling models are too large for that)
 
-Not to be included to avoid discrepancy between testing and CI:
-docling (not included in CI because of model size)
-
-* Be aware that the compose up in the Makefile starts:
-		postgres 
-		labelstudio 
-		ollama 
-		ml_backend 
-		orchestrator 
-		frontend
-      job_queue
-* Be aware that the compose up in the Makefile does not start docling as it will pull too many models 
+Not included because it runs forever
+	- worker (endless loop; no health endpoint; would require a special “smoke mode”)
 
 ```bash
 make deps
