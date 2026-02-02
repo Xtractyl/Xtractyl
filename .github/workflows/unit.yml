@@ -7,17 +7,17 @@ on:
 jobs:
   unit:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Start stack
-        run: docker compose up -d orchestrator
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
 
-      - name: Run unit tests inside orchestrator container
-        run: docker compose run --rm orchestrator python -m pytest -q tests/unit
+      - run: python -m pip install --upgrade pip
 
-      - name: Tear down stack
-        if: always()
-        run: docker compose down 
+      - name: Install deps
+        run: make deps
+
+      - name: Run unit tests for orchestrator
+        run: make unit-orchestrator

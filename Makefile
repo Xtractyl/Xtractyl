@@ -17,3 +17,8 @@ down:
 
 smoke:
 	python -m pytest tests/smoke -v
+
+# --- Unit tests inside the service containers ---
+unit-orchestrator:
+	docker compose run --rm orchestrator python -m pytest -q tests/unit
+

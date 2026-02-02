@@ -243,13 +243,11 @@ make down
 ```
 
 #### Unit tests (pytest)
-Currently in implementation.
-
-Included so far:
-test_results_table_minimal
+Currently in implementation.  Starting with the orchestrator
 
 ```bash
-docker compose run --rm orchestrator python -m pytest -q tests/unit
+make deps
+make unit-orchestrator
 ```
 
 #### Integration tests (pytest)
@@ -427,7 +425,8 @@ make down
 
 ## Unit tests 
 ```bash
-docker compose run --rm orchestrator python -m pytest -q tests/unit
+make deps
+make unit-orchestrator
 ```
 
 ---
