@@ -22,3 +22,8 @@ def ml_backend_base():
 @pytest.fixture(scope="session")
 def ollama_base() -> str:
     return os.getenv("OLLAMA_BASE", "http://localhost:11434")
+
+
+@pytest.fixture(scope="session")
+def labelstudio_base():
+    return os.getenv("LABELSTUDIO_BASE", "http://localhost:8080")
