@@ -183,6 +183,11 @@ def list_files_in_folder():
         return jsonify([]), 500
 
 
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({"status": "ok"}), 200
+
+
 if __name__ == "__main__":
     logger.info(f"Starting Docling Flask server on 0.0.0.0:{PORT} …")
     app.run(host="0.0.0.0", port=PORT)

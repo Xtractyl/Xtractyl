@@ -29,7 +29,7 @@ export default function CreateProjectForm({ onSubmit }) {
   };
 
   return (
-    <form onSubmit={handleFormSubmit} className="space-y-6 mt-10 bg-beige p-6 rounded shadow w-full">
+    <form onSubmit={handleFormSubmit} className="space-y-6 mt-10 bg-xtractyl-offwhite p-6 rounded shadow w-full">
       <div>
         <label className="block text-sm font-medium mb-1">Project name</label>
         <input
@@ -71,26 +71,26 @@ export default function CreateProjectForm({ onSubmit }) {
   };
 
   return (
-    <div className="mt-4 border border-gray-300 rounded-md overflow-hidden">
+    <div className="mt-4 border border-xtractyl-outline/30 rounded-md overflow-hidden">
       {/* Header */}
-    <div className="grid grid-cols-[3rem,1fr,1fr] bg-gray-100 text-xs font-semibold px-3 py-2 border-b border-gray-300">
+    <div className="grid grid-cols-[3rem,1fr,1fr] bg-xtractyl-offwhite text-xs font-semibold px-3 py-2 border-b border-xtractyl-outline/30">
       <div>#</div>
-      <div className="border-l border-gray-300 border-r pl-2 pr-2">Question</div>
+      <div className="border-l border-xtractyl-outline/30 border-r pl-2 pr-2">Question</div>
       <div>Label</div>
     </div>
 
       {/* Rows */}
-      <div className="divide-y divide-gray-200">
+      <div className="divide-y divide-xtractyl-outline/20">
         {Array.from({ length: rowCount }).map((_, idx) => (
           <div key={idx} className="grid grid-cols-[3rem,1fr,1fr] px-3 py-2 items-center">
-            <div className="text-xs text-gray-500">{idx + 1}</div>
+            <div className="text-xs  text-xtractyl-outline/60">{idx + 1}</div>
 
             <input
               type="text"
               value={questionLines[idx] || ""}
               onChange={(e) => handleQuestionLineChange(idx, e.target.value)}
               placeholder={idx === 0 ? "e.g., What is the patient ID?" : ""}
-              className="w-full text-sm px-2 py-1 border border-gray-200 rounded-md whitespace-nowrap overflow-x-auto overflow-y-hidden focus:outline-none focus:ring-1 focus:ring-xtractyl-lightgreen"
+              className="w-full text-sm px-2 py-1 border border-xtractyl-outline/20 rounded-md whitespace-nowrap overflow-x-auto overflow-y-hidden focus:outline-none focus:ring-1 focus:ring-xtractyl-lightgreen"
             />
 
             <input
@@ -98,7 +98,7 @@ export default function CreateProjectForm({ onSubmit }) {
               value={labelLines[idx] || ""}
               onChange={(e) => handleLabelLineChange(idx, e.target.value)}
               placeholder={idx === 0 ? "e.g., Patient ID" : ""}
-              className="w-full text-sm px-2 py-1 border border-gray-200 rounded-md whitespace-nowrap overflow-x-auto overflow-y-hidden focus:outline-none focus:ring-1 focus:ring-xtractyl-lightgreen"
+              className="w-full text-sm px-2 py-1 border border-xtractyl-outline/20 rounded-md whitespace-nowrap overflow-x-auto overflow-y-hidden focus:outline-none focus:ring-1 focus:ring-xtractyl-lightgreen"
             />
           </div>
         ))}
@@ -107,9 +107,9 @@ export default function CreateProjectForm({ onSubmit }) {
   );
 })()}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-xtractyl-orange">{error}</p>}
 
-      <button type="submit" className="bg-xtractyl-green text-white px-4 py-2 rounded hover:bg-green-700 transition">
+      <button type="submit" className="bg-xtractyl-green text-xtractyl-white px-4 py-2 rounded hover:bg-xtractyl-green/80 transition">
         Create project
       </button>
     </form>

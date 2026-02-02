@@ -1,0 +1,39 @@
+# tests/smoke/conftest.py
+import os
+
+import pytest
+
+
+@pytest.fixture(scope="session")
+def orch_base():
+    return os.getenv("ORCH_BASE", "http://localhost:5001")
+
+
+@pytest.fixture(scope="session")
+def frontend_base():
+    return os.getenv("FRONTEND_BASE", "http://localhost:5173")
+
+
+@pytest.fixture(scope="session")
+def ml_backend_base():
+    return os.getenv("ML_BACKEND_BASE", "http://localhost:6789")
+
+
+@pytest.fixture(scope="session")
+def ollama_base() -> str:
+    return os.getenv("OLLAMA_BASE", "http://localhost:11434")
+
+
+@pytest.fixture(scope="session")
+def labelstudio_base():
+    return os.getenv("LABELSTUDIO_BASE", "http://localhost:8080")
+
+
+@pytest.fixture(scope="session")
+def redis_host():
+    return os.getenv("REDIS_HOST", "localhost")
+
+
+@pytest.fixture(scope="session")
+def redis_port():
+    return int(os.getenv("REDIS_PORT", "6379"))

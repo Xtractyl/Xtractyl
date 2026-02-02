@@ -1,33 +1,25 @@
-.PHONY: test-e2e test-smoke
-COMPOSE_BASE ?= docker-compose.yml
-COMPOSE_TEST ?= docker-compose_test.yml
-LOG_DIR ?= logs_testing
-RUN_ID ?= $(shell date -u +%Y%m%dT%H%M%SZ)
+.PHONY: deps up down smoke
 
-test-e2e:
-	@set -e; \
-	docker compose  -f $(COMPOSE_BASE) -f $(COMPOSE_TEST) up -d --build; \
-	EXIT=0; \
-	docker compose  -f $(COMPOSE_BASE) -f $(COMPOSE_TEST) run --rm -e RUN_ID=$(RUN_ID) tester-e2e || EXIT=$$?; \
-	mkdir -p $(LOG_DIR)/e2e/$(RUN_ID); \
-	docker compose  -f $(COMPOSE_BASE) -f $(COMPOSE_TEST) ps > $(LOG_DIR)/e2e/$(RUN_ID)/ps.txt 2>&1 || true; \
-	docker compose  -f $(COMPOSE_BASE) -f $(COMPOSE_TEST) logs --no-color orchestrator > $(LOG_DIR)/e2e/$(RUN_ID)/orchestrator.log 2>&1 || true; \
-	docker compose  -f $(COMPOSE_BASE) -f $(COMPOSE_TEST) logs --no-color docling > $(LOG_DIR)/e2e/$(RUN_ID)/docling.log 2>&1 || true; \
-	docker compose  -f $(COMPOSE_BASE) -f $(COMPOSE_TEST) logs --no-color labelstudio > $(LOG_DIR)/e2e/$(RUN_ID)/labelstudio.log 2>&1 || true; \
-	docker compose  -f $(COMPOSE_BASE) -f $(COMPOSE_TEST) logs --no-color postgres > $(LOG_DIR)/e2e/$(RUN_ID)/postgres.log 2>&1 || true; \
-	docker compose  -f $(COMPOSE_BASE) -f $(COMPOSE_TEST) down  --remove-orphans || true; \
-	exit $$EXIT
+deps:
+	python -m pip install -r tests/requirements-test.txt
 
-test-smoke:
-	@set -e; \
-	docker compose  -f $(COMPOSE_BASE) -f $(COMPOSE_TEST) up -d --build; \
-	EXIT=0; \
-	docker compose  -f $(COMPOSE_BASE) -f $(COMPOSE_TEST) run --rm -e RUN_ID=$(RUN_ID) tester-smoke || EXIT=$$?; \
-	mkdir -p $(LOG_DIR)/smoke/$(RUN_ID); \
-	docker compose  -f $(COMPOSE_BASE) -f $(COMPOSE_TEST) ps > $(LOG_DIR)/smoke/$(RUN_ID)/ps.txt 2>&1 || true; \
-	docker compose  -f $(COMPOSE_BASE) -f $(COMPOSE_TEST) logs --no-color orchestrator > $(LOG_DIR)/smoke/$(RUN_ID)/orchestrator.log 2>&1 || true; \
-	docker compose  -f $(COMPOSE_BASE) -f $(COMPOSE_TEST) logs --no-color docling > $(LOG_DIR)/smoke/$(RUN_ID)/docling.log 2>&1 || true; \
-	docker compose  -f $(COMPOSE_BASE) -f $(COMPOSE_TEST) logs --no-color labelstudio > $(LOG_DIR)/smoke/$(RUN_ID)/labelstudio.log 2>&1 || true; \
-	docker compose  -f $(COMPOSE_BASE) -f $(COMPOSE_TEST) logs --no-color postgres > $(LOG_DIR)/smoke/$(RUN_ID)/postgres.log 2>&1 || true; \
-	docker compose  -f $(COMPOSE_BASE) -f $(COMPOSE_TEST) down  --remove-orphans || true; \
-	exit $$EXIT
+up:
+	docker compose up -d \
+		postgres \
+		labelstudio \
+		ollama \
+		ml_backend \
+		orchestrator \
+		frontend \
+		job_queue
+
+down:
+	docker compose down 
+
+smoke:
+	python -m pytest tests/smoke -v
+
+# --- Unit tests inside the service containers ---
+unit-orchestrator:
+	docker compose run --rm orchestrator python -m pytest -q tests/unit
+

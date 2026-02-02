@@ -61,9 +61,9 @@ export default function GetResultsCard({ apiToken, projectName}) {
   };
 
   return (
-    <div className="p-8 bg-[#e6e2cf] min-h-screen text-[#23211c]">
+    <div className="p-8 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
       <h1 className="text-2xl font-semibold mb-4">Get Results</h1>
-      <p className="text-gray-600">
+      <p className="text-xtractyl-outline/70">
         Enter your project name, enter your API token and submit to get your database (re-submit your data to update in case the AI is still running).
       </p>
       <div className="mb-6"></div>
@@ -71,26 +71,26 @@ export default function GetResultsCard({ apiToken, projectName}) {
             href={`${LS_BASE}/user/account/legacy-token`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block bg-[#db7127] text-white text-base font-medium px-5 py-2 rounded shadow hover:bg-orange-600 transition"
+            className="inline-block bg-xtractyl-orange text-xtractyl-white font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange/80 transition"
           >
             Get your legacy token
           </a>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-xtractyl-outline/60">
             Return here after copying the token from Label Studio.
           </p>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-xtractyl-outline/60">
             ⚠️ If you see no legacy token there, go to{" "}
             <a
               href={`${LS_BASE}/organization/`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#6baa56] hover:underline"
+              className="text-xtractyl-green hover:underline"
             >
               {LS_BASE}/organization
             </a>{" "}
             and enable it via the API Tokens settings.
           </p>        
-      <div className="mt-6 border border-gray-200 p-4 flex flex-col gap-4 bg-xtractyl-offwhite">
+      <div className="mt-6 border border-xtractyl-outline/20 p-4 flex flex-col gap-4 bg-xtractyl-offwhite">
         <form onSubmit={onSubmit} className="flex flex-row items-end gap-4">
           <div className="flex flex-col flex-1">
             <label className="font-semibold mb-2">Project name</label>
@@ -100,7 +100,7 @@ export default function GetResultsCard({ apiToken, projectName}) {
               value={localProjectName}
               onChange={(e) => setLocalProjectName(e.target.value)}
               required
-              className="border border-gray-300 rounded-md text-sm px-3 py-2 outline-none w-full focus:ring-2 focus:ring-xtractyl-lightgreen"
+              className="border border-xtractyl-outline/30 rounded-md text-sm px-3 py-2 outline-none w-full focus:ring-2 focus:ring-xtractyl-lightgreen"
             />
           </div>
 
@@ -112,21 +112,21 @@ export default function GetResultsCard({ apiToken, projectName}) {
               value={token}
               onChange={(e) => setToken(e.target.value)}
               required
-              className="border border-gray-300 rounded-md text-sm px-3 py-2 outline-none w-full focus:ring-2 focus:ring-xtractyl-lightgreen"
+              className="border border-xtractyl-outline/30 rounded-md text-sm px-3 py-2 outline-none w-full focus:ring-2 focus:ring-xtractyl-lightgreen"
             />
           </div>
 
           <button
             type="submit"
             disabled={!canSubmit || loading}
-            className="px-3 py-2 bg-xtractyl-green text-white rounded-md cursor-pointer hover:bg-xtractyl-lightgreen hover:text-xtractyl-offwhite "
+            className="px-3 py-2 bg-xtractyl-green text-xtractyl-white rounded-md cursor-pointer hover:bg-xtractyl-green/80"
           >
             {loading ? "Loading…" : "Submit & Save as CSV"}
           </button>
         </form>
 
         {err ? (
-          <div className="p-3 border border-red-200 bg-rose-50 text-rose-900 rounded-md">
+          <div className="p-3 border border-xtractyl-orange/30 bg-xtractyl-offwhite text-xtractyl-darktext rounded-md">
             <strong>Error, does the project already exist in labelstudio?</strong> {err}
           </div>
         ) : null}

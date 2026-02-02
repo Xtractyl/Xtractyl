@@ -156,9 +156,9 @@ const canStart =
   const progressPct = Math.round(Number(preStatus?.progress ?? 0));
 
   return (
-    <div className="p-6 bg-[#e6e2cf] min-h-screen text-[#23211c]">
+    <div className="p-6 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
       <h1 className="text-2xl font-semibold mb-4">Start AI</h1>
-      <p className="text-gray-600 mb-6">
+      <p className="text-xtractyl-outline/70 mb-6">
         Download a model (if needed), enter your project, pick an installed model, set a system prompt, choose your Questions & Labels JSON, then start prelabeling.
       </p>
 
@@ -166,15 +166,15 @@ const canStart =
         <ModelDownloadInput onDone={() => setRefreshKey((k) => k + 1)} />
       </div>
 
-      <div className="space-y-6 bg-[#ede6d6] p-6 rounded shadow max-w-3xl">
+      <div className="space-y-6 bg-xtractyl-offwhite p-6 rounded shadow max-w-3xl">
       <ProjectNameInput value={localProjectName} onChange={setLocalProjectName} />
-        <div className="text-sm text-gray-600 -mt-2">
+        <div className="text-sm text-xtractyl-outline/70 -mt-2">
           <div>Forgot your project name?</div>
           <a
             href="http://localhost:8080/projects/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block text-[#6baa56] hover:underline"
+            className="inline-block text-xtractyl-green hover:underline"
           >
             Open Label Studio projects
           </a>
@@ -185,20 +185,20 @@ const canStart =
             href={`${LS_BASE}/user/account/legacy-token`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block bg-[#db7127] text-white text-base font-medium px-5 py-2 rounded shadow hover:bg-orange-600 transition"
+            className="inline-block bg-xtractyl-orange text-xtractyl-white  text-xtractyl-outline/70ase font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange-600 transition"
           >
             Get your legacy token
           </a>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-xtractyl-outline/60">
             Return here after copying the token from Label Studio.
           </p>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-xtractyl-outline/60">
             ⚠️ If you see no legacy token there, go to{" "}
             <a
               href={`${LS_BASE}/organization/`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#6baa56] hover:underline"
+              className="text-xtractyl-green hover:underline"
             >
               {LS_BASE}/organization
             </a>{" "}
@@ -233,7 +233,7 @@ const canStart =
           onChange={handleQalChange}
         />
 
-        <div className="pt-2 text-sm text-gray-600">
+        <div className="pt-2 text-sm text-xtractyl-outline/70">
           <div>
             Project: <span className="font-mono">{localProjectName || "—"}</span>
           </div>
@@ -250,8 +250,8 @@ const canStart =
             type="button"
             onClick={handleStart}
             disabled={!canStart || busy}
-            className={`px-4 py-2 rounded text-white ${
-              !canStart || busy ? "bg-[#6baa56]/50 cursor-not-allowed" : "bg-[#6baa56] hover:bg-[#5b823f]"
+            className={`px-4 py-2 rounded text-xtractyl-white ${
+              !canStart || busy ? "bg-xtractyl-green/50 cursor-not-allowed" : "bg-xtractyl-green hover:bg-xtractyl-green/80 transition"
             }`}
           >
             {busy ? "Starting…" : "Start Prelabeling"}
@@ -263,8 +263,8 @@ const canStart =
             disabled={!preJobId}
             className={`px-4 py-2 rounded ${
               preJobId
-                ? "bg-red-600 text-white hover:bg-red-700"
-                : "bg-gray-200 text-gray-700 cursor-not-allowed"
+                ? "bg-xtractyl-orange text-xtractyl-white hover:bg-xtractyl-orange/80 transition"
+                : "bg-xtractyl-offwhite text-xtractyl-outline cursor-not-allowed"
             }`}
           >
             Cancel
@@ -272,20 +272,20 @@ const canStart =
         </div>
 
         {(preJobId || preStatus) && (
-          <div className="mt-4 bg-[#cdc0a3] p-4 rounded">
+          <div className="mt-4 bg-xtractyl-offwhite p-4 rounded">
             <div className="font-medium mb-1">
               Status: {preStatus?.state || "queued"}{" "}
               {Number.isFinite(progressPct) ? `— ${progressPct}%` : ""}
             </div>
-            <div className="w-full h-2 bg-gray-200 rounded">
+            <div className="w-full h-2 bg-xtractyl-offwhite rounded">
               <div
-                className="h-2 bg-[#6baa56] rounded"
+                className="h-2 bg-xtractyl-green rounded"
                 style={{ width: `${Number.isFinite(progressPct) ? progressPct : 0}%` }}
               />
             </div>
             {preStatus?.message && <div className="text-sm mt-2">{preStatus.message}</div>}
             {preJobId && (
-              <div className="text-xs text-gray-600 mt-1">
+              <div className="text-xs text-xtractyl-outline/70 mt-1">
                 Job ID: <span className="break-all">{preJobId}</span>
               </div>
             )}

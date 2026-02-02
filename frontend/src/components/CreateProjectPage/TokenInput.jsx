@@ -20,7 +20,7 @@ export default function TokenInput({ onTokenSave }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 bg-beige rounded shadow w-full space-y-4">
+    <form onSubmit={handleSubmit} className="p-4 bg-xtractyl-offwhite rounded shadow w-full space-y-4">
       <label htmlFor="ls-token" className="block text-sm font-medium mb-2">
         Enter your Label Studio legacy token
       </label>
@@ -30,13 +30,13 @@ export default function TokenInput({ onTokenSave }) {
         value={token}
         onChange={(e) => setToken(e.target.value)}
         placeholder="Paste your legacy token"
-        className="w-full px-3 py-2 border rounded mb-3"
+        className="w-full px-3 py-2 border border-xtractyl-outline/30 rounded mb-3 bg-xtractyl-white text-xtractyl-darktext"
         autoComplete="off"
         spellCheck={false}
       />
       <button
         type="submit"
-        className="bg-xtractyl-orange text-white px-4 py-2 rounded hover:bg-orange-600 transition"
+        className="bg-xtractyl-orange text-xtractyl-white px-4 py-2 rounded hover:bg-xtractyl-orange/80 transition"
       >
         Save Token
       </button>
@@ -47,20 +47,20 @@ export default function TokenInput({ onTokenSave }) {
           href={`${LS_BASE}/user/account/legacy-token`}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block bg-[#db7127] text-white text-base font-medium px-5 py-2 rounded shadow hover:bg-orange-600 transition"
+          className="inline-block bg-xtractyl-orange text-xtractyl-white font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange/80 transition"
         >
           Get your legacy token
         </a>
-        <p className="mt-2 text-sm text-gray-500">
+        <p className="mt-2 text-sm text-xtractyl-outline/60">
           Return here after copying the token from Label Studio.
         </p>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-xtractyl-outline/60">
           ⚠️ If you see no legacy token there, go to{" "}
           <a
             href={`${LS_BASE}/organization`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#6baa56] hover:underline"
+            className="text-xtractyl-green hover:underline"
           >
             {LS_BASE}/organization
           </a>{" "}

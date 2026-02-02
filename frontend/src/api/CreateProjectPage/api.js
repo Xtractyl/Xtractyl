@@ -45,5 +45,5 @@ export async function fetchGroundtruthQuestionsAndLabels() {
     throw new Error(data.error || "Unknown error fetching groundtruth Q&L");
   }
 
-  return data.logs; // the JSON content of questions_and_labels.json
+  return data.data; // the JSON content of questions_and_labels.json
 }

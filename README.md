@@ -212,10 +212,45 @@ Access the frontend via your browser at http://localhost:5173/ following the wor
 
 ---
 
-### 3. Testing 
+### 3. Testing
 
-Currently API contracts are hardened and testing is added.
+#### Smoke tests (pytest)
 
+Included:
+- orchestrator
+- frontend
+- ml_backend
+- labelstudio 
+- postgres (indirectly via labelstudio which depends on it)
+- job_queue
+- ollama
+
+Explicitly not included
+	- docling (excluded because smoke tests are integrated in CI and docling models are too large for that)
+
+Not included because it runs forever
+	- worker (endless loop; no health endpoint; would require a special “smoke mode”)
+
+```bash
+make deps
+make up
+make smoke
+make down
+```
+
+#### Unit tests (pytest)
+Currently in implementation.  Starting with the orchestrator
+
+```bash
+make deps
+make unit-orchestrator
+```
+
+#### Integration tests (pytest)
+Currently in implementation.
+
+#### E2E tests
+Planned next.
 
 ---
 
@@ -361,7 +396,7 @@ Currently API contracts are hardened and testing is added.
 
 ---
 
-## 🧹 Code quality
+## 🧹 Code quality (integrated into CI)
 
 ### python from repository root
 ```bash
@@ -374,6 +409,22 @@ ruff check . --fix
 cd frontend
 npx eslint .
 ```
+### Tests (see also "3. Testing" above for tests integrated into CI)
+
+## Smoke tests
+```bash
+make deps
+make up
+make smoke
+make down
+```
+
+## Unit tests 
+```bash
+make deps
+make unit-orchestrator
+```
+
 ---
 
 ## 📝 Additional Documentation

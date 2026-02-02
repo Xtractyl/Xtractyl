@@ -15,7 +15,7 @@ export async function fetchEvaluationProjects(apiToken) {
     throw err;
   }
 
-  return data.logs || [];
+  return data.data || [];
 }
 
 export async function evaluateAI(apiToken, groundtruthProject, comparisonProject) {
@@ -38,5 +38,5 @@ export async function evaluateAI(apiToken, groundtruthProject, comparisonProject
     throw err;
   }
 
-  return data.logs || data;
+  return data.data || data;
 }

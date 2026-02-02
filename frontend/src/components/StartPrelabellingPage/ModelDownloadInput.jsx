@@ -37,7 +37,7 @@ export default function ModelDownloadInput({
             href="https://ollama.com/library"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#6baa56] hover:underline"
+            className="text-xtractyl-green hover:underline"
         >
             official names
         </a>
@@ -56,14 +56,14 @@ export default function ModelDownloadInput({
           type="button"
           onClick={handlePull}
           disabled={!name.trim() || pulling}
-          className={`px-3 py-2 rounded ${pulling ? "opacity-60 cursor-not-allowed" : "bg-[#6baa56] text-white hover:bg-[#5b823f]"}`}
+          className={`px-3 py-2 rounded ${pulling ? "opacity-60 cursor-not-allowed" : "bg-xtractyl-green text-xtractyl-white hover:bg-xtractyl-green/80 transition"}`}
         >
           {pulling ? "Pulling…" : "Download"}
         </button>
       </div>
 
-      {progress && <div className="text-sm text-gray-700">Progress: {progress}</div>}
-      {error && <div className="text-sm text-red-600">❌ {error}</div>}
+      {progress && <div className="text-sm text-xtractyl-outline">Progress: {progress}</div>}
+      {error && <div className="text-sm text-xtractyl-orange">❌ {error}</div>}
 
     </div>
   );

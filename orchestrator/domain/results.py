@@ -1,4 +1,4 @@
-# orchestrator/routes/get_results_table.py
+# orchestrator/domain/results.py
 import csv
 import json
 import os
@@ -7,7 +7,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List
 
-from routes.utils.shared.label_studio_client import (
+from domain.models.results import GetResultsTableCommand
+
+from .utils.shared.label_studio_client import (
     fetch_task_annotations,
     fetch_tasks_page,
     resolve_project_id,
@@ -137,7 +139,9 @@ def _write_results_table_csv(
     return str(out)
 
 
-def build_results_table(token: str, project_name: str) -> dict:
+def build_results_table(cmd: GetResultsTableCommand):
+    token = cmd.token
+    project_name = cmd.project_name
     project_id = resolve_project_id(token, project_name)
     tasks, total = fetch_tasks_page(token, project_id)
 
