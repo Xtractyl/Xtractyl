@@ -27,3 +27,13 @@ def ollama_base() -> str:
 @pytest.fixture(scope="session")
 def labelstudio_base():
     return os.getenv("LABELSTUDIO_BASE", "http://localhost:8080")
+
+
+@pytest.fixture(scope="session")
+def redis_host():
+    return os.getenv("REDIS_HOST", "localhost")
+
+
+@pytest.fixture(scope="session")
+def redis_port():
+    return int(os.getenv("REDIS_PORT", "6379"))

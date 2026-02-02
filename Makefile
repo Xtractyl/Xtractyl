@@ -10,7 +10,8 @@ up:
 		ollama \
 		ml_backend \
 		orchestrator \
-		frontend
+		frontend \
+		job_queue
 
 down:
 	docker compose down 

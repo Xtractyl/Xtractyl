@@ -222,6 +222,9 @@ Included so far:
 orchestrator
 frontend
 ml_backend
+labelstudio 
+postgres (indirectly via labelstudio which depends on it)
+job_queue
 
 Not to be included to avoid discrepancy between testing and CI:
 docling (not included in CI because of model size)
@@ -233,6 +236,7 @@ docling (not included in CI because of model size)
 		ml_backend 
 		orchestrator 
 		frontend
+      job_queue
 * Be aware that the compose up in the Makefile does not start docling as it will pull too many models 
 
 ```bash
