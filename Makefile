@@ -16,4 +16,4 @@ down:
 	docker compose down 
 
 smoke:
-	python -m pytest -q tests/smoke
+	python -m pytest tests/smoke -v

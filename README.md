@@ -220,6 +220,11 @@ Currently in implementation.
 
 Included so far:
 orchestrator
+frontend
+ml_backend
+
+Not to be included to avoid discrepancy between testing and CI:
+docling (not included in CI because of model size)
 
 * Be aware that the compose up in the Makefile starts:
 		postgres 

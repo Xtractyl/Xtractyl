@@ -278,7 +278,7 @@ def predict():
 
 @app.route("/health", methods=["GET"])
 def health():
-    return jsonify({"status": "UP"}), 200
+    return jsonify({"status": "ok"}), 200
 
 
 # required from label studio for registration
