@@ -10,6 +10,7 @@ services:
       - /app/node_modules
     environment:
       - ROLLUP_USE_NODE_BUILTINS=${ROLLUP_USE_NODE_BUILTINS:-true}
+      - DEBUG_ARTIFACTS= ${DEBUG_ARTIFACTS:-0}
     working_dir: /app
 
   postgres:
@@ -78,6 +79,7 @@ services:
       - EVAL_DIR=/app/data/evaluation
       - LOGS_DIR=/logs
       - FRONTEND_PORT=${FRONTEND_PORT:-5173}
+      - DEBUG_ARTIFACTS= ${DEBUG_ARTIFACTS:-0}
 
   ml_backend:
     build:
@@ -98,6 +100,7 @@ services:
     - FRONTEND_PORT=${FRONTEND_PORT:-5173}
     - LABELSTUDIO_HOST=labelstudio        
     - LABELSTUDIO_PORT=${LABELSTUDIO_PORT:-8080}
+    - DEBUG_ARTIFACTS= ${DEBUG_ARTIFACTS:-0}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${ML_BACKEND_INTERNAL_PORT:-6789}/health"]
       interval: 10s
@@ -133,6 +136,7 @@ services:
       - XDG_DATA_HOME=${XDG_DATA_HOME:-/root/.local/share}
       - DOCLING_PORT=${DOCLING_PORT:-5004}
       - FRONTEND_PORT=${FRONTEND_PORT:-5173}
+      - DEBUG_ARTIFACTS= ${DEBUG_ARTIFACTS:-0}
     command: ["sh", "-c", "flask run --host=0.0.0.0 --port=$DOCLING_PORT"]
 
   job_queue:
@@ -177,6 +181,7 @@ services:
       - LS_PORT=${LABELSTUDIO_PORT:-8080}
       - ML_BACKEND_HOST=ml_backend
       - ML_BACKEND_PORT=${ML_BACKEND_INTERNAL_PORT:-6789}
+      - DEBUG_ARTIFACTS= ${DEBUG_ARTIFACTS:-0}
     command: ["python", "-m", "worker.prelabel_worker"]
 
 volumes:
