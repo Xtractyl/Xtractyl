@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from domain.models.results import GetResultsTableCommand
+from utils.logging_utils import dev_logger, safe_logger
 
 from .utils.shared.label_studio_client import (
     fetch_task_annotations,
@@ -148,6 +149,8 @@ def build_results_table(cmd: GetResultsTableCommand):
     label_columns: List[str] = []
     rows_proto: List[Dict[str, Any]] = []
 
+    safe_logger.info("build_results_table_start")
+
     for t in tasks:
         data = t.get("data") or {}
         filename = data.get("name", "")
@@ -179,7 +182,10 @@ def build_results_table(cmd: GetResultsTableCommand):
             flat[col] = r["labels"].get(col, "")
         rows.append(flat)
     payload = {"columns": columns, "rows": rows, "total": int(total)}
-    payload["results_output_path_csv"] = _write_results_table_csv(
-        columns, rows, project_id, project_name
-    )
+    csv_path = _write_results_table_csv(columns, rows, project_id, project_name)
+
+    if dev_logger:
+        dev_logger.info("results_csv_written")
+
+    payload["results_output_path_csv"] = csv_path
     return payload

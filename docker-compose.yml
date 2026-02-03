@@ -72,13 +72,15 @@ services:
       - ${EVAL_DIR:-./data/evaluation}:/app/data/evaluation
       - ${RESULTS_DIR:-./data/results}:/app/data/results
       - ${LOGS_DIR:-./logs}:/logs
+      - ${DEV_LOGS_DIR:-./data/logs}:/app/data/logs
     environment:
       - PROJECTS_DIR=/app/data/projects
       - HTMLS_DIR=/app/data/htmls
       - RESULTS_DIR=/app/data/results     
       - EVAL_DIR=/app/data/evaluation
-      - LOGS_DIR=/logs
       - FRONTEND_PORT=${FRONTEND_PORT:-5173}
+      - LOGS_DIR=/logs
+      - DEV_LOGS_DIR=/app/data/logs
       - DEBUG_ARTIFACTS=${DEBUG_ARTIFACTS:-0}
 
   ml_backend:

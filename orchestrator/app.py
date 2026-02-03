@@ -5,6 +5,12 @@ import traceback
 from api.routes import register_routes
 from flask import Flask, jsonify
 from flask_cors import CORS
+from utils.logging_utils import dev_logger, safe_logger
+
+safe_logger.info("orchestrator_starting")
+if dev_logger:
+    dev_logger.info("dev_logging_enabled")
+
 
 FRONTEND_ORIGIN = os.getenv(
     "FRONTEND_ORIGIN", f"http://localhost:{os.getenv('FRONTEND_PORT', '5173')}"
@@ -32,7 +38,6 @@ def ok(fn):
 
 def create_app() -> Flask:
     app = Flask(__name__)
-
     # CORS: keep browser frontend working (incl. Authorization header)
     CORS(app, origins=[FRONTEND_ORIGIN], allow_headers=["Content-Type", "Authorization"])
 

@@ -80,5 +80,3 @@ test-results/
 #logs
 logs/
 
-#folder with testing logs
-logs_testing/

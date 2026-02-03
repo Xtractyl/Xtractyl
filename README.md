@@ -436,14 +436,14 @@ make unit-orchestrator
 	•	pydantic validation / evaluation errors (may contain payload data)
 	•	logs are written to:
 	•	stdout / stream
-	•	logging/ directory
+	•	logs/ directory
 
 2) Dev mode (debug artifacts)
 	•	enabled only when explicitly requested
 	•	logs may include sensitive data
 	•	debug logs are written only to:
 	•	data/... (alongside evaluation / result artifacts)
-	•	debug logs are never written to stdout or logging/
+	•	debug logs are never written to stdout or logs/
 
 ```bash 
 DEBUG_ARTIFACTS=1 docker compose up
