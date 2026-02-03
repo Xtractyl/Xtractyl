@@ -33,7 +33,7 @@ While not a medical device, Xtractyl addresses key challenges relevant to MedTec
 
 ⚠️ Note: All included medical test data are fully synthetic and created with AI.
 
-⚠️ Note: For development purposes data currently shows up in the local log files (be aware of that when working with real data)
+⚠️ Note: For development purposes data currently shows up in the local log files (be aware of that when working with real data), this is currently being hardened, see below under "logging" for additional information.
 
 ---
 
@@ -424,6 +424,31 @@ make down
 make deps
 make unit-orchestrator
 ```
+
+## 📜 logging (hardening in progress)
+
+1) Default mode (safe logs)
+	•	enabled by default
+	•	logs exclude sensitive data, including:
+	•	request / response payloads
+	•	filenames (when potentially sensitive)
+	•	document contents
+	•	pydantic validation / evaluation errors (may contain payload data)
+	•	logs are written to:
+	•	stdout / stream
+	•	logging/ directory
+
+2) Dev mode (debug artifacts)
+	•	enabled only when explicitly requested
+	•	logs may include sensitive data
+	•	debug logs are written only to:
+	•	data/... (alongside evaluation / result artifacts)
+	•	debug logs are never written to stdout or logging/
+
+```bash 
+DEBUG_ARTIFACTS=1 docker compose up
+```
+
 
 ---
 
