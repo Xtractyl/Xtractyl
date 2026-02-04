@@ -102,8 +102,8 @@ def main() -> None:
         _, raw = item
         try:
             payload = json.loads(raw)
-        except Exception as e:
-            print(f"[worker] invalid payload: {e}", flush=True)
+        except Exception:
+            print("[worker] invalid payload received, skipping", flush=True)
             continue
         handle_job(payload)
 

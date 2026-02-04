@@ -1,4 +1,3 @@
-import logging
 import os
 import uuid
 from concurrent.futures import ThreadPoolExecutor
@@ -7,7 +6,7 @@ from threading import Event
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from utils.conversion_worker import run_conversion
-from utils.job_files import append_log, read_latest_status, write_status
+from utils.job_files import read_latest_status, write_status
 
 # In-memory job registry: job_id -> {"future": Future, "stop": Event}
 JOBS = {}
@@ -17,19 +16,9 @@ CORS(app, origins=[f"http://localhost:{os.getenv('FRONTEND_PORT', '5173')}"])
 
 PORT = int(os.getenv("DOCLING_PORT", "5004"))
 
-# --- Paths / Logging ---
+# --- Paths ---
 PDF_DIR = "/pdfs"
 HTML_DIR = "/htmls"
-DOC_LOG_DIR = "/logs/docling_jobs"
-LOGFILE_PATH = "/logs/docling.log"
-os.makedirs(DOC_LOG_DIR, exist_ok=True)
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="[%(asctime)s] %(levelname)s %(name)s:%(lineno)d | %(message)s",
-    handlers=[logging.FileHandler(LOGFILE_PATH), logging.StreamHandler()],
-)
-logger = logging.getLogger("docling-api")
 
 # --- Threading ---
 executor = ThreadPoolExecutor(max_workers=2)
@@ -43,7 +32,7 @@ executor = ThreadPoolExecutor(max_workers=2)
 def upload_and_convert():
     """
     Accept uploaded PDFs and start a background conversion job.
-    Returns a job_id that can be polled for status/logs.
+    Returns a job_id that can be polled for status.
     """
     if "files" not in request.files or "folder" not in request.form:
         return jsonify({"error": "Missing 'files' or 'folder'"}), 400
@@ -63,7 +52,6 @@ def upload_and_convert():
     for f in files:
         name = f.filename
         if not name.lower().endswith(".pdf"):
-            logger.info("Skipping non-PDF file: %s", name)
             continue
         path = os.path.join(pdf_target_dir, name)
         f.save(path)
@@ -74,15 +62,11 @@ def upload_and_convert():
 
     job_id = uuid.uuid4().hex
     write_status(job_id, state="queued", progress=0, total=len(saved_pdf_paths), done=0)
-    append_log(job_id, f"Queued {len(saved_pdf_paths)} file(s) for folder '{folder}'")
 
     stop_event = Event()
-    future = executor.submit(
-        run_conversion, job_id, folder, saved_pdf_paths, html_target_dir, stop_event
-    )
+    future = executor.submit(run_conversion, job_id, saved_pdf_paths, html_target_dir, stop_event)
     JOBS[job_id] = {"future": future, "stop": stop_event}
 
-    logger.info("Job %s accepted: %d file(s) → %s", job_id, len(saved_pdf_paths), html_target_dir)
     return jsonify({"job_id": job_id, "message": "accepted"}), 202
 
 
@@ -93,21 +77,6 @@ def job_status(job_id):
     if not data:
         return jsonify({"error": "unknown or not ready"}), 404
     return jsonify(data), 200
-
-
-@app.route("/job_log/<job_id>", methods=["GET"])
-def job_log(job_id):
-    """Stream the JSONL log for a given job_id (text/plain)."""
-    log_file = os.path.join(DOC_LOG_DIR, f"{job_id}.jsonl")
-    if not os.path.isfile(log_file):
-        return jsonify({"error": "unknown job_id"}), 404
-
-    def generate():
-        with open(log_file, encoding="utf-8") as f:
-            for line in f:
-                yield line
-
-    return app.response_class(generate(), mimetype="text/plain")
 
 
 @app.route("/cancel_job/<job_id>", methods=["POST"])
@@ -130,12 +99,10 @@ def cancel_job(job_id):
     except Exception:
         pass
 
-    append_log(job_id, "Cancel requested via API")
     write_status(
         job_id, state="cancelling", progress=None, total=None, done=None, message="cancel requested"
     )
 
-    logger.info("Cancel requested for job %s", job_id)
     return jsonify({"status": "cancel_requested"}), 200
 
 
@@ -156,7 +123,6 @@ def list_subfolders():
         ]
         return jsonify(subfolders)
     except Exception:
-        logger.exception("Failed to list subfolders in %s", PDF_DIR)
         return jsonify([]), 500
 
 
@@ -179,7 +145,6 @@ def list_files_in_folder():
         ]
         return jsonify(files)
     except Exception:
-        logger.exception("Failed to list files in %s", target_dir)
         return jsonify([]), 500
 
 
@@ -189,5 +154,4 @@ def health():
 
 
 if __name__ == "__main__":
-    logger.info(f"Starting Docling Flask server on 0.0.0.0:{PORT} …")
     app.run(host="0.0.0.0", port=PORT)
