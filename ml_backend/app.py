@@ -1,8 +1,5 @@
 # /ml_backend/app.py
-import json
-import logging
 import os
-import pathlib
 
 from bs4 import BeautifulSoup
 from client import ask_llm_with_timeout
@@ -11,18 +8,7 @@ from dom_match import extract_xpath_matches_from_dom
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from label_studio import attach_meta_to_task, save_predictions_to_labelstudio
-from logging_setup import attach_file_logger
 from perf_collector import PerfCollector
-
-# ----------------------------------
-# Toggle for full DOM logging
-# ----------------------------------
-LOG_FULL_DOM = False  # <--- set to False to disable full DOM dump
-
-# ----------------------------------
-# Logging
-# ----------------------------------
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s [%(levelname)s] %(message)s")
 
 PORT = int(os.getenv("ML_BACKEND_PORT", "6789"))
 
@@ -36,35 +22,6 @@ CORS(
     resources={r"/*": {"origins": [FRONTEND_ORIGIN, LABELSTUDIO_ORIGIN]}},
     supports_credentials=True,
 )
-
-# ----------------------------------
-# Central + per-job logging
-# ----------------------------------
-LOG_DIR = "/logs"
-JOBS_DIR = os.path.join(LOG_DIR, "ml_backend_jobs")
-os.makedirs(LOG_DIR, exist_ok=True)
-os.makedirs(JOBS_DIR, exist_ok=True)
-
-general_logfile = os.path.join(LOG_DIR, "ml_backend.log")
-attach_file_logger(general_logfile)
-
-
-def _job_log_paths(job_id: str | None):
-    """Return per-job file paths; fall back to general files if job_id is None."""
-    if job_id:
-        base = os.path.join(JOBS_DIR, job_id)
-        os.makedirs(base, exist_ok=True)
-        return {
-            "payload": os.path.join(base, "prediction_payload.log"),
-            "timeouts": os.path.join(base, "timeout_tasks.log"),
-            "dom_dump": os.path.join(base, "dom_dump.jsonl"),
-        }
-    else:
-        return {
-            "payload": os.path.join(LOG_DIR, "prediction_payload.log"),
-            "timeouts": os.path.join(LOG_DIR, "timeout_tasks.log"),
-            "dom_dump": os.path.join(LOG_DIR, "dom_dump.jsonl"),
-        }
 
 
 # ----------------------------------
@@ -84,10 +41,6 @@ def predict():
         or data.get("job_id")
         or "no-job"
     )
-    job_paths = _job_log_paths(job_id)
-    prediction_payload_path = job_paths["payload"]
-    timeout_log_path = pathlib.Path(job_paths["timeouts"])
-    dom_dump_path = pathlib.Path(job_paths["dom_dump"])
 
     # Task-Objekt
     task_obj = data.get("task") or (data.get("tasks") or [{}])[0]
@@ -136,27 +89,6 @@ def predict():
     # DOM
     with perf.measure("dom.extract"):
         dom_data = extract_dom_with_chromium(html_content)
-    if LOG_FULL_DOM:
-        try:
-            with open(dom_dump_path, "a", encoding="utf-8") as f:
-                for node in dom_data:
-                    f.write(json.dumps(node, ensure_ascii=False) + "\n")
-        except Exception as e:
-            logging.error("❌ Failed to write DOM dump: %s", e)
-
-    try:
-        logging.debug(
-            "📚 DOM summary: %s",
-            json.dumps(
-                [
-                    {"xpath": n["xpath"], "raw_len": len(n["raw"]), "norm_len": len(n["content"])}
-                    for n in dom_data
-                ],
-                ensure_ascii=False,
-            ),
-        )
-    except Exception:
-        pass
 
     # Q&L (optional – kein 400, wenn fehlt)
     qa_config = data.get("questions_and_labels") or {}
@@ -183,15 +115,8 @@ def predict():
                     model_name=params["ollama_model"],
                 )
                 t["status"] = llm.get("status")
-                # timeout bookkeeping (nur Flag + optional logfile)
-                if llm["status"] == "timeout":
+                if llm.get("status") == "timeout":
                     timed_out = True
-                    try:
-                        with open(timeout_log_path, "a", encoding="utf-8") as f:
-                            f.write(f"{task_id}: {lab} :: {q}\n")
-                    except Exception:
-                        pass
-
                 answers_by_label[str(lab)] = {
                     "question": q,
                     "answer": llm["answer"],  # str|None
@@ -199,9 +124,6 @@ def predict():
                     "error": llm.get("error"),
                 }
 
-    logging.info(
-        "🧠 Answers from LLM: %s", json.dumps(answers_by_label, indent=2, ensure_ascii=False)
-    )
     with perf.measure("dom.match"):
         dom_match_by_label = {}
         try:
@@ -228,21 +150,8 @@ def predict():
                     dom_match_by_label[lab] = lab not in diag_labels
 
         except Exception as e:
-            logging.warning("extract_xpath_matches_from_dom failed: %s", e)
             prelabels, diagnostics = [], [{"reason": "match_failed", "error": str(e)}]
             dom_match_by_label = {}
-
-    # Audit-Log (best effort)
-    try:
-        payload_for_log = {
-            "task": task_id,
-            "model_version": params.get("ollama_model", "stub"),
-            "result": prelabels,
-        }
-        with open(prediction_payload_path, "a", encoding="utf-8") as f:
-            f.write(json.dumps(payload_for_log, indent=2, ensure_ascii=False) + "\n")
-    except Exception as e:
-        logging.warning("Could not write prediction payload: %s", e)
 
     meta = {
         "raw_llm_answers": answers_by_label,
@@ -258,8 +167,8 @@ def predict():
         try:
             save_predictions_to_labelstudio(params, task_id, prelabels)  # ohne meta
             attach_meta_to_task(params, int(task_id), meta)
-        except Exception as e:
-            logging.warning("label studio write failed: %s", e)
+        except Exception:
+            pass
 
     return jsonify(
         {
@@ -288,4 +197,4 @@ def setup():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=PORT, debug=True)
+    app.run(host="0.0.0.0", port=PORT)
