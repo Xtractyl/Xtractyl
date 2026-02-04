@@ -1,19 +1,10 @@
 # orchestrator/domain/projects.py
 
 import json
-import logging
 import os
-from datetime import datetime
 
 import requests
 from flask import jsonify, request
-
-# === Base URLs / Ports (resolve from env or defaults) ===
-LABEL_STUDIO_URL = f"http://{os.getenv('LABELSTUDIO_CONTAINER_NAME', 'labelstudio')}:{os.getenv('LABELSTUDIO_PORT', '8080')}"
-ML_BACKEND_URL = f"http://{os.getenv('ML_BACKEND_CONTAINER_NAME', 'ml_backend')}:{os.getenv('ML_BACKEND_PORT', '6789')}"
-
-LOGFILE_PATH = "/logs/orchestrator.log"
-
 
 # Fixed base dir (no env lookups)
 BASE_PROJECTS_DIR = os.path.join("data", "projects")
@@ -23,17 +14,11 @@ LABELSTUDIO_HOST = os.getenv("LABELSTUDIO_CONTAINER_NAME", "labelstudio")
 LABELSTUDIO_PORT = os.getenv("LABELSTUDIO_PORT", "8080")
 LABEL_STUDIO_URL = f"http://{LABELSTUDIO_HOST}:{LABELSTUDIO_PORT}"
 
-BATCH_SIZE = 50
+ML_BACKEND_HOST = os.getenv("ML_BACKEND_CONTAINER_NAME", "ml_backend")
+ML_BACKEND_PORT = os.getenv("ML_BACKEND_PORT", "6789")
+ML_BACKEND_URL = f"http://{ML_BACKEND_HOST}:{ML_BACKEND_PORT}"
 
-# === Logging ===
-LOGFILE_PATH = "/logs/orchestrator.log"
-os.makedirs(os.path.dirname(LOGFILE_PATH), exist_ok=True)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)s %(message)s",
-    handlers=[logging.FileHandler(LOGFILE_PATH, encoding="utf-8"), logging.StreamHandler()],
-)
-logger = logging.getLogger(__name__)
+BATCH_SIZE = 50
 
 
 def check_project_exists():
@@ -48,15 +33,8 @@ def check_project_exists():
 
         return jsonify({"exists": exists}), 200
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-def log_to_file(message: str) -> None:
-    """Append a timestamped log line to the orchestrator log file."""
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open(LOGFILE_PATH, "a", encoding="utf-8") as f:
-        f.write(f"[{timestamp}] {message}\n")
+    except Exception:
+        return jsonify({"error": "internal error"}), 500
 
 
 def create_project_main_from_payload(payload: dict):
@@ -78,19 +56,12 @@ def create_project_main_from_payload(payload: dict):
     labels = payload.get("labels", [])
     token = payload.get("token")
 
-    log_to_file(f"Project creation started for: '{title}'")
-    log_to_file(f"Questions: {questions}")
-    log_to_file(f"Labels: {labels}")
-
     if not all([title, questions, labels, token]):
-        msg = "Missing required fields: title, questions, labels, token."
-        log_to_file(f"ERROR: {msg}")
-        raise ValueError(msg)
+        raise ValueError("Missing required fields: title, questions, labels, token.")
 
     # Create project folder
     base_path = os.path.join("data", "projects", title)
     os.makedirs(base_path, exist_ok=True)
-    log_to_file(f"Ensured project directory exists: {base_path}")
 
     # Save questions_and_labels.json
     qa_path = os.path.join(base_path, "questions_and_labels.json")
@@ -98,7 +69,6 @@ def create_project_main_from_payload(payload: dict):
         json.dump({"questions": questions, "labels": labels}, f, indent=2, ensure_ascii=False)
     msg = f"Saved questions_and_labels.json at: {qa_path}"
     logs.append(msg)
-    log_to_file(msg)
 
     # Label Studio label config
     label_tags = "\n    ".join([f'<Label value="{label}"/>' for label in labels])
@@ -121,39 +91,34 @@ def create_project_main_from_payload(payload: dict):
 
     try:
         response = requests.post(
-            f"{LABEL_STUDIO_URL}/api/projects", headers=headers, json=project_payload
+            f"{LABEL_STUDIO_URL}/api/projects",
+            headers=headers,
+            json=project_payload,
+            timeout=20,
         )
-    except Exception as e:
-        log_to_file(f"ERROR: Network error while creating project: {e}")
-        raise
-
-    if response.status_code != 201:
-        error_msg = f"Failed to create project: {response.text}"
-        logs.append(error_msg)
-        log_to_file(f"ERROR: {error_msg}")
-        raise RuntimeError(error_msg)
+        response.raise_for_status()
+    except requests.RequestException:
+        raise RuntimeError("Label Studio project creation failed")
 
     project_id = response.json()["id"]
     msg = f"Project '{title}' created with ID {project_id}"
     logs.append(msg)
-    log_to_file(msg)
 
     # Attach ML backend
     ml_payload = {"url": ML_BACKEND_URL, "title": "xtractyl-backend", "project": project_id}
     try:
-        ml_response = requests.post(f"{LABEL_STUDIO_URL}/api/ml", headers=headers, json=ml_payload)
-    except Exception as e:
-        log_to_file(f"WARNING: Network error while attaching ML backend: {e}")
-        raise
-
-    if ml_response.status_code != 201:
-        msg = f"WARNING: Could not attach ML backend: {ml_response.text}"
-        logs.append(msg)
-        log_to_file(msg)
-    else:
-        msg = "ML backend successfully attached."
-        logs.append(msg)
-        log_to_file(msg)
+        ml_response = requests.post(
+            f"{LABEL_STUDIO_URL}/api/ml",
+            headers=headers,
+            json=ml_payload,
+            timeout=20,
+        )
+        if ml_response.status_code != 201:
+            logs.append("WARNING: Could not attach ML backend")
+        else:
+            logs.append("ML backend successfully attached.")
+    except requests.RequestException:
+        logs.append("WARNING: Could not attach ML backend")
 
     return logs
 
@@ -165,8 +130,8 @@ def list_html_subfolders():
             name for name in os.listdir(base_dir) if os.path.isdir(os.path.join(base_dir, name))
         ]
         return jsonify(subfolders), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except Exception:
+        return jsonify({"error": "internal error"}), 500
 
 
 def _safe_join(base: str, *paths: str) -> str:
@@ -193,9 +158,8 @@ def list_projects_route():
             if os.path.isdir(os.path.join(BASE_PROJECTS_DIR, d))
         )
         return jsonify(items), 200
-    except Exception as e:
-        logger.exception("Failed to list projects")
-        return jsonify({"error": str(e)}), 500
+    except Exception:
+        return jsonify({"error": "internal error"}), 500
 
 
 def list_qal_jsons_route():
@@ -221,9 +185,8 @@ def list_qal_jsons_route():
         return jsonify(files), 200
     except ValueError:
         return jsonify({"error": "invalid path"}), 400
-    except Exception as e:
-        logger.exception("Failed to list JSON files")
-        return jsonify({"error": str(e)}), 500
+    except Exception:
+        return jsonify({"error": "internal error"}), 500
 
 
 def preview_qal_route():
@@ -251,9 +214,8 @@ def preview_qal_route():
         return jsonify({"error": "invalid path"}), 400
     except json.JSONDecodeError:
         return jsonify({"error": "invalid JSON"}), 400
-    except Exception as e:
-        logger.exception("Failed to preview JSON")
-        return jsonify({"error": str(e)}), 500
+    except Exception:
+        return jsonify({"error": "internal error"}), 500
 
 
 def collect_html_tasks(folder: str):
@@ -277,26 +239,19 @@ def collect_html_tasks(folder: str):
 
 
 def upload_in_batches(tasks, batch_size, logs, project_id, headers):
-    """Upload tasks to Label Studio in batches, append progress to logs and logger."""
+    """Upload tasks to Label Studio in batches, append progress to logs."""
     url = f"{LABEL_STUDIO_URL}/api/projects/{project_id}/tasks/bulk"
     for i in range(0, len(tasks), batch_size):
         batch = tasks[i : i + batch_size]
         try:
-            resp = requests.post(url, headers=headers, json=batch)
+            resp = requests.post(url, headers=headers, json=batch, timeout=30)
             msg = f"📦 Batch {i // batch_size + 1}: {resp.status_code}"
             logs.append(msg)
-            logger.info(msg)
-
             if resp.status_code != 201:
                 logs.append("❌ Upload failed.")
-                logs.append(resp.text)
-                logger.error("Upload failed.")
-                logger.error(resp.text)
                 break
-        except Exception as e:
-            err = f"❌ Upload error: {e}"
-            logs.append(err)
-            logger.exception(err)
+        except requests.RequestException:
+            logs.append("❌ Upload error")
             break
 
 
@@ -318,12 +273,12 @@ def upload_tasks_main_from_payload(payload: dict):
 
     html_folder = os.path.join("data", "htmls", html_folder_name)
     if not os.path.isdir(html_folder):
-        raise FileNotFoundError(f"Folder not found: {html_folder}")
+        raise FileNotFoundError("Folder not found.")
 
     headers = {"Authorization": f"Token {token}", "Content-Type": "application/json"}
 
     # Fetch projects
-    r = requests.get(f"{LABEL_STUDIO_URL}/api/projects", headers=headers)
+    r = requests.get(f"{LABEL_STUDIO_URL}/api/projects", headers=headers, timeout=30)
     if r.status_code != 200:
         raise RuntimeError("Could not load projects from Label Studio.")
 
@@ -336,26 +291,21 @@ def upload_tasks_main_from_payload(payload: dict):
     project_id = next((p["id"] for p in projects if p.get("title") == title), None)
 
     if not project_id:
-        raise ValueError(f"Project '{title}' not found in Label Studio.")
+        raise ValueError("Project not found in Label Studio.")
 
     logs = [f"🔍 Scanning HTML files in {html_folder} ..."]
-    logger.info(logs[-1])
 
     tasks = collect_html_tasks(html_folder)
     msg = f"📄 Found {len(tasks)} HTML file(s)."
     logs.append(msg)
-    logger.info(msg)
 
     if tasks:
         upload_in_batches(tasks, BATCH_SIZE, logs, project_id, headers)
     else:
         msg = "⚠️ No HTML files found."
         logs.append(msg)
-        logger.warning(msg)
 
-    # Persist a simple run summary to the orchestrator log (already handled via logger)
     summary = "Upload completed." if tasks else "Nothing to upload."
-    logger.info(summary)
     logs.append(summary)
 
     return logs
