@@ -48,7 +48,6 @@ def create_project_main_from_payload(payload: dict):
       - labels: list[str]
       - token: str (Label Studio legacy token)
     """
-    logs = []
 
     # Inputs from payload
     title = payload.get("title", "xtractyl_project")
@@ -67,8 +66,6 @@ def create_project_main_from_payload(payload: dict):
     qa_path = os.path.join(base_path, "questions_and_labels.json")
     with open(qa_path, "w", encoding="utf-8") as f:
         json.dump({"questions": questions, "labels": labels}, f, indent=2, ensure_ascii=False)
-    msg = f"Saved questions_and_labels.json at: {qa_path}"
-    logs.append(msg)
 
     # Label Studio label config
     label_tags = "\n    ".join([f'<Label value="{label}"/>' for label in labels])
@@ -100,9 +97,9 @@ def create_project_main_from_payload(payload: dict):
     except requests.RequestException:
         raise RuntimeError("Label Studio project creation failed")
 
-    project_id = response.json()["id"]
-    msg = f"Project '{title}' created with ID {project_id}"
-    logs.append(msg)
+    project_id = response.json().get("id")
+    if not project_id:
+        raise RuntimeError("Label Studio project creation failed (no id)")
 
     # Attach ML backend
     ml_payload = {"url": ML_BACKEND_URL, "title": "xtractyl-backend", "project": project_id}
@@ -113,14 +110,11 @@ def create_project_main_from_payload(payload: dict):
             json=ml_payload,
             timeout=20,
         )
-        if ml_response.status_code != 201:
-            logs.append("WARNING: Could not attach ML backend")
-        else:
-            logs.append("ML backend successfully attached.")
+        ml_response.raise_for_status()
     except requests.RequestException:
-        logs.append("WARNING: Could not attach ML backend")
+        raise RuntimeError("Couldn't attach ML Backend")
 
-    return logs
+    return {"project_id": project_id}
 
 
 def list_html_subfolders():
@@ -238,21 +232,14 @@ def collect_html_tasks(folder: str):
     return tasks
 
 
-def upload_in_batches(tasks, batch_size, logs, project_id, headers):
-    """Upload tasks to Label Studio in batches, append progress to logs."""
+def upload_in_batches(tasks, batch_size, project_id, headers):
+    """Upload tasks to Label Studio in batches."""
     url = f"{LABEL_STUDIO_URL}/api/projects/{project_id}/tasks/bulk"
     for i in range(0, len(tasks), batch_size):
         batch = tasks[i : i + batch_size]
-        try:
-            resp = requests.post(url, headers=headers, json=batch, timeout=30)
-            msg = f"📦 Batch {i // batch_size + 1}: {resp.status_code}"
-            logs.append(msg)
-            if resp.status_code != 201:
-                logs.append("❌ Upload failed.")
-                break
-        except requests.RequestException:
-            logs.append("❌ Upload error")
-            break
+        resp = requests.post(url, headers=headers, json=batch, timeout=30)
+        if resp.status_code != 201:
+            raise RuntimeError(f"Upload failed: {resp.status_code}")
 
 
 def upload_tasks_main_from_payload(payload: dict):
@@ -293,19 +280,9 @@ def upload_tasks_main_from_payload(payload: dict):
     if not project_id:
         raise ValueError("Project not found in Label Studio.")
 
-    logs = [f"🔍 Scanning HTML files in {html_folder} ..."]
-
     tasks = collect_html_tasks(html_folder)
-    msg = f"📄 Found {len(tasks)} HTML file(s)."
-    logs.append(msg)
 
     if tasks:
-        upload_in_batches(tasks, BATCH_SIZE, logs, project_id, headers)
-    else:
-        msg = "⚠️ No HTML files found."
-        logs.append(msg)
+        upload_in_batches(tasks, BATCH_SIZE, project_id, headers)
 
-    summary = "Upload completed." if tasks else "Nothing to upload."
-    logs.append(summary)
-
-    return logs
+    return {"status": "ok"}
