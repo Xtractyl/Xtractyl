@@ -34,7 +34,6 @@ def predict():
     data = request.get_json(silent=True) or {}
     params = data.get("config") or data.get("params") or {}
 
-    # Job / Log-paths (best effort)
     job_id = (
         request.headers.get("X-Prelabel-Job")
         or request.args.get("job_id")

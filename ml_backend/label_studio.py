@@ -1,6 +1,4 @@
 # /ml_backend/label_studio.py
-import logging
-
 import requests
 
 
@@ -8,7 +6,6 @@ def save_predictions_to_labelstudio(params, task_id, prediction_result, meta: di
     url = params["label_studio_url"]
     token = params["ls_token"]
     mv = params["ollama_model"]
-    logging.info(f"📤 Saving predictions for task {task_id} (model: {mv})")
 
     payload = {"task": task_id, "model_version": mv, "result": prediction_result}
     if meta:
@@ -19,13 +16,11 @@ def save_predictions_to_labelstudio(params, task_id, prediction_result, meta: di
             f"{url}/api/predictions",
             headers={"Authorization": f"Token {token}", "Content-Type": "application/json"},
             json=payload,
+            timeout=15,
         )
         response.raise_for_status()
-        logging.info(f"✅ Prediction stored in Label Studio (task {task_id})")
-    except requests.exceptions.HTTPError as http_err:
-        logging.error(f"❌ HTTP Error: {http_err} - {response.status_code} {response.text}")
-    except Exception as e:
-        logging.error(f"❌ Error sending to Label Studio: {e}")
+    except requests.RequestException:
+        pass
 
 
 def attach_meta_to_task(params, task_id: int, meta: dict):
