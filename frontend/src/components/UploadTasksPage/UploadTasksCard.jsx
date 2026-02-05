@@ -34,17 +34,17 @@ export default function UploadTasksCard({ apiToken, projectName }) {
       setBusy(true);
       setStatus(null);
 
-      const result = await uploadTasks({
+      await uploadTasks({
         projectName: localProjectName,
         token: localToken,
         htmlFolder,
       });
 
-      console.log("✅ Upload success:", result);
+      console.log("✅ Upload success");
       setStatus("✅ Tasks uploaded successfully.");
     } catch (error) {
-      console.error("❌ Upload error:", error);
-      setStatus(`❌ Upload failed. ${error.message || "See console for details."}`);
+      console.error("❌ Upload error");
+      setStatus(`❌ Upload failed.`);
     } finally {
       setBusy(false);
     }

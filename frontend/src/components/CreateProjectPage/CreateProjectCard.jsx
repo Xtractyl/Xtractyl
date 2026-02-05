@@ -33,11 +33,11 @@ export default function CreateProjectCard({ apiToken, onTokenSave , onProjectNam
         token: apiToken, // direkt aus App-Prop
       });
 
-      console.log("✅ Project created:", result);
+      console.log("✅ Project created");
       alert("✅ Project successfully created!");
     } catch (error) {
-      console.error("❌ Error:", error);
-      alert("Something went wrong. See console for details.");
+      console.error("❌ Error");
+      alert("Something went wrong.");
     }
   };
 
