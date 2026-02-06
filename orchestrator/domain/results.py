@@ -7,8 +7,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List
 
-from domain.models.results import GetResultsTableCommand
 from utils.logging_utils import dev_logger, safe_logger
+
+from domain.models.results import GetResultsTableCommand
 
 from .utils.shared.label_studio_client import (
     fetch_task_annotations,
