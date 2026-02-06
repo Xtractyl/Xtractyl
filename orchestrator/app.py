@@ -1,9 +1,9 @@
 # orchestrator/app.py
 import os
-import traceback
 
+from api.error_handler import register_error_handlers
 from api.routes import register_routes
-from flask import Flask, jsonify
+from flask import Flask, Response, jsonify
 from flask_cors import CORS
 from utils.logging_utils import dev_logger, safe_logger
 
@@ -19,21 +19,27 @@ APP_PORT = int(os.getenv("ORCH_PORT", "5001"))
 
 
 def ok(fn):
-    try:
-        data = fn()
+    data = fn()
 
-        # already wrapped? then pass through
-        if isinstance(data, dict) and data.get("status") in ("success", "error"):
-            return jsonify(data), 200 if data["status"] == "success" else 400
+    # passthrough: (payload, status) oder (Response, status)
+    if isinstance(data, tuple) and len(data) == 2:
+        body, status = data
+        if isinstance(body, Response):
+            return body, status
+        return jsonify(body), status
 
-        # default: standard contract
-        return jsonify({"status": "success", "data": data}), 200
-    except ValueError as e:
-        # expected errors (guards)
-        return jsonify({"status": "error", "error": str(e)}), 400
-    except Exception as e:
-        # unexpected errors (bugs)
-        return jsonify({"status": "error", "error": str(e), "trace": traceback.format_exc()}), 500
+    # passthrough: Response direkt
+    if isinstance(data, Response):
+        return data
+
+    # legacy passthrough: {"status": "..."}
+    if isinstance(data, dict) and data.get("status") in ("success", "error", "ok"):
+        st = data["status"]
+        code = 200 if st in ("success", "ok") else 400
+        return jsonify(data), code
+
+    # default wrapper
+    return jsonify({"status": "success", "data": data}), 200
 
 
 def create_app() -> Flask:
@@ -42,6 +48,11 @@ def create_app() -> Flask:
     CORS(app, origins=[FRONTEND_ORIGIN], allow_headers=["Content-Type", "Authorization"])
 
     register_routes(app, ok)
+    register_error_handlers(
+        app=app,
+        logger_safe=safe_logger,
+        logger_dev=dev_logger,
+    )
     return app
 
 
