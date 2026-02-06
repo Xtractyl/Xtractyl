@@ -63,7 +63,6 @@ export default function EvaluateAICard({ apiToken }) {
         }
       })
       .catch((err) => {
-        console.error(err);
         setErrorMsg("Failed to load Label Studio projects.");
         const SPECIAL = "Evaluation_Set_Do_Not_Delete";
         // Fallback: nur Groundtruth mit SPECIAL, Comparison leer
@@ -86,16 +85,8 @@ export default function EvaluateAICard({ apiToken }) {
         comparisonProject
       );
       setEvalResult(result);
-    } catch (err) {
-      console.error(err);
-
-      const msg =
-        err?.body?.error ||
-        err?.body?.message ||
-        err?.message ||
-        `HTTP ${err?.status ?? "unknown"}`;
-
-      setEvalError(`Evaluation failed: ${msg}`);
+    } catch {
+      setEvalError("Evaluation failed.");
     } finally {
       setEvalLoading(false);
     }

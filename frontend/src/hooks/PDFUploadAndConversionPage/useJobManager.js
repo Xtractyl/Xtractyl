@@ -79,14 +79,13 @@ export default function useJobManager(folder, files, refreshSubfolders, refreshF
 
       setServerMsg("ℹ️ Cancel processed.");
     } catch (e) {
-      if (e.status === 404) {
+      if (e?.status === 404) {
         localStorage.removeItem("doclingJobId");
         setJobId(null);
         setJobStatus(null);
         setServerMsg("⚠️ Job not found on server.");
       } else {
-        console.error(e);
-        setServerMsg(`❌ ${e.message}`);
+        setServerMsg(`❌ Failed to cancel job.`);
       }
     } finally {
       setCancelBusy(false);
@@ -109,11 +108,12 @@ export default function useJobManager(folder, files, refreshSubfolders, refreshF
       if (refreshSubfolders) refreshSubfolders();
       if (refreshFilesInFolder) refreshFilesInFolder(folder);
     } catch (err) {
-      console.error(err);
-      setServerMsg(`❌ ${err.message}`);
-    } finally {
-      setSubmitBusy(false);
-    }
+  if (err?.status === 400) {
+    setServerMsg("❌ Invalid input.");
+  } else {
+    setServerMsg("❌ Couldn't convert PDFs.");
+  }
+}
   }, [files, folder, refreshSubfolders, refreshFilesInFolder]);
 
   const clearJob = useCallback(() => {
