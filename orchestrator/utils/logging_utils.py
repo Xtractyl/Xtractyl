@@ -17,6 +17,13 @@ SAFE_LOG_DIR.mkdir(parents=True, exist_ok=True)
 DEV_LOG_DIR = DEV_LOGS_DIR
 DEV_LOG_DIR.mkdir(parents=True, exist_ok=True)
 
+# Fixture capture (for tests only)
+FIXTURES_DIR = pathlib.Path(os.getenv("FIXTURES_DIR", "/app/data/fixtures"))
+FIXTURES_DIR.mkdir(parents=True, exist_ok=True)
+
+CAPTURE_FIXTURES = os.getenv("CAPTURE_FIXTURES", "0") == "1"
+SYNTHETIC_DATA = os.getenv("SYNTHETIC_DATA", "0") == "1"
+
 
 def _make_logger(
     name: str,
@@ -62,3 +69,23 @@ if DEBUG_ARTIFACTS:
         to_stdout=False,
         file_path=DEV_LOG_DIR / "orchestrator.dev.log",
     )
+
+
+def write_fixture(filename: str, data: str | bytes) -> pathlib.Path | None:
+    """
+    Persist fixture data for later use in tests.
+    Only writes when:
+      DEBUG_ARTIFACTS=1 AND CAPTURE_FIXTURES=1 AND SYNTHETIC_DATA=1
+    """
+    if not (DEBUG_ARTIFACTS and CAPTURE_FIXTURES and SYNTHETIC_DATA):
+        return None
+
+    path = FIXTURES_DIR / filename
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    if isinstance(data, bytes):
+        path.write_bytes(data)
+    else:
+        path.write_text(data)
+
+    return path

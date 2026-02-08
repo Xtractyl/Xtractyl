@@ -442,13 +442,25 @@ make unit-orchestrator
 	•	enabled only when explicitly requested
 	•	logs may include sensitive data
 	•	debug logs are written only to:
-	•	data/... (alongside evaluation / result artifacts)
+	•	data/logs/... (alongside evaluation / result artifacts)
 	•	debug logs are never written to stdout or logs/
 
 ```bash 
 DEBUG_ARTIFACTS=1 docker compose up
 ```
 
+3. Fixture mode (saving data as files during run for use as fixtures, do so only with synthetic data)
+	•	enabled only when explicitly requested
+   •	logs may include sensitive data (do only use those fixture if you used synthetic data only)
+	•	debug logs are written only to:
+	•	data/fixtures/... (alongside evaluation / result artifacts / debug artifacts)
+   	•	logs may include sensitive data
+	•	debug logs are written only to:
+	•	fixtures have to be copied handedly from data/fixtures/ to tests/fixtures/ afterwards (not automated to further avoid inadvertent usage of sensitive data)
+
+```bash 
+DEBUG_ARTIFACTS=1 CAPTURE_FIXTURES=1 SYNTHETIC_DATA=1 docker compose up
+```
 
 ---
 

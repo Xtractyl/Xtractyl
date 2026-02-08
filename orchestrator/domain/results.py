@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List
 
-from utils.logging_utils import dev_logger, safe_logger
+from utils.logging_utils import dev_logger, safe_logger, write_fixture
 
 from domain.models.results import GetResultsTableCommand
 
@@ -187,6 +187,8 @@ def build_results_table(cmd: GetResultsTableCommand):
 
     if dev_logger:
         dev_logger.info("results_csv_written")
+
+    write_fixture("results/test.json", json.dumps(payload, indent=2))
 
     payload["results_output_path_csv"] = csv_path
     return payload

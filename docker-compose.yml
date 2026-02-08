@@ -11,6 +11,8 @@ services:
     environment:
       - ROLLUP_USE_NODE_BUILTINS=${ROLLUP_USE_NODE_BUILTINS:-true}
       - DEBUG_ARTIFACTS=${DEBUG_ARTIFACTS:-0}
+      - CAPTURE_FIXTURES=${CAPTURE_FIXTURES:-0}
+      - SYNTHETIC_DATA=${SYNTHETIC_DATA:-0}
     working_dir: /app
 
   postgres:
@@ -73,6 +75,7 @@ services:
       - ${RESULTS_DIR:-./data/results}:/app/data/results
       - ${LOGS_DIR:-./logs}:/logs
       - ${DEV_LOGS_DIR:-./data/logs}:/app/data/logs
+      - ${FIXTURES_DIR:-./data/fixtures}:/app/data/fixtures
     environment:
       - PROJECTS_DIR=/app/data/projects
       - HTMLS_DIR=/app/data/htmls
@@ -82,6 +85,9 @@ services:
       - LOGS_DIR=/logs
       - DEV_LOGS_DIR=/app/data/logs
       - DEBUG_ARTIFACTS=${DEBUG_ARTIFACTS:-0}
+      - CAPTURE_FIXTURES=${CAPTURE_FIXTURES:-0}
+      - SYNTHETIC_DATA=${SYNTHETIC_DATA:-0}
+      - FIXTURES_DIR=/app/data/fixtures
 
   ml_backend:
     build:
@@ -103,6 +109,9 @@ services:
     - LABELSTUDIO_HOST=labelstudio        
     - LABELSTUDIO_PORT=${LABELSTUDIO_PORT:-8080}
     - DEBUG_ARTIFACTS=${DEBUG_ARTIFACTS:-0}
+    - CAPTURE_FIXTURES=${CAPTURE_FIXTURES:-0}
+    - SYNTHETIC_DATA=${SYNTHETIC_DATA:-0}
+
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${ML_BACKEND_INTERNAL_PORT:-6789}/health"]
       interval: 10s
@@ -139,6 +148,8 @@ services:
       - DOCLING_PORT=${DOCLING_PORT:-5004}
       - FRONTEND_PORT=${FRONTEND_PORT:-5173}
       - DEBUG_ARTIFACTS=${DEBUG_ARTIFACTS:-0}
+      - CAPTURE_FIXTURES=${CAPTURE_FIXTURES:-0}
+      - SYNTHETIC_DATA=${SYNTHETIC_DATA:-0}
     command: ["sh", "-c", "flask run --host=0.0.0.0 --port=$DOCLING_PORT"]
 
   job_queue:
@@ -184,6 +195,8 @@ services:
       - ML_BACKEND_HOST=ml_backend
       - ML_BACKEND_PORT=${ML_BACKEND_INTERNAL_PORT:-6789}
       - DEBUG_ARTIFACTS=${DEBUG_ARTIFACTS:-0}
+      - CAPTURE_FIXTURES=${CAPTURE_FIXTURES:-0}
+      - SYNTHETIC_DATA=${SYNTHETIC_DATA:-0}
     command: ["python", "-m", "worker.prelabel_worker"]
 
 volumes:
