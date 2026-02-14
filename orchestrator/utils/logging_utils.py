@@ -1,10 +1,12 @@
 # orchestrator/utils/logging_utils.py
 from __future__ import annotations
 
+import json
 import logging
 import os
 import pathlib
-from typing import Optional
+from datetime import datetime
+from typing import Any, Optional
 
 DEBUG_ARTIFACTS = os.getenv("DEBUG_ARTIFACTS", "0") == "1"
 
@@ -20,6 +22,8 @@ DEV_LOG_DIR.mkdir(parents=True, exist_ok=True)
 # Fixture capture (for tests only)
 FIXTURES_DIR = pathlib.Path(os.getenv("FIXTURES_DIR", "/app/data/fixtures"))
 FIXTURES_DIR.mkdir(parents=True, exist_ok=True)
+
+EVAL_OVER_TIME_LOG = SAFE_LOG_DIR / "evaluation_over_time.jsonl"
 
 CAPTURE_FIXTURES = os.getenv("CAPTURE_FIXTURES", "0") == "1"
 SYNTHETIC_DATA = os.getenv("SYNTHETIC_DATA", "0") == "1"
@@ -89,3 +93,23 @@ def write_fixture(filename: str, data: str | bytes) -> pathlib.Path | None:
         path.write_text(data)
 
     return path
+
+
+def log_evaluation_over_time(event: dict[str, Any]) -> pathlib.Path:
+    """
+    Append a SAFE evaluation-over-time event to logs/evaluation_over_time.jsonl.
+
+    Must not contain sensitive data:
+    - no filenames
+    - no raw model answers / prompts
+    - no tokens
+    - no PDF/HTML content
+    - no tracebacks
+
+    Caller is responsible for passing an already-safe payload.
+    """
+    SAFE_LOG_DIR.mkdir(parents=True, exist_ok=True)
+    safe_event = {"ts": datetime.utcnow().isoformat(timespec="seconds") + "Z", **event}
+    with EVAL_OVER_TIME_LOG.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(safe_event, ensure_ascii=False, separators=(",", ":")) + "\n")
+    return EVAL_OVER_TIME_LOG
