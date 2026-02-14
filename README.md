@@ -449,14 +449,16 @@ make unit-orchestrator
 DEBUG_ARTIFACTS=1 docker compose up
 ```
 
-3. Fixture mode (saving data as files during run for use as fixtures, do so only with synthetic data)
-	•	enabled only when explicitly requested
-   •	logs may include sensitive data (do only use those fixture if you used synthetic data only)
-	•	debug logs are written only to:
-	•	data/fixtures/... (alongside evaluation / result artifacts / debug artifacts)
-   	•	logs may include sensitive data
-	•	debug logs are written only to:
-	•	fixtures have to be copied handedly from data/fixtures/ to tests/fixtures/ afterwards (not automated to further avoid inadvertent usage of sensitive data)
+3. Fixture mode 
+Saving data as files during a run for later use as test fixtures. Only with synthetic data in a pure dev environment. Endpoints are triggered via the GUI.
+	•	Enabled only when explicitly requested (via env flags).
+	•	Debug/fixture artifacts are written only to:
+	•	data/fixtures/... (mounted fixture folder)
+	•	After the run, fixtures must be copied manually from data/fixtures/ to tests/fixtures/.
+	•	This is intentionally not automated to avoid inadvertent inclusion of sensitive data.
+	•	When copying, keep the filename identical but append __SYNTHETIC_DATA (before .json; TWO underscores), e.g.
+build_results_table_minimal__tasks_page__SYNTHETIC_DATA.json
+
 
 ```bash 
 DEBUG_ARTIFACTS=1 CAPTURE_FIXTURES=1 SYNTHETIC_DATA=1 docker compose up
