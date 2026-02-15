@@ -49,7 +49,11 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
             <div className="mt-1">
               Name: <b>{payload.comparison_project}</b><br />
               ID: {payload.comparison_project_id}<br />
-              Model: {cmpMeta.model ?? "—"}
+              Model: {cmpMeta.model ?? "—"}<br />
+             Run time:{" "}
+              {payload.run_at_raw
+                ? new Date(payload.run_at_raw).toLocaleString()
+                : "—"}
             </div>
           </div>
         </div>

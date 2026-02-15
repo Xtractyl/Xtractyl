@@ -181,12 +181,24 @@ def _tasks_to_rows(token: str, project_id: int, mode: str) -> list[dict]:
 
         meta = _latest_prediction_meta(t) if mode == "pred" else {}
 
+        run_at_raw = None
+        if mode == "pred":
+            preds = [p for p in (t.get("predictions") or []) if isinstance(p, dict)]
+            if preds:
+                chosen = sorted(
+                    preds,
+                    key=lambda p: p.get("created_at") or p.get("updated_at") or "",
+                    reverse=True,
+                )[0]
+                run_at_raw = chosen.get("created_at") or chosen.get("updated_at")
+
         rows.append(
             {
                 "task_id": t.get("id"),
                 "filename": filename,
                 "labels": labels,
                 "meta": meta,
+                "run_at_raw": run_at_raw,
             }
         )
 
@@ -235,11 +247,14 @@ def evaluate_projects(cmd: EvaluateProjectsCommand) -> dict:
         )
 
     overall = compute_metrics_from_rows(gt_rows, pred_rows)
+    times = [r.get("run_at_raw") for r in pred_rows if r.get("run_at_raw")]
+    run_at_raw = max(times) if times else None
     result = {
         "groundtruth_project": groundtruth_project,
         "groundtruth_project_id": gt_id,
         "comparison_project": comparison_project,
         "comparison_project_id": cmp_id,
+        "run_at_raw": run_at_raw,
         "metrics": overall,
         "answer_comparison": [],
     }
@@ -256,6 +271,7 @@ def evaluate_projects(cmd: EvaluateProjectsCommand) -> dict:
             log_evaluation_over_time(
                 {
                     "series": SPECIAL_PROJECT_TITLE,
+                    "run_at_raw": run_at_raw,
                     "groundtruth_project_id": int(gt_id),
                     "comparison_project_id": int(cmp_id),
                     "model": model,
