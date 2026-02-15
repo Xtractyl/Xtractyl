@@ -5,7 +5,22 @@ from domain.evaluation import (
     get_groundtruth_qal,
     list_project_names,
 )
+from domain.models.evaluation import EvaluateProjectsCommand
 from flask import jsonify, request
+from pydantic import ValidationError
+
+from api.contracts.evaluation import EvaluateProjectsRequest
+
+
+def _extract_token(req) -> str | None:
+    # Preferred: Authorization: Bearer <token>
+    auth = req.headers.get("Authorization", "")
+    if auth.startswith("Bearer "):
+        return auth.removeprefix("Bearer ").strip()
+
+    # Legacy fallback: token in JSON body
+    payload = req.get_json(silent=True) or {}
+    return payload.get("token")
 
 
 def register(app, ok):
@@ -26,24 +41,23 @@ def register(app, ok):
 
     @app.route("/evaluate-ai", methods=["POST"])
     def evaluate_ai():
-        payload = request.get_json() or {}
+        payload = request.get_json(silent=True) or {}
+        token = _extract_token(request)
 
-        token = payload.get("token")
-        gt_name = payload.get("groundtruth_project")
-        cmp_name = payload.get("comparison_project")
-
-        if not token or not gt_name or not cmp_name:
-            return (
-                jsonify(
-                    {
-                        "status": "error",
-                        "error": "token, groundtruth_project, comparison_project are required",
-                    }
-                ),
-                400,
+        try:
+            contract = EvaluateProjectsRequest.model_validate(payload)
+        except ValidationError as e:
+            errors = e.errors()
+            return ok(
+                lambda: {
+                    "status": "error",
+                    "error": "validation_error",
+                    "details": errors,
+                }
             )
 
-        def run():
-            return evaluate_projects(token, gt_name, cmp_name)
+        if not token:
+            return ok(lambda: {"status": "error", "error": "token is required"})
 
-        return ok(run)
+        cmd = EvaluateProjectsCommand.from_contract(contract, token)
+        return ok(lambda: evaluate_projects(cmd))
