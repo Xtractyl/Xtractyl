@@ -7,6 +7,7 @@ import StartPrelabellingPage from './pages/StartPrelabelling.jsx';
 import ReviewAIPage from './pages/ReviewAI.jsx';
 import GetResultsPage from './pages/GetResults.jsx';
 import EvaluateAIPage from './pages/EvaluateAI.jsx';
+import EvaluationDriftPage from './pages/EvaluationDrift.jsx';
 import FinetuneAIPage from './pages/FinetuneAI.jsx';
 import AboutPage from './pages/AboutPage.jsx';
 
@@ -49,6 +50,7 @@ const handleProjectNameSave = (name) => {
           <Route path="/review" element={<ReviewAIPage />} />
           <Route path="/results" element={<GetResultsPage apiToken={apiToken} projectName={projectName}  />} />
           <Route path="/evaluate" element={<EvaluateAIPage apiToken={apiToken} projectName={projectName} />} />
+          <Route path="/evaluationdrift" element={<EvaluationDriftPage />} />
           <Route path="/finetune" element={<FinetuneAIPage apiToken={apiToken} projectName={projectName} />} />
         </Routes>
       </Layout>

@@ -1,3 +1,5 @@
+
+// frontend/src/components/FinetuneAIPage/FinetuneAICard.jsx
 export default function FinetuneAICard() {
     return (
         <div className="p-8 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
