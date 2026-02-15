@@ -2,9 +2,12 @@
 const ORCH_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001";
 
 export async function fetchEvaluationProjects(apiToken) {
-  const resp = await fetch(
-    `${ORCH_BASE}/evaluate-ai/projects?token=${encodeURIComponent(apiToken)}`
-  );
+  const resp = await fetch(`${ORCH_BASE}/evaluate-ai/projects`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${apiToken}`,
+    },
+  });
 
   const data = await resp.json().catch(() => ({}));
 
@@ -21,9 +24,11 @@ export async function fetchEvaluationProjects(apiToken) {
 export async function evaluateAI(apiToken, groundtruthProject, comparisonProject) {
   const resp = await fetch(`${ORCH_BASE}/evaluate-ai`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiToken}`,
+    },
     body: JSON.stringify({
-      token: apiToken,
       groundtruth_project: groundtruthProject,
       comparison_project: comparisonProject,
     }),

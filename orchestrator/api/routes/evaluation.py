@@ -6,7 +6,7 @@ from domain.evaluation import (
     list_project_names,
 )
 from domain.models.evaluation import EvaluateProjectsCommand
-from flask import jsonify, request
+from flask import request
 from pydantic import ValidationError
 
 from api.contracts.evaluation import EvaluateProjectsRequest
@@ -26,14 +26,12 @@ def _extract_token(req) -> str | None:
 def register(app, ok):
     @app.route("/evaluate-ai/projects", methods=["GET"])
     def evaluate_ai_projects():
-        token = request.args.get("token")
+        token = _extract_token(request)
+
         if not token:
-            return jsonify({"status": "error", "error": "token query parameter is required"}), 400
+            return ok(lambda: {"status": "error", "error": "token is required"})
 
-        def run():
-            return list_project_names(token)
-
-        return ok(run)
+        return ok(lambda: list_project_names(token))
 
     @app.route("/groundtruth_qal", methods=["GET"])
     def groundtruth_qal():
