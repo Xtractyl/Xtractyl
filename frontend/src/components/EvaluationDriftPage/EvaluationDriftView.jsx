@@ -13,7 +13,17 @@ export default function EvaluationDriftView() {
         setLoading(true);
         setErrorMsg("");
         const data = await fetchEvaluationDrift();
-        setItems(Array.isArray(data) ? data : []);
+
+        // Orchestrator returns either:
+        // - Array (legacy/alt)
+        // - { series, entries: [...] }
+        const entries = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.entries)
+          ? data.entries
+          : [];
+
+        setItems(entries);
       } catch (e) {
         setErrorMsg(e?.message || "Failed to load drift data");
       } finally {
@@ -92,29 +102,17 @@ export default function EvaluationDriftView() {
             const fn = typeof micro.fn === "number" ? micro.fn : 0;
             const tn = typeof micro.tn === "number" ? micro.tn : 0;
 
-            const fpFn =
-              typeof micro.fp_fn === "number" ? micro.fp_fn : "—";
-            const timeout =
-              typeof micro.timeout === "number" ? micro.timeout : "—";
+            const fpFn = typeof micro.fp_fn === "number" ? micro.fp_fn : "—";
+            const timeout = typeof micro.timeout === "number" ? micro.timeout : "—";
 
             const row = {
               model: it.model || "",
               schema_hash: it.schema_hash || "",
-              run_time: it.run_at_raw
-                ? new Date(it.run_at_raw).toLocaleString()
-                : "",
+              run_time: it.run_at_raw ? new Date(it.run_at_raw).toLocaleString() : "",
               precision:
-                typeof micro.precision === "number"
-                  ? micro.precision.toFixed(3)
-                  : "",
-              recall:
-                typeof micro.recall === "number"
-                  ? micro.recall.toFixed(3)
-                  : "",
-              f1:
-                typeof micro.f1 === "number"
-                  ? micro.f1.toFixed(3)
-                  : "",
+                typeof micro.precision === "number" ? micro.precision.toFixed(3) : "",
+              recall: typeof micro.recall === "number" ? micro.recall.toFixed(3) : "",
+              f1: typeof micro.f1 === "number" ? micro.f1.toFixed(3) : "",
               n_files: it.metrics?.filenames_count ?? "",
               tp,
               fp,
