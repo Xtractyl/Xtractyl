@@ -389,6 +389,15 @@ Planned next.
 
 --- 
 
+### Monitor Evaluation Drift/Regression over Time for a Standard Set
+❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+
+![Evaluation Drift](assets/evaluation_drift.png)
+
+❗❗THE ABOVE IMAGES SHOW SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+
+--- 
+
 ### ⏭️ Coming Soon
 
 9.**Fine-tune the AI** (`/finetune`) 
@@ -429,14 +438,11 @@ make unit-orchestrator
 
 1) Default mode (safe logs)
 	•	enabled by default
-	•	logs exclude sensitive data, including:
-	•	request / response payloads
-	•	filenames (when potentially sensitive)
-	•	document contents
-	•	pydantic validation / evaluation errors (may contain payload data)
+	•	logs exclude sensitive data
 	•	logs are written to:
 	•	stdout / stream
 	•	logs/ directory
+ 	•	logs/evaluation_over_time.jsonl contains drift/regression monitoring for a standard set
 
 2) Dev mode (debug artifacts)
 	•	enabled only when explicitly requested
@@ -449,7 +455,7 @@ make unit-orchestrator
 DEBUG_ARTIFACTS=1 docker compose up
 ```
 
-3. Fixture mode 
+3) Fixture mode 
 Saving data as files during a run for later use as test fixtures. Only with synthetic data in a pure dev environment. Endpoints are triggered via the GUI.
 	•	Enabled only when explicitly requested (via env flags).
 	•	Debug/fixture artifacts are written only to:
