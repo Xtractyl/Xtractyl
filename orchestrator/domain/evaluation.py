@@ -1,10 +1,15 @@
 # orchestrator/domain/evaluation.py
 
+import hashlib
 import json
 import os
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
+
+from utils.logging_utils import log_evaluation_over_time, safe_logger
+
+from domain.models.evaluation import EvaluateProjectsCommand
 
 from .utils.calculate_metrics import compute_metrics_from_rows
 from .utils.evaluate_project_utils import SPECIAL_PROJECT_TITLE, create_evaluation_project
@@ -21,6 +26,52 @@ GROUNDTRUTH_QAL_PATH = os.getenv(
 )
 
 EVAL_OUT_DIR = Path(os.getenv("EVAL_DIR", "/app/data/evaluation"))
+
+
+def _sha256_text(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def _qal_hash_from_file() -> str | None:
+    """
+    Hash questions+labels for comparability across runs.
+    Never logs the QAL content itself.
+    """
+    try:
+        with open(GROUNDTRUTH_QAL_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        canonical = json.dumps(data, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+        return _sha256_text(canonical)
+    except Exception:
+        return None
+
+
+def _extract_consistent_meta(pred_rows: list[dict]) -> tuple[str | None, str | None]:
+    """
+    Returns (model, prompt_hash) if consistent across tasks, else (None, None).
+    Expects meta keys produced by ml_backend: meta["model"], meta["system_prompt"].
+    """
+    models: set[str] = set()
+    prompt_hashes: set[str] = set()
+    for r in pred_rows or []:
+        meta = r.get("meta") or {}
+        if not isinstance(meta, dict):
+            return None, None
+        model = meta.get("model")
+        if isinstance(model, str) and model.strip():
+            models.add(model.strip())
+        else:
+            # strict: every task must have model
+            return None, None
+        system_prompt = meta.get("system_prompt")
+        if isinstance(system_prompt, str) and system_prompt.strip():
+            prompt_hashes.add(_sha256_text(system_prompt))
+        else:
+            # strict: every task must have prompt
+            return None, None
+    if len(models) == 1 and len(prompt_hashes) == 1:
+        return next(iter(models)), next(iter(prompt_hashes))
+    return None, None
 
 
 def list_project_names(token: str) -> list[str]:
@@ -130,19 +181,34 @@ def _tasks_to_rows(token: str, project_id: int, mode: str) -> list[dict]:
 
         meta = _latest_prediction_meta(t) if mode == "pred" else {}
 
+        run_at_raw = None
+        if mode == "pred":
+            preds = [p for p in (t.get("predictions") or []) if isinstance(p, dict)]
+            if preds:
+                chosen = sorted(
+                    preds,
+                    key=lambda p: p.get("created_at") or p.get("updated_at") or "",
+                    reverse=True,
+                )[0]
+                run_at_raw = chosen.get("created_at") or chosen.get("updated_at")
+
         rows.append(
             {
                 "task_id": t.get("id"),
                 "filename": filename,
                 "labels": labels,
                 "meta": meta,
+                "run_at_raw": run_at_raw,
             }
         )
 
     return rows
 
 
-def evaluate_projects(token: str, groundtruth_project: str, comparison_project: str) -> dict:
+def evaluate_projects(cmd: EvaluateProjectsCommand) -> dict:
+    token = cmd.token
+    groundtruth_project = cmd.groundtruth_project
+    comparison_project = cmd.comparison_project
     try:
         gt_id = resolve_project_id(token, groundtruth_project)
     except ValueError:
@@ -181,16 +247,44 @@ def evaluate_projects(token: str, groundtruth_project: str, comparison_project: 
         )
 
     overall = compute_metrics_from_rows(gt_rows, pred_rows)
+    times = [r.get("run_at_raw") for r in pred_rows if r.get("run_at_raw")]
+    run_at_raw = max(times) if times else None
     result = {
         "groundtruth_project": groundtruth_project,
         "groundtruth_project_id": gt_id,
         "comparison_project": comparison_project,
         "comparison_project_id": cmp_id,
+        "run_at_raw": run_at_raw,
         "metrics": overall,
         "answer_comparison": [],
     }
 
     result["evaluation_output_path"] = _write_eval_result(result, gt_id, cmp_id)
+
+    # --- Evaluation-over-time logger (SAFE, comparable series only) ---
+    # Only log the standard groundtruth set to avoid incomparable datasets.
+    if groundtruth_project == SPECIAL_PROJECT_TITLE:
+        qal_hash = _qal_hash_from_file()
+        model, prompt_hash = _extract_consistent_meta(pred_rows)
+        if qal_hash and model and prompt_hash:
+            schema_hash = _sha256_text(f"{qal_hash}:{prompt_hash}")
+            log_evaluation_over_time(
+                {
+                    "series": SPECIAL_PROJECT_TITLE,
+                    "run_at_raw": run_at_raw,
+                    "groundtruth_project_id": int(gt_id),
+                    "comparison_project_id": int(cmp_id),
+                    "model": model,
+                    "qal_hash": qal_hash,
+                    "prompt_hash": prompt_hash,
+                    "schema_hash": schema_hash,
+                    "metrics": overall,
+                }
+            )
+        else:
+            # fail-safe: keep log clean (no apples/oranges series)
+            safe_logger.info("eval_over_time_skipped_missing_or_inconsistent_meta")
+
     return result
 
 

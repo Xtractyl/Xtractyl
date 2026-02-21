@@ -1,0 +1,60 @@
+name: Require VERSION bump (except README/assets)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  version-bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine changed files
+        id: diff
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
+          git fetch --no-tags origin "${BASE_SHA}" "${HEAD_SHA}" || true
+
+          CHANGED_FILES="$(git diff --name-only "${BASE_SHA}" "${HEAD_SHA}")"
+          echo "Changed files:"
+          echo "${CHANGED_FILES}"
+
+          VERSION_CHANGED="false"
+          HAS_RELEVANT_CHANGES="false"
+
+          while IFS= read -r f; do
+            [[ -z "${f}" ]] && continue
+
+            if [[ "${f}" == "VERSION" ]]; then
+              VERSION_CHANGED="true"
+              continue
+            fi
+
+            if [[ "${f}" == "README.md" || "${f}" == assets/* ]]; then
+              continue
+            fi
+
+            HAS_RELEVANT_CHANGES="true"
+          done <<< "${CHANGED_FILES}"
+
+          echo "version_changed=${VERSION_CHANGED}" >> "$GITHUB_OUTPUT"
+          echo "has_relevant_changes=${HAS_RELEVANT_CHANGES}" >> "$GITHUB_OUTPUT"
+
+      - name: Enforce VERSION bump
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ steps.diff.outputs.has_relevant_changes }}" == "true" && "${{ steps.diff.outputs.version_changed }}" != "true" ]]; then
+            echo "::error::This PR changes files outside README.md/assets/, so it must include a VERSION bump (modify the VERSION file)."
+            exit 1
+          fi
+          echo "OK: VERSION bump policy satisfied."

@@ -1,0 +1,2187 @@
+{
+  "project_id": 37,
+  "total": 10,
+  "tasks": [
+    {
+      "id": 321,
+      "data": {
+        "html": "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\"/>\n<title>lab_report_no_hba1c</title>\n<meta name=\"generator\" content=\"Docling HTML Serializer\"/>\n<style>\n    html {\n        background-color: #f5f5f5;\n        font-family: Arial, sans-serif;\n        line-height: 1.6;\n    }\n    body {\n        max-width: 800px;\n        margin: 0 auto;\n        padding: 2rem;\n        background-color: white;\n        box-shadow: 0 0 10px rgba(0,0,0,0.1);\n    }\n    h1, h2, h3, h4, h5, h6 {\n        color: #333;\n        margin-top: 1.5em;\n        margin-bottom: 0.5em;\n    }\n    h1 {\n        font-size: 2em;\n        border-bottom: 1px solid #eee;\n        padding-bottom: 0.3em;\n    }\n    table {\n        border-collapse: collapse;\n        margin: 1em 0;\n        width: 100%;\n    }\n    th, td {\n        border: 1px solid #ddd;\n        padding: 8px;\n        text-align: left;\n    }\n    th {\n        background-color: #f2f2f2;\n        font-weight: bold;\n    }\n    figure {\n        margin: 1.5em 0;\n        text-align: center;\n    }\n    figcaption {\n        color: #666;\n        font-style: italic;\n        margin-top: 0.5em;\n    }\n    img {\n        max-width: 100%;\n        height: auto;\n    }\n    pre {\n        background-color: #f6f8fa;\n        border-radius: 3px;\n        padding: 1em;\n        overflow: auto;\n    }\n    code {\n        font-family: monospace;\n        background-color: #f6f8fa;\n        padding: 0.2em 0.4em;\n        border-radius: 3px;\n    }\n    pre code {\n        background-color: transparent;\n        padding: 0;\n    }\n    .formula {\n        text-align: center;\n        padding: 0.5em;\n        margin: 1em 0;\n        background-color: #f9f9f9;\n    }\n    .formula-not-decoded {\n        text-align: center;\n        padding: 0.5em;\n        margin: 1em 0;\n        background: repeating-linear-gradient(\n            45deg,\n            #f0f0f0,\n            #f0f0f0 10px,\n            #f9f9f9 10px,\n            #f9f9f9 20px\n        );\n    }\n    .page-break {\n        page-break-after: always;\n        border-top: 1px dashed #ccc;\n        margin: 2em 0;\n    }\n    .key-value-region {\n        background-color: #f9f9f9;\n        padding: 1em;\n        border-radius: 4px;\n        margin: 1em 0;\n    }\n    .key-value-region dt {\n        font-weight: bold;\n    }\n    .key-value-region dd {\n        margin-left: 1em;\n        margin-bottom: 0.5em;\n    }\n    .form-container {\n        border: 1px solid #ddd;\n        padding: 1em;\n        border-radius: 4px;\n        margin: 1em 0;\n    }\n    .form-item {\n        margin-bottom: 0.5em;\n    }\n    .image-classification {\n        font-size: 0.9em;\n        color: #666;\n        margin-top: 0.5em;\n    }\n</style>\n</head>\n<body>\n<div class='page'>\n<h2>Laboratory Report</h2>\n<p>Patient: Clara S. Hoffmann (DOB 1992-08-09, MRN 118372) - Report date: 2025-10-07</p>\n<table><tbody><tr><th>Test</th><th>Result</th><th>Reference Range</th></tr><tr><td>Fasting Glucose</td><td>92 mg/dL</td><td>70 - 99 mg/dL</td></tr><tr><td>Creatinine</td><td>0.8 mg/dL</td><td>0.7 - 1.3 mg/dL</td></tr><tr><td>eGFR</td><td>95 mL/min/1.73m²</td><td>‡ 60 mL/min/1.73m²</td></tr><tr><td>Total Cholesterol</td><td>185 mg/dL</td><td>&lt; 200 mg/dL</td></tr><tr><td>LDL Cholesterol</td><td>110 mg/dL</td><td>&lt; 130 mg/dL</td></tr><tr><td>HDL Cholesterol</td><td>55 mg/dL</td><td>&gt; 40 mg/dL</td></tr></tbody></table>\n<p>Interpretation: Laboratory values are within or close to reference ranges. No HbA1c measurement was performed in this report.</p>\n<p>Disclaimer: This is a synthetic document created for software testing purposes only. It is not for clinical use or to be interpreted as a medical device output.</p>\n</div>\n</body>\n</html>",
+        "name": "lab_report_no_hba1c.html",
+        "ml_meta": {
+          "model": "gemma3:12b",
+          "job_id": "1770289974138",
+          "performance": {
+            "events": [
+              {
+                "ms": 361.3012920250185,
+                "name": "dom.extract",
+                "tags": {}
+              },
+              {
+                "ms": 11021.310171985533,
+                "name": "llm.call",
+                "tags": {
+                  "label": "Patient",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 10859.481922001578,
+                "name": "llm.call",
+                "tags": {
+                  "label": "Physician",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 11205.178130010609,
+                "name": "llm.call",
+                "tags": {
+                  "label": "HbA1c",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 11563.980464008637,
+                "name": "llm.call",
+                "tags": {
+                  "label": "DateOfDischarge",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 11440.827170968987,
+                "name": "llm.call",
+                "tags": {
+                  "label": "TNM",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 0.06937503349035978,
+                "name": "dom.match",
+                "tags": {}
+              }
+            ],
+            "request": {
+              "dom_ms": 361.37066705850884,
+              "n_timeouts": 0,
+              "n_llm_calls": 5,
+              "task_ms_total": 56452.14852603385,
+              "avg_llm_call_ms": 11218.155571795069,
+              "task_ms_dom_match": 0.06937503349035978,
+              "task_ms_llm_total": 56090.77785897534,
+              "median_llm_call_ms": 11205.178130010609,
+              "task_ms_dom_extract": 361.3012920250185
+            }
+          },
+          "system_prompt": "You are a pure extraction model.\n\nWhen you are given a TEXT and a QUESTION, you must return exactly one literal text passage from the TEXT that best answers the QUESTION.\n\nOutput format (mandatory):\n- Return EXACTLY ONE matching passage, with no introduction, no explanations, no Markdown, NO JSON, and no quotation marks around the answer.\n- Preserve capitalization, spaces, and punctuation EXACTLY as in the TEXT.\n- If there is NO matching passage: respond with <<<NO_MATCH>>>.\n\nAdditional rules:\n- Never provide multiple passages or variations.\n- If multiple passages fit, choose the most precise and shortest exact passage.",
+          "raw_llm_answers": {
+            "TNM": {
+              "error": null,
+              "answer": "<<<NO_ል>>>",
+              "status": "ok",
+              "question": "What is the TNM staging, only give me the information on p on n on m, no extra information"
+            },
+            "HbA1c": {
+              "error": null,
+              "answer": "<<<NO_ል>>>",
+              "status": "ok",
+              "question": "What is the HbA1c value of the patient, do not include the unit, only the number"
+            },
+            "Patient": {
+              "error": null,
+              "answer": "Clara S.",
+              "status": "ok",
+              "question": "What is the patient's name, NOT the doctor's name, do not include the title, only the name"
+            },
+            "Physician": {
+              "error": null,
+              "answer": "Clara",
+              "status": "ok",
+              "question": "What is the physician's name, NOT the patient's name, do not include the title, only the name"
+            },
+            "DateOfDischarge": {
+              "error": null,
+              "answer": "2025-10-07",
+              "status": "ok",
+              "question": "What is the Date of Discharge, only the date"
+            }
+          },
+          "dom_match_by_label": {
+            "TNM": false,
+            "HbA1c": false,
+            "Patient": true,
+            "Physician": true,
+            "DateOfDischarge": true
+          },
+          "dom_match_diagnostics": [
+            {
+              "label": "HbA1c",
+              "reason": "Not found in any content block"
+            },
+            {
+              "label": "TNM",
+              "reason": "Not found in any content block"
+            }
+          ]
+        }
+      },
+      "meta": {},
+      "created_at": "2026-02-05T11:12:38.707564Z",
+      "updated_at": "2026-02-05T11:24:12.941647Z",
+      "is_labeled": false,
+      "overlap": 1,
+      "inner_id": 1,
+      "total_annotations": 0,
+      "cancelled_annotations": 0,
+      "total_predictions": 1,
+      "comment_count": 0,
+      "unresolved_comment_count": 0,
+      "last_comment_updated_at": null,
+      "project": 37,
+      "updated_by": 1,
+      "file_upload": null,
+      "comment_authors": [],
+      "annotations": [],
+      "predictions": [
+        {
+          "id": 140,
+          "result": [
+            {
+              "id": "4be45b1c-3425-40b1-acd7-acbc5d306b50",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[1]",
+                "text": "Clara S.",
+                "start": "/div[1]/p[1]",
+                "labels": [
+                  "Patient"
+                ],
+                "endOffset": 17,
+                "startOffset": 9
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "79eb9eda-8c92-47ba-86f9-a1ea79a2704b",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[1]",
+                "text": "Clara",
+                "start": "/div[1]/p[1]",
+                "labels": [
+                  "Physician"
+                ],
+                "endOffset": 14,
+                "startOffset": 9
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "d28c0983-c357-48ac-83ce-0febb3a3ff13",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[1]",
+                "text": "2025-10-07",
+                "start": "/div[1]/p[1]",
+                "labels": [
+                  "DateOfDischarge"
+                ],
+                "endOffset": 81,
+                "startOffset": 71
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            }
+          ],
+          "model_version": "gemma3:12b",
+          "created_ago": "1 week, 1 day",
+          "score": null,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-02-05T11:24:12.851408Z",
+          "updated_at": "2026-02-05T11:24:12.851415Z",
+          "model": null,
+          "model_run": null,
+          "task": 321,
+          "project": 37
+        }
+      ]
+    },
+    {
+      "id": 322,
+      "data": {
+        "html": "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\"/>\n<title>lab_report_example</title>\n<meta name=\"generator\" content=\"Docling HTML Serializer\"/>\n<style>\n    html {\n        background-color: #f5f5f5;\n        font-family: Arial, sans-serif;\n        line-height: 1.6;\n    }\n    body {\n        max-width: 800px;\n        margin: 0 auto;\n        padding: 2rem;\n        background-color: white;\n        box-shadow: 0 0 10px rgba(0,0,0,0.1);\n    }\n    h1, h2, h3, h4, h5, h6 {\n        color: #333;\n        margin-top: 1.5em;\n        margin-bottom: 0.5em;\n    }\n    h1 {\n        font-size: 2em;\n        border-bottom: 1px solid #eee;\n        padding-bottom: 0.3em;\n    }\n    table {\n        border-collapse: collapse;\n        margin: 1em 0;\n        width: 100%;\n    }\n    th, td {\n        border: 1px solid #ddd;\n        padding: 8px;\n        text-align: left;\n    }\n    th {\n        background-color: #f2f2f2;\n        font-weight: bold;\n    }\n    figure {\n        margin: 1.5em 0;\n        text-align: center;\n    }\n    figcaption {\n        color: #666;\n        font-style: italic;\n        margin-top: 0.5em;\n    }\n    img {\n        max-width: 100%;\n        height: auto;\n    }\n    pre {\n        background-color: #f6f8fa;\n        border-radius: 3px;\n        padding: 1em;\n        overflow: auto;\n    }\n    code {\n        font-family: monospace;\n        background-color: #f6f8fa;\n        padding: 0.2em 0.4em;\n        border-radius: 3px;\n    }\n    pre code {\n        background-color: transparent;\n        padding: 0;\n    }\n    .formula {\n        text-align: center;\n        padding: 0.5em;\n        margin: 1em 0;\n        background-color: #f9f9f9;\n    }\n    .formula-not-decoded {\n        text-align: center;\n        padding: 0.5em;\n        margin: 1em 0;\n        background: repeating-linear-gradient(\n            45deg,\n            #f0f0f0,\n            #f0f0f0 10px,\n            #f9f9f9 10px,\n            #f9f9f9 20px\n        );\n    }\n    .page-break {\n        page-break-after: always;\n        border-top: 1px dashed #ccc;\n        margin: 2em 0;\n    }\n    .key-value-region {\n        background-color: #f9f9f9;\n        padding: 1em;\n        border-radius: 4px;\n        margin: 1em 0;\n    }\n    .key-value-region dt {\n        font-weight: bold;\n    }\n    .key-value-region dd {\n        margin-left: 1em;\n        margin-bottom: 0.5em;\n    }\n    .form-container {\n        border: 1px solid #ddd;\n        padding: 1em;\n        border-radius: 4px;\n        margin: 1em 0;\n    }\n    .form-item {\n        margin-bottom: 0.5em;\n    }\n    .image-classification {\n        font-size: 0.9em;\n        color: #666;\n        margin-top: 0.5em;\n    }\n</style>\n</head>\n<body>\n<div class='page'>\n<h2>Laboratory Report</h2>\n<p>Patient: Ethan R. Nguyen (DOB 1972-11-05, MRN 512934) - Report date: 2025-10-03</p>\n<table><tbody><tr><th>Test</th><th>Result</th><th>Reference Range</th></tr><tr><td>HbA1c</td><td>8.0 %</td><td>4.0 - 6.0 %</td></tr><tr><td>Fasting Glucose</td><td>162 mg/dL</td><td>70 - 99 mg/dL</td></tr><tr><td>Creatinine</td><td>1.1 mg/dL</td><td>0.7 - 1.3 mg/dL</td></tr><tr><td>eGFR</td><td>78 mL/min/1.73m²</td><td>‡ 60 mL/min/1.73m²</td></tr><tr><td>Total Cholesterol</td><td>195 mg/dL</td><td>&lt; 200 mg/dL</td></tr></tbody></table>\n<p>Interpretation: Elevated HbA1c indicates insufficient glycemic control. Other values are within or close to reference ranges.</p>\n<p>Disclaimer: This is a synthetic document created for software testing purposes only. It is not for clinical use or to be interpreted as a medical device output.</p>\n</div>\n</body>\n</html>",
+        "name": "lab_report_example.html",
+        "ml_meta": {
+          "model": "gemma3:12b",
+          "job_id": "1770289974138",
+          "performance": {
+            "events": [
+              {
+                "ms": 388.79400002770126,
+                "name": "dom.extract",
+                "tags": {}
+              },
+              {
+                "ms": 10342.718462983612,
+                "name": "llm.call",
+                "tags": {
+                  "label": "Patient",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 9939.238796010613,
+                "name": "llm.call",
+                "tags": {
+                  "label": "Physician",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 10209.872130013537,
+                "name": "llm.call",
+                "tags": {
+                  "label": "HbA1c",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 11017.978880030569,
+                "name": "llm.call",
+                "tags": {
+                  "label": "DateOfDischarge",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 10498.304962005932,
+                "name": "llm.call",
+                "tags": {
+                  "label": "TNM",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 0.08575001265853643,
+                "name": "dom.match",
+                "tags": {}
+              }
+            ],
+            "request": {
+              "dom_ms": 388.8797500403598,
+              "n_timeouts": 0,
+              "n_llm_calls": 5,
+              "task_ms_total": 52396.99298108462,
+              "avg_llm_call_ms": 10401.622646208853,
+              "task_ms_dom_match": 0.08575001265853643,
+              "task_ms_llm_total": 52008.11323104426,
+              "median_llm_call_ms": 10342.718462983612,
+              "task_ms_dom_extract": 388.79400002770126
+            }
+          },
+          "system_prompt": "You are a pure extraction model.\n\nWhen you are given a TEXT and a QUESTION, you must return exactly one literal text passage from the TEXT that best answers the QUESTION.\n\nOutput format (mandatory):\n- Return EXACTLY ONE matching passage, with no introduction, no explanations, no Markdown, NO JSON, and no quotation marks around the answer.\n- Preserve capitalization, spaces, and punctuation EXACTLY as in the TEXT.\n- If there is NO matching passage: respond with <<<NO_MATCH>>>.\n\nAdditional rules:\n- Never provide multiple passages or variations.\n- If multiple passages fit, choose the most precise and shortest exact passage.",
+          "raw_llm_answers": {
+            "TNM": {
+              "error": null,
+              "answer": "<<<NO_ል>>>",
+              "status": "ok",
+              "question": "What is the TNM staging, only give me the information on p on n on m, no extra information"
+            },
+            "HbA1c": {
+              "error": null,
+              "answer": "8.0",
+              "status": "ok",
+              "question": "What is the HbA1c value of the patient, do not include the unit, only the number"
+            },
+            "Patient": {
+              "error": null,
+              "answer": "Ethan R. Nguyen",
+              "status": "ok",
+              "question": "What is the patient's name, NOT the doctor's name, do not include the title, only the name"
+            },
+            "Physician": {
+              "error": null,
+              "answer": "Ethan R. Nguyen",
+              "status": "ok",
+              "question": "What is the physician's name, NOT the patient's name, do not include the title, only the name"
+            },
+            "DateOfDischarge": {
+              "error": null,
+              "answer": "1972-11-05",
+              "status": "ok",
+              "question": "What is the Date of Discharge, only the date"
+            }
+          },
+          "dom_match_by_label": {
+            "TNM": false,
+            "HbA1c": true,
+            "Patient": true,
+            "Physician": true,
+            "DateOfDischarge": true
+          },
+          "dom_match_diagnostics": [
+            {
+              "label": "TNM",
+              "reason": "Not found in any content block"
+            }
+          ]
+        }
+      },
+      "meta": {},
+      "created_at": "2026-02-05T11:12:38.707589Z",
+      "updated_at": "2026-02-05T11:23:16.326118Z",
+      "is_labeled": false,
+      "overlap": 1,
+      "inner_id": 2,
+      "total_annotations": 0,
+      "cancelled_annotations": 0,
+      "total_predictions": 1,
+      "comment_count": 0,
+      "unresolved_comment_count": 0,
+      "last_comment_updated_at": null,
+      "project": 37,
+      "updated_by": 1,
+      "file_upload": null,
+      "comment_authors": [],
+      "annotations": [],
+      "predictions": [
+        {
+          "id": 139,
+          "result": [
+            {
+              "id": "04b57530-e50b-4aa3-9607-19686af9bca8",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[1]",
+                "text": "Ethan R. Nguyen",
+                "start": "/div[1]/p[1]",
+                "labels": [
+                  "Patient"
+                ],
+                "endOffset": 24,
+                "startOffset": 9
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "09d99a86-b1b0-42c9-af4c-45d7b860de4c",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[1]",
+                "text": "Ethan R. Nguyen",
+                "start": "/div[1]/p[1]",
+                "labels": [
+                  "Physician"
+                ],
+                "endOffset": 24,
+                "startOffset": 9
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "9102a924-40c9-4a16-9803-e4ab5f541ab0",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/table[1]/tbody[1]/tr[2]/td[2]",
+                "text": "8.0",
+                "start": "/div[1]/table[1]/tbody[1]/tr[2]/td[2]",
+                "labels": [
+                  "HbA1c"
+                ],
+                "endOffset": 3,
+                "startOffset": 0
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "827d2e2e-e003-43e2-bb12-0b56225c5ddb",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[1]",
+                "text": "1972-11-05",
+                "start": "/div[1]/p[1]",
+                "labels": [
+                  "DateOfDischarge"
+                ],
+                "endOffset": 40,
+                "startOffset": 30
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            }
+          ],
+          "model_version": "gemma3:12b",
+          "created_ago": "1 week, 1 day",
+          "score": null,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-02-05T11:23:16.233073Z",
+          "updated_at": "2026-02-05T11:23:16.233087Z",
+          "model": null,
+          "model_run": null,
+          "task": 322,
+          "project": 37
+        }
+      ]
+    },
+    {
+      "id": 323,
+      "data": {
+        "html": "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\"/>\n<title>outpatient_letter_patel</title>\n<meta name=\"generator\" content=\"Docling HTML Serializer\"/>\n<style>\n    html {\n        background-color: #f5f5f5;\n        font-family: Arial, sans-serif;\n        line-height: 1.6;\n    }\n    body {\n        max-width: 800px;\n        margin: 0 auto;\n        padding: 2rem;\n        background-color: white;\n        box-shadow: 0 0 10px rgba(0,0,0,0.1);\n    }\n    h1, h2, h3, h4, h5, h6 {\n        color: #333;\n        margin-top: 1.5em;\n        margin-bottom: 0.5em;\n    }\n    h1 {\n        font-size: 2em;\n        border-bottom: 1px solid #eee;\n        padding-bottom: 0.3em;\n    }\n    table {\n        border-collapse: collapse;\n        margin: 1em 0;\n        width: 100%;\n    }\n    th, td {\n        border: 1px solid #ddd;\n        padding: 8px;\n        text-align: left;\n    }\n    th {\n        background-color: #f2f2f2;\n        font-weight: bold;\n    }\n    figure {\n        margin: 1.5em 0;\n        text-align: center;\n    }\n    figcaption {\n        color: #666;\n        font-style: italic;\n        margin-top: 0.5em;\n    }\n    img {\n        max-width: 100%;\n        height: auto;\n    }\n    pre {\n        background-color: #f6f8fa;\n        border-radius: 3px;\n        padding: 1em;\n        overflow: auto;\n    }\n    code {\n        font-family: monospace;\n        background-color: #f6f8fa;\n        padding: 0.2em 0.4em;\n        border-radius: 3px;\n    }\n    pre code {\n        background-color: transparent;\n        padding: 0;\n    }\n    .formula {\n        text-align: center;\n        padding: 0.5em;\n        margin: 1em 0;\n        background-color: #f9f9f9;\n    }\n    .formula-not-decoded {\n        text-align: center;\n        padding: 0.5em;\n        margin: 1em 0;\n        background: repeating-linear-gradient(\n            45deg,\n            #f0f0f0,\n            #f0f0f0 10px,\n            #f9f9f9 10px,\n            #f9f9f9 20px\n        );\n    }\n    .page-break {\n        page-break-after: always;\n        border-top: 1px dashed #ccc;\n        margin: 2em 0;\n    }\n    .key-value-region {\n        background-color: #f9f9f9;\n        padding: 1em;\n        border-radius: 4px;\n        margin: 1em 0;\n    }\n    .key-value-region dt {\n        font-weight: bold;\n    }\n    .key-value-region dd {\n        margin-left: 1em;\n        margin-bottom: 0.5em;\n    }\n    .form-container {\n        border: 1px solid #ddd;\n        padding: 1em;\n        border-radius: 4px;\n        margin: 1em 0;\n    }\n    .form-item {\n        margin-bottom: 0.5em;\n    }\n    .image-classification {\n        font-size: 0.9em;\n        color: #666;\n        margin-top: 0.5em;\n    }\n</style>\n</head>\n<body>\n<div class='page'>\n<p>Dear Colleague,</p>\n<p>We had the pleasure of seeing Ms. Maya L. Patel (born 1988-03-22, record number 824593) in our outpatient clinic on 2025-10-02.</p>\n<p>She is known with a history of type 2 diabetes mellitus, currently stable on therapy. Her most recent HbA1c is 7.2 %. No imaging was performed during this visit. She reports adherence to medication and lifestyle measures.</p>\n<h2>Current Medication:</h2>\n<ul>\n<li style=\"list-style-type: '- ';\">Metformin 500 mg BID</li>\n</ul>\n<h2>Impression and Plan:</h2>\n<p>Diabetes remains stable with the current regimen. No evidence of tumor is present. We recommend continuing current medication and follow-up in 6 months.</p>\n<p>Disclaimer: This is a synthetic document created for software testing purposes only. It is not for clinical use or to be interpreted as a medical device output.</p>\n<h2>Outpatient Clinic Letter</h2>\n</div>\n</body>\n</html>",
+        "name": "outpatient_letter_patel.html",
+        "ml_meta": {
+          "model": "gemma3:12b",
+          "job_id": "1770289974138",
+          "performance": {
+            "events": [
+              {
+                "ms": 403.19195901975036,
+                "name": "dom.extract",
+                "tags": {}
+              },
+              {
+                "ms": 8920.528920018114,
+                "name": "llm.call",
+                "tags": {
+                  "label": "Patient",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 8840.544920007233,
+                "name": "llm.call",
+                "tags": {
+                  "label": "Physician",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 8769.18233797187,
+                "name": "llm.call",
+                "tags": {
+                  "label": "HbA1c",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 9418.210877978709,
+                "name": "llm.call",
+                "tags": {
+                  "label": "DateOfDischarge",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 14109.040091047063,
+                "name": "llm.call",
+                "tags": {
+                  "label": "TNM",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 0.05091703496873379,
+                "name": "dom.match",
+                "tags": {}
+              }
+            ],
+            "request": {
+              "dom_ms": 403.2428760547191,
+              "n_timeouts": 0,
+              "n_llm_calls": 5,
+              "task_ms_total": 50460.75002307771,
+              "avg_llm_call_ms": 10011.501429404598,
+              "task_ms_dom_match": 0.05091703496873379,
+              "task_ms_llm_total": 50057.50714702299,
+              "median_llm_call_ms": 8920.528920018114,
+              "task_ms_dom_extract": 403.19195901975036
+            }
+          },
+          "system_prompt": "You are a pure extraction model.\n\nWhen you are given a TEXT and a QUESTION, you must return exactly one literal text passage from the TEXT that best answers the QUESTION.\n\nOutput format (mandatory):\n- Return EXACTLY ONE matching passage, with no introduction, no explanations, no Markdown, NO JSON, and no quotation marks around the answer.\n- Preserve capitalization, spaces, and punctuation EXACTLY as in the TEXT.\n- If there is NO matching passage: respond with <<<NO_MATCH>>>.\n\nAdditional rules:\n- Never provide multiple passages or variations.\n- If multiple passages fit, choose the most precise and shortest exact passage.",
+          "raw_llm_answers": {
+            "TNM": {
+              "error": null,
+              "answer": "Diabetes remains stable with the current regimen. No evidence of tumor is present.",
+              "status": "ok",
+              "question": "What is the TNM staging, only give me the information on p on n on m, no extra information"
+            },
+            "HbA1c": {
+              "error": null,
+              "answer": "7.2",
+              "status": "ok",
+              "question": "What is the HbA1c value of the patient, do not include the unit, only the number"
+            },
+            "Patient": {
+              "error": null,
+              "answer": "Maya L. Patel",
+              "status": "ok",
+              "question": "What is the patient's name, NOT the doctor's name, do not include the title, only the name"
+            },
+            "Physician": {
+              "error": null,
+              "answer": "Patel",
+              "status": "ok",
+              "question": "What is the physician's name, NOT the patient's name, do not include the title, only the name"
+            },
+            "DateOfDischarge": {
+              "error": null,
+              "answer": "2025-10-02",
+              "status": "ok",
+              "question": "What is the Date of Discharge, only the date"
+            }
+          },
+          "dom_match_by_label": {
+            "TNM": true,
+            "HbA1c": true,
+            "Patient": true,
+            "Physician": true,
+            "DateOfDischarge": true
+          },
+          "dom_match_diagnostics": []
+        }
+      },
+      "meta": {},
+      "created_at": "2026-02-05T11:12:38.707604Z",
+      "updated_at": "2026-02-05T11:22:23.731667Z",
+      "is_labeled": false,
+      "overlap": 1,
+      "inner_id": 3,
+      "total_annotations": 0,
+      "cancelled_annotations": 0,
+      "total_predictions": 1,
+      "comment_count": 0,
+      "unresolved_comment_count": 0,
+      "last_comment_updated_at": null,
+      "project": 37,
+      "updated_by": 1,
+      "file_upload": null,
+      "comment_authors": [],
+      "annotations": [],
+      "predictions": [
+        {
+          "id": 138,
+          "result": [
+            {
+              "id": "01991f13-040c-41d2-87e2-67b09a0e4916",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[2]",
+                "text": "Maya L. Patel",
+                "start": "/div[1]/p[2]",
+                "labels": [
+                  "Patient"
+                ],
+                "endOffset": 47,
+                "startOffset": 34
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "924a9731-9117-43b0-aeeb-0bedfae4aba4",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[2]",
+                "text": "Patel",
+                "start": "/div[1]/p[2]",
+                "labels": [
+                  "Physician"
+                ],
+                "endOffset": 47,
+                "startOffset": 42
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "3c159fb7-699b-48c1-9c8e-8f9101c69d22",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[3]",
+                "text": "7.2",
+                "start": "/div[1]/p[3]",
+                "labels": [
+                  "HbA1c"
+                ],
+                "endOffset": 114,
+                "startOffset": 111
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "e515587d-4c73-4580-801c-2ea13d1a42bb",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[2]",
+                "text": "2025-10-02",
+                "start": "/div[1]/p[2]",
+                "labels": [
+                  "DateOfDischarge"
+                ],
+                "endOffset": 126,
+                "startOffset": 116
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "4e9d05b0-79fa-434d-99c0-d6b972b79862",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[4]",
+                "text": "Diabetes remains stable with the current regimen. No evidence of tumor is present.",
+                "start": "/div[1]/p[4]",
+                "labels": [
+                  "TNM"
+                ],
+                "endOffset": 82,
+                "startOffset": 0
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            }
+          ],
+          "model_version": "gemma3:12b",
+          "created_ago": "1 week, 1 day",
+          "score": null,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-02-05T11:22:23.642706Z",
+          "updated_at": "2026-02-05T11:22:23.642710Z",
+          "model": null,
+          "model_run": null,
+          "task": 323,
+          "project": 37
+        }
+      ]
+    },
+    {
+      "id": 324,
+      "data": {
+        "html": "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\"/>\n<title>radiology_report_martinez</title>\n<meta name=\"generator\" content=\"Docling HTML Serializer\"/>\n<style>\n    html {\n        background-color: #f5f5f5;\n        font-family: Arial, sans-serif;\n        line-height: 1.6;\n    }\n    body {\n        max-width: 800px;\n        margin: 0 auto;\n        padding: 2rem;\n        background-color: white;\n        box-shadow: 0 0 10px rgba(0,0,0,0.1);\n    }\n    h1, h2, h3, h4, h5, h6 {\n        color: #333;\n        margin-top: 1.5em;\n        margin-bottom: 0.5em;\n    }\n    h1 {\n        font-size: 2em;\n        border-bottom: 1px solid #eee;\n        padding-bottom: 0.3em;\n    }\n    table {\n        border-collapse: collapse;\n        margin: 1em 0;\n        width: 100%;\n    }\n    th, td {\n        border: 1px solid #ddd;\n        padding: 8px;\n        text-align: left;\n    }\n    th {\n        background-color: #f2f2f2;\n        font-weight: bold;\n    }\n    figure {\n        margin: 1.5em 0;\n        text-align: center;\n    }\n    figcaption {\n        color: #666;\n        font-style: italic;\n        margin-top: 0.5em;\n    }\n    img {\n        max-width: 100%;\n        height: auto;\n    }\n    pre {\n        background-color: #f6f8fa;\n        border-radius: 3px;\n        padding: 1em;\n        overflow: auto;\n    }\n    code {\n        font-family: monospace;\n        background-color: #f6f8fa;\n        padding: 0.2em 0.4em;\n        border-radius: 3px;\n    }\n    pre code {\n        background-color: transparent;\n        padding: 0;\n    }\n    .formula {\n        text-align: center;\n        padding: 0.5em;\n        margin: 1em 0;\n        background-color: #f9f9f9;\n    }\n    .formula-not-decoded {\n        text-align: center;\n        padding: 0.5em;\n        margin: 1em 0;\n        background: repeating-linear-gradient(\n            45deg,\n            #f0f0f0,\n            #f0f0f0 10px,\n            #f9f9f9 10px,\n            #f9f9f9 20px\n        );\n    }\n    .page-break {\n        page-break-after: always;\n        border-top: 1px dashed #ccc;\n        margin: 2em 0;\n    }\n    .key-value-region {\n        background-color: #f9f9f9;\n        padding: 1em;\n        border-radius: 4px;\n        margin: 1em 0;\n    }\n    .key-value-region dt {\n        font-weight: bold;\n    }\n    .key-value-region dd {\n        margin-left: 1em;\n        margin-bottom: 0.5em;\n    }\n    .form-container {\n        border: 1px solid #ddd;\n        padding: 1em;\n        border-radius: 4px;\n        margin: 1em 0;\n    }\n    .form-item {\n        margin-bottom: 0.5em;\n    }\n    .image-classification {\n        font-size: 0.9em;\n        color: #666;\n        margin-top: 0.5em;\n    }\n</style>\n</head>\n<body>\n<div class='page'>\n<h2>Radiology Report</h2>\n<p>Patient: Sofia G. Martínez (DOB 1995-07-14, MRN 739281) - Report Date: 2025-10-03</p>\n<h2>Study:</h2>\n<p>CT abdomen and pelvis</p>\n<h2>Indication:</h2>\n<p>Evaluation of abdominal pain and suspected mass.</p>\n<h2>Technique:</h2>\n<p>Multislice CT of the abdomen and pelvis with contrast.</p>\n<h2>Findings:</h2>\n<p>There is a large pelvic mass arising from the left ovary, measuring approximately 7.5 cm in greatest dimension. The lesion shows heterogeneous enhancement. No ascites or lymphadenopathy is detected.</p>\n<h2>Impression:</h2>\n<p>Pelvic tumor consistent with ovarian origin. Further surgical evaluation is recommended.</p>\n<p>Disclaimer: This is a synthetic document created for software testing purposes only. It is not for clinical use or to be interpreted as a medical device output.</p>\n</div>\n</body>\n</html>",
+        "name": "radiology_report_martinez.html",
+        "ml_meta": {
+          "model": "gemma3:12b",
+          "job_id": "1770289974138",
+          "performance": {
+            "events": [
+              {
+                "ms": 318.1683750008233,
+                "name": "dom.extract",
+                "tags": {}
+              },
+              {
+                "ms": 8521.08842000598,
+                "name": "llm.call",
+                "tags": {
+                  "label": "Patient",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 8526.140046014916,
+                "name": "llm.call",
+                "tags": {
+                  "label": "Physician",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 8867.815670033451,
+                "name": "llm.call",
+                "tags": {
+                  "label": "HbA1c",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 9029.17350496864,
+                "name": "llm.call",
+                "tags": {
+                  "label": "DateOfDischarge",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 8870.925921015441,
+                "name": "llm.call",
+                "tags": {
+                  "label": "TNM",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 0.04862499190494418,
+                "name": "dom.match",
+                "tags": {}
+              }
+            ],
+            "request": {
+              "dom_ms": 318.21699999272823,
+              "n_timeouts": 0,
+              "n_llm_calls": 5,
+              "task_ms_total": 44133.36056203116,
+              "avg_llm_call_ms": 8763.028712407686,
+              "task_ms_dom_match": 0.04862499190494418,
+              "task_ms_llm_total": 43815.14356203843,
+              "median_llm_call_ms": 8867.815670033451,
+              "task_ms_dom_extract": 318.1683750008233
+            }
+          },
+          "system_prompt": "You are a pure extraction model.\n\nWhen you are given a TEXT and a QUESTION, you must return exactly one literal text passage from the TEXT that best answers the QUESTION.\n\nOutput format (mandatory):\n- Return EXACTLY ONE matching passage, with no introduction, no explanations, no Markdown, NO JSON, and no quotation marks around the answer.\n- Preserve capitalization, spaces, and punctuation EXACTLY as in the TEXT.\n- If there is NO matching passage: respond with <<<NO_MATCH>>>.\n\nAdditional rules:\n- Never provide multiple passages or variations.\n- If multiple passages fit, choose the most precise and shortest exact passage.",
+          "raw_llm_answers": {
+            "TNM": {
+              "error": null,
+              "answer": "<<<NO_ል>>>",
+              "status": "ok",
+              "question": "What is the TNM staging, only give me the information on p on n on m, no extra information"
+            },
+            "HbA1c": {
+              "error": null,
+              "answer": "<<<NO_ል>>>",
+              "status": "ok",
+              "question": "What is the HbA1c value of the patient, do not include the unit, only the number"
+            },
+            "Patient": {
+              "error": null,
+              "answer": "Sofia G. Martínez",
+              "status": "ok",
+              "question": "What is the patient's name, NOT the doctor's name, do not include the title, only the name"
+            },
+            "Physician": {
+              "error": null,
+              "answer": "Martinez",
+              "status": "ok",
+              "question": "What is the physician's name, NOT the patient's name, do not include the title, only the name"
+            },
+            "DateOfDischarge": {
+              "error": null,
+              "answer": "2025-10-03",
+              "status": "ok",
+              "question": "What is the Date of Discharge, only the date"
+            }
+          },
+          "dom_match_by_label": {
+            "TNM": false,
+            "HbA1c": false,
+            "Patient": true,
+            "Physician": false,
+            "DateOfDischarge": true
+          },
+          "dom_match_diagnostics": [
+            {
+              "label": "Physician",
+              "reason": "Not found in any content block"
+            },
+            {
+              "label": "HbA1c",
+              "reason": "Not found in any content block"
+            },
+            {
+              "label": "TNM",
+              "reason": "Not found in any content block"
+            }
+          ]
+        }
+      },
+      "meta": {},
+      "created_at": "2026-02-05T11:12:38.707618Z",
+      "updated_at": "2026-02-05T11:21:33.086300Z",
+      "is_labeled": false,
+      "overlap": 1,
+      "inner_id": 4,
+      "total_annotations": 0,
+      "cancelled_annotations": 0,
+      "total_predictions": 1,
+      "comment_count": 0,
+      "unresolved_comment_count": 0,
+      "last_comment_updated_at": null,
+      "project": 37,
+      "updated_by": 1,
+      "file_upload": null,
+      "comment_authors": [],
+      "annotations": [],
+      "predictions": [
+        {
+          "id": 137,
+          "result": [
+            {
+              "id": "ea1c5e69-1311-4974-97cd-9549b7000dcf",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[1]",
+                "text": "Sofia G. Martínez",
+                "start": "/div[1]/p[1]",
+                "labels": [
+                  "Patient"
+                ],
+                "endOffset": 26,
+                "startOffset": 9
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "eda77066-a91a-46d2-9690-33527ac36f13",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[1]",
+                "text": "2025-10-03",
+                "start": "/div[1]/p[1]",
+                "labels": [
+                  "DateOfDischarge"
+                ],
+                "endOffset": 81,
+                "startOffset": 71
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            }
+          ],
+          "model_version": "gemma3:12b",
+          "created_ago": "1 week, 1 day",
+          "score": null,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-02-05T11:21:32.995152Z",
+          "updated_at": "2026-02-05T11:21:32.995163Z",
+          "model": null,
+          "model_run": null,
+          "task": 324,
+          "project": 37
+        }
+      ]
+    },
+    {
+      "id": 325,
+      "data": {
+        "html": "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\"/>\n<title>discharge_letter_nguyen_3pages</title>\n<meta name=\"generator\" content=\"Docling HTML Serializer\"/>\n<style>\n    html {\n        background-color: #f5f5f5;\n        font-family: Arial, sans-serif;\n        line-height: 1.6;\n    }\n    body {\n        max-width: 800px;\n        margin: 0 auto;\n        padding: 2rem;\n        background-color: white;\n        box-shadow: 0 0 10px rgba(0,0,0,0.1);\n    }\n    h1, h2, h3, h4, h5, h6 {\n        color: #333;\n        margin-top: 1.5em;\n        margin-bottom: 0.5em;\n    }\n    h1 {\n        font-size: 2em;\n        border-bottom: 1px solid #eee;\n        padding-bottom: 0.3em;\n    }\n    table {\n        border-collapse: collapse;\n        margin: 1em 0;\n        width: 100%;\n    }\n    th, td {\n        border: 1px solid #ddd;\n        padding: 8px;\n        text-align: left;\n    }\n    th {\n        background-color: #f2f2f2;\n        font-weight: bold;\n    }\n    figure {\n        margin: 1.5em 0;\n        text-align: center;\n    }\n    figcaption {\n        color: #666;\n        font-style: italic;\n        margin-top: 0.5em;\n    }\n    img {\n        max-width: 100%;\n        height: auto;\n    }\n    pre {\n        background-color: #f6f8fa;\n        border-radius: 3px;\n        padding: 1em;\n        overflow: auto;\n    }\n    code {\n        font-family: monospace;\n        background-color: #f6f8fa;\n        padding: 0.2em 0.4em;\n        border-radius: 3px;\n    }\n    pre code {\n        background-color: transparent;\n        padding: 0;\n    }\n    .formula {\n        text-align: center;\n        padding: 0.5em;\n        margin: 1em 0;\n        background-color: #f9f9f9;\n    }\n    .formula-not-decoded {\n        text-align: center;\n        padding: 0.5em;\n        margin: 1em 0;\n        background: repeating-linear-gradient(\n            45deg,\n            #f0f0f0,\n            #f0f0f0 10px,\n            #f9f9f9 10px,\n            #f9f9f9 20px\n        );\n    }\n    .page-break {\n        page-break-after: always;\n        border-top: 1px dashed #ccc;\n        margin: 2em 0;\n    }\n    .key-value-region {\n        background-color: #f9f9f9;\n        padding: 1em;\n        border-radius: 4px;\n        margin: 1em 0;\n    }\n    .key-value-region dt {\n        font-weight: bold;\n    }\n    .key-value-region dd {\n        margin-left: 1em;\n        margin-bottom: 0.5em;\n    }\n    .form-container {\n        border: 1px solid #ddd;\n        padding: 1em;\n        border-radius: 4px;\n        margin: 1em 0;\n    }\n    .form-item {\n        margin-bottom: 0.5em;\n    }\n    .image-classification {\n        font-size: 0.9em;\n        color: #666;\n        margin-top: 0.5em;\n    }\n</style>\n</head>\n<body>\n<div class='page'>\n<h2>Hospital of Internal Medicine</h2>\n<h2>Discharge Summary</h2>\n<p>Patient: Ethan R. Nguyen (DOB 1972-11-05, MRN 512934)</p>\n<p>Date of Discharge: 2025-09-18</p>\n<p>Dear Colleague,</p>\n<p>The patient was admitted for further evaluation of type 2 diabetes mellitus and hypertension. On admission, he reported fatigue, mild polyuria, and occasional headaches. Physical examination was remarkable for elevated blood pressure readings averaging 150/95 mmHg. Initial laboratory testing revealed elevated HbA1c levels of 9.1 %, confirming poor glycemic control. Additional metabolic parameters were within acceptable ranges. The patient denied chest pain or dyspnea on exertion.</p>\n<h2>Hospital Course and Investigations</h2>\n<p>During the hospital stay, antihypertensive therapy with Lisinopril 10 mg once daily was initiated, resulting in improved blood pressure control by the time of discharge. Diabetes management was intensified with Metformin increased to 1000 mg twice daily. The patient tolerated the therapy well, without adverse gastrointestinal effects. Nutritional counseling was provided, focusing on reducing refined carbohydrates and promoting regular meals.</p>\n<p>An echocardiography (Echocardiography (evaluation of left ventricular hypertrophy)) was performed due to long-standing hypertension. The study revealed mild concentric left ventricular hypertrophy but preserved systolic function. No valvular abnormalities were detected.</p>\n<p>Daily monitoring showed stable vital signs, with gradual improvement in both subjective well-being and objective measures. The patient was motivated and actively participated in educational sessions provided by the diabetes nurse team.</p>\n<h2>Discharge Medications and Plan</h2>\n<p>Current prescriptions at discharge: Metformin 1000 mg BID; Lisinopril 10 mg QD.</p>\n<p>Recommendations include close follow-up with the primary care physician within two weeks. HbA1c should be reassessed after three months to evaluate response to intensified therapy. The patient should also undergo lipid screening and regular blood pressure monitoring. Lifestyle modifications remain essential: daily walking, weight management, and adherence to a Mediterranean-style diet.</p>\n<p>Summary: This case highlights a patient with uncontrolled type 2 diabetes and hypertension, successfully stabilized during a short inpatient stay. Long-term management will rely on patient adherence, regular monitoring, and collaboration between primary care and specialty services.</p>\n<p>Disclaimer: This is a synthetic document created for software testing purposes only. It is not for clinical use or to be interpreted as a medical device output.</p>\n</div>\n</body>\n</html>",
+        "name": "discharge_letter_nguyen_3pages.html",
+        "ml_meta": {
+          "model": "gemma3:12b",
+          "job_id": "1770289974138",
+          "performance": {
+            "events": [
+              {
+                "ms": 416.0953749669716,
+                "name": "dom.extract",
+                "tags": {}
+              },
+              {
+                "ms": 21069.951343000866,
+                "name": "llm.call",
+                "tags": {
+                  "label": "Patient",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 21763.050968991593,
+                "name": "llm.call",
+                "tags": {
+                  "label": "Physician",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 28713.684929010924,
+                "name": "llm.call",
+                "tags": {
+                  "label": "HbA1c",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 21494.499218009878,
+                "name": "llm.call",
+                "tags": {
+                  "label": "DateOfDischarge",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 21504.841051006224,
+                "name": "llm.call",
+                "tags": {
+                  "label": "TNM",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 0.05670898826792836,
+                "name": "dom.match",
+                "tags": {}
+              }
+            ],
+            "request": {
+              "dom_ms": 416.1520839552395,
+              "n_timeouts": 0,
+              "n_llm_calls": 5,
+              "task_ms_total": 114962.17959397472,
+              "avg_llm_call_ms": 22909.205502003897,
+              "task_ms_dom_match": 0.05670898826792836,
+              "task_ms_llm_total": 114546.02751001948,
+              "median_llm_call_ms": 21504.841051006224,
+              "task_ms_dom_extract": 416.0953749669716
+            }
+          },
+          "system_prompt": "You are a pure extraction model.\n\nWhen you are given a TEXT and a QUESTION, you must return exactly one literal text passage from the TEXT that best answers the QUESTION.\n\nOutput format (mandatory):\n- Return EXACTLY ONE matching passage, with no introduction, no explanations, no Markdown, NO JSON, and no quotation marks around the answer.\n- Preserve capitalization, spaces, and punctuation EXACTLY as in the TEXT.\n- If there is NO matching passage: respond with <<<NO_MATCH>>>.\n\nAdditional rules:\n- Never provide multiple passages or variations.\n- If multiple passages fit, choose the most precise and shortest exact passage.",
+          "raw_llm_answers": {
+            "TNM": {
+              "error": null,
+              "answer": "Metফর্ম increased to 1000 mg twice daily.",
+              "status": "ok",
+              "question": "What is the TNM staging, only give me the information on p on n on m, no extra information"
+            },
+            "HbA1c": {
+              "error": null,
+              "answer": "9.1",
+              "status": "ok",
+              "question": "What is the HbA1c value of the patient, do not include the unit, only the number"
+            },
+            "Patient": {
+              "error": null,
+              "answer": "Ethan R. Nguyen",
+              "status": "ok",
+              "question": "What is the patient's name, NOT the doctor's name, do not include the title, only the name"
+            },
+            "Physician": {
+              "error": null,
+              "answer": "<<<NO_ል>>>",
+              "status": "ok",
+              "question": "What is the physician's name, NOT the patient's name, do not include the title, only the name"
+            },
+            "DateOfDischarge": {
+              "error": null,
+              "answer": "2025-09-18",
+              "status": "ok",
+              "question": "What is the Date of Discharge, only the date"
+            }
+          },
+          "dom_match_by_label": {
+            "TNM": false,
+            "HbA1c": true,
+            "Patient": true,
+            "Physician": false,
+            "DateOfDischarge": true
+          },
+          "dom_match_diagnostics": [
+            {
+              "label": "Physician",
+              "reason": "Not found in any content block"
+            },
+            {
+              "label": "TNM",
+              "reason": "Not found in any content block"
+            }
+          ]
+        }
+      },
+      "meta": {},
+      "created_at": "2026-02-05T11:12:38.707631Z",
+      "updated_at": "2026-02-05T11:20:48.797918Z",
+      "is_labeled": false,
+      "overlap": 1,
+      "inner_id": 5,
+      "total_annotations": 0,
+      "cancelled_annotations": 0,
+      "total_predictions": 1,
+      "comment_count": 0,
+      "unresolved_comment_count": 0,
+      "last_comment_updated_at": null,
+      "project": 37,
+      "updated_by": 1,
+      "file_upload": null,
+      "comment_authors": [],
+      "annotations": [],
+      "predictions": [
+        {
+          "id": 136,
+          "result": [
+            {
+              "id": "dc2800ae-c9aa-4a89-ab16-bd23242ab2bc",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[1]",
+                "text": "Ethan R. Nguyen",
+                "start": "/div[1]/p[1]",
+                "labels": [
+                  "Patient"
+                ],
+                "endOffset": 24,
+                "startOffset": 9
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "50a2a630-728d-4587-95da-40ce197fc30b",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[4]",
+                "text": "9.1",
+                "start": "/div[1]/p[4]",
+                "labels": [
+                  "HbA1c"
+                ],
+                "endOffset": 330,
+                "startOffset": 327
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "68375cb4-6b53-423d-8565-68593c35ad09",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[2]",
+                "text": "2025-09-18",
+                "start": "/div[1]/p[2]",
+                "labels": [
+                  "DateOfDischarge"
+                ],
+                "endOffset": 29,
+                "startOffset": 19
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            }
+          ],
+          "model_version": "gemma3:12b",
+          "created_ago": "1 week, 1 day",
+          "score": null,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-02-05T11:20:48.706597Z",
+          "updated_at": "2026-02-05T11:20:48.706602Z",
+          "model": null,
+          "model_run": null,
+          "task": 325,
+          "project": 37
+        }
+      ]
+    },
+    {
+      "id": 326,
+      "data": {
+        "html": "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\"/>\n<title>discharge_letter_oconnor_2pages</title>\n<meta name=\"generator\" content=\"Docling HTML Serializer\"/>\n<style>\n    html {\n        background-color: #f5f5f5;\n        font-family: Arial, sans-serif;\n        line-height: 1.6;\n    }\n    body {\n        max-width: 800px;\n        margin: 0 auto;\n        padding: 2rem;\n        background-color: white;\n        box-shadow: 0 0 10px rgba(0,0,0,0.1);\n    }\n    h1, h2, h3, h4, h5, h6 {\n        color: #333;\n        margin-top: 1.5em;\n        margin-bottom: 0.5em;\n    }\n    h1 {\n        font-size: 2em;\n        border-bottom: 1px solid #eee;\n        padding-bottom: 0.3em;\n    }\n    table {\n        border-collapse: collapse;\n        margin: 1em 0;\n        width: 100%;\n    }\n    th, td {\n        border: 1px solid #ddd;\n        padding: 8px;\n        text-align: left;\n    }\n    th {\n        background-color: #f2f2f2;\n        font-weight: bold;\n    }\n    figure {\n        margin: 1.5em 0;\n        text-align: center;\n    }\n    figcaption {\n        color: #666;\n        font-style: italic;\n        margin-top: 0.5em;\n    }\n    img {\n        max-width: 100%;\n        height: auto;\n    }\n    pre {\n        background-color: #f6f8fa;\n        border-radius: 3px;\n        padding: 1em;\n        overflow: auto;\n    }\n    code {\n        font-family: monospace;\n        background-color: #f6f8fa;\n        padding: 0.2em 0.4em;\n        border-radius: 3px;\n    }\n    pre code {\n        background-color: transparent;\n        padding: 0;\n    }\n    .formula {\n        text-align: center;\n        padding: 0.5em;\n        margin: 1em 0;\n        background-color: #f9f9f9;\n    }\n    .formula-not-decoded {\n        text-align: center;\n        padding: 0.5em;\n        margin: 1em 0;\n        background: repeating-linear-gradient(\n            45deg,\n            #f0f0f0,\n            #f0f0f0 10px,\n            #f9f9f9 10px,\n            #f9f9f9 20px\n        );\n    }\n    .page-break {\n        page-break-after: always;\n        border-top: 1px dashed #ccc;\n        margin: 2em 0;\n    }\n    .key-value-region {\n        background-color: #f9f9f9;\n        padding: 1em;\n        border-radius: 4px;\n        margin: 1em 0;\n    }\n    .key-value-region dt {\n        font-weight: bold;\n    }\n    .key-value-region dd {\n        margin-left: 1em;\n        margin-bottom: 0.5em;\n    }\n    .form-container {\n        border: 1px solid #ddd;\n        padding: 1em;\n        border-radius: 4px;\n        margin: 1em 0;\n    }\n    .form-item {\n        margin-bottom: 0.5em;\n    }\n    .image-classification {\n        font-size: 0.9em;\n        color: #666;\n        margin-top: 0.5em;\n    }\n</style>\n</head>\n<body>\n<div class='page'>\n<h2>General Hospital - Department of Internal Medicine</h2>\n<p>To whom it may concern,</p>\n<p>We herewith discharge Mr. Liam O'Connor, born on 1981-09-18 (record number 662845). He was hospitalized until 2025-10-01 for evaluation and management of chronic medical conditions.</p>\n<h2>Hospital Course</h2>\n<p>During the stay, the patient's known history of hypertension and type 2 diabetes mellitus was re-evaluated. Blood pressure control required continuation of Amlodipine, and diabetes management with Metformin was maintained. A chest X-ray was performed (Chest X-ray (no acute findings)), showing no acute pathology. Overall, the patient remained stable and responded well to therapy adjustments.</p>\n<h2>Laboratory Findings</h2>\n<table><tbody><tr><th>Test</th><th>Result</th></tr><tr><td>HbA1c</td><td>7.4 %</td></tr><tr><td>Fasting Glucose</td><td>142 mg/dL</td></tr><tr><td>Creatinine</td><td>0.9 mg/dL</td></tr></tbody></table>\n<h2>Prescriptions at Discharge</h2>\n<ul>\n<li style=\"list-style-type: '- ';\">Metformin 500 mg BID</li>\n<li style=\"list-style-type: '- ';\">Amlodipine 5 mg QD</li>\n</ul>\n<h2>Summary and Follow-up</h2>\n<p>The patient has been discharged in stable condition. Continued outpatient management of hypertension and diabetes is required. A follow-up appointment is scheduled in 8 weeks. Lifestyle modifications, including diet and physical activity, were reinforced.</p>\n<p>Disclaimer: This is a synthetic document created for software testing purposes only. It is not for clinical use or to be interpreted as a medical device output.</p>\n</div>\n</body>\n</html>",
+        "name": "discharge_letter_oconnor_2pages.html",
+        "ml_meta": {
+          "model": "gemma3:12b",
+          "job_id": "1770289974138",
+          "performance": {
+            "events": [
+              {
+                "ms": 280.4602920077741,
+                "name": "dom.extract",
+                "tags": {}
+              },
+              {
+                "ms": 12991.036380990408,
+                "name": "llm.call",
+                "tags": {
+                  "label": "Patient",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 13744.2395890248,
+                "name": "llm.call",
+                "tags": {
+                  "label": "Physician",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 13191.307839995716,
+                "name": "llm.call",
+                "tags": {
+                  "label": "HbA1c",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 13672.636381001212,
+                "name": "llm.call",
+                "tags": {
+                  "label": "DateOfDischarge",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 13324.614173034206,
+                "name": "llm.call",
+                "tags": {
+                  "label": "TNM",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 0.062375038396567106,
+                "name": "dom.match",
+                "tags": {}
+              }
+            ],
+            "request": {
+              "dom_ms": 280.5226670461707,
+              "n_timeouts": 0,
+              "n_llm_calls": 5,
+              "task_ms_total": 67204.35703109251,
+              "avg_llm_call_ms": 13384.766872809269,
+              "task_ms_dom_match": 0.062375038396567106,
+              "task_ms_llm_total": 66923.83436404634,
+              "median_llm_call_ms": 13324.614173034206,
+              "task_ms_dom_extract": 280.4602920077741
+            }
+          },
+          "system_prompt": "You are a pure extraction model.\n\nWhen you are given a TEXT and a QUESTION, you must return exactly one literal text passage from the TEXT that best answers the QUESTION.\n\nOutput format (mandatory):\n- Return EXACTLY ONE matching passage, with no introduction, no explanations, no Markdown, NO JSON, and no quotation marks around the answer.\n- Preserve capitalization, spaces, and punctuation EXACTLY as in the TEXT.\n- If there is NO matching passage: respond with <<<NO_MATCH>>>.\n\nAdditional rules:\n- Never provide multiple passages or variations.\n- If multiple passages fit, choose the most precise and shortest exact passage.",
+          "raw_llm_answers": {
+            "TNM": {
+              "error": null,
+              "answer": "Met warfare 500 mg BID",
+              "status": "ok",
+              "question": "What is the TNM staging, only give me the information on p on n on m, no extra information"
+            },
+            "HbA1c": {
+              "error": null,
+              "answer": "7.4",
+              "status": "ok",
+              "question": "What is the HbA1c value of the patient, do not include the unit, only the number"
+            },
+            "Patient": {
+              "error": null,
+              "answer": "Liam O'Connor",
+              "status": "ok",
+              "question": "What is the patient's name, NOT the doctor's name, do not include the title, only the name"
+            },
+            "Physician": {
+              "error": null,
+              "answer": "Liam O'Connor",
+              "status": "ok",
+              "question": "What is the physician's name, NOT the patient's name, do not include the title, only the name"
+            },
+            "DateOfDischarge": {
+              "error": null,
+              "answer": "1981-09-18",
+              "status": "ok",
+              "question": "What is the Date of Discharge, only the date"
+            }
+          },
+          "dom_match_by_label": {
+            "TNM": false,
+            "HbA1c": true,
+            "Patient": true,
+            "Physician": true,
+            "DateOfDischarge": true
+          },
+          "dom_match_diagnostics": [
+            {
+              "label": "TNM",
+              "reason": "Not found in any content block"
+            }
+          ]
+        }
+      },
+      "meta": {},
+      "created_at": "2026-02-05T11:12:38.707645Z",
+      "updated_at": "2026-02-05T11:18:53.678069Z",
+      "is_labeled": false,
+      "overlap": 1,
+      "inner_id": 6,
+      "total_annotations": 0,
+      "cancelled_annotations": 0,
+      "total_predictions": 1,
+      "comment_count": 0,
+      "unresolved_comment_count": 0,
+      "last_comment_updated_at": null,
+      "project": 37,
+      "updated_by": 1,
+      "file_upload": null,
+      "comment_authors": [],
+      "annotations": [],
+      "predictions": [
+        {
+          "id": 135,
+          "result": [
+            {
+              "id": "f91906fc-73ed-448a-b4ef-e1372d48daea",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[2]",
+                "text": "Liam O'Connor",
+                "start": "/div[1]/p[2]",
+                "labels": [
+                  "Patient"
+                ],
+                "endOffset": 39,
+                "startOffset": 26
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "593f4025-ecf5-480f-9da6-140273b0dd55",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[2]",
+                "text": "Liam O'Connor",
+                "start": "/div[1]/p[2]",
+                "labels": [
+                  "Physician"
+                ],
+                "endOffset": 39,
+                "startOffset": 26
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "523373c2-3dde-4833-8052-07f13b3be424",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/table[1]/tbody[1]/tr[2]/td[2]",
+                "text": "7.4",
+                "start": "/div[1]/table[1]/tbody[1]/tr[2]/td[2]",
+                "labels": [
+                  "HbA1c"
+                ],
+                "endOffset": 3,
+                "startOffset": 0
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "3a348294-b267-44e7-9996-03c59e50ffaa",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[2]",
+                "text": "1981-09-18",
+                "start": "/div[1]/p[2]",
+                "labels": [
+                  "DateOfDischarge"
+                ],
+                "endOffset": 59,
+                "startOffset": 49
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            }
+          ],
+          "model_version": "gemma3:12b",
+          "created_ago": "1 week, 1 day",
+          "score": null,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-02-05T11:18:53.592918Z",
+          "updated_at": "2026-02-05T11:18:53.592928Z",
+          "model": null,
+          "model_run": null,
+          "task": 326,
+          "project": 37
+        }
+      ]
+    },
+    {
+      "id": 327,
+      "data": {
+        "html": "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\"/>\n<title>discharge_letter_martinez_3pages</title>\n<meta name=\"generator\" content=\"Docling HTML Serializer\"/>\n<style>\n    html {\n        background-color: #f5f5f5;\n        font-family: Arial, sans-serif;\n        line-height: 1.6;\n    }\n    body {\n        max-width: 800px;\n        margin: 0 auto;\n        padding: 2rem;\n        background-color: white;\n        box-shadow: 0 0 10px rgba(0,0,0,0.1);\n    }\n    h1, h2, h3, h4, h5, h6 {\n        color: #333;\n        margin-top: 1.5em;\n        margin-bottom: 0.5em;\n    }\n    h1 {\n        font-size: 2em;\n        border-bottom: 1px solid #eee;\n        padding-bottom: 0.3em;\n    }\n    table {\n        border-collapse: collapse;\n        margin: 1em 0;\n        width: 100%;\n    }\n    th, td {\n        border: 1px solid #ddd;\n        padding: 8px;\n        text-align: left;\n    }\n    th {\n        background-color: #f2f2f2;\n        font-weight: bold;\n    }\n    figure {\n        margin: 1.5em 0;\n        text-align: center;\n    }\n    figcaption {\n        color: #666;\n        font-style: italic;\n        margin-top: 0.5em;\n    }\n    img {\n        max-width: 100%;\n        height: auto;\n    }\n    pre {\n        background-color: #f6f8fa;\n        border-radius: 3px;\n        padding: 1em;\n        overflow: auto;\n    }\n    code {\n        font-family: monospace;\n        background-color: #f6f8fa;\n        padding: 0.2em 0.4em;\n        border-radius: 3px;\n    }\n    pre code {\n        background-color: transparent;\n        padding: 0;\n    }\n    .formula {\n        text-align: center;\n        padding: 0.5em;\n        margin: 1em 0;\n        background-color: #f9f9f9;\n    }\n    .formula-not-decoded {\n        text-align: center;\n        padding: 0.5em;\n        margin: 1em 0;\n        background: repeating-linear-gradient(\n            45deg,\n            #f0f0f0,\n            #f0f0f0 10px,\n            #f9f9f9 10px,\n            #f9f9f9 20px\n        );\n    }\n    .page-break {\n        page-break-after: always;\n        border-top: 1px dashed #ccc;\n        margin: 2em 0;\n    }\n    .key-value-region {\n        background-color: #f9f9f9;\n        padding: 1em;\n        border-radius: 4px;\n        margin: 1em 0;\n    }\n    .key-value-region dt {\n        font-weight: bold;\n    }\n    .key-value-region dd {\n        margin-left: 1em;\n        margin-bottom: 0.5em;\n    }\n    .form-container {\n        border: 1px solid #ddd;\n        padding: 1em;\n        border-radius: 4px;\n        margin: 1em 0;\n    }\n    .form-item {\n        margin-bottom: 0.5em;\n    }\n    .image-classification {\n        font-size: 0.9em;\n        color: #666;\n        margin-top: 0.5em;\n    }\n</style>\n</head>\n<body>\n<div class='page'>\n<h2>Department of Gynecology and Oncology Patient Discharge Summary</h2>\n<p>Patient: Sofia G. Martínez (DOB 1995-07-14, MRN 739281) Date of Discharge: 2025-09-25</p>\n<p>This document summarizes the hospital stay of the above-mentioned patient. The patient was admitted following abnormal findings on imaging. During admission, a comprehensive diagnostic and therapeutic approach was undertaken, culminating in surgical intervention. The summary below is intended for continuity of care.</p>\n<h2>Clinical Course</h2>\n<p>On admission, the patient reported intermittent lower abdominal discomfort over the past two months. A pelvic MRI (Pelvic MRI (revealed ovarian mass)) revealed an ovarian mass consistent with a benign tumor. Laboratory testing demonstrated normal glycemic control (HbA1c: 5.6 %) and no evidence of systemic disease. The patient underwent laparoscopic removal of the ovarian tumor. The procedure was uneventful, with minimal blood loss. Post-operatively, the patient recovered well with stable vital signs. Pain management was achieved with oral analgesics.</p>\n<p>The histopathology confirmed a benign ovarian tumor with no malignant features. The patient's past medical history was otherwise unremarkable, with no diagnosis of diabetes or other chronic illnesses. She tolerated diet advancement and mobilization without complications.</p>\n<h2>Discharge Medications</h2>\n<p>At discharge, the patient was prescribed: Ibuprofen 400 mg TID; Omeprazole 20 mg QD.</p>\n<h2>Follow-Up and Recommendations</h2>\n<p>The patient should attend a gynecology follow-up appointment in four weeks for wound assessment and review of surgical outcome. Routine gynecological surveillance is recommended annually. No adjuvant therapy is required. Patient education regarding symptom monitoring was provided.</p>\n<h2>Summary</h2>\n<p>This admission addressed the presence of an ovarian tumor, which was surgically removed. The patient was discharged in stable condition with adequate pain control and clear follow-up arrangements. Importantly, there is no indication of malignancy. Diabetes was ruled out in this case.</p>\n<p>Disclaimer: This is a synthetic document created for software testing purposes only. It is not for clinical use or to be interpreted as a medical device output.</p>\n</div>\n</body>\n</html>",
+        "name": "discharge_letter_martinez_3pages.html",
+        "ml_meta": {
+          "model": "gemma3:12b",
+          "job_id": "1770289974138",
+          "performance": {
+            "events": [
+              {
+                "ms": 219.82795902295038,
+                "name": "dom.extract",
+                "tags": {}
+              },
+              {
+                "ms": 18783.86284195585,
+                "name": "llm.call",
+                "tags": {
+                  "label": "Patient",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 18767.250675009564,
+                "name": "llm.call",
+                "tags": {
+                  "label": "Physician",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 19364.298717002384,
+                "name": "llm.call",
+                "tags": {
+                  "label": "HbA1c",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 18681.443718029186,
+                "name": "llm.call",
+                "tags": {
+                  "label": "DateOfDischarge",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 18281.07538196491,
+                "name": "llm.call",
+                "tags": {
+                  "label": "TNM",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 0.05424994742497802,
+                "name": "dom.match",
+                "tags": {}
+              }
+            ],
+            "request": {
+              "dom_ms": 219.88220897037536,
+              "n_timeouts": 0,
+              "n_llm_calls": 5,
+              "task_ms_total": 94097.81354293227,
+              "avg_llm_call_ms": 18775.58626679238,
+              "task_ms_dom_match": 0.05424994742497802,
+              "task_ms_llm_total": 93877.9313339619,
+              "median_llm_call_ms": 18767.250675009564,
+              "task_ms_dom_extract": 219.82795902295038
+            }
+          },
+          "system_prompt": "You are a pure extraction model.\n\nWhen you are given a TEXT and a QUESTION, you must return exactly one literal text passage from the TEXT that best answers the QUESTION.\n\nOutput format (mandatory):\n- Return EXACTLY ONE matching passage, with no introduction, no explanations, no Markdown, NO JSON, and no quotation marks around the answer.\n- Preserve capitalization, spaces, and punctuation EXACTLY as in the TEXT.\n- If there is NO matching passage: respond with <<<NO_MATCH>>>.\n\nAdditional rules:\n- Never provide multiple passages or variations.\n- If multiple passages fit, choose the most precise and shortest exact passage.",
+          "raw_llm_answers": {
+            "TNM": {
+              "error": null,
+              "answer": "an interval lower abdominal discomfort",
+              "status": "ok",
+              "question": "What is the TNM staging, only give me the information on p on n on m, no extra information"
+            },
+            "HbA1c": {
+              "error": null,
+              "answer": "5.6",
+              "status": "ok",
+              "question": "What is the HbA1c value of the patient, do not include the unit, only the number"
+            },
+            "Patient": {
+              "error": null,
+              "answer": "Sofia G. Martínez",
+              "status": "ok",
+              "question": "What is the patient's name, NOT the doctor's name, do not include the title, only the name"
+            },
+            "Physician": {
+              "error": null,
+              "answer": "<<<NO_ል>>>",
+              "status": "ok",
+              "question": "What is the physician's name, NOT the patient's name, do not include the title, only the name"
+            },
+            "DateOfDischarge": {
+              "error": null,
+              "answer": "2025-09-25",
+              "status": "ok",
+              "question": "What is the Date of Discharge, only the date"
+            }
+          },
+          "dom_match_by_label": {
+            "TNM": false,
+            "HbA1c": true,
+            "Patient": true,
+            "Physician": false,
+            "DateOfDischarge": true
+          },
+          "dom_match_diagnostics": [
+            {
+              "label": "Physician",
+              "reason": "Not found in any content block"
+            },
+            {
+              "label": "TNM",
+              "reason": "Not found in any content block"
+            }
+          ]
+        }
+      },
+      "meta": {},
+      "created_at": "2026-02-05T11:12:38.707659Z",
+      "updated_at": "2026-02-05T11:17:46.337026Z",
+      "is_labeled": false,
+      "overlap": 1,
+      "inner_id": 7,
+      "total_annotations": 0,
+      "cancelled_annotations": 0,
+      "total_predictions": 1,
+      "comment_count": 0,
+      "unresolved_comment_count": 0,
+      "last_comment_updated_at": null,
+      "project": 37,
+      "updated_by": 1,
+      "file_upload": null,
+      "comment_authors": [],
+      "annotations": [],
+      "predictions": [
+        {
+          "id": 134,
+          "result": [
+            {
+              "id": "979bbf5d-8b0e-4e7d-8077-42e27a21cd66",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[1]",
+                "text": "Sofia G. Martínez",
+                "start": "/div[1]/p[1]",
+                "labels": [
+                  "Patient"
+                ],
+                "endOffset": 26,
+                "startOffset": 9
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "fa4bb891-b563-489b-9516-1404c402ac63",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[3]",
+                "text": "5.6",
+                "start": "/div[1]/p[3]",
+                "labels": [
+                  "HbA1c"
+                ],
+                "endOffset": 275,
+                "startOffset": 272
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "2f7bbd25-6e39-4174-b0fe-b0c47f1612f4",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[1]",
+                "text": "2025-09-25",
+                "start": "/div[1]/p[1]",
+                "labels": [
+                  "DateOfDischarge"
+                ],
+                "endOffset": 85,
+                "startOffset": 75
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            }
+          ],
+          "model_version": "gemma3:12b",
+          "created_ago": "1 week, 1 day",
+          "score": null,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-02-05T11:17:46.214689Z",
+          "updated_at": "2026-02-05T11:17:46.214701Z",
+          "model": null,
+          "model_run": null,
+          "task": 327,
+          "project": 37
+        }
+      ]
+    },
+    {
+      "id": 328,
+      "data": {
+        "html": "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\"/>\n<title>discharge_letter_thompson_2pages</title>\n<meta name=\"generator\" content=\"Docling HTML Serializer\"/>\n<style>\n    html {\n        background-color: #f5f5f5;\n        font-family: Arial, sans-serif;\n        line-height: 1.6;\n    }\n    body {\n        max-width: 800px;\n        margin: 0 auto;\n        padding: 2rem;\n        background-color: white;\n        box-shadow: 0 0 10px rgba(0,0,0,0.1);\n    }\n    h1, h2, h3, h4, h5, h6 {\n        color: #333;\n        margin-top: 1.5em;\n        margin-bottom: 0.5em;\n    }\n    h1 {\n        font-size: 2em;\n        border-bottom: 1px solid #eee;\n        padding-bottom: 0.3em;\n    }\n    table {\n        border-collapse: collapse;\n        margin: 1em 0;\n        width: 100%;\n    }\n    th, td {\n        border: 1px solid #ddd;\n        padding: 8px;\n        text-align: left;\n    }\n    th {\n        background-color: #f2f2f2;\n        font-weight: bold;\n    }\n    figure {\n        margin: 1.5em 0;\n        text-align: center;\n    }\n    figcaption {\n        color: #666;\n        font-style: italic;\n        margin-top: 0.5em;\n    }\n    img {\n        max-width: 100%;\n        height: auto;\n    }\n    pre {\n        background-color: #f6f8fa;\n        border-radius: 3px;\n        padding: 1em;\n        overflow: auto;\n    }\n    code {\n        font-family: monospace;\n        background-color: #f6f8fa;\n        padding: 0.2em 0.4em;\n        border-radius: 3px;\n    }\n    pre code {\n        background-color: transparent;\n        padding: 0;\n    }\n    .formula {\n        text-align: center;\n        padding: 0.5em;\n        margin: 1em 0;\n        background-color: #f9f9f9;\n    }\n    .formula-not-decoded {\n        text-align: center;\n        padding: 0.5em;\n        margin: 1em 0;\n        background: repeating-linear-gradient(\n            45deg,\n            #f0f0f0,\n            #f0f0f0 10px,\n            #f9f9f9 10px,\n            #f9f9f9 20px\n        );\n    }\n    .page-break {\n        page-break-after: always;\n        border-top: 1px dashed #ccc;\n        margin: 2em 0;\n    }\n    .key-value-region {\n        background-color: #f9f9f9;\n        padding: 1em;\n        border-radius: 4px;\n        margin: 1em 0;\n    }\n    .key-value-region dt {\n        font-weight: bold;\n    }\n    .key-value-region dd {\n        margin-left: 1em;\n        margin-bottom: 0.5em;\n    }\n    .form-container {\n        border: 1px solid #ddd;\n        padding: 1em;\n        border-radius: 4px;\n        margin: 1em 0;\n    }\n    .form-item {\n        margin-bottom: 0.5em;\n    }\n    .image-classification {\n        font-size: 0.9em;\n        color: #666;\n        margin-top: 0.5em;\n    }\n</style>\n</head>\n<body>\n<div class='page'>\n<h2>Department of Internal Medicine and Oncology</h2>\n<h2>Discharge Summary</h2>\n<p>Patient: Noah J. Thompson (DOB 1969-01-30, MRN 451237)</p>\n<p>Date of Discharge: 2025-09-28</p>\n<h2>Clinical Course</h2>\n<p>The patient was admitted for evaluation and treatment of a colonic mass detected on screening colonoscopy. He has a background of type 2 diabetes mellitus with suboptimal control. Imaging studies (Colonoscopy and CT abdomen/pelvis (sigmoid colon mass)) confirmed the presence of a tumor in the sigmoid colon. Surgical resection was performed. Pathology confirmed adenocarcinoma, TNM stage II (pT3, pN0, M0), with no nodal or metastatic spread. The hospital stay was uncomplicated, and post-operative recovery was stable.</p>\n<h2>Laboratory Results</h2>\n<table><tbody><tr><th>Test</th><th>Result</th></tr><tr><td>HbA1c</td><td>8.2 %</td></tr><tr><td>Fasting Glucose</td><td>168 mg/dL</td></tr><tr><td>Creatinine</td><td>1.0 mg/dL</td></tr><tr><td>eGFR</td><td>82 mL/min/1.73m²</td></tr><tr><td>Total Cholesterol</td><td>210 mg/dL</td></tr></tbody></table>\n<h2>Medications at Discharge</h2>\n<ul>\n<li style=\"list-style-type: '- ';\">Metformin 1000 mg BID</li>\n<li style=\"list-style-type: '- ';\">Atorvastatin 20 mg QD</li>\n<li style=\"list-style-type: '- ';\">Enalapril 10 mg QD</li>\n</ul>\n<h2>Follow-Up</h2>\n<p>The patient should attend oncology clinic within 3 weeks to discuss adjuvant therapy considerations. A follow-up with the endocrinology outpatient clinic is scheduled to optimize diabetes management. Routine surveillance colonoscopy is advised in one year. Patient education regarding diet, glucose monitoring, and lifestyle modification was reinforced.</p>\n<p>Disclaimer: This is a synthetic document created for software testing purposes only. It is not for clinical use or to be interpreted as a medical device output.</p>\n</div>\n</body>\n</html>",
+        "name": "discharge_letter_thompson_2pages.html",
+        "ml_meta": {
+          "model": "gemma3:12b",
+          "job_id": "1770289974138",
+          "performance": {
+            "events": [
+              {
+                "ms": 409.28349999012426,
+                "name": "dom.extract",
+                "tags": {}
+              },
+              {
+                "ms": 15609.488215995952,
+                "name": "llm.call",
+                "tags": {
+                  "label": "Patient",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 18075.461008003913,
+                "name": "llm.call",
+                "tags": {
+                  "label": "Physician",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 15838.858131959569,
+                "name": "llm.call",
+                "tags": {
+                  "label": "HbA1c",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 18629.955256998073,
+                "name": "llm.call",
+                "tags": {
+                  "label": "DateOfDischarge",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 17202.391007973347,
+                "name": "llm.call",
+                "tags": {
+                  "label": "TNM",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 0.12974999845027924,
+                "name": "dom.match",
+                "tags": {}
+              }
+            ],
+            "request": {
+              "dom_ms": 409.41324998857453,
+              "n_timeouts": 0,
+              "n_llm_calls": 5,
+              "task_ms_total": 85765.56687091943,
+              "avg_llm_call_ms": 17071.23072418617,
+              "task_ms_dom_match": 0.12974999845027924,
+              "task_ms_llm_total": 85356.15362093085,
+              "median_llm_call_ms": 17202.391007973347,
+              "task_ms_dom_extract": 409.28349999012426
+            }
+          },
+          "system_prompt": "You are a pure extraction model.\n\nWhen you are given a TEXT and a QUESTION, you must return exactly one literal text passage from the TEXT that best answers the QUESTION.\n\nOutput format (mandatory):\n- Return EXACTLY ONE matching passage, with no introduction, no explanations, no Markdown, NO JSON, and no quotation marks around the answer.\n- Preserve capitalization, spaces, and punctuation EXACTLY as in the TEXT.\n- If there is NO matching passage: respond with <<<NO_MATCH>>>.\n\nAdditional rules:\n- Never provide multiple passages or variations.\n- If multiple passages fit, choose the most precise and shortest exact passage.",
+          "raw_llm_answers": {
+            "TNM": {
+              "error": null,
+              "answer": "TNM stage II (pT3, pN0, M0)",
+              "status": "ok",
+              "question": "What is the TNM staging, only give me the information on p on n on m, no extra information"
+            },
+            "HbA1c": {
+              "error": null,
+              "answer": "8.2",
+              "status": "ok",
+              "question": "What is the HbA1c value of the patient, do not include the unit, only the number"
+            },
+            "Patient": {
+              "error": null,
+              "answer": "Noah J. Thompson",
+              "status": "ok",
+              "question": "What is the patient's name, NOT the doctor's name, do not include the title, only the name"
+            },
+            "Physician": {
+              "error": null,
+              "answer": "<<<NO_ል>>>",
+              "status": "ok",
+              "question": "What is the physician's name, NOT the patient's name, do not include the title, only the name"
+            },
+            "DateOfDischarge": {
+              "error": null,
+              "answer": "2025-09-28",
+              "status": "ok",
+              "question": "What is the Date of Discharge, only the date"
+            }
+          },
+          "dom_match_by_label": {
+            "TNM": true,
+            "HbA1c": true,
+            "Patient": true,
+            "Physician": false,
+            "DateOfDischarge": true
+          },
+          "dom_match_diagnostics": [
+            {
+              "label": "Physician",
+              "reason": "Not found in any content block"
+            }
+          ]
+        }
+      },
+      "meta": {},
+      "created_at": "2026-02-05T11:12:38.707672Z",
+      "updated_at": "2026-02-05T11:16:12.036477Z",
+      "is_labeled": false,
+      "overlap": 1,
+      "inner_id": 8,
+      "total_annotations": 0,
+      "cancelled_annotations": 0,
+      "total_predictions": 1,
+      "comment_count": 0,
+      "unresolved_comment_count": 0,
+      "last_comment_updated_at": null,
+      "project": 37,
+      "updated_by": 1,
+      "file_upload": null,
+      "comment_authors": [],
+      "annotations": [],
+      "predictions": [
+        {
+          "id": 133,
+          "result": [
+            {
+              "id": "7e176cee-a626-4778-8e16-fcf72574a6bf",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[1]",
+                "text": "Noah J. Thompson",
+                "start": "/div[1]/p[1]",
+                "labels": [
+                  "Patient"
+                ],
+                "endOffset": 25,
+                "startOffset": 9
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "f2e19f99-92d1-4d80-8b50-ec7769536358",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/table[1]/tbody[1]/tr[2]/td[2]",
+                "text": "8.2",
+                "start": "/div[1]/table[1]/tbody[1]/tr[2]/td[2]",
+                "labels": [
+                  "HbA1c"
+                ],
+                "endOffset": 3,
+                "startOffset": 0
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "ce0ad527-5eda-4cbc-ba75-5755c6c1637e",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[2]",
+                "text": "2025-09-28",
+                "start": "/div[1]/p[2]",
+                "labels": [
+                  "DateOfDischarge"
+                ],
+                "endOffset": 29,
+                "startOffset": 19
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "ddcbd915-b774-4c30-9008-0aec49a3065b",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[3]",
+                "text": "TNM stage II (pT3, pN0, M0)",
+                "start": "/div[1]/p[3]",
+                "labels": [
+                  "TNM"
+                ],
+                "endOffset": 406,
+                "startOffset": 379
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            }
+          ],
+          "model_version": "gemma3:12b",
+          "created_ago": "1 week, 2 days",
+          "score": null,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-02-05T11:16:11.920117Z",
+          "updated_at": "2026-02-05T11:16:11.920123Z",
+          "model": null,
+          "model_run": null,
+          "task": 328,
+          "project": 37
+        }
+      ]
+    },
+    {
+      "id": 329,
+      "data": {
+        "html": "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\"/>\n<title>radiology_report_mueller_puncture</title>\n<meta name=\"generator\" content=\"Docling HTML Serializer\"/>\n<style>\n    html {\n        background-color: #f5f5f5;\n        font-family: Arial, sans-serif;\n        line-height: 1.6;\n    }\n    body {\n        max-width: 800px;\n        margin: 0 auto;\n        padding: 2rem;\n        background-color: white;\n        box-shadow: 0 0 10px rgba(0,0,0,0.1);\n    }\n    h1, h2, h3, h4, h5, h6 {\n        color: #333;\n        margin-top: 1.5em;\n        margin-bottom: 0.5em;\n    }\n    h1 {\n        font-size: 2em;\n        border-bottom: 1px solid #eee;\n        padding-bottom: 0.3em;\n    }\n    table {\n        border-collapse: collapse;\n        margin: 1em 0;\n        width: 100%;\n    }\n    th, td {\n        border: 1px solid #ddd;\n        padding: 8px;\n        text-align: left;\n    }\n    th {\n        background-color: #f2f2f2;\n        font-weight: bold;\n    }\n    figure {\n        margin: 1.5em 0;\n        text-align: center;\n    }\n    figcaption {\n        color: #666;\n        font-style: italic;\n        margin-top: 0.5em;\n    }\n    img {\n        max-width: 100%;\n        height: auto;\n    }\n    pre {\n        background-color: #f6f8fa;\n        border-radius: 3px;\n        padding: 1em;\n        overflow: auto;\n    }\n    code {\n        font-family: monospace;\n        background-color: #f6f8fa;\n        padding: 0.2em 0.4em;\n        border-radius: 3px;\n    }\n    pre code {\n        background-color: transparent;\n        padding: 0;\n    }\n    .formula {\n        text-align: center;\n        padding: 0.5em;\n        margin: 1em 0;\n        background-color: #f9f9f9;\n    }\n    .formula-not-decoded {\n        text-align: center;\n        padding: 0.5em;\n        margin: 1em 0;\n        background: repeating-linear-gradient(\n            45deg,\n            #f0f0f0,\n            #f0f0f0 10px,\n            #f9f9f9 10px,\n            #f9f9f9 20px\n        );\n    }\n    .page-break {\n        page-break-after: always;\n        border-top: 1px dashed #ccc;\n        margin: 2em 0;\n    }\n    .key-value-region {\n        background-color: #f9f9f9;\n        padding: 1em;\n        border-radius: 4px;\n        margin: 1em 0;\n    }\n    .key-value-region dt {\n        font-weight: bold;\n    }\n    .key-value-region dd {\n        margin-left: 1em;\n        margin-bottom: 0.5em;\n    }\n    .form-container {\n        border: 1px solid #ddd;\n        padding: 1em;\n        border-radius: 4px;\n        margin: 1em 0;\n    }\n    .form-item {\n        margin-bottom: 0.5em;\n    }\n    .image-classification {\n        font-size: 0.9em;\n        color: #666;\n        margin-top: 0.5em;\n    }\n</style>\n</head>\n<body>\n<div class='page'>\n<h2>Radiology Report - Interventional Procedure</h2>\n<p>Patient: Hannah J. Müller (DOB 1984-04-17, MRN 552781) - Report Date: 2025-10-06</p>\n<h2>Study: Ultrasound-guided fine needle aspiration (FNA) of thyroid nodule</h2>\n<p>Under real-time ultrasound guidance, a suspicious hypoechoic thyroid nodule was identified in the right lobe. After sterile preparation and local anesthesia, a fine needle aspiration was performed with three passes into the lesion. The patient tolerated the procedure well without immediate complications. Adequate material was obtained for cytological examination. Pathology results are pending at the time of this report.</p>\n<h2>Impression:</h2>\n<p>Successful ultrasound-guided FNA of a thyroid nodule. Adequate samples obtained. No immediate complications. Await cytology for final evaluation.</p>\n<p>Disclaimer: This is a synthetic document created for software testing purposes only. It is not for clinical use or to be interpreted as a medical device output.</p>\n</div>\n</body>\n</html>",
+        "name": "radiology_report_mueller_puncture.html",
+        "ml_meta": {
+          "model": "gemma3:12b",
+          "job_id": "1770289974138",
+          "performance": {
+            "events": [
+              {
+                "ms": 380.37037500180304,
+                "name": "dom.extract",
+                "tags": {}
+              },
+              {
+                "ms": 10334.521964017767,
+                "name": "llm.call",
+                "tags": {
+                  "label": "Patient",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 10116.773004992865,
+                "name": "llm.call",
+                "tags": {
+                  "label": "Physician",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 10531.618129985873,
+                "name": "llm.call",
+                "tags": {
+                  "label": "HbA1c",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 10895.991172001231,
+                "name": "llm.call",
+                "tags": {
+                  "label": "DateOfDischarge",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 10246.131754014641,
+                "name": "llm.call",
+                "tags": {
+                  "label": "TNM",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 0.042584026232361794,
+                "name": "dom.match",
+                "tags": {}
+              }
+            ],
+            "request": {
+              "dom_ms": 380.4129590280354,
+              "n_timeouts": 0,
+              "n_llm_calls": 5,
+              "task_ms_total": 52505.44898404041,
+              "avg_llm_call_ms": 10425.007205002476,
+              "task_ms_dom_match": 0.042584026232361794,
+              "task_ms_llm_total": 52125.03602501238,
+              "median_llm_call_ms": 10334.521964017767,
+              "task_ms_dom_extract": 380.37037500180304
+            }
+          },
+          "system_prompt": "You are a pure extraction model.\n\nWhen you are given a TEXT and a QUESTION, you must return exactly one literal text passage from the TEXT that best answers the QUESTION.\n\nOutput format (mandatory):\n- Return EXACTLY ONE matching passage, with no introduction, no explanations, no Markdown, NO JSON, and no quotation marks around the answer.\n- Preserve capitalization, spaces, and punctuation EXACTLY as in the TEXT.\n- If there is NO matching passage: respond with <<<NO_MATCH>>>.\n\nAdditional rules:\n- Never provide multiple passages or variations.\n- If multiple passages fit, choose the most precise and shortest exact passage.",
+          "raw_llm_answers": {
+            "TNM": {
+              "error": null,
+              "answer": "<<<NO_ଁ>>>",
+              "status": "ok",
+              "question": "What is the TNM staging, only give me the information on p on n on m, no extra information"
+            },
+            "HbA1c": {
+              "error": null,
+              "answer": "<<<NO_ል>>>",
+              "status": "ok",
+              "question": "What is the HbA1c value of the patient, do not include the unit, only the number"
+            },
+            "Patient": {
+              "error": null,
+              "answer": "Hannah J. Müller",
+              "status": "ok",
+              "question": "What is the patient's name, NOT the doctor's name, do not include the title, only the name"
+            },
+            "Physician": {
+              "error": null,
+              "answer": "mueller",
+              "status": "ok",
+              "question": "What is the physician's name, NOT the patient's name, do not include the title, only the name"
+            },
+            "DateOfDischarge": {
+              "error": null,
+              "answer": "2025-10-06",
+              "status": "ok",
+              "question": "What is the Date of Discharge, only the date"
+            }
+          },
+          "dom_match_by_label": {
+            "TNM": false,
+            "HbA1c": false,
+            "Patient": true,
+            "Physician": false,
+            "DateOfDischarge": true
+          },
+          "dom_match_diagnostics": [
+            {
+              "label": "Physician",
+              "reason": "Not found in any content block"
+            },
+            {
+              "label": "HbA1c",
+              "reason": "Not found in any content block"
+            },
+            {
+              "label": "TNM",
+              "reason": "Not found in any content block"
+            }
+          ]
+        }
+      },
+      "meta": {},
+      "created_at": "2026-02-05T11:12:38.707686Z",
+      "updated_at": "2026-02-05T11:14:46.063546Z",
+      "is_labeled": false,
+      "overlap": 1,
+      "inner_id": 9,
+      "total_annotations": 0,
+      "cancelled_annotations": 0,
+      "total_predictions": 1,
+      "comment_count": 0,
+      "unresolved_comment_count": 0,
+      "last_comment_updated_at": null,
+      "project": 37,
+      "updated_by": 1,
+      "file_upload": null,
+      "comment_authors": [],
+      "annotations": [],
+      "predictions": [
+        {
+          "id": 132,
+          "result": [
+            {
+              "id": "368b96bb-09d5-46d7-9b8b-343ad953a7c9",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[1]",
+                "text": "Hannah J. Müller",
+                "start": "/div[1]/p[1]",
+                "labels": [
+                  "Patient"
+                ],
+                "endOffset": 25,
+                "startOffset": 9
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "3832f2cc-7fa3-4240-8cea-c1db50615746",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[1]",
+                "text": "2025-10-06",
+                "start": "/div[1]/p[1]",
+                "labels": [
+                  "DateOfDischarge"
+                ],
+                "endOffset": 80,
+                "startOffset": 70
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            }
+          ],
+          "model_version": "gemma3:12b",
+          "created_ago": "1 week, 2 days",
+          "score": null,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-02-05T11:14:45.964811Z",
+          "updated_at": "2026-02-05T11:14:45.964821Z",
+          "model": null,
+          "model_run": null,
+          "task": 329,
+          "project": 37
+        }
+      ]
+    },
+    {
+      "id": 330,
+      "data": {
+        "html": "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\"/>\n<title>histology_report_williams</title>\n<meta name=\"generator\" content=\"Docling HTML Serializer\"/>\n<style>\n    html {\n        background-color: #f5f5f5;\n        font-family: Arial, sans-serif;\n        line-height: 1.6;\n    }\n    body {\n        max-width: 800px;\n        margin: 0 auto;\n        padding: 2rem;\n        background-color: white;\n        box-shadow: 0 0 10px rgba(0,0,0,0.1);\n    }\n    h1, h2, h3, h4, h5, h6 {\n        color: #333;\n        margin-top: 1.5em;\n        margin-bottom: 0.5em;\n    }\n    h1 {\n        font-size: 2em;\n        border-bottom: 1px solid #eee;\n        padding-bottom: 0.3em;\n    }\n    table {\n        border-collapse: collapse;\n        margin: 1em 0;\n        width: 100%;\n    }\n    th, td {\n        border: 1px solid #ddd;\n        padding: 8px;\n        text-align: left;\n    }\n    th {\n        background-color: #f2f2f2;\n        font-weight: bold;\n    }\n    figure {\n        margin: 1.5em 0;\n        text-align: center;\n    }\n    figcaption {\n        color: #666;\n        font-style: italic;\n        margin-top: 0.5em;\n    }\n    img {\n        max-width: 100%;\n        height: auto;\n    }\n    pre {\n        background-color: #f6f8fa;\n        border-radius: 3px;\n        padding: 1em;\n        overflow: auto;\n    }\n    code {\n        font-family: monospace;\n        background-color: #f6f8fa;\n        padding: 0.2em 0.4em;\n        border-radius: 3px;\n    }\n    pre code {\n        background-color: transparent;\n        padding: 0;\n    }\n    .formula {\n        text-align: center;\n        padding: 0.5em;\n        margin: 1em 0;\n        background-color: #f9f9f9;\n    }\n    .formula-not-decoded {\n        text-align: center;\n        padding: 0.5em;\n        margin: 1em 0;\n        background: repeating-linear-gradient(\n            45deg,\n            #f0f0f0,\n            #f0f0f0 10px,\n            #f9f9f9 10px,\n            #f9f9f9 20px\n        );\n    }\n    .page-break {\n        page-break-after: always;\n        border-top: 1px dashed #ccc;\n        margin: 2em 0;\n    }\n    .key-value-region {\n        background-color: #f9f9f9;\n        padding: 1em;\n        border-radius: 4px;\n        margin: 1em 0;\n    }\n    .key-value-region dt {\n        font-weight: bold;\n    }\n    .key-value-region dd {\n        margin-left: 1em;\n        margin-bottom: 0.5em;\n    }\n    .form-container {\n        border: 1px solid #ddd;\n        padding: 1em;\n        border-radius: 4px;\n        margin: 1em 0;\n    }\n    .form-item {\n        margin-bottom: 0.5em;\n    }\n    .image-classification {\n        font-size: 0.9em;\n        color: #666;\n        margin-top: 0.5em;\n    }\n</style>\n</head>\n<body>\n<div class='page'>\n<h2>Histology Report</h2>\n<p>This report concerns Mr. Daniel K. Williams (born 1978-06-12, record number 884512), who underwent resection on 2025-10-04 for further evaluation of a colonic lesion.</p>\n<h2>Microscopic Description:</h2>\n<p>Sections examined from the submitted Colon resection specimen reveal an infiltrating epithelial neoplasm forming irregular glandular structures. The tumor shows moderate nuclear atypia and evidence of invasion through the muscularis propria into the pericolonic adipose tissue. No definite vascular or perineural invasion is seen. The surrounding mucosa demonstrates features of chronic inflammation.</p>\n<h2>Diagnosis:</h2>\n<p>Adenocarcinoma of the colon, moderately differentiated</p>\n<h2>Pathologic Staging:</h2>\n<p>TNM classification: pT3, pN0, M0</p>\n<p>In summary, the findings are consistent with an invasive colonic adenocarcinoma, moderately differentiated, without nodal or distant metastasis identified in the examined material.</p>\n<p>Disclaimer: This is a synthetic document created for software testing purposes only. It is not for clinical use or to be interpreted as a medical device output.</p>\n</div>\n</body>\n</html>",
+        "name": "histology_report_williams.html",
+        "ml_meta": {
+          "model": "gemma3:12b",
+          "job_id": "1770289974138",
+          "performance": {
+            "events": [
+              {
+                "ms": 208.90425000106916,
+                "name": "dom.extract",
+                "tags": {}
+              },
+              {
+                "ms": 14344.162048015278,
+                "name": "llm.call",
+                "tags": {
+                  "label": "Patient",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 10228.148920985404,
+                "name": "llm.call",
+                "tags": {
+                  "label": "Physician",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 10928.50904702209,
+                "name": "llm.call",
+                "tags": {
+                  "label": "HbA1c",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 11237.068337970413,
+                "name": "llm.call",
+                "tags": {
+                  "label": "DateOfDischarge",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 12117.37458902644,
+                "name": "llm.call",
+                "tags": {
+                  "label": "TNM",
+                  "status": "ok"
+                }
+              },
+              {
+                "ms": 0.04875002196058631,
+                "name": "dom.match",
+                "tags": {}
+              }
+            ],
+            "request": {
+              "dom_ms": 208.95300002302974,
+              "n_timeouts": 0,
+              "n_llm_calls": 5,
+              "task_ms_total": 59064.215943042655,
+              "avg_llm_call_ms": 11771.052588603925,
+              "task_ms_dom_match": 0.04875002196058631,
+              "task_ms_llm_total": 58855.262943019625,
+              "median_llm_call_ms": 11237.068337970413,
+              "task_ms_dom_extract": 208.90425000106916
+            }
+          },
+          "system_prompt": "You are a pure extraction model.\n\nWhen you are given a TEXT and a QUESTION, you must return exactly one literal text passage from the TEXT that best answers the QUESTION.\n\nOutput format (mandatory):\n- Return EXACTLY ONE matching passage, with no introduction, no explanations, no Markdown, NO JSON, and no quotation marks around the answer.\n- Preserve capitalization, spaces, and punctuation EXACTLY as in the TEXT.\n- If there is NO matching passage: respond with <<<NO_MATCH>>>.\n\nAdditional rules:\n- Never provide multiple passages or variations.\n- If multiple passages fit, choose the most precise and shortest exact passage.",
+          "raw_llm_answers": {
+            "TNM": {
+              "error": null,
+              "answer": "pT3, pN0, M0",
+              "status": "ok",
+              "question": "What is the TNM staging, only give me the information on p on n on m, no extra information"
+            },
+            "HbA1c": {
+              "error": null,
+              "answer": "<<<NO_ል>>>",
+              "status": "ok",
+              "question": "What is the HbA1c value of the patient, do not include the unit, only the number"
+            },
+            "Patient": {
+              "error": null,
+              "answer": "Daniel K. Williams",
+              "status": "ok",
+              "question": "What is the patient's name, NOT the doctor's name, do not include the title, only the name"
+            },
+            "Physician": {
+              "error": null,
+              "answer": "Daniel K. Williams",
+              "status": "ok",
+              "question": "What is the physician's name, NOT the patient's name, do not include the title, only the name"
+            },
+            "DateOfDischarge": {
+              "error": null,
+              "answer": "2025-10-04",
+              "status": "ok",
+              "question": "What is the Date of Discharge, only the date"
+            }
+          },
+          "dom_match_by_label": {
+            "TNM": true,
+            "HbA1c": false,
+            "Patient": true,
+            "Physician": true,
+            "DateOfDischarge": true
+          },
+          "dom_match_diagnostics": [
+            {
+              "label": "HbA1c",
+              "reason": "Not found in any content block"
+            }
+          ]
+        }
+      },
+      "meta": {},
+      "created_at": "2026-02-05T11:12:38.707699Z",
+      "updated_at": "2026-02-05T11:13:53.393001Z",
+      "is_labeled": false,
+      "overlap": 1,
+      "inner_id": 10,
+      "total_annotations": 0,
+      "cancelled_annotations": 0,
+      "total_predictions": 1,
+      "comment_count": 0,
+      "unresolved_comment_count": 0,
+      "last_comment_updated_at": null,
+      "project": 37,
+      "updated_by": 1,
+      "file_upload": null,
+      "comment_authors": [],
+      "annotations": [],
+      "predictions": [
+        {
+          "id": 131,
+          "result": [
+            {
+              "id": "23960e50-2322-4f9e-aa5e-251f5fb61de7",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[1]",
+                "text": "Daniel K. Williams",
+                "start": "/div[1]/p[1]",
+                "labels": [
+                  "Patient"
+                ],
+                "endOffset": 43,
+                "startOffset": 25
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "a1ef756a-fd82-487a-9028-589043d90597",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[1]",
+                "text": "Daniel K. Williams",
+                "start": "/div[1]/p[1]",
+                "labels": [
+                  "Physician"
+                ],
+                "endOffset": 43,
+                "startOffset": 25
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "ec402607-ead0-4e7f-81f1-411a9fc20de6",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[1]",
+                "text": "2025-10-04",
+                "start": "/div[1]/p[1]",
+                "labels": [
+                  "DateOfDischarge"
+                ],
+                "endOffset": 122,
+                "startOffset": 112
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            },
+            {
+              "id": "00bdf1e6-8f55-4010-9eb4-9d8155f0dd22",
+              "type": "labels",
+              "value": {
+                "end": "/div[1]/p[4]",
+                "text": "pT3, pN0, M0",
+                "start": "/div[1]/p[4]",
+                "labels": [
+                  "TNM"
+                ],
+                "endOffset": 32,
+                "startOffset": 20
+              },
+              "origin": "prediction",
+              "to_name": "html",
+              "from_name": "label"
+            }
+          ],
+          "model_version": "gemma3:12b",
+          "created_ago": "1 week, 2 days",
+          "score": null,
+          "cluster": null,
+          "neighbors": null,
+          "mislabeling": 0.0,
+          "created_at": "2026-02-05T11:13:53.300518Z",
+          "updated_at": "2026-02-05T11:13:53.300527Z",
+          "model": null,
+          "model_run": null,
+          "task": 330,
+          "project": 37
+        }
+      ]
+    }
+  ]
+}

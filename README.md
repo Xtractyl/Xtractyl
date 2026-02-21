@@ -389,6 +389,15 @@ Planned next.
 
 --- 
 
+### Monitor Evaluation Drift/Regression over Time for a Standard Set
+❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+
+![Evaluation Drift](assets/evaluation_drift.png)
+
+❗❗THE ABOVE IMAGES SHOW SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+
+--- 
+
 ### ⏭️ Coming Soon
 
 9.**Fine-tune the AI** (`/finetune`) 
@@ -424,31 +433,78 @@ make down
 make deps
 make unit-orchestrator
 ```
+---
+
+## Versioning (SemVer)
+
+This project uses Semantic Versioning (SemVer) with the format:
+
+MAJOR.MINOR.PATCH
+
+The version is stored in the root file `VERSION`.
+
+Rules:
+
+- PATCH: Bug fixes or internal changes that do not affect external behavior.
+  Example: logging fixes, internal refactoring, test fixes.
+
+- MINOR: Backward-compatible functional changes.
+  Example: new features, new endpoints, extended functionality.
+
+- MAJOR: breaking changes only after 1.0.0 (stable API).
+
+  Example: API contract changes, data format changes, removal of functionality.
+
+Note: While the major version is 0 (0.y.z), breaking changes may occur and are communicated via MINOR version bumps.
+
+Version bump policy:
+
+- Any change outside of `README.md` or `assets/` requires a version bump.
+- The version bump must be included in the same Pull Request as the change.
+- Git tags and GitHub releases are created automatically from the VERSION file.
+
+Example:
+
+VERSION
+0.6.0 → 0.7.0
+
+---
 
 ## 📜 logging (hardening in progress)
 
 1) Default mode (safe logs)
 	•	enabled by default
-	•	logs exclude sensitive data, including:
-	•	request / response payloads
-	•	filenames (when potentially sensitive)
-	•	document contents
-	•	pydantic validation / evaluation errors (may contain payload data)
+	•	logs exclude sensitive data
 	•	logs are written to:
 	•	stdout / stream
 	•	logs/ directory
+ 	•	logs/evaluation_over_time.jsonl contains drift/regression monitoring for a standard set
 
 2) Dev mode (debug artifacts)
 	•	enabled only when explicitly requested
 	•	logs may include sensitive data
 	•	debug logs are written only to:
-	•	data/... (alongside evaluation / result artifacts)
+	•	data/logs/... (alongside evaluation / result artifacts)
 	•	debug logs are never written to stdout or logs/
 
 ```bash 
 DEBUG_ARTIFACTS=1 docker compose up
 ```
 
+3) Fixture mode 
+Saving data as files during a run for later use as test fixtures. Only with synthetic data in a pure dev environment. Endpoints are triggered via the GUI.
+	•	Enabled only when explicitly requested (via env flags).
+	•	Debug/fixture artifacts are written only to:
+	•	data/fixtures/... (mounted fixture folder)
+	•	After the run, fixtures must be copied manually from data/fixtures/ to tests/fixtures/.
+	•	This is intentionally not automated to avoid inadvertent inclusion of sensitive data.
+	•	When copying, keep the filename identical but append __SYNTHETIC_DATA (before .json; TWO underscores), e.g.
+build_results_table_minimal__tasks_page__SYNTHETIC_DATA.json
+
+
+```bash 
+DEBUG_ARTIFACTS=1 CAPTURE_FIXTURES=1 SYNTHETIC_DATA=1 docker compose up
+```
 
 ---
 
