@@ -35,6 +35,10 @@ While not a medical device, Xtractyl addresses key challenges relevant to MedTec
 
 ⚠️ Note: For development purposes data currently shows up in the local log files (be aware of that when working with real data), this is currently being hardened, see below under "logging" for additional information.
 
+⚠️ Note: Label Studio currently needs short time online connection to display projects: https://github.com/HumanSignal/label-studio/issues/9086#issuecomment-3817949828 
+A solution is being worked on.
+
+
 ---
 
 ## 🏗️ Architecture Overview
