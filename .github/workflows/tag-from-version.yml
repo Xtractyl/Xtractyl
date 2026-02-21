@@ -3,7 +3,7 @@ name: Create tag from VERSION
 on:
   push:
     branches:
-      - main   # oder euer Hauptbranch
+      - master   
 
 jobs:
   tag:
