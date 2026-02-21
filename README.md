@@ -433,6 +433,42 @@ make down
 make deps
 make unit-orchestrator
 ```
+---
+
+## Versioning (SemVer)
+
+This project uses Semantic Versioning (SemVer) with the format:
+
+MAJOR.MINOR.PATCH
+
+The version is stored in the root file `VERSION`.
+
+Rules:
+
+- PATCH: Bug fixes or internal changes that do not affect external behavior.
+  Example: logging fixes, internal refactoring, test fixes.
+
+- MINOR: Backward-compatible functional changes.
+  Example: new features, new endpoints, extended functionality.
+
+- MAJOR: breaking changes only after 1.0.0 (stable API).
+
+  Example: API contract changes, data format changes, removal of functionality.
+
+Note: While the major version is 0 (0.y.z), breaking changes may occur and are communicated via MINOR version bumps.
+
+Version bump policy:
+
+- Any change outside of `README.md` or `assets/` requires a version bump.
+- The version bump must be included in the same Pull Request as the change.
+- Git tags and GitHub releases are created automatically from the VERSION file.
+
+Example:
+
+VERSION
+0.6.0 → 0.7.0
+
+---
 
 ## 📜 logging (hardening in progress)
 
