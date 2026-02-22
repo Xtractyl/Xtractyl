@@ -1,5 +1,6 @@
 # orchestrator/api/routes/results.py
 
+from domain.errors import ValidationFailed
 from domain.models.results import GetResultsTableCommand
 from domain.results import build_results_table
 from flask import request
@@ -29,10 +30,17 @@ def register(app, ok):
         try:
             contract = GetResultsTableRequest.model_validate(payload)
         except ValidationError as e:
-            raise ValueError(e.errors())
+            raise ValidationFailed(
+                code="INVALID_REQUEST",
+                message="Invalid request payload.",
+                details=e.errors(),
+            )
 
         if not token:
-            raise ValueError("token is required")
+            raise ValidationFailed(
+                code="TOKEN_REQUIRED",
+                message="Authorization token is required.",
+            )
 
         cmd = GetResultsTableCommand.from_contract(contract, token)
 

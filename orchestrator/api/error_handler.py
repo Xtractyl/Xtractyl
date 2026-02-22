@@ -3,7 +3,7 @@
 import os
 import traceback
 
-from domain.errors import DomainError
+from domain.errors import DomainError, ValidationFailed
 from flask import g, jsonify
 
 from api.contracts.errors import ErrorResponse
@@ -22,7 +22,7 @@ def register_error_handlers(app, logger_safe, logger_dev):
             "domain_error",
             extra={
                 "code": code,
-                "message": err.message,
+                "error_message": err.message,
                 "request_id": getattr(g, "request_id", None),
             },
         )
@@ -38,11 +38,25 @@ def register_error_handlers(app, logger_safe, logger_dev):
                     "request_id": getattr(g, "request_id", None),
                 },
             )
-
+        details = None
+        if isinstance(err, ValidationFailed) and err.details:
+            # Only forward a safe subset of pydantic error entries
+            details = []
+            for d in err.details:
+                if not isinstance(d, dict):
+                    continue
+                details.append(
+                    {
+                        "loc": d.get("loc"),
+                        "msg": d.get("msg", "Invalid value."),
+                        "type": d.get("type"),
+                    }
+                )
         payload = ErrorResponse(
             error=code,
             message=err.message,
             request_id=getattr(g, "request_id", None),
+            details=details,
         ).model_dump()
 
         return jsonify(payload), int(status)

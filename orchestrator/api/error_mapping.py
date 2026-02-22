@@ -21,6 +21,8 @@ def map_domain_error(err: DomainError) -> tuple[int, str]:
         return HTTPStatus.CONFLICT, err.code
 
     if isinstance(err, ExternalServiceError):
+        if err.code == "LABEL_STUDIO_UNAUTHORIZED":
+            return HTTPStatus.UNAUTHORIZED, err.code
         return HTTPStatus.BAD_GATEWAY, err.code
 
     return HTTPStatus.BAD_REQUEST, err.code
