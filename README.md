@@ -216,6 +216,31 @@ Access the frontend via your browser at http://localhost:5173/ following the wor
 
 ---
 
+## 📘 API Documentation (OpenAPI / Swagger)
+
+Automatically generated OpenAPI documentation using `flask-pydantic-spec` is currently being added. Currently available starting with the orchestrator.
+
+When the containers are running, the documentation is available at:
+
+http://localhost:5001/apidoc/swagger for the orchestrator
+
+Each backend container exposes its own OpenAPI documentation on its respective port.
+
+### How it works
+
+- OpenAPI schemas are generated from Pydantic request and error contracts.
+- Only endpoints using `@spec.validate(...)` are included in the documentation.
+- Legacy endpoints remain undocumented until refactored.
+
+To document a new endpoint:
+
+1. Add `@spec.validate(...)`
+2. Provide a Pydantic request model
+3. Provide response status codes mapped to `ErrorResponse`
+4. Restart the container
+
+The endpoint will automatically appear in Swagger.
+
 ### 3. Testing
 
 #### Smoke tests (pytest)
@@ -393,7 +418,9 @@ Planned next.
 
 --- 
 
-### Monitor Evaluation Drift/Regression over Time for a Standard Set
+. **Monitor Evaluation Drift/Regression over Time for a Standard Set** (`/evaluationdrift`)  
+
+### Evaluation Drift 
 ❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
 ![Evaluation Drift](assets/evaluation_drift.png)

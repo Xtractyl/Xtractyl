@@ -5,6 +5,7 @@ from api.error_handler import register_error_handlers
 from api.routes import register_routes
 from flask import Flask, Response, jsonify
 from flask_cors import CORS
+from flask_pydantic_spec import FlaskPydanticSpec
 from utils.logging_utils import dev_logger, safe_logger
 
 safe_logger.info("orchestrator_starting")
@@ -47,12 +48,14 @@ def create_app() -> Flask:
     # CORS: keep browser frontend working (incl. Authorization header)
     CORS(app, origins=[FRONTEND_ORIGIN], allow_headers=["Content-Type", "Authorization"])
 
-    register_routes(app, ok)
+    spec = FlaskPydanticSpec("flask", title="Orchestrator API", version="v1", path="apidoc")
+    register_routes(app, ok, spec)
     register_error_handlers(
         app=app,
         logger_safe=safe_logger,
         logger_dev=dev_logger,
     )
+    spec.register(app)
     return app
 
 
