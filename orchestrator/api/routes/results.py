@@ -28,12 +28,9 @@ def register(app, ok, spec):
     @spec.validate(
         body=Request(GetResultsTableRequest),
         resp=Response(
-            HTTP_200=OkResponseAny,  # required: must be a Pydantic BaseModel
-            HTTP_400=ErrorResponse,
-            HTTP_404=ErrorResponse,
-            HTTP_409=ErrorResponse,
-            HTTP_502=ErrorResponse,
-            HTTP_500=ErrorResponse,
+            HTTP_200=OkResponseAny,
+            HTTP_400=ErrorResponse,  # invalid payload
+            HTTP_500=ErrorResponse,  # unexpected global exception handler
         ),
         tags=["results"],
     )
