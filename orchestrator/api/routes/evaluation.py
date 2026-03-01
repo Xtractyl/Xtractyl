@@ -28,20 +28,31 @@ def _extract_token(req) -> str | None:
 
 def register(app, ok, spec):
     # New standard endpoint
+    @spec.validate(
+        resp=Response(
+            HTTP_200=OkResponseAny,
+            HTTP_400=ErrorResponse,
+            HTTP_500=ErrorResponse,
+        ),
+        tags=["evaluation"],
+    )
     @app.route("/evaluate-ai/projects", methods=["GET"])
     def evaluate_ai_projects():
         token = _extract_token(request)
 
         if not token:
-            return ok(lambda: {"status": "error", "error": "token is required"})
-
+            raise DomainError(
+                code="TOKEN_REQUIRED",
+                message="Authorization token is required.",
+            )
         return ok(lambda: list_project_names(token))
 
-    @app.route("/groundtruth_qal", methods=["GET"])
+    # Internal frontend helper endpoint.
+    # No user input. Deterministic state check for groundtruth set existence.
+    # Not part of public API contract.    @app.route("/groundtruth_qal", methods=["GET"])
     def groundtruth_qal():
         return ok(get_groundtruth_qal)
 
-    @app.route("/evaluate-ai", methods=["POST"])
     @spec.validate(
         body=Request(EvaluateProjectsRequest),
         resp=Response(
@@ -51,6 +62,7 @@ def register(app, ok, spec):
         ),
         tags=["evaluation"],
     )
+    @app.route("/evaluate-ai", methods=["POST"])
     def evaluate_ai():
         payload = request.get_json(silent=True) or {}
         token = _extract_token(request)
