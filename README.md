@@ -124,10 +124,19 @@ ZA6 --> ZA7
 %% ====== ROW 8 ======
 subgraph ZA8[" "]
 direction LR
- A8[Frontend - Finetune AI] 
+ A8[Frontend - Evaluate Drift] --> B8A[Orchestrator] 
 end
 
 ZA7 --> ZA8
+
+%% ====== ROW 9 ======
+subgraph ZA9[" "]
+direction LR
+ A9[Frontend - Finetune AI] 
+end
+
+ZA8 --> ZA9
+
 
 %% ====== STYLING ======
 style ZA fill:#A7F3D0,stroke:#88a,stroke-width:1px;
@@ -137,7 +146,8 @@ style ZA4 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
 style ZA5 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
 style ZA6 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
 style ZA7 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
-style ZA8 fill:#FCA5A5,stroke:#88a,stroke-width:1px;
+style ZA8 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
+style ZA9 fill:#FCA5A5,stroke:#88a,stroke-width:1px;
   ```
 
   ---
