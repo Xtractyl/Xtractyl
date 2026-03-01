@@ -35,6 +35,10 @@ While not a medical device, Xtractyl addresses key challenges relevant to MedTec
 
 ⚠️ Note: For development purposes data currently shows up in the local log files (be aware of that when working with real data), this is currently being hardened, see below under "logging" for additional information.
 
+⚠️ Note: Label Studio currently needs short time online connection to display projects: https://github.com/HumanSignal/label-studio/issues/9086#issuecomment-3817949828 
+A solution is being worked on.
+
+
 ---
 
 ## 🏗️ Architecture Overview
@@ -120,10 +124,19 @@ ZA6 --> ZA7
 %% ====== ROW 8 ======
 subgraph ZA8[" "]
 direction LR
- A8[Frontend - Finetune AI] 
+ A8[Frontend - Evaluate Drift] --> B8A[Orchestrator] 
 end
 
 ZA7 --> ZA8
+
+%% ====== ROW 9 ======
+subgraph ZA9[" "]
+direction LR
+ A9[Frontend - Finetune AI] 
+end
+
+ZA8 --> ZA9
+
 
 %% ====== STYLING ======
 style ZA fill:#A7F3D0,stroke:#88a,stroke-width:1px;
@@ -133,7 +146,8 @@ style ZA4 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
 style ZA5 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
 style ZA6 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
 style ZA7 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
-style ZA8 fill:#FCA5A5,stroke:#88a,stroke-width:1px;
+style ZA8 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
+style ZA9 fill:#FCA5A5,stroke:#88a,stroke-width:1px;
   ```
 
   ---
@@ -211,6 +225,31 @@ docker compose up --build
 Access the frontend via your browser at http://localhost:5173/ following the workflow shown below under Usage
 
 ---
+
+## 📘 API Documentation (OpenAPI / Swagger)
+
+Automatically generated OpenAPI documentation using `flask-pydantic-spec` is currently being added. Currently available starting with the orchestrator.
+
+When the containers are running, the documentation is available at:
+
+http://localhost:5001/apidoc/swagger for the orchestrator
+
+Each backend container exposes its own OpenAPI documentation on its respective port.
+
+### How it works
+
+- OpenAPI schemas are generated from Pydantic request and error contracts.
+- Only endpoints using `@spec.validate(...)` are included in the documentation.
+- Legacy endpoints remain undocumented until refactored.
+
+To document a new endpoint:
+
+1. Add `@spec.validate(...)`
+2. Provide a Pydantic request model
+3. Provide response status codes mapped to `ErrorResponse`
+4. Restart the container
+
+The endpoint will automatically appear in Swagger.
 
 ### 3. Testing
 
@@ -389,7 +428,9 @@ Planned next.
 
 --- 
 
-### Monitor Evaluation Drift/Regression over Time for a Standard Set
+. **Monitor Evaluation Drift/Regression over Time for a Standard Set** (`/evaluationdrift`)  
+
+### Evaluation Drift 
 ❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
 ![Evaluation Drift](assets/evaluation_drift.png)

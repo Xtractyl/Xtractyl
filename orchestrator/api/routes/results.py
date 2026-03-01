@@ -1,11 +1,14 @@
 # orchestrator/api/routes/results.py
 
+from domain.errors import DomainError, ValidationFailed
 from domain.models.results import GetResultsTableCommand
 from domain.results import build_results_table
 from flask import request
+from flask_pydantic_spec import Request, Response
 from pydantic import ValidationError
 
-from api.contracts.results import GetResultsTableRequest
+from api.contracts.errors import ErrorResponse
+from api.contracts.results import GetResultsTableRequest, OkResponseAny
 
 
 def _extract_token(req) -> str | None:
@@ -19,9 +22,18 @@ def _extract_token(req) -> str | None:
     return payload.get("token")
 
 
-def register(app, ok):
+def register(app, ok, spec):
     # New standard endpoint
     @app.route("/results/table", methods=["POST"])
+    @spec.validate(
+        body=Request(GetResultsTableRequest),
+        resp=Response(
+            HTTP_200=OkResponseAny,
+            HTTP_400=ErrorResponse,  # invalid payload
+            HTTP_500=ErrorResponse,  # unexpected global exception handler
+        ),
+        tags=["results"],
+    )
     def results_table_route():
         payload = request.get_json(silent=True) or {}
         token = _extract_token(request)
@@ -29,10 +41,17 @@ def register(app, ok):
         try:
             contract = GetResultsTableRequest.model_validate(payload)
         except ValidationError as e:
-            raise ValueError(e.errors())
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid request payload.",
+                meta={"details": e.errors()},
+            )
 
         if not token:
-            raise ValueError("token is required")
+            raise DomainError(
+                code="TOKEN_REQUIRED",
+                message="Authorization token is required.",
+            )
 
         cmd = GetResultsTableCommand.from_contract(contract, token)
 

@@ -22,7 +22,7 @@ class InvalidState(DomainError):
 
 @dataclass
 class ValidationFailed(DomainError):
-    pass
+    details: Optional[list] = None
 
 
 @dataclass

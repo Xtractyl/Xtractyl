@@ -3,6 +3,8 @@ import os
 from typing import List, Tuple
 
 import requests
+from domain.errors import ExternalServiceError, NotFound
+from requests.exceptions import HTTPError
 
 LABEL_STUDIO_URL = os.getenv(
     "LABEL_STUDIO_URL",
@@ -12,9 +14,15 @@ LABEL_STUDIO_URL = os.getenv(
 
 def list_projects(token: str) -> list[dict]:
     url = f"{LABEL_STUDIO_URL}/api/projects"
-    r = requests.get(url, headers=_auth_headers(token), timeout=20)
-    r.raise_for_status()
-    data = r.json()
+    try:
+        r = requests.get(url, headers=_auth_headers(token), timeout=20)
+        r.raise_for_status()
+        data = r.json()
+    except requests.RequestException:
+        raise ExternalServiceError(
+            code="LABEL_STUDIO_UNAVAILABLE",
+            message="Label Studio is unavailable.",
+        )
     return data.get("results", data) if isinstance(data, dict) else data
 
 
@@ -24,22 +32,49 @@ def _auth_headers(token: str) -> dict:
 
 def resolve_project_id(token: str, project_name: str) -> int:
     url = f"{LABEL_STUDIO_URL}/api/projects"
-    r = requests.get(url, headers=_auth_headers(token), timeout=20)
-    r.raise_for_status()
-    projects = r.json()
+    try:
+        r = requests.get(url, headers=_auth_headers(token), timeout=20)
+        r.raise_for_status()
+        projects = r.json()
+    except HTTPError as e:
+        status = getattr(e.response, "status_code", None)
+        if status in (401, 403):
+            raise ExternalServiceError(
+                code="LABEL_STUDIO_UNAUTHORIZED",
+                message="Label Studio token is invalid or unauthorized.",
+            )
+        raise ExternalServiceError(
+            code="LABEL_STUDIO_UNAVAILABLE",
+            message="Label Studio is unavailable.",
+        )
+    except requests.RequestException:
+        raise ExternalServiceError(
+            code="LABEL_STUDIO_UNAVAILABLE",
+            message="Label Studio is unavailable.",
+        )
     if isinstance(projects, dict) and "results" in projects:
         projects = projects["results"]
     for p in projects:
         if p.get("title") == project_name:
             return int(p["id"])
-    raise ValueError(f'Project "{project_name}" not found')
+    raise NotFound(
+        code="PROJECT_NOT_FOUND",
+        message=f'Project "{project_name}" not found.',
+        meta={"project_name": project_name},
+    )
 
 
 def get_project(token: str, project_id: int) -> dict:
     url = f"{LABEL_STUDIO_URL}/api/projects/{int(project_id)}"
-    r = requests.get(url, headers=_auth_headers(token), timeout=20)
-    r.raise_for_status()
-    return r.json()
+    try:
+        r = requests.get(url, headers=_auth_headers(token), timeout=20)
+        r.raise_for_status()
+        return r.json()
+    except requests.RequestException:
+        raise ExternalServiceError(
+            code="LABEL_STUDIO_UNAVAILABLE",
+            message="Label Studio is unavailable.",
+        )
 
 
 def fetch_tasks_page(token: str, project_id: int) -> Tuple[List[dict], int]:
@@ -51,9 +86,15 @@ def fetch_tasks_page(token: str, project_id: int) -> Tuple[List[dict], int]:
     url = f"{LABEL_STUDIO_URL}/api/projects/{project_id}/tasks"
     params = {"fields": "all", "include": "predictions,annotations"}
 
-    r = requests.get(url, headers=headers, params=params, timeout=60)
-    r.raise_for_status()
-    data = r.json()
+    try:
+        r = requests.get(url, headers=headers, params=params, timeout=60)
+        r.raise_for_status()
+        data = r.json()
+    except requests.RequestException:
+        raise ExternalServiceError(
+            code="LABEL_STUDIO_UNAVAILABLE",
+            message="Label Studio is unavailable.",
+        )
 
     if isinstance(data, dict) and "results" in data:
         tasks = data.get("results", [])
@@ -70,7 +111,13 @@ def fetch_tasks_page(token: str, project_id: int) -> Tuple[List[dict], int]:
 
 def fetch_task_annotations(token: str, task_id: int) -> List[dict]:
     url = f"{LABEL_STUDIO_URL}/api/tasks/{task_id}/annotations"
-    r = requests.get(url, headers=_auth_headers(token), timeout=30)
-    r.raise_for_status()
-    data = r.json()
+    try:
+        r = requests.get(url, headers=_auth_headers(token), timeout=30)
+        r.raise_for_status()
+        data = r.json()
+    except requests.RequestException:
+        raise ExternalServiceError(
+            code="LABEL_STUDIO_UNAVAILABLE",
+            message="Label Studio is unavailable.",
+        )
     return data if isinstance(data, list) else []

@@ -8,10 +8,10 @@ from .projects import register as register_projects
 from .results import register as register_results
 
 
-def register_routes(app, ok):
+def register_routes(app, ok, spec):
     register_health(app)
-    register_evaluation(app, ok)
-    register_evaluation_drift(app, ok)
+    register_evaluation(app, ok, spec)
+    register_evaluation_drift(app, ok, spec)
     register_jobs(app, ok)
-    register_results(app, ok)
+    register_results(app, ok, spec)
     register_projects(app, ok)
