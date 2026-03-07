@@ -22,7 +22,7 @@ def _extract_token(req) -> str | None:
     return payload.get("token")
 
 
-def register(app, ok, spec):
+def register(app, spec):
     # New standard endpoint
     @app.route("/results/table", methods=["POST"])
     @spec.validate(
