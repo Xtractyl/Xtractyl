@@ -13,6 +13,9 @@ Planned: local fine-tuning of models on domain-specific data to further improve 
 
 🔍 Designed for **privacy-first**, human-validated data extraction with built-in evaluation and comparison tools.
 
+> **Status:** Core pipeline functional for simple PDFs. Hardening in progress — see [Current Status & Roadmap](#-current-status--roadmap).
+
+
 ---
 
 ## Why this matters
@@ -150,32 +153,18 @@ style ZA8 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
 style ZA9 fill:#FCA5A5,stroke:#88a,stroke-width:1px;
   ```
 
-  ---
-
-## Work in Progress
-
-⚠️ Note: Xtractyl is supposed to run on a server with GPU. GPU support is currently switched off (CUDA and MPS). CUDA support will be switched on as soon as we have the hardware to test it.
-
-- The pipeline has so far been tested only with simple synthetic PDFs.
-
-- The backend still requires optimization for accuracy and speed especially with complex PDFs. This optimization is now possible, because evaluation and performance metrics have been integrated
-
-- Testing is currently being added.
-
-- Pages and backend logic to finetune models are still missing.
 
 ---
-
 
 ## 🚀 Features
 
 - 🔒 Keeps all your data local — no cloud processing
 - 📄 Convert PDFs into structured HTML via Docling
-- 🤖 AI-assisted pre-labeling with local LLMs (Ollama: Gemma3 12B by default)
+- 🤖 AI-assisted pre-labeling with local LLMs (Ollama: tested with Gemma3 12B )
 - 🧠 DOM-based XPath mapping and label matching
 - 👩‍⚕️ Human validation with Label Studio
-- 🔍 Identify specific cases across large document collections
 - 🦕 Extract structured databases from previously unstructured data
+- 🔍 Identify specific cases across large document collections
 - 📊 Built-in evaluation of AI predictions (precision, recall, F1, accuracy)
 - ⏱️ Performance metrics (end-to-end runtime, per-document and per-question latency)
 - ⚖️ Speed–accuracy comparison across models, prompts, and question formulations
@@ -186,8 +175,41 @@ style ZA9 fill:#FCA5A5,stroke:#88a,stroke-width:1px;
 ## 📅 Planned Features
 
 - 🦕 Create dashboards from your Xtractyl-generated database  
-- 🧪 Evaluate predictions vs. ground truth with built-in metrics  
 - 🎛️ Fine-tune models based on your labeled data 
+- 🧠 Bootstrapping: Train SLM based from LLM generated and HITL reviewed data
+
+
+---
+
+## 🗺️ Current Status & Roadmap
+
+### Phase 1 – Proof of Concept (completed)
+
+The core pipeline is functional end-to-end: PDF ingestion, HTML conversion via Docling, DOM extraction, LLM-based pre-labelling via Ollama, human review in Label Studio, and structured export of results and evaluation metrics.
+
+Current limitation: the pipeline has been validated on structurally simple PDFs. Complex layouts (multi-column, nested tables, non-standard formatting) are not yet reliably handled. Improving extraction quality is intentionally deferred — optimizing on top of an unstable foundation would be premature.
+
+### Phase 2 – Hardening (in progress)
+
+The focus is on building a consistent engineering foundation before scaling features. The orchestrator serves as the template; patterns established there will be replicated across all containers. The orchestrator is the central integration point of the pipeline and therefore the highest-leverage starting point. Hardening it first ensures that architectural decisions are validated before being replicated across the remaining containers.
+
+**Orchestrator (template, in progress)**
+- Layered architecture: `app.py` → `routes` → `contracts` → `domain` → `services` → `clients`
+- Centralized error handling with typed domain errors
+- Pydantic-based API contracts with OpenAPI documentation (`/apidoc`) — see `/results` and `/evaluation` endpoints as reference
+- Structured logging with safe/dev modes (no sensitive data in default mode)
+- Fixture logging for synthetic test data
+- Unit tests with CI integration
+
+**All remaining containers (planned, sequential)**
+
+The same pattern will be applied to `ml_backend`, `worker`, and `docling`:
+- Layered architecture mirroring the orchestrator
+- Structured logging
+- Fixture generation and unit tests integrated into CI
+- Integration tests
+- API contracts and OpenAPI documentation
+- Centralized error handling
 
 ---
 
@@ -428,7 +450,7 @@ Planned next.
 
 --- 
 
-. **Monitor Evaluation Drift/Regression over Time for a Standard Set** (`/evaluationdrift`)  
+9. **Monitor Evaluation Drift/Regression over Time for a Standard Set** (`/evaluationdrift`)  
 
 ### Evaluation Drift 
 ❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
@@ -441,7 +463,7 @@ Planned next.
 
 ### ⏭️ Coming Soon
 
-9.**Fine-tune the AI** (`/finetune`) 
+10. **Fine-tune the AI** (`/finetune`) 
    - Use your labeled data to improve model performance
 
 ---
