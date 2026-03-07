@@ -28,3 +28,8 @@ class ValidationFailed(DomainError):
 @dataclass
 class ExternalServiceError(DomainError):
     pass
+
+
+@dataclass
+class Unauthorized(DomainError):
+    pass

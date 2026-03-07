@@ -6,6 +6,7 @@ from domain.errors import (
     ExternalServiceError,
     InvalidState,
     NotFound,
+    Unauthorized,
     ValidationFailed,
 )
 
@@ -24,5 +25,8 @@ def map_domain_error(err: DomainError) -> tuple[int, str]:
         if err.code == "LABEL_STUDIO_UNAUTHORIZED":
             return HTTPStatus.UNAUTHORIZED, err.code
         return HTTPStatus.BAD_GATEWAY, err.code
+
+    if isinstance(err, Unauthorized):
+        return HTTPStatus.UNAUTHORIZED, err.code
 
     return HTTPStatus.BAD_REQUEST, err.code

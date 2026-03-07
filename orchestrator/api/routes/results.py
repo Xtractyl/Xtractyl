@@ -1,6 +1,6 @@
 # orchestrator/api/routes/results.py
 
-from domain.errors import DomainError, ValidationFailed
+from domain.errors import Unauthorized, ValidationFailed
 from domain.models.results import GetResultsTableCommand
 from domain.results import build_results_table
 from flask import request
@@ -48,7 +48,7 @@ def register(app, ok, spec):
             )
 
         if not token:
-            raise DomainError(
+            raise Unauthorized(
                 code="TOKEN_REQUIRED",
                 message="Authorization token is required.",
             )
