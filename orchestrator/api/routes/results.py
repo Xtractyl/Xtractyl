@@ -53,6 +53,9 @@ def register(app, ok, spec):
                 message="Authorization token is required.",
             )
 
-        cmd = GetResultsTableCommand.from_contract(contract, token)
+        cmd = GetResultsTableCommand.from_contract(
+            project_name=contract.project_name,
+            token=token,
+        )
 
         return ok(lambda: build_results_table(cmd))
