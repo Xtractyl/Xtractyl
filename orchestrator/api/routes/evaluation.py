@@ -50,8 +50,9 @@ def register(app, ok, spec):
 
     # Internal frontend helper endpoint.
     # No user input. Deterministic state check for groundtruth set existence.
-    # Not part of public API contract.    @app.route("/groundtruth_qal", methods=["GET"])
+    # Not part of public API contract.
 
+    @app.route("/groundtruth_qal", methods=["GET"])
     def groundtruth_qal():
         return ok(get_groundtruth_qal)
 
