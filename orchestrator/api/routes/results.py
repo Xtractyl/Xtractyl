@@ -3,12 +3,12 @@
 from domain.errors import Unauthorized, ValidationFailed
 from domain.models.results import GetResultsTableCommand
 from domain.results import build_results_table
-from flask import request
+from flask import jsonify, request
 from flask_pydantic_spec import Request, Response
 from pydantic import ValidationError
 
 from api.contracts.errors import ErrorResponse
-from api.contracts.results import GetResultsTableRequest, OkResponseAny
+from api.contracts.results import GetResultsTableRequest, GetResultsTableResponse
 
 
 def _extract_token(req) -> str | None:
@@ -28,7 +28,7 @@ def register(app, ok, spec):
     @spec.validate(
         body=Request(GetResultsTableRequest),
         resp=Response(
-            HTTP_200=OkResponseAny,
+            HTTP_200=GetResultsTableResponse,
             HTTP_400=ErrorResponse,  # invalid payload
             HTTP_500=ErrorResponse,  # unexpected global exception handler
         ),
@@ -58,4 +58,5 @@ def register(app, ok, spec):
             token=token,
         )
 
-        return ok(lambda: build_results_table(cmd))
+        result = build_results_table(cmd)
+        return jsonify(result), 200
