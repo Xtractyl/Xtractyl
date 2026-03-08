@@ -74,5 +74,9 @@ def register(app, ok, spec):
                 code="TOKEN_REQUIRED",
                 message="Authorization token is required.",
             )
-        cmd = EvaluateProjectsCommand.from_contract(contract, token)
+        cmd = EvaluateProjectsCommand.from_contract(
+            groundtruth_project=contract.groundtruth_project,
+            comparison_project=contract.comparison_project,
+            token=token,
+        )
         return ok(lambda: evaluate_projects(cmd))
