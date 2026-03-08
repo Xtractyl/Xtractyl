@@ -7,22 +7,26 @@ from domain.evaluation import (
     list_project_names,
 )
 from domain.models.evaluation import EvaluateProjectsCommand
-from flask import request
+from flask import jsonify, request
 from flask_pydantic_spec import Request, Response
 from pydantic import ValidationError
 
 from api.contracts.errors import ErrorResponse
-from api.contracts.evaluation import EvaluateProjectsRequest, OkResponseAny
+from api.contracts.evaluation import (
+    EvaluateProjectsRequest,
+    EvaluateProjectsResponse,
+    ProjectNamesResponse,
+)
 from api.utils.auth import extract_token
 
 
-def register(app, ok, spec):
+def register(app, spec):
     # New standard endpoint
 
     @app.route("/evaluate-ai/projects", methods=["GET"])
     @spec.validate(
         resp=Response(
-            HTTP_200=OkResponseAny,
+            HTTP_200=ProjectNamesResponse,
             HTTP_400=ErrorResponse,
             HTTP_500=ErrorResponse,
         ),
@@ -36,7 +40,8 @@ def register(app, ok, spec):
                 code="TOKEN_REQUIRED",
                 message="Authorization token is required.",
             )
-        return ok(lambda: list_project_names(token))
+        result = list_project_names(token)
+        return jsonify(result), 200
 
     # Internal frontend helper endpoint.
     # No user input. Deterministic state check for groundtruth set existence.
@@ -44,13 +49,14 @@ def register(app, ok, spec):
 
     @app.route("/groundtruth_qal", methods=["GET"])
     def groundtruth_qal():
-        return ok(get_groundtruth_qal)
+        result = get_groundtruth_qal()
+        return jsonify(result), 200
 
     @app.route("/evaluate-ai", methods=["POST"])
     @spec.validate(
         body=Request(EvaluateProjectsRequest),
         resp=Response(
-            HTTP_200=OkResponseAny,
+            HTTP_200=EvaluateProjectsResponse,
             HTTP_400=ErrorResponse,  # invalid payload
             HTTP_500=ErrorResponse,  # unexpected global exception handler
         ),
@@ -79,4 +85,5 @@ def register(app, ok, spec):
             comparison_project=contract.comparison_project,
             token=token,
         )
-        return ok(lambda: evaluate_projects(cmd))
+        result = evaluate_projects(cmd)
+        return jsonify(result), 200

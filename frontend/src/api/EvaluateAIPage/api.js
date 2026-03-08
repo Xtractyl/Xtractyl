@@ -11,14 +11,14 @@ export async function fetchEvaluationProjects(apiToken) {
 
   const data = await resp.json().catch(() => ({}));
 
-  if (!resp.ok || (data.status && data.status !== "success")) {
+  if (!resp.ok)  {
     const err = new Error(data.error || "Orchestrator request failed");
     err.status = resp.status;
     err.body = data;
     throw err;
   }
 
-  return data.data || [];
+  return Array.isArray(data.names) ? data.names : [];
 }
 
 export async function evaluateAI(apiToken, groundtruthProject, comparisonProject) {
@@ -36,12 +36,12 @@ export async function evaluateAI(apiToken, groundtruthProject, comparisonProject
 
   const data = await resp.json().catch(() => ({}));
 
-  if (!resp.ok || (data.status && data.status !== "success")) {
+  if (!resp.ok) {
     const err = new Error(data.error || "Evaluation request failed");
     err.status = resp.status;
     err.body = data;
     throw err;
   }
 
-  return data.data || data;
+  return data;
 }

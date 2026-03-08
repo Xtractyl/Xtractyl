@@ -1,7 +1,3 @@
-# orchestrator/api/contracts/evaluation.py
-
-from typing import Any, Literal
-
 from pydantic import BaseModel, Field
 
 
@@ -10,7 +6,16 @@ class EvaluateProjectsRequest(BaseModel):
     comparison_project: str = Field(..., min_length=1)
 
 
-# Minimal response envelope for ok() wrapper (no concrete data contract yet)
-class OkResponseAny(BaseModel):
-    status: Literal["success"] = "success"
-    data: Any
+class ProjectNamesResponse(BaseModel):
+    names: list[str]
+
+
+class EvaluateProjectsResponse(BaseModel):
+    groundtruth_project: str
+    groundtruth_project_id: int
+    comparison_project: str
+    comparison_project_id: int
+    run_at_raw: str | None
+    metrics: dict
+    answer_comparison: list
+    evaluation_output_path: str

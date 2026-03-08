@@ -10,7 +10,7 @@ from .results import register as register_results
 
 def register_routes(app, ok, spec):
     register_health(app)
-    register_evaluation(app, ok, spec)
+    register_evaluation(app, spec)
     register_evaluation_drift(app, ok, spec)
     register_jobs(app, ok)
     register_results(app, spec)

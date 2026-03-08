@@ -39,11 +39,5 @@ export async function fetchGroundtruthQuestionsAndLabels() {
     throw new Error(`Failed to fetch groundtruth Q&L (${resp.status})`);
   }
 
-  const data = await resp.json();
-
-  if (data.status !== "success") {
-    throw new Error(data.error || "Unknown error fetching groundtruth Q&L");
-  }
-
-  return data.data; // the JSON content of questions_and_labels.json
+  return resp.json();
 }
