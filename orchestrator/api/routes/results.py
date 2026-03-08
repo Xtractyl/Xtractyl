@@ -9,17 +9,7 @@ from pydantic import ValidationError
 
 from api.contracts.errors import ErrorResponse
 from api.contracts.results import GetResultsTableRequest, GetResultsTableResponse
-
-
-def _extract_token(req) -> str | None:
-    # Preferred: Authorization: Bearer <token>
-    auth = req.headers.get("Authorization", "")
-    if auth.startswith("Bearer "):
-        return auth.removeprefix("Bearer ").strip()
-
-    # Legacy fallback: token in JSON body
-    payload = req.get_json(silent=True) or {}
-    return payload.get("token")
+from api.utils.auth import extract_token
 
 
 def register(app, spec):
@@ -36,7 +26,7 @@ def register(app, spec):
     )
     def results_table_route():
         payload = request.get_json(silent=True) or {}
-        token = _extract_token(request)
+        token = extract_token(request)
 
         try:
             contract = GetResultsTableRequest.model_validate(payload)

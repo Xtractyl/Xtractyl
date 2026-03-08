@@ -13,17 +13,7 @@ from pydantic import ValidationError
 
 from api.contracts.errors import ErrorResponse
 from api.contracts.evaluation import EvaluateProjectsRequest, OkResponseAny
-
-
-def _extract_token(req) -> str | None:
-    # Preferred: Authorization: Bearer <token>
-    auth = req.headers.get("Authorization", "")
-    if auth.startswith("Bearer "):
-        return auth.removeprefix("Bearer ").strip()
-
-    # Legacy fallback: token in JSON body
-    payload = req.get_json(silent=True) or {}
-    return payload.get("token")
+from api.utils.auth import extract_token
 
 
 def register(app, ok, spec):
@@ -39,7 +29,7 @@ def register(app, ok, spec):
         tags=["evaluation"],
     )
     def evaluate_ai_projects():
-        token = _extract_token(request)
+        token = extract_token(request)
 
         if not token:
             raise DomainError(
@@ -68,7 +58,7 @@ def register(app, ok, spec):
     )
     def evaluate_ai():
         payload = request.get_json(silent=True) or {}
-        token = _extract_token(request)
+        token = extract_token(request)
 
         try:
             contract = EvaluateProjectsRequest.model_validate(payload)
