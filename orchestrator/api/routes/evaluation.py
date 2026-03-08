@@ -1,65 +1,62 @@
 # orchestrator/api/routes/evaluation.py
 
-from domain.errors import DomainError, ValidationFailed
+from domain.errors import Unauthorized, ValidationFailed
 from domain.evaluation import (
     evaluate_projects,
     get_groundtruth_qal,
     list_project_names,
 )
 from domain.models.evaluation import EvaluateProjectsCommand
-from flask import request
+from flask import jsonify, request
 from flask_pydantic_spec import Request, Response
 from pydantic import ValidationError
 
 from api.contracts.errors import ErrorResponse
-from api.contracts.evaluation import EvaluateProjectsRequest, OkResponseAny
+from api.contracts.evaluation import (
+    EvaluateProjectsRequest,
+    EvaluateProjectsResponse,
+    ProjectNamesResponse,
+)
+from api.utils.auth import extract_token
 
 
-def _extract_token(req) -> str | None:
-    # Preferred: Authorization: Bearer <token>
-    auth = req.headers.get("Authorization", "")
-    if auth.startswith("Bearer "):
-        return auth.removeprefix("Bearer ").strip()
-
-    # Legacy fallback: token in JSON body
-    payload = req.get_json(silent=True) or {}
-    return payload.get("token")
-
-
-def register(app, ok, spec):
+def register(app, spec):
     # New standard endpoint
 
     @app.route("/evaluate-ai/projects", methods=["GET"])
     @spec.validate(
         resp=Response(
-            HTTP_200=OkResponseAny,
+            HTTP_200=ProjectNamesResponse,
             HTTP_400=ErrorResponse,
             HTTP_500=ErrorResponse,
         ),
         tags=["evaluation"],
     )
     def evaluate_ai_projects():
-        token = _extract_token(request)
+        token = extract_token(request)
 
         if not token:
-            raise DomainError(
+            raise Unauthorized(
                 code="TOKEN_REQUIRED",
                 message="Authorization token is required.",
             )
-        return ok(lambda: list_project_names(token))
+        result = list_project_names(token)
+        return jsonify(result), 200
 
     # Internal frontend helper endpoint.
     # No user input. Deterministic state check for groundtruth set existence.
-    # Not part of public API contract.    @app.route("/groundtruth_qal", methods=["GET"])
+    # Not part of public API contract.
 
+    @app.route("/groundtruth_qal", methods=["GET"])
     def groundtruth_qal():
-        return ok(get_groundtruth_qal)
+        result = get_groundtruth_qal()
+        return jsonify(result), 200
 
     @app.route("/evaluate-ai", methods=["POST"])
     @spec.validate(
         body=Request(EvaluateProjectsRequest),
         resp=Response(
-            HTTP_200=OkResponseAny,
+            HTTP_200=EvaluateProjectsResponse,
             HTTP_400=ErrorResponse,  # invalid payload
             HTTP_500=ErrorResponse,  # unexpected global exception handler
         ),
@@ -67,7 +64,7 @@ def register(app, ok, spec):
     )
     def evaluate_ai():
         payload = request.get_json(silent=True) or {}
-        token = _extract_token(request)
+        token = extract_token(request)
 
         try:
             contract = EvaluateProjectsRequest.model_validate(payload)
@@ -79,9 +76,14 @@ def register(app, ok, spec):
             )
 
         if not token:
-            raise DomainError(
+            raise Unauthorized(
                 code="TOKEN_REQUIRED",
                 message="Authorization token is required.",
             )
-        cmd = EvaluateProjectsCommand.from_contract(contract, token)
-        return ok(lambda: evaluate_projects(cmd))
+        cmd = EvaluateProjectsCommand.from_contract(
+            groundtruth_project=contract.groundtruth_project,
+            comparison_project=contract.comparison_project,
+            token=token,
+        )
+        result = evaluate_projects(cmd)
+        return jsonify(result), 200

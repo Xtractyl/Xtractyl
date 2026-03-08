@@ -38,12 +38,11 @@ export async function getResultsTable({ projectName, token }) {
     throw err;
    }
 
-  const json = await res.json();
-  const data = json?.data ?? json?.logs ?? json ?? {};
+const json = await res.json();
 
-  return {
-    columns: Array.isArray(data.columns) ? data.columns : [],
-    rows: Array.isArray(data.rows) ? data.rows : [],
-    total: typeof data.total === "number" ? data.total : 0,
-  };
+return {
+    columns: Array.isArray(json.columns) ? json.columns : [],
+    rows: Array.isArray(json.rows) ? json.rows : [],
+    total: typeof json.total === "number" ? json.total : 0,
+};
 }

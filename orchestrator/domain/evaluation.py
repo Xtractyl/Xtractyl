@@ -9,6 +9,7 @@ from pathlib import Path
 
 from utils.logging_utils import log_evaluation_over_time, safe_logger
 
+from domain.errors import InvalidState, NotFound
 from domain.models.evaluation import EvaluateProjectsCommand
 
 from .utils.calculate_metrics import compute_metrics_from_rows
@@ -74,9 +75,9 @@ def _extract_consistent_meta(pred_rows: list[dict]) -> tuple[str | None, str | N
     return None, None
 
 
-def list_project_names(token: str) -> list[str]:
+def list_project_names(token: str) -> dict:
     projects = list_projects(token)
-    return [p.get("title") for p in projects if p.get("title")]
+    return {"names": [p.get("title") for p in projects if p.get("title")]}
 
 
 def _bucket_from_results(results: list) -> dict:
@@ -211,7 +212,7 @@ def evaluate_projects(cmd: EvaluateProjectsCommand) -> dict:
     comparison_project = cmd.comparison_project
     try:
         gt_id = resolve_project_id(token, groundtruth_project)
-    except ValueError:
+    except NotFound:
         if groundtruth_project == SPECIAL_PROJECT_TITLE:
             gt_id = create_evaluation_project(token)
         else:
@@ -228,8 +229,10 @@ def evaluate_projects(cmd: EvaluateProjectsCommand) -> dict:
     if gt_set != pr_set:
         missing_in_pred = sorted(gt_set - pr_set)
         extra_in_pred = sorted(pr_set - gt_set)
-        raise ValueError(
-            f"Filename mismatch: missing_in_pred={missing_in_pred[:20]} extra_in_pred={extra_in_pred[:20]}"
+        raise InvalidState(
+            code="FILENAME_MISMATCH",
+            message="Filenames in groundtruth and comparison project do not match.",
+            meta={"missing_in_pred": missing_in_pred[:20], "extra_in_pred": extra_in_pred[:20]},
         )
     gt_label_set = set()
     for r in gt_rows:
@@ -242,8 +245,10 @@ def evaluate_projects(cmd: EvaluateProjectsCommand) -> dict:
     if gt_label_set != pred_label_set:
         missing_in_pred = sorted(gt_label_set - pred_label_set)
         extra_in_pred = sorted(pred_label_set - gt_label_set)
-        raise ValueError(
-            f"Label set mismatch: missing_in_pred={missing_in_pred} extra_in_pred={extra_in_pred}"
+        raise InvalidState(
+            code="LABEL_MISMATCH",
+            message="Label sets in groundtruth and comparison project do not match.",
+            meta={"missing_in_pred": missing_in_pred, "extra_in_pred": extra_in_pred},
         )
 
     overall = compute_metrics_from_rows(gt_rows, pred_rows)
@@ -289,9 +294,11 @@ def evaluate_projects(cmd: EvaluateProjectsCommand) -> dict:
 
 
 def get_groundtruth_qal():
-    """
-    Return the questions_and_labels.json content for the groundtruth project.
-    """
-    with open(GROUNDTRUTH_QAL_PATH, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    return data
+    try:
+        with open(GROUNDTRUTH_QAL_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        raise NotFound(
+            code="GROUNDTRUTH_QAL_NOT_FOUND",
+            message="Groundtruth questions and labels file not found.",
+        )

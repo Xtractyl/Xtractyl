@@ -1,7 +1,8 @@
 # orchestrator/domain/models/evaluation.py
 
-from api.contracts.evaluation import EvaluateProjectsRequest
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
+
+from domain.errors import ValidationFailed
 
 
 class EvaluateProjectsCommand(BaseModel):
@@ -10,9 +11,16 @@ class EvaluateProjectsCommand(BaseModel):
     comparison_project: str
 
     @classmethod
-    def from_contract(cls, contract: EvaluateProjectsRequest, token: str):
-        return cls(
-            token=token,
-            groundtruth_project=contract.groundtruth_project,
-            comparison_project=contract.comparison_project,
-        )
+    def from_contract(cls, groundtruth_project: str, comparison_project: str, token: str):
+        try:
+            return cls(
+                token=token,
+                groundtruth_project=groundtruth_project,
+                comparison_project=comparison_project,
+            )
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="INVALID_COMMAND",
+                message="Invalid command payload.",
+                details=e.errors(),
+            )
