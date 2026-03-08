@@ -1,6 +1,6 @@
 # orchestrator/api/routes/evaluation.py
 
-from domain.errors import DomainError, ValidationFailed
+from domain.errors import Unauthorized, ValidationFailed
 from domain.evaluation import (
     evaluate_projects,
     get_groundtruth_qal,
@@ -32,7 +32,7 @@ def register(app, ok, spec):
         token = extract_token(request)
 
         if not token:
-            raise DomainError(
+            raise Unauthorized(
                 code="TOKEN_REQUIRED",
                 message="Authorization token is required.",
             )
@@ -70,7 +70,7 @@ def register(app, ok, spec):
             )
 
         if not token:
-            raise DomainError(
+            raise Unauthorized(
                 code="TOKEN_REQUIRED",
                 message="Authorization token is required.",
             )
