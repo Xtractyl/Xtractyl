@@ -2,14 +2,13 @@
 import csv
 import json
 import os
-import time
 from collections import defaultdict
 from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List
 
-from utils.logging_utils import dev_logger, safe_logger, write_fixture
+from utils.logging_utils import write_fixture
 
 from domain.models.results import GetResultsTableCommand
 
@@ -163,7 +162,6 @@ def _capture_results_table_input_fixture(project_id: int, total: int, tasks: lis
 
 
 def build_results_table(cmd: GetResultsTableCommand):
-    t0 = time.monotonic()
     token = cmd.token
     project_name = cmd.project_name
     project_id = resolve_project_id(token, project_name)
@@ -172,13 +170,6 @@ def build_results_table(cmd: GetResultsTableCommand):
 
     label_columns: List[str] = []
     rows_proto: List[Dict[str, Any]] = []
-
-    safe_logger.info(
-        "build_results_table_start | project_id=%s | tasks_page_count=%s | total=%s",
-        project_id,
-        len(tasks) if isinstance(tasks, list) else "n/a",
-        int(total) if total is not None else "n/a",
-    )
 
     for t in tasks:
         data = t.get("data") or {}
@@ -212,20 +203,5 @@ def build_results_table(cmd: GetResultsTableCommand):
         rows.append(flat)
     payload = {"columns": columns, "rows": rows, "total": int(total)}
     csv_path = _write_results_table_csv(columns, rows, project_id, project_name)
-
-    if dev_logger:
-        dev_logger.info(
-            "results_csv_written | project_id=%s | path=%s",
-            project_id,
-            csv_path,
-        )
-
-    safe_logger.info(
-        "build_results_table_done | project_id=%s | rows=%s | cols=%s | ms=%s",
-        project_id,
-        len(rows),
-        len(columns),
-        int((time.monotonic() - t0) * 1000),
-    )
     payload["results_output_path_csv"] = csv_path
     return payload
