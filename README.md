@@ -44,6 +44,27 @@ A solution is being worked on.
 
 ---
 
+
+## 🎯 Why Xtractyl — Design Philosophy
+
+Extracting structured data from unstructured medical documents is not primarily a technical problem — it is an evaluation problem.
+
+Any model can produce outputs. The hard part is knowing whether those outputs are correct, understanding why they fail, and systematically improving performance while maintaining full data privacy.
+
+Xtractyl is built around this insight. The pipeline follows a deliberate cycle:
+
+1. **Build a ground truth** — human-validated annotations on a representative subset define what correct extraction looks like
+2. **Optimize systematically** — system prompt, question formulation, and model selection are evaluated against the ground truth using precision, recall, F1, and latency metrics
+3. **Scale to the full dataset** — the optimized configuration runs on the complete document collection with human-in-the-loop review
+4. **Fine-tune a small model [not added yet]** — labeled data from the pipeline is used to train a domain-specific SLM, reducing inference cost and latency while maintaining accuracy
+5. **Evaluate and iterate** — metrics and drift monitoring ensure that performance is maintained over time and across document types
+
+This approach is designed for environments where data privacy is non-negotiable, ground truth matters, and black-box outputs are not acceptable — healthcare, life sciences, and other regulated domains.
+
+
+---
+
+
 ## 🏗️ Architecture Overview
 
 Items with green background are already implemented end-to-end ✅, items with red background are under construction 🧱
@@ -212,6 +233,35 @@ The same pattern will be applied to `ml_backend`, `worker`, and `docling`:
 - Centralized error handling
 
 ---
+
+## 🧠 Finetuning Architecture (Planned)
+
+The finetuning pipeline closes the improvement cycle that Xtractyl is designed around. Once a ground truth has been established and validated through human-in-the-loop review, the labeled data can be used to train a domain-specific small language model (SLM) — reducing inference cost and latency while maintaining or improving accuracy on the target document type.
+
+### Pipeline: Label Studio → Finetuned SLM
+
+**1. Dataset export and conversion**
+Label Studio annotations are exported as JSON and converted into an instruction-tuning format suitable for SLM training. This conversion is handled by a dedicated service within the Xtractyl architecture, ensuring that only reviewed and submitted annotations are used as training data.
+
+**2. Train/test split**
+The converted dataset is split into training and validation sets using HuggingFace Datasets (`train_test_split`), allowing overfitting to be detected during training.
+
+**3. Training**
+Training is performed using [Unsloth](https://github.com/unslothai/unsloth) with LoRA/QLoRA via the HuggingFace Trainer — optimized for memory efficiency and speed on local hardware. No cloud infrastructure required.
+
+**4. Metrics and live monitoring**
+Training metrics (loss, validation loss, learning rate) are logged via TensorBoard and visualized locally — consistent with Xtractyl's privacy-first, fully local architecture.
+
+**5. Evaluation**
+After training, the finetuned model is evaluated against the ground truth using the same metrics as the base model (precision, recall, F1, accuracy, latency) — enabling direct comparison and informed model selection.
+
+### Design principles
+- Fully local — no data leaves the system at any point
+- Ground truth controlled — only human-validated annotations enter the training pipeline
+- Comparable — finetuned models are evaluated with the same framework as base models
+- Integrated — finetuning is triggered and monitored through the Xtractyl frontend, not a separate tool
+
+--
 
 ## Project Management & Collaboration
 This project is managed using industry-standard tools:
