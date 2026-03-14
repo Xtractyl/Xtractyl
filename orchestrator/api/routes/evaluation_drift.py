@@ -33,7 +33,8 @@ def register(app, spec):
                 message="Invalid query parameters.",
                 meta={"details": e.errors()},
             )
-
+        # GetEvaluationDriftCommand gets a dict by .model_dump as expected
+        # but it currently just requires any argument as it currently does not use it
         cmd = GetEvaluationDriftCommand.from_contract(contract.model_dump())
         result = get_evaluation_drift(cmd)
         try:
