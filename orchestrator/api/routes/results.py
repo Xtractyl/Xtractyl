@@ -1,6 +1,6 @@
 # orchestrator/api/routes/results.py
 
-from domain.errors import Unauthorized, ValidationFailed
+from domain.errors import InternalError, Unauthorized, ValidationFailed
 from domain.models.results import GetResultsTableCommand
 from domain.results import build_results_table
 from flask import jsonify, request
@@ -49,4 +49,12 @@ def register(app, spec):
         )
 
         result = build_results_table(cmd)
-        return jsonify(result), 200
+        try:
+            validated = GetResultsTableResponse.model_validate(result)
+        except ValidationError as e:
+            raise InternalError(
+                code="RESPONSE_CONTRACT_VIOLATED",
+                message="Internal response did not match expected schema.",
+                meta={"details": e.errors()},
+            )
+        return jsonify(validated.model_dump()), 200

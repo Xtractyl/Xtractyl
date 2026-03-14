@@ -33,3 +33,8 @@ class ExternalServiceError(DomainError):
 @dataclass
 class Unauthorized(DomainError):
     pass
+
+
+@dataclass
+class InternalError(DomainError):
+    pass
