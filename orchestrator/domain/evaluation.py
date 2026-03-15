@@ -321,6 +321,15 @@ def evaluate_projects(cmd: EvaluateProjectsCommand) -> dict:
 
 
 def get_groundtruth_qal():
+    """
+    Load the standard groundtruth questions and labels from disk.
+
+    Returns:
+        Parsed JSON content of the groundtruth questions_and_labels.json file.
+
+    Raises:
+        NotFound: If the groundtruth QAL file does not exist.
+    """
     try:
         with open(GROUNDTRUTH_QAL_PATH, "r", encoding="utf-8") as f:
             return json.load(f)
