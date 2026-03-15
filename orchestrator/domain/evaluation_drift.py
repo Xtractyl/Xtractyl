@@ -15,6 +15,12 @@ EVAL_LOG_PATH = LOGS_DIR / "evaluation_over_time.jsonl"
 def get_evaluation_drift(cmd: GetEvaluationDriftCommand) -> dict:
     """
     Read logs/evaluation_over_time.jsonl and return entries for the standard evaluation series.
+
+    Args:
+        cmd: GetEvaluationDriftCommand (currently unused, reserved for future filtering).
+
+    Returns:
+        {"series": str, "entries": list[EvaluationDriftEntry]} — empty entries if log does not exist.
     """
     series = SPECIAL_PROJECT_TITLE
 
