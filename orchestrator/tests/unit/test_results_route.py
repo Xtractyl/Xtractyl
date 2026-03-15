@@ -29,3 +29,18 @@ def test_results_table_missing_project_name_returns_400(client):
         json={},
     )
     assert res.status_code == 422
+
+
+def test_results_table_contract_violated_returns_500(client, monkeypatch):
+    monkeypatch.setattr(
+        "api.routes.results.build_results_table",
+        lambda cmd: {"wrong_field": "oops"},
+    )
+    res = client.post(
+        "/results/table",
+        headers={"Authorization": "Bearer dummy"},
+        json={"project_name": "test"},
+    )
+    assert res.status_code == 500
+    data = res.get_json()
+    assert data["error"] == "RESPONSE_CONTRACT_VIOLATED"
