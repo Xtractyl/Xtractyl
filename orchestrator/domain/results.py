@@ -162,6 +162,22 @@ def _capture_results_table_input_fixture(project_id: int, total: int, tasks: lis
 
 
 def build_results_table(cmd: GetResultsTableCommand):
+    """
+    Fetch tasks from a Label Studio project and build a flat results table.
+    Annotations are reloaded per task if the bulk response contains empty results.
+    Results are written to a timestamped CSV in the results output directory.
+
+    Args:
+        cmd: GetResultsTableCommand with token and project_name.
+
+    Returns:
+        GetResultsTableResponse-compatible dict with columns, rows, total,
+        and results_output_path_csv.
+
+    Raises:
+        NotFound: If the project does not exist in Label Studio.
+        ExternalServiceError: If Label Studio is unreachable.
+    """
     token = cmd.token
     project_name = cmd.project_name
     project_id = resolve_project_id(token, project_name)
