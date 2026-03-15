@@ -44,11 +44,15 @@ def create_project_main_from_payload(cmd: CreateProjectCommand):
     Create a Label Studio project and store the provided questions/labels alongside it.
     Also attempts to attach the ML backend to the created project.
 
-    Expected cmd properties:
-      - title: str
-      - token: str
-      - questions: list[str]
-      - labels: list[str]
+    Args:
+        cmd: CreateProjectCommand with title, token, questions, and labels.
+
+    Returns:
+        {"project_id": int} on success.
+
+    Raises:
+        ExternalServiceError: If Label Studio is unreachable or returns no project id.
+        ExternalServiceError: If ML backend cannot be attached to the project.
     """
     title = cmd.title
     questions = cmd.questions
