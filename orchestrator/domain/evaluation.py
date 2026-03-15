@@ -76,6 +76,15 @@ def _extract_consistent_meta(pred_rows: list[dict]) -> tuple[str | None, str | N
 
 
 def list_project_names(token: str) -> dict:
+    """
+    List all project titles available in Label Studio.
+
+    Args:
+        token: Label Studio API token.
+
+    Returns:
+        {"names": list[str]}
+    """
     projects = list_projects(token)
     return {"names": [p.get("title") for p in projects if p.get("title")]}
 
@@ -207,6 +216,24 @@ def _tasks_to_rows(token: str, project_id: int, mode: str) -> list[dict]:
 
 
 def evaluate_projects(cmd: EvaluateProjectsCommand) -> dict:
+    """
+    Compare a comparison project against a groundtruth project and compute evaluation metrics.
+    If the groundtruth project is the standard evaluation set and it does not exist yet,
+    it will be created automatically. Results are written to the evaluation output directory.
+    For the standard evaluation set, metrics are also appended to the evaluation-over-time log.
+
+    Args:
+        cmd: EvaluateProjectsCommand with token, groundtruth_project, and comparison_project.
+
+    Returns:
+        EvaluateProjectsResponse-compatible dict with metrics, answer_comparison,
+        project ids, run_at_raw, and evaluation_output_path.
+
+    Raises:
+        NotFound: If groundtruth or comparison project does not exist in Label Studio.
+        InvalidState: If filenames or label sets between projects do not match.
+    """
+
     token = cmd.token
     groundtruth_project = cmd.groundtruth_project
     comparison_project = cmd.comparison_project
@@ -294,6 +321,15 @@ def evaluate_projects(cmd: EvaluateProjectsCommand) -> dict:
 
 
 def get_groundtruth_qal():
+    """
+    Load the standard groundtruth questions and labels from disk.
+
+    Returns:
+        Parsed JSON content of the groundtruth questions_and_labels.json file.
+
+    Raises:
+        NotFound: If the groundtruth QAL file does not exist.
+    """
     try:
         with open(GROUNDTRUTH_QAL_PATH, "r", encoding="utf-8") as f:
             return json.load(f)

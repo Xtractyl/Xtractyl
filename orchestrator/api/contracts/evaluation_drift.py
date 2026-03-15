@@ -1,6 +1,6 @@
 # orchestrator/api/contracts/evaluation_drift.py
 
-from typing import Any, Literal, Optional
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -12,7 +12,19 @@ class GetEvaluationDriftRequest(BaseModel):
     # window_days: Optional[int] = Field(default=None, ge=1)
 
 
-# Minimal response envelope for ok() wrapper (no concrete data contract yet)
-class OkResponseAny(BaseModel):
-    status: Literal["success"] = "success"
-    data: Any
+class EvaluationDriftEntry(BaseModel):
+    ts: str
+    series: str
+    run_at_raw: str | None
+    groundtruth_project_id: int
+    comparison_project_id: int
+    model: str
+    qal_hash: str
+    prompt_hash: str
+    schema_hash: str
+    metrics: dict
+
+
+class GetEvaluationDriftResponse(BaseModel):
+    series: str
+    entries: list[EvaluationDriftEntry]

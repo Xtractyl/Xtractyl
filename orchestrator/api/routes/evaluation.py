@@ -1,6 +1,6 @@
 # orchestrator/api/routes/evaluation.py
 
-from domain.errors import Unauthorized, ValidationFailed
+from domain.errors import InternalError, Unauthorized, ValidationFailed
 from domain.evaluation import (
     evaluate_projects,
     get_groundtruth_qal,
@@ -9,7 +9,7 @@ from domain.evaluation import (
 from domain.models.evaluation import EvaluateProjectsCommand
 from flask import jsonify, request
 from flask_pydantic_spec import Request, Response
-from pydantic import ValidationError
+from pydantic import ValidationError as PydanticValidationError
 
 from api.contracts.errors import ErrorResponse
 from api.contracts.evaluation import (
@@ -68,7 +68,7 @@ def register(app, spec):
 
         try:
             contract = EvaluateProjectsRequest.model_validate(payload)
-        except ValidationError as e:
+        except PydanticValidationError as e:
             raise ValidationFailed(
                 code="VALIDATION_FAILED",
                 message="Invalid request payload.",
@@ -86,4 +86,13 @@ def register(app, spec):
             token=token,
         )
         result = evaluate_projects(cmd)
-        return jsonify(result), 200
+        try:
+            validated = EvaluateProjectsResponse.model_validate(result)
+        except PydanticValidationError as e:
+            raise InternalError(
+                code="RESPONSE_CONTRACT_VIOLATED",
+                message="Internal response did not match expected schema.",
+                meta={"details": e.errors()},
+            )
+
+        return jsonify(validated.model_dump()), 200

@@ -4,6 +4,7 @@ from http import HTTPStatus
 from domain.errors import (
     DomainError,
     ExternalServiceError,
+    InternalError,
     InvalidState,
     NotFound,
     Unauthorized,
@@ -28,5 +29,8 @@ def map_domain_error(err: DomainError) -> tuple[int, str]:
 
     if isinstance(err, Unauthorized):
         return HTTPStatus.UNAUTHORIZED, err.code
+
+    if isinstance(err, InternalError):
+        return HTTPStatus.INTERNAL_SERVER_ERROR, err.code
 
     return HTTPStatus.BAD_REQUEST, err.code
