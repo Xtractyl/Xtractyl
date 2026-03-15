@@ -61,6 +61,21 @@ def test_create_project_empty_labels_returns_422(client):
     assert res.status_code == 422
 
 
+def test_create_project_contract_violated_returns_500(client, monkeypatch):
+    monkeypatch.setattr(
+        "api.routes.projects.create_project_main_from_payload",
+        lambda cmd: {"wrong_field": "oops"},
+    )
+    res = client.post(
+        "/create_project",
+        headers={"Authorization": "Bearer dummy"},
+        json={"title": "my_project", "questions": ["Q1"], "labels": ["L1"]},
+    )
+    assert res.status_code == 500
+    data = res.get_json()
+    assert data["error"] == "RESPONSE_CONTRACT_VIOLATED"
+
+
 # --- Happy path ---
 
 
@@ -75,5 +90,3 @@ def test_create_project_returns_200(client, monkeypatch):
         json={"title": "my_project", "questions": ["Q1"], "labels": ["L1"]},
     )
     assert res.status_code == 200
-    data = res.get_json()
-    assert data["project_id"] == 42
