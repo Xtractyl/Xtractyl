@@ -20,8 +20,11 @@ export async function checkProjectExistsAPI(title) {
 export async function createProjectAPI({ title, questions, labels, token }) {
     const res = await fetch(`${ORCH_BASE}/create_project`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, questions, labels, token }),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify({ title, questions, labels }),
     });
   
     if (!res.ok) {
