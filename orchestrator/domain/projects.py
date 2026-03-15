@@ -255,10 +255,17 @@ def upload_tasks_main_from_payload(payload: dict, token: str):
     """
     Upload HTML files from the selected folder as tasks to an existing Label Studio project.
 
-    Expected payload:
-      - project_name: str
-      - token: str  (Label Studio legacy token)
-      - html_folder: str (subfolder inside data/htmls)
+    Args:
+        payload: Dict with project_name and html_folder.
+        token: Label Studio API token.
+
+    Returns:
+        {"status": "ok"} on success.
+
+    Raises:
+        ValidationFailed: If required fields are missing.
+        NotFound: If the folder or project does not exist in Label Studio.
+        ExternalServiceError: If Label Studio is unreachable or upload fails.
     """
     title = payload.get("project_name")
     html_folder_name = payload.get("html_folder")
