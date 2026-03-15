@@ -111,7 +111,6 @@ def _prediction_map(task: dict) -> dict:
 
 
 def _format_cell(value) -> str:
-    # exakt wie dein Frontend formatCell()
     if value is None:
         return ""
     if isinstance(value, (dict, list)):
@@ -192,7 +191,6 @@ def build_results_table(cmd: GetResultsTableCommand):
         filename = data.get("name", "")
 
         anns = t.get("annotations") or []
-        # Bulk liefert nur [{}] oder leere result → dann nachladen
         if not any(a and (a.get("result") or []) for a in anns):
             t["annotations"] = fetch_task_annotations(token, t["id"])
 
