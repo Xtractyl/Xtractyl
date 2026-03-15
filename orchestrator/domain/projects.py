@@ -1,10 +1,12 @@
 # orchestrator/domain/projects.py
-
 import json
 import os
 
 import requests
 from flask import jsonify, request
+
+from domain.errors import ExternalServiceError, NotFound, ValidationFailed
+from domain.models.projects import CreateProjectCommand
 
 # Fixed base dir (no env lookups)
 BASE_PROJECTS_DIR = os.path.join("data", "projects")
@@ -37,26 +39,21 @@ def check_project_exists():
         return jsonify({"error": "internal error"}), 500
 
 
-def create_project_main_from_payload(payload: dict):
+def create_project_main_from_payload(cmd: CreateProjectCommand):
     """
     Create a Label Studio project and store the provided questions/labels alongside it.
     Also attempts to attach the ML backend to the created project.
 
-    Expected payload keys:
+    Expected cmd properties:
       - title: str
+      - token: str
       - questions: list[str]
       - labels: list[str]
-      - token: str (Label Studio legacy token)
     """
-
-    # Inputs from payload
-    title = payload.get("title", "xtractyl_project")
-    questions = payload.get("questions", [])
-    labels = payload.get("labels", [])
-    token = payload.get("token")
-
-    if not all([title, questions, labels, token]):
-        raise ValueError("Missing required fields: title, questions, labels, token.")
+    title = cmd.title
+    questions = cmd.questions
+    labels = cmd.labels
+    token = cmd.token
 
     # Create project folder
     base_path = os.path.join("data", "projects", title)
@@ -95,11 +92,17 @@ def create_project_main_from_payload(payload: dict):
         )
         response.raise_for_status()
     except requests.RequestException:
-        raise RuntimeError("Label Studio project creation failed")
+        raise ExternalServiceError(
+            code="LABEL_STUDIO_UNAVAILABLE",
+            message="Label Studio project creation failed.",
+        )
 
     project_id = response.json().get("id")
     if not project_id:
-        raise RuntimeError("Label Studio project creation failed (no id)")
+        raise ExternalServiceError(
+            code="LABEL_STUDIO_UNAVAILABLE",
+            message="Label Studio project creation failed.",
+        )
 
     # Attach ML backend
     ml_payload = {"url": ML_BACKEND_URL, "title": "xtractyl-backend", "project": project_id}
@@ -112,7 +115,10 @@ def create_project_main_from_payload(payload: dict):
         )
         ml_response.raise_for_status()
     except requests.RequestException:
-        raise RuntimeError("Couldn't attach ML Backend")
+        raise ExternalServiceError(
+            code="ML_BACKEND_UNAVAILABLE",
+            message="Could not attach ML backend to project.",
+        )
 
     return {"project_id": project_id}
 
@@ -239,10 +245,13 @@ def upload_in_batches(tasks, batch_size, project_id, headers):
         batch = tasks[i : i + batch_size]
         resp = requests.post(url, headers=headers, json=batch, timeout=30)
         if resp.status_code != 201:
-            raise RuntimeError(f"Upload failed: {resp.status_code}")
+            raise ExternalServiceError(
+                code="LABEL_STUDIO_UNAVAILABLE",
+                message=f"Task upload failed with status {resp.status_code}.",
+            )
 
 
-def upload_tasks_main_from_payload(payload: dict):
+def upload_tasks_main_from_payload(payload: dict, token: str):
     """
     Upload HTML files from the selected folder as tasks to an existing Label Studio project.
 
@@ -252,22 +261,32 @@ def upload_tasks_main_from_payload(payload: dict):
       - html_folder: str (subfolder inside data/htmls)
     """
     title = payload.get("project_name")
-    token = payload.get("token")
     html_folder_name = payload.get("html_folder")
 
     if not title or not token or not html_folder_name:
-        raise ValueError("project_name, token, and html_folder are required.")
+        raise ValidationFailed(
+            code="MISSING_REQUIRED_FIELDS",
+            message="project_name, token, and html_folder are required.",
+        )
 
     html_folder = os.path.join("data", "htmls", html_folder_name)
     if not os.path.isdir(html_folder):
-        raise FileNotFoundError("Folder not found.")
+        raise NotFound(
+            code="HTML_FOLDER_NOT_FOUND",
+            message="HTML folder not found.",
+        )
 
     headers = {"Authorization": f"Token {token}", "Content-Type": "application/json"}
 
     # Fetch projects
-    r = requests.get(f"{LABEL_STUDIO_URL}/api/projects", headers=headers, timeout=30)
-    if r.status_code != 200:
-        raise RuntimeError("Could not load projects from Label Studio.")
+    try:
+        r = requests.get(f"{LABEL_STUDIO_URL}/api/projects", headers=headers, timeout=30)
+        r.raise_for_status()
+    except requests.RequestException:
+        raise ExternalServiceError(
+            code="LABEL_STUDIO_UNAVAILABLE",
+            message="Could not load projects from Label Studio.",
+        )
 
     projects_json = r.json()
     projects = (
@@ -278,7 +297,10 @@ def upload_tasks_main_from_payload(payload: dict):
     project_id = next((p["id"] for p in projects if p.get("title") == title), None)
 
     if not project_id:
-        raise ValueError("Project not found in Label Studio.")
+        raise NotFound(
+            code="PROJECT_NOT_FOUND",
+            message="Project not found in Label Studio.",
+        )
 
     tasks = collect_html_tasks(html_folder)
 
