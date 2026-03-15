@@ -76,6 +76,15 @@ def _extract_consistent_meta(pred_rows: list[dict]) -> tuple[str | None, str | N
 
 
 def list_project_names(token: str) -> dict:
+    """
+    List all project titles available in Label Studio.
+
+    Args:
+        token: Label Studio API token.
+
+    Returns:
+        {"names": list[str]}
+    """
     projects = list_projects(token)
     return {"names": [p.get("title") for p in projects if p.get("title")]}
 
