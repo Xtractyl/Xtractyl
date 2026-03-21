@@ -107,7 +107,7 @@ def test_list_qal_jsons_missing_project_returns_422(client):
 def test_list_qal_jsons_empty_project_returns_422(client):
     res = client.get("/list_qal_jsons?project=")
     assert res.status_code == 422
-    
+
 
 def test_create_project_contract_violated_returns_500(client, monkeypatch):
     monkeypatch.setattr(
@@ -144,6 +144,3 @@ def test_list_qal_jsons_contract_violated_returns_500(client, monkeypatch):
     assert res.status_code == 500
     data = res.get_json()
     assert data["error"] == "RESPONSE_CONTRACT_VIOLATED"
-
-
-
