@@ -1,11 +1,11 @@
 # orchestrator/api/routes/projects.py
 from domain.errors import InternalError, Unauthorized, ValidationFailed
-from domain.models.projects import CreateProjectCommand
+from domain.models.projects import CreateProjectCommand, ListQalJsonsCommand
 from domain.projects import (
     check_project_exists,
     create_project_main_from_payload,
     list_html_subfolders,
-    list_qal_jsons_route,
+    list_qal_jsons,
     preview_qal_route,
     upload_tasks_main_from_payload,
 )
@@ -18,6 +18,8 @@ from api.contracts.projects import (
     CreateProjectRequest,
     CreateProjectResponse,
     ListHtmlSubfoldersResponse,
+    ListQalJsonsRequest,
+    ListQalJsonsResponse,
 )
 from api.utils.auth import extract_token
 
@@ -101,8 +103,34 @@ def register(app, ok, spec):
         return jsonify(validated.model_dump()), 200
 
     @app.route("/list_qal_jsons", methods=["GET"])
-    def list_qal_jsons():
-        return list_qal_jsons_route()
+    @spec.validate(
+        query=ListQalJsonsRequest,
+        resp=Response(
+            HTTP_200=ListQalJsonsResponse,
+            HTTP_500=ErrorResponse,  # unexpected global exception handler
+        ),
+        tags=["projects"],
+    )
+    def list_qal_jsons_route():
+        try:
+            contract = ListQalJsonsRequest.model_validate(dict(request.args))
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid query parameters.",
+                meta={"details": e.errors()},
+            )
+        cmd = ListQalJsonsCommand.from_contract(project=contract.project)
+        result = list_qal_jsons(cmd)
+        try:
+            validated = ListQalJsonsResponse.model_validate(result)
+        except ValidationError as e:
+            raise InternalError(
+                code="RESPONSE_CONTRACT_VIOLATED",
+                message="Internal response did not match expected schema.",
+                meta={"details": e.errors()},
+            )
+        return jsonify(validated.model_dump()), 200
 
     @app.route("/preview_qal", methods=["GET"])
     def preview_qal():
