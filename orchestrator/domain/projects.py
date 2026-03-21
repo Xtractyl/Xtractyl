@@ -128,6 +128,15 @@ def create_project_main_from_payload(cmd: CreateProjectCommand):
 
 
 def list_html_subfolders():
+    """
+    List all subfolders in the HTML base directory.
+
+    Returns:
+        {"subfolders": list[str]} — alphabetically sorted folder names.
+
+    Raises:
+        InternalError: If the directory cannot be read.
+    """
     base_dir = os.path.join("data", "htmls")
     try:
         subfolders = sorted(
