@@ -5,7 +5,6 @@ from domain.projects import (
     check_project_exists,
     create_project_main_from_payload,
     list_html_subfolders,
-    list_projects_route,
     list_qal_jsons_route,
     preview_qal_route,
     upload_tasks_main_from_payload,
@@ -80,10 +79,6 @@ def register(app, ok, spec):
     @app.route("/list_html_subfolders", methods=["GET"])
     def list_html_subfolders_route():
         return list_html_subfolders()
-
-    @app.route("/list_projects", methods=["GET"])
-    def list_projects():
-        return list_projects_route()
 
     @app.route("/list_qal_jsons", methods=["GET"])
     def list_qal_jsons():
