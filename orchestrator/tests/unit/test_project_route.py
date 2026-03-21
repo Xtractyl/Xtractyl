@@ -12,6 +12,9 @@ def client():
         yield client
 
 
+# --- Happy path ---
+
+
 def test_list_qal_jsons_returns_200(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.projects.list_qal_jsons",
@@ -96,6 +99,16 @@ def test_create_project_empty_labels_returns_422(client):
     assert res.status_code == 422
 
 
+def test_list_qal_jsons_missing_project_returns_422(client):
+    res = client.get("/list_qal_jsons")
+    assert res.status_code == 422
+
+
+def test_list_qal_jsons_empty_project_returns_422(client):
+    res = client.get("/list_qal_jsons?project=")
+    assert res.status_code == 422
+    
+
 def test_create_project_contract_violated_returns_500(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.projects.create_project_main_from_payload",
@@ -133,11 +146,4 @@ def test_list_qal_jsons_contract_violated_returns_500(client, monkeypatch):
     assert data["error"] == "RESPONSE_CONTRACT_VIOLATED"
 
 
-def test_list_qal_jsons_missing_project_returns_422(client):
-    res = client.get("/list_qal_jsons")
-    assert res.status_code == 422
 
-
-def test_list_qal_jsons_empty_project_returns_422(client):
-    res = client.get("/list_qal_jsons?project=")
-    assert res.status_code == 422
