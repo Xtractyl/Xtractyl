@@ -61,7 +61,7 @@ export async function listQalJsons(projectName, base = ORCH_BASE) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
-  return Array.isArray(data) ? data : [];
+  return Array.isArray(data.files) ? data.files : [];
 }
 
 /** Preview a QAL file */
