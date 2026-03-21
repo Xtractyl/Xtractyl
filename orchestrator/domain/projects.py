@@ -147,25 +147,6 @@ def _safe_join(base: str, *paths: str) -> str:
     return full
 
 
-def list_projects_route():
-    """
-    GET /list_projects
-    Returns: ["ProjectA", "ProjectB", ...]
-    Lists folders directly under data/projects.
-    """
-    try:
-        if not os.path.isdir(BASE_PROJECTS_DIR):
-            return jsonify([]), 200
-        items = sorted(
-            d
-            for d in os.listdir(BASE_PROJECTS_DIR)
-            if os.path.isdir(os.path.join(BASE_PROJECTS_DIR, d))
-        )
-        return jsonify(items), 200
-    except Exception:
-        return jsonify({"error": "internal error"}), 500
-
-
 def list_qal_jsons_route():
     """
     GET /list_qal_jsons?project=<name>
