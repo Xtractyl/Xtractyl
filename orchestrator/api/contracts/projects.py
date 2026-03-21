@@ -11,3 +11,7 @@ class CreateProjectRequest(BaseModel):
 
 class CreateProjectResponse(BaseModel):
     project_id: int
+
+
+class ListHtmlSubfoldersResponse(BaseModel):
+    subfolders: list[str]
