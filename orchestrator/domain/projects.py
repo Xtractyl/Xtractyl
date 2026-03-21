@@ -6,7 +6,7 @@ import requests
 from flask import jsonify, request
 
 from domain.errors import ExternalServiceError, InternalError, NotFound, ValidationFailed
-from domain.models.projects import CreateProjectCommand
+from domain.models.projects import CreateProjectCommand, ListQalJsonsCommand
 
 # Fixed base dir (no env lookups)
 BASE_PROJECTS_DIR = os.path.join("data", "projects")
@@ -150,31 +150,34 @@ def _safe_join(base: str, *paths: str) -> str:
     return full
 
 
-def list_qal_jsons_route():
+def list_qal_jsons(cmd: ListQalJsonsCommand):
     """
     GET /list_qal_jsons?project=<name>
     Returns: ["questions_and_labels.json", ...]
     Lists *.json files in the project's folder.
     """
-    project = (request.args.get("project") or "").strip()
-    if not project:
-        return jsonify({"error": "missing 'project'"}), 400
-
+    project = cmd.project
     try:
         project_dir = _safe_join(BASE_PROJECTS_DIR, project)
         if not os.path.isdir(project_dir):
-            return jsonify([]), 200
+            return {"files": []}
 
         files = sorted(
             f
             for f in os.listdir(project_dir)
             if f.lower().endswith(".json") and os.path.isfile(os.path.join(project_dir, f))
         )
-        return jsonify(files), 200
+        return {"files": files}
     except ValueError:
-        return jsonify({"error": "invalid path"}), 400
+        raise ValidationFailed(
+            code="INVALID_PATH",
+            message="Invalid project path.",
+        )
     except Exception:
-        return jsonify({"error": "internal error"}), 500
+        raise InternalError(
+            code="INTERNAL_ERROR",
+            message="Could not list QAL json files.",
+        )
 
 
 def preview_qal_route():
