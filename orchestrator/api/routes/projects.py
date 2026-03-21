@@ -14,7 +14,11 @@ from flask_pydantic_spec import Request, Response
 from pydantic import ValidationError
 
 from api.contracts.errors import ErrorResponse
-from api.contracts.projects import CreateProjectRequest, CreateProjectResponse
+from api.contracts.projects import (
+    CreateProjectRequest,
+    CreateProjectResponse,
+    ListHtmlSubfoldersResponse,
+)
 from api.utils.auth import extract_token
 
 
@@ -77,8 +81,24 @@ def register(app, ok, spec):
         return check_project_exists()
 
     @app.route("/list_html_subfolders", methods=["GET"])
+    @spec.validate(
+        resp=Response(
+            HTTP_200=ListHtmlSubfoldersResponse,
+            HTTP_500=ErrorResponse,  # unexpected global exception handler
+        ),
+        tags=["projects"],
+    )
     def list_html_subfolders_route():
-        return list_html_subfolders()
+        result = list_html_subfolders()
+        try:
+            validated = ListHtmlSubfoldersResponse.model_validate(result)
+        except ValidationError as e:
+            raise InternalError(
+                code="RESPONSE_CONTRACT_VIOLATED",
+                message="Internal response did not match expected schema.",
+                meta={"details": e.errors()},
+            )
+        return jsonify(validated.model_dump()), 200
 
     @app.route("/list_qal_jsons", methods=["GET"])
     def list_qal_jsons():
