@@ -152,9 +152,17 @@ def _safe_join(base: str, *paths: str) -> str:
 
 def list_qal_jsons(cmd: ListQalJsonsCommand):
     """
-    GET /list_qal_jsons?project=<name>
-    Returns: ["questions_and_labels.json", ...]
-    Lists *.json files in the project's folder.
+    List all .json files in a project's folder.
+
+    Args:
+        cmd: ListQalJsonsCommand with project name.
+
+    Returns:
+        {"files": list[str]} — empty list if project folder does not exist.
+
+    Raises:
+        ValidationFailed: If the project path is invalid (path traversal attempt).
+        InternalError: If the folder cannot be read.
     """
     project = cmd.project
     try:
