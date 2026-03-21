@@ -5,7 +5,7 @@ import os
 import requests
 from flask import jsonify, request
 
-from domain.errors import ExternalServiceError, NotFound, ValidationFailed
+from domain.errors import ExternalServiceError, InternalError, NotFound, ValidationFailed
 from domain.models.projects import CreateProjectCommand
 
 # Fixed base dir (no env lookups)
@@ -133,9 +133,12 @@ def list_html_subfolders():
         subfolders = [
             name for name in os.listdir(base_dir) if os.path.isdir(os.path.join(base_dir, name))
         ]
-        return jsonify(subfolders), 200
+        return {"subfolders": subfolders}
     except Exception:
-        return jsonify({"error": "internal error"}), 500
+        raise InternalError(
+            code="INTERNAL_ERROR",
+            message="Could not list HTML subfolders.",
+        )
 
 
 def _safe_join(base: str, *paths: str) -> str:
