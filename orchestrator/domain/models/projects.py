@@ -21,3 +21,18 @@ class CreateProjectCommand(BaseModel):
                 message="Invalid command payload.",
                 details=e.errors(),
             )
+
+
+class ListQalJsonsCommand(BaseModel):
+    project: str
+
+    @classmethod
+    def from_contract(cls, project: str):
+        try:
+            return cls(project=project)
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="INVALID_COMMAND",
+                message="Invalid command payload.",
+                details=e.errors(),
+            )
