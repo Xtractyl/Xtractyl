@@ -130,9 +130,9 @@ def create_project_main_from_payload(cmd: CreateProjectCommand):
 def list_html_subfolders():
     base_dir = os.path.join("data", "htmls")
     try:
-        subfolders = [
+        subfolders = sorted(
             name for name in os.listdir(base_dir) if os.path.isdir(os.path.join(base_dir, name))
-        ]
+        )
         return {"subfolders": subfolders}
     except Exception:
         raise InternalError(
