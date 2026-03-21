@@ -12,6 +12,41 @@ def client():
         yield client
 
 
+def test_list_qal_jsons_returns_200(client, monkeypatch):
+    monkeypatch.setattr(
+        "api.routes.projects.list_qal_jsons",
+        lambda cmd: {"files": ["questions_and_labels.json"]},
+    )
+    res = client.get("/list_qal_jsons?project=my_project")
+    assert res.status_code == 200
+    data = res.get_json()
+    assert data["files"] == ["questions_and_labels.json"]
+
+
+def test_create_project_returns_200(client, monkeypatch):
+    monkeypatch.setattr(
+        "api.routes.projects.create_project_main_from_payload",
+        lambda cmd: {"project_id": 42},
+    )
+    res = client.post(
+        "/create_project",
+        headers={"Authorization": "Bearer dummy"},
+        json={"title": "my_project", "questions": ["Q1"], "labels": ["L1"]},
+    )
+    assert res.status_code == 200
+
+
+def test_list_html_subfolders_returns_200(client, monkeypatch):
+    monkeypatch.setattr(
+        "api.routes.projects.list_html_subfolders",
+        lambda: {"subfolders": ["folder1", "folder2"]},
+    )
+    res = client.get("/list_html_subfolders")
+    assert res.status_code == 200
+    data = res.get_json()
+    assert data["subfolders"] == ["folder1", "folder2"]
+
+
 # --- Unhappy path ---
 
 
@@ -87,28 +122,22 @@ def test_list_html_subfolders_contract_violated_returns_500(client, monkeypatch)
     assert data["error"] == "RESPONSE_CONTRACT_VIOLATED"
 
 
-# --- Happy path ---
-
-
-def test_create_project_returns_200(client, monkeypatch):
+def test_list_qal_jsons_contract_violated_returns_500(client, monkeypatch):
     monkeypatch.setattr(
-        "api.routes.projects.create_project_main_from_payload",
-        lambda cmd: {"project_id": 42},
+        "api.routes.projects.list_qal_jsons",
+        lambda cmd: {"wrong_field": "oops"},
     )
-    res = client.post(
-        "/create_project",
-        headers={"Authorization": "Bearer dummy"},
-        json={"title": "my_project", "questions": ["Q1"], "labels": ["L1"]},
-    )
-    assert res.status_code == 200
-
-
-def test_list_html_subfolders_returns_200(client, monkeypatch):
-    monkeypatch.setattr(
-        "api.routes.projects.list_html_subfolders",
-        lambda: {"subfolders": ["folder1", "folder2"]},
-    )
-    res = client.get("/list_html_subfolders")
-    assert res.status_code == 200
+    res = client.get("/list_qal_jsons?project=my_project")
+    assert res.status_code == 500
     data = res.get_json()
-    assert data["subfolders"] == ["folder1", "folder2"]
+    assert data["error"] == "RESPONSE_CONTRACT_VIOLATED"
+
+
+def test_list_qal_jsons_missing_project_returns_422(client):
+    res = client.get("/list_qal_jsons")
+    assert res.status_code == 422
+
+
+def test_list_qal_jsons_empty_project_returns_422(client):
+    res = client.get("/list_qal_jsons?project=")
+    assert res.status_code == 422
