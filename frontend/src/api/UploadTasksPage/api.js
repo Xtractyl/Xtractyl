@@ -27,5 +27,6 @@ export async function uploadTasks({ projectName, token, htmlFolder }) {
 export async function getHtmlSubfolders() {
   const res = await fetch(`${ORCH_BASE}/list_html_subfolders`);
   if (!res.ok) throw new Error("Failed to fetch subfolders");
-  return res.json();
+  const data = await res.json()
+  return data.subfolders
 }
