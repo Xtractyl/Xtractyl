@@ -28,6 +28,8 @@ def register(app, spec):
         resp=Response(
             HTTP_200=ProjectNamesResponse,
             HTTP_400=ErrorResponse,
+            HTTP_401=ErrorResponse,  # missing token
+            HTTP_502=ErrorResponse,  # label studio unreachable
             HTTP_500=ErrorResponse,
         ),
         tags=["evaluation"],
@@ -58,7 +60,11 @@ def register(app, spec):
         resp=Response(
             HTTP_200=EvaluateProjectsResponse,
             HTTP_400=ErrorResponse,  # invalid payload
-            HTTP_500=ErrorResponse,  # unexpected global exception handler
+            HTTP_401=ErrorResponse,  # missing token
+            HTTP_404=ErrorResponse,  # project not found
+            HTTP_409=ErrorResponse,  # filename or label mismatch
+            HTTP_502=ErrorResponse,  # label studio unreachable
+            HTTP_500=ErrorResponse,
         ),
         tags=["evaluation"],
     )
