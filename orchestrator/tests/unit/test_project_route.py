@@ -50,6 +50,15 @@ def test_list_html_subfolders_returns_200(client, monkeypatch):
     assert data["subfolders"] == ["folder1", "folder2"]
 
 
+def test_preview_qal_returns_200(client, monkeypatch):
+    monkeypatch.setattr(
+        "api.routes.projects.domain_preview_qal",
+        lambda cmd: {"data": {"questions": ["Q1"], "labels": ["L1"]}},
+    )
+    res = client.get("/preview_qal?project=my_project&filename=questions_and_labels.json")
+    assert res.status_code == 200
+
+
 # --- Unhappy path ---
 
 
@@ -141,6 +150,27 @@ def test_list_qal_jsons_contract_violated_returns_500(client, monkeypatch):
         lambda cmd: {"wrong_field": "oops"},
     )
     res = client.get("/list_qal_jsons?project=my_project")
+    assert res.status_code == 500
+    data = res.get_json()
+    assert data["error"] == "RESPONSE_CONTRACT_VIOLATED"
+
+
+def test_preview_qal_missing_project_returns_422(client):
+    res = client.get("/preview_qal?filename=questions_and_labels.json")
+    assert res.status_code == 422
+
+
+def test_preview_qal_missing_filename_returns_422(client):
+    res = client.get("/preview_qal?project=my_project")
+    assert res.status_code == 422
+
+
+def test_preview_qal_contract_violated_returns_500(client, monkeypatch):
+    monkeypatch.setattr(
+        "api.routes.projects.domain_preview_qal",
+        lambda cmd: {"wrong_field": "oops"},
+    )
+    res = client.get("/preview_qal?project=my_project&filename=questions_and_labels.json")
     assert res.status_code == 500
     data = res.get_json()
     assert data["error"] == "RESPONSE_CONTRACT_VIOLATED"
