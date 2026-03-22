@@ -34,8 +34,9 @@ def register(app, ok, spec):
         body=Request(CreateProjectRequest),
         resp=Response(
             HTTP_200=CreateProjectResponse,
-            HTTP_400=ErrorResponse,  # invalid payload
-            HTTP_500=ErrorResponse,  # unexpected global exception handler
+            HTTP_401=ErrorResponse,  # missing token
+            HTTP_502=ErrorResponse,  # label studio or ml backend unreachable
+            HTTP_500=ErrorResponse,
         ),
         tags=["projects"],
     )
@@ -111,6 +112,7 @@ def register(app, ok, spec):
         query=ListQalJsonsRequest,
         resp=Response(
             HTTP_200=ListQalJsonsResponse,
+            HTTP_400=ErrorResponse,  # invalid path
             HTTP_500=ErrorResponse,  # unexpected global exception handler
         ),
         tags=["projects"],
@@ -141,6 +143,8 @@ def register(app, ok, spec):
         query=PreviewQalRequest,
         resp=Response(
             HTTP_200=PreviewQalResponse,
+            HTTP_400=ErrorResponse,  # invalid path
+            HTTP_404=ErrorResponse,  # file not found
             HTTP_500=ErrorResponse,  # unexpected global exception handler
         ),
         tags=["projects"],
