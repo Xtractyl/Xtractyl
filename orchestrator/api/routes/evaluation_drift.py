@@ -17,7 +17,6 @@ def register(app, spec):
         query=GetEvaluationDriftRequest,
         resp=Response(
             HTTP_200=GetEvaluationDriftResponse,
-            HTTP_400=ErrorResponse,  # invalid query params
             HTTP_500=ErrorResponse,  # unexpected global exception handler
         ),
         tags=["evaluation-drift"],
