@@ -204,6 +204,20 @@ def list_qal_jsons(cmd: ListQalJsonsCommand):
 
 
 def preview_qal(cmd: PreviewQalCommand):
+    """
+    Read and return the content of a QAL JSON file for a given project.
+
+    Args:
+        cmd: PreviewQalCommand with project name and filename.
+
+    Returns:
+        {"data": dict} — parsed JSON content of the file.
+
+    Raises:
+        ValidationFailed: If the project or file path is invalid (path traversal attempt).
+        NotFound: If the file does not exist.
+        InternalError: If the file contains invalid JSON or cannot be read.
+    """
     try:
         project = cmd.project
         filename = cmd.filename
