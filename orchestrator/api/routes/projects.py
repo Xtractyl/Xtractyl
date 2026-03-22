@@ -1,13 +1,15 @@
 # orchestrator/api/routes/projects.py
 from domain.errors import InternalError, Unauthorized, ValidationFailed
-from domain.models.projects import CreateProjectCommand, ListQalJsonsCommand
+from domain.models.projects import CreateProjectCommand, ListQalJsonsCommand, PreviewQalCommand
 from domain.projects import (
     check_project_exists,
     create_project_main_from_payload,
     list_html_subfolders,
     list_qal_jsons,
-    preview_qal_route,
     upload_tasks_main_from_payload,
+)
+from domain.projects import (
+    preview_qal as domain_preview_qal,
 )
 from flask import jsonify, request
 from flask_pydantic_spec import Request, Response
@@ -20,6 +22,8 @@ from api.contracts.projects import (
     ListHtmlSubfoldersResponse,
     ListQalJsonsRequest,
     ListQalJsonsResponse,
+    PreviewQalRequest,
+    PreviewQalResponse,
 )
 from api.utils.auth import extract_token
 
@@ -133,5 +137,31 @@ def register(app, ok, spec):
         return jsonify(validated.model_dump()), 200
 
     @app.route("/preview_qal", methods=["GET"])
+    @spec.validate(
+        query=PreviewQalRequest,
+        resp=Response(
+            HTTP_200=PreviewQalResponse,
+            HTTP_500=ErrorResponse,  # unexpected global exception handler
+        ),
+        tags=["projects"],
+    )
     def preview_qal():
-        return preview_qal_route()
+        try:
+            contract = PreviewQalRequest.model_validate(dict(request.args))
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid query parameters.",
+                meta={"details": e.errors()},
+            )
+        cmd = PreviewQalCommand.from_contract(project=contract.project, filename=contract.filename)
+        result = domain_preview_qal(cmd)
+        try:
+            validated = PreviewQalResponse.model_validate(result)
+        except ValidationError as e:
+            raise InternalError(
+                code="RESPONSE_CONTRACT_VIOLATED",
+                message="Internal response did not match expected schema.",
+                meta={"details": e.errors()},
+            )
+        return jsonify(validated.model_dump()), 200
