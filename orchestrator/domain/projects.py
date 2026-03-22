@@ -228,6 +228,8 @@ def preview_qal(cmd: PreviewQalCommand):
             message="QAL file contains invalid JSON.",
         )
     except DomainError:
+        raise
+    except Exception:
         raise InternalError(
             code="INTERNAL_ERROR",
             message="Could not read QAL file.",
