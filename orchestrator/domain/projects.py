@@ -5,8 +5,14 @@ import os
 import requests
 from flask import jsonify, request
 
-from domain.errors import ExternalServiceError, InternalError, NotFound, ValidationFailed
-from domain.models.projects import CreateProjectCommand, ListQalJsonsCommand
+from domain.errors import (
+    DomainError,
+    ExternalServiceError,
+    InternalError,
+    NotFound,
+    ValidationFailed,
+)
+from domain.models.projects import CreateProjectCommand, ListQalJsonsCommand, PreviewQalCommand
 
 # Fixed base dir (no env lookups)
 BASE_PROJECTS_DIR = os.path.join("data", "projects")
@@ -197,33 +203,35 @@ def list_qal_jsons(cmd: ListQalJsonsCommand):
         )
 
 
-def preview_qal_route():
-    """
-    GET /preview_qal?project=<name>&file=<filename.json>
-    Returns: parsed JSON of the file (object or array).
-    """
-    project = (request.args.get("project") or "").strip()
-    filename = (request.args.get("file") or "").strip()
-    if not project or not filename:
-        return jsonify({"error": "missing 'project' or 'file'"}), 400
-    if not filename.lower().endswith(".json"):
-        return jsonify({"error": "file must be a .json"}), 400
-
+def preview_qal(cmd: PreviewQalCommand):
     try:
+        project = cmd.project
+        filename = cmd.filename
         project_dir = _safe_join(BASE_PROJECTS_DIR, project)
         file_path = _safe_join(project_dir, filename)
         if not os.path.isfile(file_path):
-            return jsonify({"error": "file not found"}), 404
-
+            raise NotFound(
+                code="QAL_FILE_NOT_FOUND",
+                message="QAL file not found.",
+            )
         with open(file_path, encoding="utf-8") as f:
-            data = json.load(f)
-        return jsonify(data), 200
+            content = json.load(f)
+        return {"data": content}
     except ValueError:
-        return jsonify({"error": "invalid path"}), 400
+        raise ValidationFailed(
+            code="INVALID_PATH",
+            message="Invalid project or file path.",
+        )
     except json.JSONDecodeError:
-        return jsonify({"error": "invalid JSON"}), 400
-    except Exception:
-        return jsonify({"error": "internal error"}), 500
+        raise InternalError(
+            code="INVALID_JSON",
+            message="QAL file contains invalid JSON.",
+        )
+    except DomainError:
+        raise InternalError(
+            code="INTERNAL_ERROR",
+            message="Could not read QAL file.",
+        )
 
 
 def collect_html_tasks(folder: str):
