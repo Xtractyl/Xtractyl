@@ -5,8 +5,14 @@ import os
 import requests
 from flask import jsonify, request
 
-from domain.errors import ExternalServiceError, NotFound, ValidationFailed
-from domain.models.projects import CreateProjectCommand
+from domain.errors import (
+    DomainError,
+    ExternalServiceError,
+    InternalError,
+    NotFound,
+    ValidationFailed,
+)
+from domain.models.projects import CreateProjectCommand, ListQalJsonsCommand, PreviewQalCommand
 
 # Fixed base dir (no env lookups)
 BASE_PROJECTS_DIR = os.path.join("data", "projects")
@@ -128,14 +134,26 @@ def create_project_main_from_payload(cmd: CreateProjectCommand):
 
 
 def list_html_subfolders():
+    """
+    List all subfolders in the HTML base directory.
+
+    Returns:
+        {"subfolders": list[str]} — alphabetically sorted folder names.
+
+    Raises:
+        InternalError: If the directory cannot be read.
+    """
     base_dir = os.path.join("data", "htmls")
     try:
-        subfolders = [
+        subfolders = sorted(
             name for name in os.listdir(base_dir) if os.path.isdir(os.path.join(base_dir, name))
-        ]
-        return jsonify(subfolders), 200
+        )
+        return {"subfolders": subfolders}
     except Exception:
-        return jsonify({"error": "internal error"}), 500
+        raise InternalError(
+            code="INTERNAL_ERROR",
+            message="Could not list HTML subfolders.",
+        )
 
 
 def _safe_join(base: str, *paths: str) -> str:
@@ -147,79 +165,89 @@ def _safe_join(base: str, *paths: str) -> str:
     return full
 
 
-def list_projects_route():
+def list_qal_jsons(cmd: ListQalJsonsCommand):
     """
-    GET /list_projects
-    Returns: ["ProjectA", "ProjectB", ...]
-    Lists folders directly under data/projects.
-    """
-    try:
-        if not os.path.isdir(BASE_PROJECTS_DIR):
-            return jsonify([]), 200
-        items = sorted(
-            d
-            for d in os.listdir(BASE_PROJECTS_DIR)
-            if os.path.isdir(os.path.join(BASE_PROJECTS_DIR, d))
-        )
-        return jsonify(items), 200
-    except Exception:
-        return jsonify({"error": "internal error"}), 500
+    List all .json files in a project's folder.
 
+    Args:
+        cmd: ListQalJsonsCommand with project name.
 
-def list_qal_jsons_route():
-    """
-    GET /list_qal_jsons?project=<name>
-    Returns: ["questions_and_labels.json", ...]
-    Lists *.json files in the project's folder.
-    """
-    project = (request.args.get("project") or "").strip()
-    if not project:
-        return jsonify({"error": "missing 'project'"}), 400
+    Returns:
+        {"files": list[str]} — empty list if project folder does not exist.
 
+    Raises:
+        ValidationFailed: If the project path is invalid (path traversal attempt).
+        InternalError: If the folder cannot be read.
+    """
+    project = cmd.project
     try:
         project_dir = _safe_join(BASE_PROJECTS_DIR, project)
         if not os.path.isdir(project_dir):
-            return jsonify([]), 200
+            return {"files": []}
 
         files = sorted(
             f
             for f in os.listdir(project_dir)
             if f.lower().endswith(".json") and os.path.isfile(os.path.join(project_dir, f))
         )
-        return jsonify(files), 200
+        return {"files": files}
     except ValueError:
-        return jsonify({"error": "invalid path"}), 400
+        raise ValidationFailed(
+            code="INVALID_PATH",
+            message="Invalid project path.",
+        )
     except Exception:
-        return jsonify({"error": "internal error"}), 500
+        raise InternalError(
+            code="INTERNAL_ERROR",
+            message="Could not list QAL json files.",
+        )
 
 
-def preview_qal_route():
+def preview_qal(cmd: PreviewQalCommand):
     """
-    GET /preview_qal?project=<name>&file=<filename.json>
-    Returns: parsed JSON of the file (object or array).
-    """
-    project = (request.args.get("project") or "").strip()
-    filename = (request.args.get("file") or "").strip()
-    if not project or not filename:
-        return jsonify({"error": "missing 'project' or 'file'"}), 400
-    if not filename.lower().endswith(".json"):
-        return jsonify({"error": "file must be a .json"}), 400
+    Read and return the content of a QAL JSON file for a given project.
 
+    Args:
+        cmd: PreviewQalCommand with project name and filename.
+
+    Returns:
+        {"data": dict} — parsed JSON content of the file.
+
+    Raises:
+        ValidationFailed: If the project or file path is invalid (path traversal attempt).
+        NotFound: If the file does not exist.
+        InternalError: If the file contains invalid JSON or cannot be read.
+    """
     try:
+        project = cmd.project
+        filename = cmd.filename
         project_dir = _safe_join(BASE_PROJECTS_DIR, project)
         file_path = _safe_join(project_dir, filename)
         if not os.path.isfile(file_path):
-            return jsonify({"error": "file not found"}), 404
-
+            raise NotFound(
+                code="QAL_FILE_NOT_FOUND",
+                message="QAL file not found.",
+            )
         with open(file_path, encoding="utf-8") as f:
-            data = json.load(f)
-        return jsonify(data), 200
+            content = json.load(f)
+        return {"data": content}
     except ValueError:
-        return jsonify({"error": "invalid path"}), 400
+        raise ValidationFailed(
+            code="INVALID_PATH",
+            message="Invalid project or file path.",
+        )
     except json.JSONDecodeError:
-        return jsonify({"error": "invalid JSON"}), 400
+        raise InternalError(
+            code="INVALID_JSON",
+            message="QAL file contains invalid JSON.",
+        )
+    except DomainError:
+        raise
     except Exception:
-        return jsonify({"error": "internal error"}), 500
+        raise InternalError(
+            code="INTERNAL_ERROR",
+            message="Could not read QAL file.",
+        )
 
 
 def collect_html_tasks(folder: str):

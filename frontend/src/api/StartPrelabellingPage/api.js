@@ -61,15 +61,16 @@ export async function listQalJsons(projectName, base = ORCH_BASE) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
-  return Array.isArray(data) ? data : [];
+  return Array.isArray(data.files) ? data.files : [];
 }
 
 /** Preview a QAL file */
 export async function previewQal(projectName, fileName, base = ORCH_BASE) {
-  const url = `${base}/preview_qal?project=${encodeURIComponent(projectName)}&file=${encodeURIComponent(fileName)}`;
+  const url = `${base}/preview_qal?project=${encodeURIComponent(projectName)}&filename=${encodeURIComponent(fileName)}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+  const data = await res.json();
+  return data;
 }
 
 /**
