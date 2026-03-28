@@ -583,7 +583,6 @@ VERSION
 	•	logs are written to:
 	•	stdout / stream
 	•	logs/ directory
- 	•	logs/evaluation_over_time.jsonl contains drift/regression monitoring for a standard set
 
 2) Dev mode (debug artifacts)
 	•	enabled only when explicitly requested
