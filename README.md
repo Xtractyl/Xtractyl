@@ -197,7 +197,7 @@ style ZA9 fill:#FCA5A5,stroke:#88a,stroke-width:1px;
 
 - 🦕 Create dashboards from your Xtractyl-generated database  
 - 🎛️ Fine-tune models based on your labeled data 
-- 🧠 Bootstrapping: Train SLM based from LLM generated and HITL reviewed data
+- 🧠 Bootstrapping: Train SLM based on LLM generated and HITL reviewed data
 
 
 ---
