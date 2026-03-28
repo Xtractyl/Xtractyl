@@ -371,6 +371,7 @@ Planned next.
 1. **Open the frontend**  
 	Go to: [http://localhost:5173]
 
+
 2. **Upload your docs** (PDF → HTML conversion)  
 
    Page: **Upload & Convert Docs** (`/`)  
@@ -378,13 +379,11 @@ Planned next.
    - Select PDFs and click **Upload & Convert**  
    - You can monitor status and cancel a running job
 
----
 ### Upload Page
 ![Upload Page](assets/upload_and_convert.png)
 
 ![Upload Page Running](assets/upload_and_convert_running.png)
 
----
 
 3. **Create a new project** in Label Studio  
 
@@ -396,11 +395,8 @@ Planned next.
       and in the same order as the questions)
    - Create the project via the "Create project" button
 
----
 ### Create Project Page
 ![Create Project Page](assets/create_project.png)
-
----
 
 4. **Upload your tasks into the project**  
 
@@ -409,12 +405,10 @@ Planned next.
    - Select the HTML folder (from step 2)  
    - Click "Upload HTML Tasks"
 
----
 
 ### Upload Tasks Page
 ![Upload Tasks Page](assets/upload_tasks.png)
 
----
 
 5. **Start AI prelabeling**  
 
@@ -430,11 +424,9 @@ Planned next.
       the Preview button for review)
    - Click the "Start prelabeling button"
 
----
 ### Start AI Page
 ![Start AI Page](assets/start_AI.png)
 
----
 
 6. **Review the AI** 
 
@@ -443,7 +435,6 @@ Planned next.
    - Click on your project and
    - Validate/correct predictions for your files (in case you did not wait till prelabelling was finished, you have to reload to see the predictions added over time) and submit the changes
 
----
 
 ### Review AI 
 ❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
@@ -455,7 +446,7 @@ Planned next.
 ❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 ![Review AI 3](assets/review_3.png)
 ❗❗THE ABOVE IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
----
+
 
 7. **Results Page** 
 
@@ -464,7 +455,7 @@ Planned next.
    - Enter the label studio token
    - Click "Submit & Save as CSV" to get the results (in case you did not wait till prelabelling was finished, you have to re-click to see the predictions added over time)
 
----
+
 ### Get Results 
 ❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
@@ -472,7 +463,7 @@ Planned next.
 
 ❗❗THE ABOVE IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
----
+
 
 8. **Evaluate the AI** (`/evaluate`)  
    - Enter the label studio token
@@ -483,7 +474,7 @@ Planned next.
    - Get a per task (per PDF document) overview with groundtruth answer, predicted answer and raw LLM answer
    - Get performance metrics (time per task [per PDF document], LLM time per tasks, time per question, LLM time per question etc.)
 
----
+
 ### Evaluate the AI 
 ❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
@@ -499,7 +490,7 @@ Planned next.
 
 ❗❗THE ABOVE IMAGES SHOW SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
---- 
+
 
 9. **Monitor Evaluation Drift/Regression over Time for a Standard Set** (`/evaluationdrift`)  
 
@@ -510,7 +501,7 @@ Planned next.
 
 ❗❗THE ABOVE IMAGES SHOW SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
---- 
+
 
 ### ⏭️ Coming Soon
 
