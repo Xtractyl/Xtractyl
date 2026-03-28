@@ -23,7 +23,9 @@ DEV_LOG_DIR.mkdir(parents=True, exist_ok=True)
 FIXTURES_DIR = pathlib.Path(os.getenv("FIXTURES_DIR", "/app/data/fixtures"))
 FIXTURES_DIR.mkdir(parents=True, exist_ok=True)
 
-EVAL_OVER_TIME_LOG = SAFE_LOG_DIR / "evaluation_over_time.jsonl"
+DRIFT_DIR = pathlib.Path(os.getenv("DRIFT_DIR", "/app/data/evaluation_drift"))
+DRIFT_DIR.mkdir(parents=True, exist_ok=True)
+EVAL_OVER_TIME_LOG = DRIFT_DIR / "evaluation_over_time.jsonl"
 
 CAPTURE_FIXTURES = os.getenv("CAPTURE_FIXTURES", "0") == "1"
 SYNTHETIC_DATA = os.getenv("SYNTHETIC_DATA", "0") == "1"
@@ -97,7 +99,7 @@ def write_fixture(filename: str, data: str | bytes) -> pathlib.Path | None:
 
 def log_evaluation_over_time(event: dict[str, Any]) -> pathlib.Path:
     """
-    Append a SAFE evaluation-over-time event to logs/evaluation_over_time.jsonl.
+    Append a SAFE evaluation-over-time event to data/evaluation_drift/evaluation_over_time.jsonl
 
     Must not contain sensitive data:
     - no filenames
@@ -108,7 +110,6 @@ def log_evaluation_over_time(event: dict[str, Any]) -> pathlib.Path:
 
     Caller is responsible for passing an already-safe payload.
     """
-    SAFE_LOG_DIR.mkdir(parents=True, exist_ok=True)
     safe_event = {"ts": datetime.utcnow().isoformat(timespec="seconds") + "Z", **event}
     with EVAL_OVER_TIME_LOG.open("a", encoding="utf-8") as f:
         f.write(json.dumps(safe_event, ensure_ascii=False, separators=(",", ":")) + "\n")
