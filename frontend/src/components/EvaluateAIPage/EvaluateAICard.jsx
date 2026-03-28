@@ -1,13 +1,15 @@
 // src/components/EvaluateAIPage/EvaluateAICard.jsx
 import React, { useEffect, useState } from "react";
 import { fetchEvaluationProjects, evaluateAI } from "../../api/EvaluateAIPage/api.js";
+import { fetchGroundtruthQuestionsAndLabels } from "../../api/CreateProjectPage/api.js";
 import ComparisonSelection from "./ComparisonSelection.jsx";
 import EvaluationResults from "./EvaluationResults.jsx";
 
-const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080"; // just for the link
+const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080";
 
 export default function EvaluateAICard({ apiToken }) {
   const [localToken, setToken] = useState(apiToken || "");
+  const [gtSets, setGtSets] = useState([]);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -17,8 +19,15 @@ export default function EvaluateAICard({ apiToken }) {
   const [evalError, setEvalError] = useState("");
   const [evalResult, setEvalResult] = useState(null);
 
-  // Load project names from orchestrator
-    useEffect(() => {
+  // Load GT sets from filesystem (independent of token)
+  useEffect(() => {
+    fetchGroundtruthQuestionsAndLabels()
+      .then((sets) => setGtSets((sets || []).map((s) => s.name)))
+      .catch(() => {});
+  }, []);
+
+  // Load project names from Label Studio via orchestrator
+  useEffect(() => {
     if (!localToken) return;
 
     setLoading(true);
@@ -26,52 +35,29 @@ export default function EvaluateAICard({ apiToken }) {
 
     fetchEvaluationProjects(localToken)
       .then((names) => {
-        const SPECIAL = "Evaluation_Set_Do_Not_Delete";
         const projectList = names || [];
+        setProjects(projectList);
 
-        const hasSpecial = projectList.includes(SPECIAL);
+        const defaultGT = gtSets[0] || "";
+        setGroundtruthProject((prev) => prev || defaultGT);
 
-        // Groundtruth-Projekte: SPECIAL genau einmal drin
-        const groundtruthOptions = hasSpecial
-          ? projectList
-          : [SPECIAL, ...projectList];
-
-        setProjects(groundtruthOptions);
-
-        // Defaults setzen
-        // Groundtruth: SPECIAL wenn möglich, sonst erstes Groundtruth-Projekt
-        if (groundtruthOptions.length > 0) {
-          const defaultGT = groundtruthOptions.includes(SPECIAL)
-            ? SPECIAL
-            : groundtruthOptions[0];
-          setGroundtruthProject((prev) => prev || defaultGT);
-        } else {
-          setGroundtruthProject("");
-        }
-
-        // Comparison: erstes Projekt, das NICHT SPECIAL ist
-        const comparisonCandidates = groundtruthOptions.filter(
-          (name) => name !== SPECIAL
+        const comparisonCandidates = projectList.filter(
+          (name) => !gtSets.includes(name)
         );
 
         if (comparisonCandidates.length > 0) {
-          setComparisonProject(
-            (prev) => prev || comparisonCandidates[0]
-          );
+          setComparisonProject((prev) => prev || comparisonCandidates[0]);
         } else {
           setComparisonProject("");
         }
       })
-      .catch((err) => {
+      .catch(() => {
         setErrorMsg("Failed to load Label Studio projects.");
-        const SPECIAL = "Evaluation_Set_Do_Not_Delete";
-        // Fallback: nur Groundtruth mit SPECIAL, Comparison leer
-        setProjects([SPECIAL]);
-        setGroundtruthProject(SPECIAL);
+        setGroundtruthProject(gtSets[0] || "");
         setComparisonProject("");
       })
       .finally(() => setLoading(false));
-  }, [localToken]);
+  }, [localToken, gtSets]);
 
   const handleRunEvaluation = async () => {
     setEvalLoading(true);
@@ -152,6 +138,7 @@ export default function EvaluateAICard({ apiToken }) {
       {localToken && (
         <ComparisonSelection
           projects={projects}
+          gtSets={gtSets}
           loading={loading}
           errorMsg={errorMsg}
           groundtruthProject={groundtruthProject}
