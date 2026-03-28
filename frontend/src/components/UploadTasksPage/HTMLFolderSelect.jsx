@@ -4,6 +4,8 @@ import { getHtmlSubfolders } from "../../api/UploadTasksPage/api.js";
 export default function HtmlFolderSelect({ selected, onChange }) {
   const [folders, setFolders] = useState([]);
 
+
+
   useEffect(() => {
     getHtmlSubfolders()
       .then(setFolders)
@@ -22,11 +24,17 @@ export default function HtmlFolderSelect({ selected, onChange }) {
         className="w-full p-2 border rounded"
       >
         <option value="">-- Select Folder --</option>
-        {folders.map((f, i) => (
+      {folders.map((f, i) => {
+        const isGt = f.startsWith("Evaluation_Sets_Do_Not_Delete/");
+        const label = isGt
+          ? `🔒 GT: ${f.split("/").pop()}`
+          : f;
+        return (
           <option key={i} value={f}>
-            {f}
+            {label}
           </option>
-        ))}
+        );
+      })}
       </select>
     </div>
   );
