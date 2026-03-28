@@ -3,6 +3,7 @@ import React from "react";
 
 export default function ComparisonSelection({
   projects,
+  gtSets,
   loading,
   errorMsg,
   groundtruthProject,
@@ -12,8 +13,8 @@ export default function ComparisonSelection({
   onSubmit,
 }) {
 
-  const SPECIAL = "Evaluation_Set_Do_Not_Delete";
-  const comparisonOptions = projects.filter((name) => name !== SPECIAL);
+  const comparisonOptions = projects.filter((name) => !gtSets.includes(name));
+
   
   return (
     <div className="mt-8">
@@ -31,7 +32,7 @@ export default function ComparisonSelection({
         </p>
       )}
 
-      {!loading && !errorMsg && projects.length > 0 && (
+      {!loading && !errorMsg && (gtSets.length > 0 || projects.length > 0) && (
         <>
           {/* Groundtruth Project */}
           <label className="block text-xs font-medium mt-3 mb-1">
@@ -42,7 +43,7 @@ export default function ComparisonSelection({
             value={groundtruthProject}
             onChange={(e) => setGroundtruthProject(e.target.value)}
           >
-            {projects.map((name, idx) => (
+            {gtSets.map((name, idx) => (
               <option key={idx} value={name}>
                 {name}
               </option>
