@@ -30,16 +30,7 @@ data/projects/
 data/evaluation/
 data/results/
 data/tmp/
-
-# Trotzdem erlauben:
-!data/pdfs/Evaluation_Set_Do_Not_Delete/
-!data/pdfs/Evaluation_Set_Do_Not_Delete/**
-
-!data/htmls/Evaluation_Set_Do_Not_Delete/
-!data/htmls/Evaluation_Set_Do_Not_Delete/**
-
-!data/projects/Evaluation_Set_Do_Not_Delete/
-!data/projects/Evaluation_Set_Do_Not_Delete/**
+data/evaluation_drift/
 
 # 🔍 Label Studio
 label-studio/frontend/dist/
