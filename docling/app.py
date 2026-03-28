@@ -119,7 +119,7 @@ def list_subfolders():
         subfolders = [
             n
             for n in entries
-            if os.path.isdir(os.path.join(PDF_DIR, n)) and n != "Evaluation_Set_Do_Not_Delete"
+            if os.path.isdir(os.path.join(PDF_DIR, n)) and n != "Evaluation_Sets_Do_Not_Delete"
         ]
         return jsonify(subfolders)
     except Exception:
