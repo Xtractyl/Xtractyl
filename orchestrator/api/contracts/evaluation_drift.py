@@ -13,18 +13,21 @@ class GetEvaluationDriftRequest(BaseModel):
 
 
 class EvaluationDriftEntry(BaseModel):
-    ts: str
     series: str
     run_at_raw: str | None
     groundtruth_project_id: int
     comparison_project_id: int
     model: str
-    qal_hash: str
-    prompt_hash: str
-    schema_hash: str
+    system_prompt: str | None = None
+    questions: list[str] | None = None
+    labels: list[str] | None = None
     metrics: dict
 
 
-class GetEvaluationDriftResponse(BaseModel):
+class EvaluationDriftSet(BaseModel):
     series: str
     entries: list[EvaluationDriftEntry]
+
+
+class GetEvaluationDriftResponse(BaseModel):
+    sets: list[EvaluationDriftSet]
