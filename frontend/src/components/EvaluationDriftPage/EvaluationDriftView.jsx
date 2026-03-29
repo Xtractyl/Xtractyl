@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { fetchEvaluationDrift } from "../../api/EvaluationDriftPage/api.js";
 
 import PlotEvaluationOverTimeGeneral from "./PlotEvaluationOverTimeGeneral.jsx"
-//import PlotEvaluationOverTimePerLabel from "./PlotEvaluationOverTimePerLabel.jsx"
-//import PlotRegressionControlOverTime from "./PlotRegressionControlOverTime.jsx"
+import PlotEvaluationOverTimePerLabel from "./PlotEvaluationOverTimePerLabel.jsx"
+import PlotRegressionControlOverTime from "./PlotRegressionControlOverTime.jsx"
 
 export default function EvaluationDriftView() {
   const [loading, setLoading] = useState(true);
@@ -96,6 +96,8 @@ export default function EvaluationDriftView() {
             <h3 className="text-sm font-semibold mb-2 text-xtractyl-outline">
               {set.series}
             </h3>
+            <PlotEvaluationOverTimeGeneral entries={set.entries} />
+            <PlotEvaluationOverTimePerLabel entries={set.entries} />
             <div className="overflow-x-auto border border-xtractyl-outline/20 rounded-lg bg-xtractyl-white shadow-sm">
               <table className="border-collapse text-sm whitespace-nowrap min-w-max w-full">
                 <thead className="sticky top-0 bg-xtractyl-offwhite z-10">
@@ -193,6 +195,7 @@ export default function EvaluationDriftView() {
                 </tbody>
               </table>
             </div>
+            <PlotRegressionControlOverTime entries={set.entries} />
           </div>
         );
       })}
