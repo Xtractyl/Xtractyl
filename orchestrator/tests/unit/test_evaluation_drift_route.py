@@ -14,14 +14,14 @@ def client():
 
 def test_evaluation_drift_returns_200(client, monkeypatch):
     monkeypatch.setattr(
-        "domain.evaluation_drift.get_evaluation_drift",
-        lambda cmd: {"series": "Evaluation_Set_Do_Not_Delete", "entries": []},
+        "api.routes.evaluation_drift.get_evaluation_drift",
+        lambda cmd: {"sets": [{"series": "Evaluation_Set_Do_Not_Delete", "entries": []}]},
     )
     res = client.get("/evaluation-drift")
     assert res.status_code == 200
     data = res.get_json()
-    assert "series" in data
-    assert "entries" in data
+    assert "sets" in data
+    assert isinstance(data["sets"], list)
 
 
 def test_evaluation_drift_invalid_query_param_returns_400(client):

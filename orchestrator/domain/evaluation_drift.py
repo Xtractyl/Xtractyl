@@ -4,30 +4,37 @@ import json
 import os
 from pathlib import Path
 
+from domain.evaluation import GROUNDTRUTH_QAL_DIR
 from domain.models.evaluation_drift import GetEvaluationDriftCommand
 
-from .utils.evaluate_project_utils import SPECIAL_PROJECT_TITLE
-
-LOGS_DIR = Path(os.getenv("LOGS_DIR", "/logs"))
-EVAL_LOG_PATH = LOGS_DIR / "evaluation_over_time.jsonl"
+DRIFT_DIR = Path(os.getenv("DRIFT_DIR", "/app/data/evaluation_drift"))
+EVAL_LOG_PATH = DRIFT_DIR / "evaluation_over_time.jsonl"
 
 
 def get_evaluation_drift(cmd: GetEvaluationDriftCommand) -> dict:
     """
-    Read logs/evaluation_over_time.jsonl and return entries for the standard evaluation series.
+    Read evaluation_over_time.jsonl from the drift directory and return all entries grouped by GT set.
 
     Args:
         cmd: GetEvaluationDriftCommand (currently unused, reserved for future filtering).
 
     Returns:
-        {"series": str, "entries": list[EvaluationDriftEntry]} — empty entries if log does not exist.
+        {"sets": [{"series": str, "entries": list[dict]}]}
     """
-    series = SPECIAL_PROJECT_TITLE
+    known_series = (
+        {
+            p.name
+            for p in GROUNDTRUTH_QAL_DIR.iterdir()
+            if p.is_dir() and (p / "questions_and_labels.json").is_file()
+        }
+        if GROUNDTRUTH_QAL_DIR.is_dir()
+        else set()
+    )
 
     if not EVAL_LOG_PATH.exists():
-        return {"series": series, "entries": []}
+        return {"sets": [{"series": s, "entries": []} for s in sorted(known_series)]}
 
-    entries: list[dict] = []
+    by_series: dict[str, list[dict]] = {}
     with EVAL_LOG_PATH.open("r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
@@ -37,8 +44,8 @@ def get_evaluation_drift(cmd: GetEvaluationDriftCommand) -> dict:
                 obj = json.loads(line)
             except Exception:
                 continue
+            series = obj.get("series")
+            if series in known_series:
+                by_series.setdefault(series, []).append(obj)
 
-            if obj.get("series") == series:
-                entries.append(obj)
-
-    return {"series": series, "entries": entries}
+    return {"sets": [{"series": s, "entries": by_series.get(s, [])} for s in sorted(known_series)]}

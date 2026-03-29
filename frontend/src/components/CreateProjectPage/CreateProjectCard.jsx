@@ -7,7 +7,7 @@ import { fetchGroundtruthQuestionsAndLabels } from "../../api/CreateProjectPage/
 
 export default function CreateProjectCard({ apiToken, onTokenSave , onProjectNameSave }) {
   const { checkProjectExists, createProject } = useCreateProject();
-  const [groundtruth, setGroundtruth] = useState(null);
+  const [groundtruthSets, setGroundtruthSets] = useState([]);
   const [groundtruthError, setGroundtruthError] = useState("");
   const [groundtruthLoading, setGroundtruthLoading] = useState(false);
 
@@ -46,7 +46,7 @@ export default function CreateProjectCard({ apiToken, onTokenSave , onProjectNam
     setGroundtruthLoading(true);
     try {
       const data = await fetchGroundtruthQuestionsAndLabels();
-      setGroundtruth(data);
+      setGroundtruthSets(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
       setGroundtruthError("Failed to load groundtruth questions and labels.");
@@ -71,11 +71,10 @@ export default function CreateProjectCard({ apiToken, onTokenSave , onProjectNam
           {/* Groundtruth helper section */}
       <div className="mt-4 border rounded p-3 bg-xtractyl-offwhite">
         <h2 className="text-xtractyl-outline/70ase font-medium mb-1 text-xtractyl-outline">
-          Use questions & labels from standard groundtruth project
+          Use questions & labels from ground truth projects set up for time series
         </h2>
         <p className="text-xs  text-xtractyl-outline/60 mb-1">
-          Click the button to show the questions and labels from the
-          Evaluation_Set_Do_Not_Delete project.
+          Click the button to show the questions and labels for ground truth sets set up for time series
         </p>
 
         <button
@@ -85,26 +84,27 @@ export default function CreateProjectCard({ apiToken, onTokenSave , onProjectNam
           disabled={groundtruthLoading}
         >
           {groundtruthLoading
-            ? "Loading groundtruth…"
-            : "Show groundtruth questions & labels"}
+            ? "Loading ground truth…"
+            : "Show ground truth questions & labels"}
         </button>
 
         {groundtruthError && (
           <p className="mt-2 text-sm text-xtractyl-orange">{groundtruthError}</p>
         )}
 
-        {groundtruth && (
-          <div className="mt-4 bg-xtractyl-white p-4 rounded max-h-96 overflow-auto">
-            <h3 className="font-semibold mb-2">
-              Groundtruth questions_and_labels.json
-            </h3>
-            <p className="text-xs  text-xtractyl-outline/70 mb-2">
-              Copy relevant questions and labels into your own project
-              configuration.
-            </p>
-            <pre className="text-xs whitespace-pre-wrap break-words">
-              {JSON.stringify(groundtruth, null, 2)}
-            </pre>
+       {groundtruthSets.length > 0 && (
+         <div className="mt-4 space-y-4">
+            {groundtruthSets.map((set) => (
+              <div key={set.name} className="bg-xtractyl-white p-4 rounded max-h-96 overflow-auto">
+                <h3 className="font-semibold mb-2">{set.name}</h3>
+                <p className="text-xs text-xtractyl-outline/70 mb-2">
+                  Copy relevant questions and labels into your own project configuration.
+                </p>
+                <pre className="text-xs whitespace-pre-wrap break-words">
+                  {JSON.stringify(set.qal, null, 2)}
+                </pre>
+              </div>
+            ))}
           </div>
         )}
       </div> 

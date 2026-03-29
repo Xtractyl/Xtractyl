@@ -1,30 +1,35 @@
 # /orchestrator/routes/utils/evaluate_project_utils.py
 import json
 import os
+from pathlib import Path
 
 import requests
+
+GROUNDTRUTH_QAL_DIR = Path(
+    os.getenv(
+        "GROUNDTRUTH_QAL_DIR",
+        "/app/data/projects/Evaluation_Sets_Do_Not_Delete",
+    )
+)
 
 LABEL_STUDIO_URL = (
     f"http://{os.getenv('LABELSTUDIO_CONTAINER_NAME', 'labelstudio')}:"
     f"{os.getenv('LABELSTUDIO_PORT', '8080')}"
 )
 
-SPECIAL_PROJECT_TITLE = "Evaluation_Set_Do_Not_Delete"
-
 
 def _auth_headers(token: str) -> dict:
     return {"Authorization": f"Token {token}"}
 
 
-def create_evaluation_project(token: str) -> int:
+def create_evaluation_project(token: str, gt_set_name: str) -> int:
     """
-    Legt das Standard-Evaluationsprojekt 'Evaluation_Set_Do_Not_Delete'
-    in Label Studio an, basierend auf einem GUI-Task-Export
-    (Liste von Tasks mit annotations/result/...).
+    Create an evaluation project in Label Studio based on a GUI task export
+    found in the corresponding GT set folder.
     """
-    eval_path = "/app/data/labelstudio_Evaluation_Set_Do_Not_Delete/Evaluation_Set.json"
+    eval_path = GROUNDTRUTH_QAL_DIR / gt_set_name / "Evaluation_Set.json"
 
-    if not os.path.exists(eval_path):
+    if not eval_path.exists():
         raise RuntimeError(f"Evaluation project JSON not found at: {eval_path}")
 
     with open(eval_path, "r", encoding="utf-8") as f:
@@ -38,7 +43,7 @@ def create_evaluation_project(token: str) -> int:
 
     tasks = raw
 
-    # Labels aus den Annotationen sammeln, z. B. "Patient", ...
+    # collect labels from annotations
     labels_set = set()
     for task in tasks:
         for ann in task.get("annotations", []):
@@ -47,9 +52,9 @@ def create_evaluation_project(token: str) -> int:
                     labels_set.add(lab)
 
     if not labels_set:
-        raise RuntimeError("No labels found in Evaluation_Set.json (value.labels).")
+        raise RuntimeError(f"No labels found in Evaluation_Set.json for set: {gt_set_name}")
 
-    # label_config dynamisch aus den Labelnamen bauen
+    # build label_config dynamically from label names
     labels_xml = "".join(f'<Label value="{label}"/>' for label in sorted(labels_set))
 
     label_config = f"""
@@ -61,10 +66,10 @@ def create_evaluation_project(token: str) -> int:
     </View>
     """.strip()
 
-    # 1) create standard evaluation project if it has accidentally been removed
+    # 1) create evaluation project if it has accidentally been removed
     create_payload = {
-        "title": SPECIAL_PROJECT_TITLE,
-        "description": "Auto-created standard evaluation project for Xtractyl Evaluate AI.",
+        "title": gt_set_name,
+        "description": f"Auto-created evaluation project for GT set: {gt_set_name}",
         "label_config": label_config,
     }
 
@@ -77,7 +82,7 @@ def create_evaluation_project(token: str) -> int:
     resp.raise_for_status()
     project_id = int(resp.json()["id"])
 
-    # 2) Tasks importieren
+    # 2) import tasks
     import_resp = requests.post(
         f"{LABEL_STUDIO_URL}/api/projects/{project_id}/import",
         headers={**_auth_headers(token), "Content-Type": "application/json"},

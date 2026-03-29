@@ -37,7 +37,8 @@ def check_project_exists():
             return jsonify({"error": "Missing 'title' in request body"}), 400
 
         project_path = os.path.join("data", "projects", title)
-        exists = os.path.exists(project_path)
+        gt_path = os.path.join("data", "projects", "Evaluation_Sets_Do_Not_Delete", title)
+        exists = os.path.exists(project_path) or os.path.exists(gt_path)
 
         return jsonify({"exists": exists}), 200
 
@@ -136,6 +137,7 @@ def create_project_main_from_payload(cmd: CreateProjectCommand):
 def list_html_subfolders():
     """
     List all subfolders in the HTML base directory.
+    Includes subfolders of Evaluation_Sets_Do_Not_Delete as relative paths.
 
     Returns:
         {"subfolders": list[str]} — alphabetically sorted folder names.
@@ -144,10 +146,21 @@ def list_html_subfolders():
         InternalError: If the directory cannot be read.
     """
     base_dir = os.path.join("data", "htmls")
+    gt_sets_dir = os.path.join("data", "htmls", "Evaluation_Sets_Do_Not_Delete")
     try:
         subfolders = sorted(
-            name for name in os.listdir(base_dir) if os.path.isdir(os.path.join(base_dir, name))
+            name
+            for name in os.listdir(base_dir)
+            if os.path.isdir(os.path.join(base_dir, name))
+            and name != "Evaluation_Sets_Do_Not_Delete"
         )
+        if os.path.isdir(gt_sets_dir):
+            gt_subfolders = sorted(
+                os.path.join("Evaluation_Sets_Do_Not_Delete", name)
+                for name in os.listdir(gt_sets_dir)
+                if os.path.isdir(os.path.join(gt_sets_dir, name))
+            )
+            subfolders = gt_subfolders + subfolders
         return {"subfolders": subfolders}
     except Exception:
         raise InternalError(

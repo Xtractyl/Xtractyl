@@ -3,7 +3,7 @@
 from domain.errors import InternalError, Unauthorized, ValidationFailed
 from domain.evaluation import (
     evaluate_projects,
-    get_groundtruth_qal,
+    get_groundtruth_qals,
     list_project_names,
 )
 from domain.models.evaluation import EvaluateProjectsCommand
@@ -49,9 +49,9 @@ def register(app, spec):
     # No user input. Deterministic state check for groundtruth set existence.
     # Not part of public API contract.
 
-    @app.route("/groundtruth_qal", methods=["GET"])
-    def groundtruth_qal():
-        result = get_groundtruth_qal()
+    @app.route("/groundtruth_qals", methods=["GET"])
+    def groundtruth_qals():
+        result = get_groundtruth_qals()
         return jsonify(result), 200
 
     @app.route("/evaluate-ai", methods=["POST"])

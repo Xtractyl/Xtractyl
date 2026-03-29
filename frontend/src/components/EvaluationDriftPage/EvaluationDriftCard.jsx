@@ -4,7 +4,7 @@ import EvaluationDriftView from "./EvaluationDriftView";
 export default function EvaluationDriftCard() {
   return (
     <div className="p-8 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
-      <h1 className="text-2xl font-semibold mb-4">Evaluation Drift</h1>
+      <h1 className="text-2xl font-semibold mb-4">Evaluation Drift & Regression</h1>
 
 
       <EvaluationDriftView />

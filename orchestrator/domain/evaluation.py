@@ -1,6 +1,5 @@
 # orchestrator/domain/evaluation.py
 
-import hashlib
 import json
 import os
 from collections import defaultdict
@@ -13,7 +12,7 @@ from domain.errors import InvalidState, NotFound
 from domain.models.evaluation import EvaluateProjectsCommand
 
 from .utils.calculate_metrics import compute_metrics_from_rows
-from .utils.evaluate_project_utils import SPECIAL_PROJECT_TITLE, create_evaluation_project
+from .utils.evaluate_project_utils import create_evaluation_project
 from .utils.shared.label_studio_client import (
     fetch_task_annotations,
     fetch_tasks_page,
@@ -21,58 +20,47 @@ from .utils.shared.label_studio_client import (
     resolve_project_id,
 )
 
-GROUNDTRUTH_QAL_PATH = os.getenv(
-    "GROUNDTRUTH_QAL_PATH",
-    "/app/data/projects/Evaluation_Set_Do_Not_Delete/questions_and_labels.json",
+GROUNDTRUTH_QAL_DIR = Path(
+    os.getenv(
+        "GROUNDTRUTH_QAL_DIR",
+        "/app/data/projects/Evaluation_Sets_Do_Not_Delete",
+    )
 )
+
 
 EVAL_OUT_DIR = Path(os.getenv("EVAL_DIR", "/app/data/evaluation"))
 
 
-def _sha256_text(text: str) -> str:
-    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+def _list_gt_sets() -> list[dict]:
+    """
+    Returns all GT sets found in GROUNDTRUTH_QAL_DIR.
+    Each entry: {"name": str, "qal": dict}
+    """
+    sets = []
+    if not GROUNDTRUTH_QAL_DIR.is_dir():
+        return sets
+    for subfolder in sorted(GROUNDTRUTH_QAL_DIR.iterdir()):
+        if not subfolder.is_dir():
+            continue
+        qal_path = subfolder / "questions_and_labels.json"
+        if not qal_path.is_file():
+            continue
+        try:
+            with open(qal_path, "r", encoding="utf-8") as f:
+                qal = json.load(f)
+            sets.append({"name": subfolder.name, "qal": qal})
+        except Exception:
+            continue
+    return sets
 
 
-def _qal_hash_from_file() -> str | None:
-    """
-    Hash questions+labels for comparability across runs.
-    Never logs the QAL content itself.
-    """
-    try:
-        with open(GROUNDTRUTH_QAL_PATH, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        canonical = json.dumps(data, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
-        return _sha256_text(canonical)
-    except Exception:
-        return None
-
-
-def _extract_consistent_meta(pred_rows: list[dict]) -> tuple[str | None, str | None]:
-    """
-    Returns (model, prompt_hash) if consistent across tasks, else (None, None).
-    Expects meta keys produced by ml_backend: meta["model"], meta["system_prompt"].
-    """
-    models: set[str] = set()
-    prompt_hashes: set[str] = set()
-    for r in pred_rows or []:
-        meta = r.get("meta") or {}
-        if not isinstance(meta, dict):
-            return None, None
-        model = meta.get("model")
-        if isinstance(model, str) and model.strip():
-            models.add(model.strip())
-        else:
-            # strict: every task must have model
-            return None, None
-        system_prompt = meta.get("system_prompt")
-        if isinstance(system_prompt, str) and system_prompt.strip():
-            prompt_hashes.add(_sha256_text(system_prompt))
-        else:
-            # strict: every task must have prompt
-            return None, None
-    if len(models) == 1 and len(prompt_hashes) == 1:
-        return next(iter(models)), next(iter(prompt_hashes))
-    return None, None
+def _extract_consistent_model(pred_rows: list[dict]) -> str | None:
+    """Returns the model name if consistent across all tasks, else None."""
+    models = {
+        r.get("meta", {}).get("model") for r in pred_rows or [] if isinstance(r.get("meta"), dict)
+    }
+    models.discard(None)
+    return next(iter(models)) if len(models) == 1 else None
 
 
 def list_project_names(token: str) -> dict:
@@ -218,9 +206,9 @@ def _tasks_to_rows(token: str, project_id: int, mode: str) -> list[dict]:
 def evaluate_projects(cmd: EvaluateProjectsCommand) -> dict:
     """
     Compare a comparison project against a groundtruth project and compute evaluation metrics.
-    If the groundtruth project is the standard evaluation set and it does not exist yet,
+    If the groundtruth project is a known GT set and does not exist in Label Studio yet,
     it will be created automatically. Results are written to the evaluation output directory.
-    For the standard evaluation set, metrics are also appended to the evaluation-over-time log.
+    For any known GT set, metrics are also appended to the evaluation-over-time log.
 
     Args:
         cmd: EvaluateProjectsCommand with token, groundtruth_project, and comparison_project.
@@ -237,11 +225,13 @@ def evaluate_projects(cmd: EvaluateProjectsCommand) -> dict:
     token = cmd.token
     groundtruth_project = cmd.groundtruth_project
     comparison_project = cmd.comparison_project
+    gt_sets_by_name = {s["name"]: s["qal"] for s in _list_gt_sets()}
+
     try:
         gt_id = resolve_project_id(token, groundtruth_project)
     except NotFound:
-        if groundtruth_project == SPECIAL_PROJECT_TITLE:
-            gt_id = create_evaluation_project(token)
+        if groundtruth_project in gt_sets_by_name:
+            gt_id = create_evaluation_project(token, groundtruth_project)
         else:
             raise
 
@@ -293,23 +283,24 @@ def evaluate_projects(cmd: EvaluateProjectsCommand) -> dict:
 
     result["evaluation_output_path"] = _write_eval_result(result, gt_id, cmp_id)
 
-    # --- Evaluation-over-time logger (SAFE, comparable series only) ---
-    # Only log the standard groundtruth set to avoid incomparable datasets.
-    if groundtruth_project == SPECIAL_PROJECT_TITLE:
-        qal_hash = _qal_hash_from_file()
-        model, prompt_hash = _extract_consistent_meta(pred_rows)
-        if qal_hash and model and prompt_hash:
-            schema_hash = _sha256_text(f"{qal_hash}:{prompt_hash}")
+    if groundtruth_project in gt_sets_by_name:
+        qal = gt_sets_by_name[groundtruth_project]
+        model = _extract_consistent_model(pred_rows)
+        system_prompt = next(
+            (r.get("meta", {}).get("system_prompt") for r in pred_rows if r.get("meta")),
+            None,
+        )
+        if model and system_prompt:
             log_evaluation_over_time(
                 {
-                    "series": SPECIAL_PROJECT_TITLE,
+                    "series": groundtruth_project,
                     "run_at_raw": run_at_raw,
                     "groundtruth_project_id": int(gt_id),
                     "comparison_project_id": int(cmp_id),
                     "model": model,
-                    "qal_hash": qal_hash,
-                    "prompt_hash": prompt_hash,
-                    "schema_hash": schema_hash,
+                    "system_prompt": system_prompt,
+                    "questions": qal.get("questions"),
+                    "labels": qal.get("labels"),
                     "metrics": overall,
                 }
             )
@@ -320,21 +311,20 @@ def evaluate_projects(cmd: EvaluateProjectsCommand) -> dict:
     return result
 
 
-def get_groundtruth_qal():
+def get_groundtruth_qals() -> list[dict]:
     """
-    Load the standard groundtruth questions and labels from disk.
+    Load all groundtruth QAL files from GROUNDTRUTH_QAL_DIR subfolders.
 
     Returns:
-        Parsed JSON content of the groundtruth questions_and_labels.json file.
+        List of {"name": str, "qal": dict}
 
     Raises:
-        NotFound: If the groundtruth QAL file does not exist.
+        NotFound: If the base directory does not exist or contains no valid sets.
     """
-    try:
-        with open(GROUNDTRUTH_QAL_PATH, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except FileNotFoundError:
+    sets = _list_gt_sets()
+    if not sets:
         raise NotFound(
             code="GROUNDTRUTH_QAL_NOT_FOUND",
-            message="Groundtruth questions and labels file not found.",
+            message="No groundtruth sets found.",
         )
+    return sets
