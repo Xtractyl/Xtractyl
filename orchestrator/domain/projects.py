@@ -37,7 +37,8 @@ def check_project_exists():
             return jsonify({"error": "Missing 'title' in request body"}), 400
 
         project_path = os.path.join("data", "projects", title)
-        exists = os.path.exists(project_path)
+        gt_path = os.path.join("data", "projects", "Evaluation_Sets_Do_Not_Delete", title)
+        exists = os.path.exists(project_path) or os.path.exists(gt_path)
 
         return jsonify({"exists": exists}), 200
 
