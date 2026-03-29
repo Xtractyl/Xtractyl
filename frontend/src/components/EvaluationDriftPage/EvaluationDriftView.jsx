@@ -6,6 +6,7 @@ export default function EvaluationDriftView() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [sets, setSets] = useState([]);
+  const [selectedSeries, setSelectedSeries] = useState("");
 
   useEffect(() => {
     async function run() {
@@ -36,6 +37,11 @@ export default function EvaluationDriftView() {
       </div>
     );
 
+      const seriesOptions = sets.map((s) => s.series);
+  const visibleSets = selectedSeries
+    ? sets.filter((s) => s.series === selectedSeries)
+    : sets;
+
   const cols = [
     "model",
     "system_prompt",
@@ -56,7 +62,23 @@ export default function EvaluationDriftView() {
 
   return (
     <div className="space-y-8">
-      {sets.map((set) => {
+        <div className="flex items-center gap-3">
+        <label className="text-sm font-medium text-xtractyl-outline">
+          GT Set:
+        </label>
+        <select
+          value={selectedSeries}
+          onChange={(e) => setSelectedSeries(e.target.value)}
+          className="text-sm border border-xtractyl-outline/30 rounded px-2 py-1 bg-xtractyl-white"
+        >
+          <option value="">All</option>
+          {seriesOptions.map((s) => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
+      </div>
+
+      {visibleSets.map((set) => {
         const sorted = [...(set.entries || [])].sort((a, b) => {
           const m = String(a.model || "").localeCompare(String(b.model || ""));
           if (m !== 0) return m;
