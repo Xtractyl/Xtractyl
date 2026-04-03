@@ -47,6 +47,7 @@ export default function EvaluationDriftView() {
     : sets;
 
   const cols = [
+    "#",
     "model",
     "system_prompt",
     "questions",
@@ -83,7 +84,14 @@ export default function EvaluationDriftView() {
       </div>
 
       {visibleSets.map((set) => {
-        const sorted = [...(set.entries || [])].sort((a, b) => {
+        const seen = new Set();
+        const deduped = (set.entries || []).filter((e) => {
+          if (seen.has(e.run_at_raw)) return false;
+          seen.add(e.run_at_raw);
+          return true;
+        });
+        const numbered = deduped.map((e, i) => ({ ...e, number: i + 1 }));
+        const sorted = [...numbered].sort((a, b) => {
           const m = String(a.model || "").localeCompare(String(b.model || ""));
           if (m !== 0) return m;
           return String(a.run_at_raw || "").localeCompare(
@@ -96,8 +104,8 @@ export default function EvaluationDriftView() {
             <h3 className="text-sm font-semibold mb-2 text-xtractyl-outline">
               {set.series}
             </h3>
-            <PlotEvaluationOverTimeGeneral entries={set.entries} />
-            <PlotEvaluationOverTimePerLabel entries={set.entries} />
+            <PlotEvaluationOverTimeGeneral entries={numbered} />
+            <PlotEvaluationOverTimePerLabel entries={numbered} />
             <div className="overflow-x-auto border border-xtractyl-outline/20 rounded-lg bg-xtractyl-white shadow-sm">
               <table className="border-collapse text-sm whitespace-nowrap min-w-max w-full">
                 <thead className="sticky top-0 bg-xtractyl-offwhite z-10">
@@ -132,6 +140,7 @@ export default function EvaluationDriftView() {
                       : "";
 
                     const row = {
+                      "#": it.number,
                       model: it.model || "",
                       system_prompt:
                         systemPrompt.length > 60 ? (
@@ -195,7 +204,7 @@ export default function EvaluationDriftView() {
                 </tbody>
               </table>
             </div>
-            <PlotRegressionControlOverTime entries={set.entries} />
+            <PlotRegressionControlOverTime entries={numbered} />
           </div>
         );
       })}

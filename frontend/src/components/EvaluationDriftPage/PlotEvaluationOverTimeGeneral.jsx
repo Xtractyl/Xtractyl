@@ -4,16 +4,7 @@ import Plot from "react-plotly.js";
 export default function DriftPlot1({ entries }) {
   if (!entries?.length) return null;
 
-  // Deduplizierung nach run_at_raw
-  const seen = new Set();
-  const deduped = entries.filter((e) => {
-    if (seen.has(e.run_at_raw)) return false;
-    seen.add(e.run_at_raw);
-    return true;
-  });
-
-  // Sortierung nach Zeit
-  const sorted = [...deduped].sort((a, b) =>
+  const sorted = [...entries].sort((a, b) =>
     String(a.run_at_raw || "").localeCompare(String(b.run_at_raw || ""))
   );
 

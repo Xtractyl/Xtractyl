@@ -4,13 +4,6 @@ import Plot from "react-plotly.js";
 export default function PlotRegressionControlOverTime({ entries }) {
   if (!entries?.length) return null;
 
-  const seen = new Set();
-  const deduped = entries.filter((e) => {
-    if (seen.has(e.run_at_raw)) return false;
-    seen.add(e.run_at_raw);
-    return true;
-  });
-
   // Gruppieren nach fixer Konfiguration: system_prompt + questions + labels
   const configKey = (e) =>
     JSON.stringify({
@@ -21,7 +14,7 @@ export default function PlotRegressionControlOverTime({ entries }) {
 
   // Für jede fixe Konfiguration: eine Gruppe
   const groups = {};
-  deduped.forEach((e) => {
+  entries.forEach((e) => {
     const key = configKey(e);
     if (!groups[key]) groups[key] = [];
     groups[key].push(e);

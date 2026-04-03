@@ -4,18 +4,10 @@ import Plot from "react-plotly.js";
 export default function PlotEvaluationOverTimePerLabel({ entries }) {
   if (!entries?.length) return null;
 
-  const seen = new Set();
-  const deduped = entries.filter((e) => {
-    if (seen.has(e.run_at_raw)) return false;
-    seen.add(e.run_at_raw);
-    return true;
-  });
-
-  const sorted = [...deduped].sort((a, b) =>
+  const sorted = [...entries].sort((a, b) =>
     String(a.run_at_raw || "").localeCompare(String(b.run_at_raw || ""))
   );
 
-  // Alle Labels sammeln
   const labelSet = new Set();
   sorted.forEach((e) => {
     Object.keys(e.metrics?.per_label || {}).forEach((l) => labelSet.add(l));
