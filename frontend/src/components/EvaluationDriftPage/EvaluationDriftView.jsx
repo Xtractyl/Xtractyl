@@ -105,11 +105,11 @@ export default function EvaluationDriftView() {
               {set.series}
             </h3>
             <h4 className="text-sm font-medium text-xtractyl-outline mt-4 mb-1">
-            Sensitivity and Precision over Time
+            Recall and Precision over Time
           </h4>
             <PlotEvaluationOverTimeGeneral entries={numbered} />
           <h4 className="text-sm font-medium text-xtractyl-outline mt-4 mb-1">
-            Sensitivity and Precision per Label over Time
+            Recall and Precision per Label over Time
           </h4>
             <PlotEvaluationOverTimePerLabel entries={numbered} />
             <h4 className="text-sm font-medium text-xtractyl-outline mt-4 mb-1">
@@ -214,7 +214,7 @@ export default function EvaluationDriftView() {
               </table>
             </div>
             <h4 className="text-sm font-medium text-xtractyl-outline mt-4 mb-1">
-            Sensitivity and Precision for Regression Monitoring
+            Recall and Precision for Regression Monitoring
           </h4>
             <PlotRegressionControlOverTime entries={numbered} />
           </div>
