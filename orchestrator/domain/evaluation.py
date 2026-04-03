@@ -291,6 +291,18 @@ def evaluate_projects(cmd: EvaluateProjectsCommand) -> dict:
             None,
         )
         if model and system_prompt:
+            questions = next(
+                (
+                    [
+                        v.get("question")
+                        for v in r.get("meta", {}).get("raw_llm_answers", {}).values()
+                        if v.get("question")
+                    ]
+                    for r in pred_rows
+                    if r.get("meta", {}).get("raw_llm_answers")
+                ),
+                None,
+            )
             log_evaluation_over_time(
                 {
                     "series": groundtruth_project,
@@ -299,7 +311,7 @@ def evaluate_projects(cmd: EvaluateProjectsCommand) -> dict:
                     "comparison_project_id": int(cmp_id),
                     "model": model,
                     "system_prompt": system_prompt,
-                    "questions": qal.get("questions"),
+                    "questions": questions,
                     "labels": qal.get("labels"),
                     "metrics": overall,
                 }
