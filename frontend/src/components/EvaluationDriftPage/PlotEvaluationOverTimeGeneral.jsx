@@ -39,7 +39,6 @@ export default function PlotEvaluationOverTime({ entries }) {
     <Plot
       data={[tracePrecision, traceRecall]}
       layout={{
-        title: "Overall Precision & Recall over Time",
         xaxis: { title: "Run" },
         yaxis: { title: "Score", range: [0, 1] },
         legend: { orientation: "h" },

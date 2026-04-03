@@ -59,7 +59,6 @@ export default function PlotEvaluationOverTimePerLabel({ entries }) {
     <Plot
       data={traces}
       layout={{
-        title: "Precision & Recall per Label over Time",
         xaxis: { title: "Run" },
         yaxis: { title: "Score", range: [0, 1] },
         legend: { orientation: "h" },

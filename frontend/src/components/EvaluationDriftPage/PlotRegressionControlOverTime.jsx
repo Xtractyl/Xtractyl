@@ -77,7 +77,6 @@ export default function PlotRegressionControlOverTime({ entries }) {
         <Plot
           data={traces.flat()}
           layout={{
-            title: "Regression Control — fixed configuration",
             xaxis: { title: "Run" },
             yaxis: { title: "Score", range: [0, 1] },
             legend: { orientation: "h" },

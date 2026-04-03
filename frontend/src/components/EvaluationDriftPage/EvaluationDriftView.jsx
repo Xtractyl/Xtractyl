@@ -104,7 +104,13 @@ export default function EvaluationDriftView() {
             <h3 className="text-sm font-semibold mb-2 text-xtractyl-outline">
               {set.series}
             </h3>
+            <h4 className="text-sm font-medium text-xtractyl-outline mt-6 mb-1">
+            Sensitivity and Precision over Time
+          </h4>
             <PlotEvaluationOverTimeGeneral entries={numbered} />
+          <h4 className="text-sm font-medium text-xtractyl-outline mt-6 mb-1">
+            Sensitivity and Precision per Label over Time
+          </h4>
             <PlotEvaluationOverTimePerLabel entries={numbered} />
             <div className="overflow-x-auto border border-xtractyl-outline/20 rounded-lg bg-xtractyl-white shadow-sm">
               <table className="border-collapse text-sm whitespace-nowrap min-w-max w-full">
@@ -204,6 +210,9 @@ export default function EvaluationDriftView() {
                 </tbody>
               </table>
             </div>
+            <h4 className="text-sm font-medium text-xtractyl-outline mt-6 mb-1">
+            Sensitivity and Precision for Regression Monitoring
+          </h4>
             <PlotRegressionControlOverTime entries={numbered} />
           </div>
         );
