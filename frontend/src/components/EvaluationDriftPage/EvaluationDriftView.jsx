@@ -143,10 +143,10 @@ export default function EvaluationDriftView() {
                       typeof micro.timeout === "number" ? micro.timeout : "—";
                     const systemPrompt = it.system_prompt || "";
                     const questions = Array.isArray(it.questions)
-                      ? it.questions.join(", ")
+                      ? it.questions.join("\n\n")
                       : "";
                     const labels = Array.isArray(it.labels)
-                      ? it.labels.join(", ")
+                      ? it.labels.join("\n\n")
                       : "";
 
                     const row = {
