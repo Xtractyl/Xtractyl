@@ -81,8 +81,9 @@ export default function PlotRegressionControlOverTime({ entries }) {
             yaxis: { title: "Score", range: [0, 1] },
             legend: { orientation: "h" },
             margin: { t: 40, b: 40, l: 50, r: 20 },
+            height: 400,
           }}
-          style={{ width: "100%", height: "350px" }}
+          style={{ width: "100%", height: "450px" }}
           config={{ responsive: true, displayModeBar: false }}
         />
       </div>
