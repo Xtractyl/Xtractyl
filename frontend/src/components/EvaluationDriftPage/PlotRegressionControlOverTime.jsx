@@ -42,17 +42,7 @@ export default function PlotRegressionControlOverTime({ entries }) {
       const color = colors[mi % colors.length];
 
       return [
-        {
-          x: sorted.map((e) => new Date(e.run_at_raw)),
-          y: sorted.map((e) => e.metrics?.micro?.precision ?? null),
-          mode: "lines+markers+text",
-          name: `${model} Precision`,
-          text: numbers,
-          textposition: "top center",
-          marker: { size: 6, color },
-          line: { color, dash: "dot" },
-        },
-        {
+                {
           x: sorted.map((e) => new Date(e.run_at_raw)),
           y: sorted.map((e) => e.metrics?.micro?.recall ?? null),
           mode: "lines+markers+text",
@@ -62,6 +52,16 @@ export default function PlotRegressionControlOverTime({ entries }) {
           marker: { size: 6, color },
           line: { color, dash: "solid" },
         },
+        {
+          x: sorted.map((e) => new Date(e.run_at_raw)),
+          y: sorted.map((e) => e.metrics?.micro?.precision ?? null),
+          mode: "lines+markers+text",
+          name: `${model} Precision`,
+          text: numbers,
+          textposition: "top center",
+          marker: { size: 6, color },
+          line: { color, dash: "dot" },
+        }
       ];
     });
 

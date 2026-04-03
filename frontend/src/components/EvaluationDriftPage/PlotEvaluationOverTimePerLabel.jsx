@@ -32,6 +32,17 @@ export default function PlotEvaluationOverTimePerLabel({ entries }) {
     );
 
     return [
+            {
+        x,
+        y: recall,
+        mode: "lines+markers+text",
+        name: `${label} Recall`,
+        text: numbers,
+        textposition: "bottom center",
+        marker: { size: 6, color },
+        line: { color, dash: "solid" },
+      },
+      
       {
         x,
         y: precision,
@@ -41,16 +52,6 @@ export default function PlotEvaluationOverTimePerLabel({ entries }) {
         textposition: "top center",
         marker: { size: 6, color },
         line: { color, dash: "dot" },
-      },
-      {
-        x,
-        y: recall,
-        mode: "lines+markers+text",
-        name: `${label} Recall`,
-        text: numbers,
-        textposition: "bottom center",
-        marker: { size: 6, color },
-        line: { color, dash: "solid" },
       },
     ];
   });
