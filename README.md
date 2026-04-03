@@ -467,11 +467,11 @@ Planned next.
 
 8. **Evaluate the AI** (`/evaluate`)  
    - Enter the label studio token
-   - Select a project with your groundtruth information
-   - Select a project to compare against the groundtruth 
+   - Select a project with your ground truth information
+   - Select a project to compare against the ground truth 
    - Click "Run Evaluation and Save as JSON"
    - Get metrics (Precision, Recall, F1, Accuracy) on an overall basis and per question/label
-   - Get a per task (per PDF document) overview with groundtruth answer, predicted answer and raw LLM answer
+   - Get a per task (per PDF document) overview with ground truth answer, predicted answer and raw LLM answer
    - Get performance metrics (time per task [per PDF document], LLM time per tasks, time per question, LLM time per question etc.)
 
 
@@ -493,11 +493,20 @@ Planned next.
 
 
 9. **Monitor Evaluation Drift/Regression over Time for a Standard Set** (`/evaluationdrift`)  
+   - Show all ground truth sets or select a specific
+   - View Recall and Precision over Time for all runs evaluated against the ground truth set
+   - View Recall and Precision over Time per Label for all runs evaluated against the ground truth set
+   - Get the raw data as a table and match it to the data points in the plots (equal numbering)
+   - View Recall and Precision for Regression Monitoring for sets with same System Prompt, same Questions and same Labels
 
 ### Evaluation Drift 
 ❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
-![Evaluation Drift](assets/evaluation_drift.png)
+![Evaluation Drift 1](assets/evaluation_drift_0.png)
+
+❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+
+![Evaluation Drift 2](assets/evaluation_drift_1.png)
 
 ❗❗THE ABOVE IMAGES SHOW SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
