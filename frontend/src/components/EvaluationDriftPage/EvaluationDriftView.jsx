@@ -66,7 +66,7 @@ export default function EvaluationDriftView() {
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-16">
         <div className="flex items-center gap-3">
         <label className="text-sm font-medium text-xtractyl-outline">
           GT Set:
@@ -104,15 +104,15 @@ export default function EvaluationDriftView() {
             <h3 className="text-sm font-semibold mb-2 text-xtractyl-outline">
               {set.series}
             </h3>
-            <h4 className="text-sm font-medium text-xtractyl-outline mt-6 mb-1">
+            <h4 className="text-sm font-medium text-xtractyl-outline mt-4 mb-1">
             Sensitivity and Precision over Time
           </h4>
             <PlotEvaluationOverTimeGeneral entries={numbered} />
-          <h4 className="text-sm font-medium text-xtractyl-outline mt-6 mb-1">
+          <h4 className="text-sm font-medium text-xtractyl-outline mt-4 mb-1">
             Sensitivity and Precision per Label over Time
           </h4>
             <PlotEvaluationOverTimePerLabel entries={numbered} />
-            <h4 className="text-sm font-medium text-xtractyl-outline mt-6 mb-1">
+            <h4 className="text-sm font-medium text-xtractyl-outline mt-4 mb-1">
             Raw Data
           </h4>
             <div className="overflow-x-auto border border-xtractyl-outline/20 rounded-lg bg-xtractyl-white shadow-sm">
@@ -213,7 +213,7 @@ export default function EvaluationDriftView() {
                 </tbody>
               </table>
             </div>
-            <h4 className="text-sm font-medium text-xtractyl-outline mt-6 mb-1">
+            <h4 className="text-sm font-medium text-xtractyl-outline mt-4 mb-1">
             Sensitivity and Precision for Regression Monitoring
           </h4>
             <PlotRegressionControlOverTime entries={numbered} />
