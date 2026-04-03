@@ -40,7 +40,7 @@ export default function PlotEvaluationOverTimePerLabel({ entries }) {
         text: numbers,
         textposition: "top center",
         marker: { size: 6, color },
-        line: { color, dash: "solid" },
+        line: { color, dash: "dot" },
       },
       {
         x,
@@ -50,7 +50,7 @@ export default function PlotEvaluationOverTimePerLabel({ entries }) {
         text: numbers,
         textposition: "bottom center",
         marker: { size: 6, color },
-        line: { color, dash: "dot" },
+        line: { color, dash: "solid" },
       },
     ];
   });

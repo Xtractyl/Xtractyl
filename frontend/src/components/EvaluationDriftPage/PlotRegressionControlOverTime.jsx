@@ -50,7 +50,7 @@ export default function PlotRegressionControlOverTime({ entries }) {
           text: numbers,
           textposition: "top center",
           marker: { size: 6, color },
-          line: { color, dash: "solid" },
+          line: { color, dash: "dot" },
         },
         {
           x: sorted.map((e) => new Date(e.run_at_raw)),
@@ -60,7 +60,7 @@ export default function PlotRegressionControlOverTime({ entries }) {
           text: numbers,
           textposition: "bottom center",
           marker: { size: 6, color },
-          line: { color, dash: "dot" },
+          line: { color, dash: "solid" },
         },
       ];
     });

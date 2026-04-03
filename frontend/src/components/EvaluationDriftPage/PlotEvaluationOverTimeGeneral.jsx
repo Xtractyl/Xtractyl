@@ -21,7 +21,8 @@ export default function PlotEvaluationOverTime({ entries }) {
     text: numbers,
     textposition: "top center",
     marker: { size: 6 },
-    line: { color: "#f97316" },
+    line: { color: "#3b82f6", dash: "dot" },
+
   };
 
   const traceRecall = {
@@ -32,7 +33,7 @@ export default function PlotEvaluationOverTime({ entries }) {
     text: numbers,
     textposition: "bottom center",
     marker: { size: 6 },
-    line: { color: "#22c55e" },
+    line: { color: "#3b82f6", dash: "solid" },
   };
 
   return (
