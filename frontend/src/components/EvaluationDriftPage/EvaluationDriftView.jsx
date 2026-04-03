@@ -225,9 +225,12 @@ export default function EvaluationDriftView() {
                 </tbody>
               </table>
             </div>
-            <h4 className="text-sm font-medium text-xtractyl-outline mt-4 mb-1">
-            Recall and Precision for Regression Monitoring
+            <h4 className="text-sm font-medium text-xtractyl-outline mt-16 mb-1">
+            Recall and Precision for Regression Monitoring (same System Prompt, same Questions, [same Labels])
           </h4>
+            <h5 className="text-xs font-normal text-xtractyl-outline/70 mt-4 mb-1">
+            For exact System Prompt, Questions and Labels see Raw Data
+          </h5>
             <PlotRegressionControlOverTime entries={numbered} />
           </div>
         );

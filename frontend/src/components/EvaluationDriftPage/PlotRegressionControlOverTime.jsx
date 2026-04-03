@@ -66,13 +66,10 @@ export default function PlotRegressionControlOverTime({ entries }) {
     });
 
     const config = JSON.parse(key);
-    const shortPrompt = config.system_prompt.slice(0, 60) + (config.system_prompt.length > 60 ? "…" : "");
 
     return (
       <div key={groupIdx}>
         <p className="text-xs text-xtractyl-outline/60 mb-1">
-          Prompt: <span title={config.system_prompt}>{shortPrompt}</span> |
-          Questions: {config.questions.length}
         </p>
         <Plot
           data={traces.flat()}
