@@ -21,7 +21,7 @@ export default function PlotRegressionControlOverTime({ entries }) {
   });
 
   const colors = [
-    "#f97316", "#22c55e", "#3b82f6", "#a855f7", "#ec4899",
+    "#000000", "#22c55e", "#3b82f6", "#a855f7", "#ec4899",
     "#14b8a6", "#eab308", "#ef4444",
   ];
 

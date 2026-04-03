@@ -21,7 +21,7 @@ export default function PlotEvaluationOverTime({ entries }) {
     text: numbers,
     textposition: "top center",
     marker: { size: 6 },
-    line: { color: "#3b82f6", dash: "dot" },
+    line: { color: "#000000", dash: "dot" },
 
   };
 
@@ -33,7 +33,7 @@ export default function PlotEvaluationOverTime({ entries }) {
     text: numbers,
     textposition: "bottom center",
     marker: { size: 6 },
-    line: { color: "#3b82f6", dash: "solid" },
+    line: { color:"#000000", dash: "solid" },
   };
 
   return (
