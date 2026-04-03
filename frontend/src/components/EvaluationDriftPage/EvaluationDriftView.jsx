@@ -112,6 +112,9 @@ export default function EvaluationDriftView() {
             Sensitivity and Precision per Label over Time
           </h4>
             <PlotEvaluationOverTimePerLabel entries={numbered} />
+            <h4 className="text-sm font-medium text-xtractyl-outline mt-6 mb-1">
+            Raw Data
+          </h4>
             <div className="overflow-x-auto border border-xtractyl-outline/20 rounded-lg bg-xtractyl-white shadow-sm">
               <table className="border-collapse text-sm whitespace-nowrap min-w-max w-full">
                 <thead className="sticky top-0 bg-xtractyl-offwhite z-10">
