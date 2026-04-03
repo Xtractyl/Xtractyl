@@ -11,6 +11,7 @@ export default function EvaluationDriftView() {
   const [errorMsg, setErrorMsg] = useState("");
   const [sets, setSets] = useState([]);
   const [selectedSeries, setSelectedSeries] = useState("");
+  const [openPopover, setOpenPopover] = useState(null);
 
   useEffect(() => {
     async function run() {
@@ -152,24 +153,35 @@ export default function EvaluationDriftView() {
                       "#": it.number,
                       model: it.model || "",
                       system_prompt:
-                        systemPrompt.length > 60 ? (
-                          <span title={systemPrompt}>
-                            {systemPrompt.slice(0, 60)}…
+                        systemPrompt.length > 10 ? (
+                          <span
+                            className="cursor-pointer text-xtractyl-green underline"
+                            onClick={() => setOpenPopover({ key: `${idx}-prompt`, text: systemPrompt })}
+                          >
+                            {systemPrompt.slice(0, 10)}…
                           </span>
                         ) : (
                           systemPrompt
                         ),
                       questions:
-                        questions.length > 60 ? (
-                          <span title={questions}>
-                            {questions.slice(0, 60)}…
+                        questions.length > 10 ? (
+                          <span
+                            className="cursor-pointer text-xtractyl-green underline"
+                            onClick={() => setOpenPopover({ key: `${idx}-prompt`, text: questions })}
+                          >
+                            {questions.slice(0, 10)}…
                           </span>
                         ) : (
                           questions
                         ),
                       labels:
-                        labels.length > 60 ? (
-                          <span title={labels}>{labels.slice(0, 60)}…</span>
+                        labels.length > 10 ? (
+                          <span
+                            className="cursor-pointer text-xtractyl-green underline"
+                            onClick={() => setOpenPopover({ key: `${idx}-prompt`, text: labels })}
+                          >
+                            {labels.slice(0, 10)}…
+                          </span>
                         ) : (
                           labels
                         ),
@@ -220,6 +232,26 @@ export default function EvaluationDriftView() {
           </div>
         );
       })}
+            {openPopover && (
+        <div
+          className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center"
+          onClick={() => setOpenPopover(null)}
+        >
+          <div
+            className="bg-xtractyl-white rounded-lg shadow-lg p-6 max-w-lg w-full mx-4 max-h-96 overflow-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <pre className="text-xs whitespace-pre-wrap break-words">
+              {openPopover.text}
+            </pre>
+            <button
+              className="mt-4 text-sm text-xtractyl-outline hover:text-xtractyl-darktext"
+              onClick={() => setOpenPopover(null)}
+            >
+              Close+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
