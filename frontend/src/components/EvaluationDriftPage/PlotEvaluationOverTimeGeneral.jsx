@@ -1,7 +1,7 @@
 // src/components/EvaluationDriftPage/PlotEvaluationOverTimeGeneral.jsx
 import Plot from "react-plotly.js";
 
-export default function DriftPlot1({ entries }) {
+export default function PlotEvaluationOverTime({ entries }) {
   if (!entries?.length) return null;
 
   const sorted = [...entries].sort((a, b) =>
