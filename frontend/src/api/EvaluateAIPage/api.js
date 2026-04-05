@@ -45,3 +45,29 @@ export async function evaluateAI(apiToken, groundtruthProject, comparisonProject
 
   return data;
 }
+
+
+export async function saveAsGtSet(apiToken, sourceProject, gtSetName) {
+  const resp = await fetch(`${ORCH_BASE}/save-as-gt-set`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiToken}`,
+    },
+    body: JSON.stringify({
+      source_project: sourceProject,
+      gt_set_name: gtSetName,
+    }),
+  });
+
+  const data = await resp.json().catch(() => ({}));
+
+  if (!resp.ok) {
+    const err = new Error(data.error || "Save as GT set failed");
+    err.status = resp.status;
+    err.body = data;
+    throw err;
+  }
+
+  return data;
+}
