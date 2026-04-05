@@ -6,6 +6,11 @@ class EvaluateProjectsRequest(BaseModel):
     comparison_project: str = Field(..., min_length=1)
 
 
+class SaveAsGtSetRequest(BaseModel):
+    source_project: str = Field(min_length=1)
+    gt_set_name: str = Field(min_length=1)
+
+
 class ProjectNamesResponse(BaseModel):
     names: list[str]
 
