@@ -5,8 +5,9 @@ from domain.evaluation import (
     evaluate_projects,
     get_groundtruth_qals,
     list_project_names,
+    save_as_gt_set,
 )
-from domain.models.evaluation import EvaluateProjectsCommand
+from domain.models.evaluation import EvaluateProjectsCommand, SaveAsGtSetCommand
 from flask import jsonify, request
 from flask_pydantic_spec import Request, Response
 from pydantic import ValidationError as PydanticValidationError
@@ -16,6 +17,8 @@ from api.contracts.evaluation import (
     EvaluateProjectsRequest,
     EvaluateProjectsResponse,
     ProjectNamesResponse,
+    SaveAsGtSetRequest,
+    SaveAsGtSetResponse,
 )
 from api.utils.auth import extract_token
 
@@ -101,4 +104,51 @@ def register(app, spec):
                 meta={"details": e.errors()},
             )
 
+        return jsonify(validated.model_dump()), 200
+
+    @app.route("/save-as-gt-set", methods=["POST"])
+    @spec.validate(
+        body=Request(SaveAsGtSetRequest),
+        resp=Response(
+            HTTP_200=SaveAsGtSetResponse,
+            HTTP_400=ErrorResponse,
+            HTTP_401=ErrorResponse,
+            HTTP_404=ErrorResponse,
+            HTTP_409=ErrorResponse,
+            HTTP_500=ErrorResponse,
+        ),
+        tags=["evaluation"],
+    )
+    def save_as_gt_set_route():
+        payload = request.get_json(silent=True) or {}
+        token = extract_token(request)
+
+        if not token:
+            raise Unauthorized(
+                code="TOKEN_REQUIRED",
+                message="Authorization token is required.",
+            )
+
+        try:
+            contract = SaveAsGtSetRequest.model_validate(payload)
+        except PydanticValidationError as e:
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid request payload.",
+                meta={"details": e.errors()},
+            )
+
+        cmd = SaveAsGtSetCommand.from_contract(
+            source_project=contract.source_project,
+            gt_set_name=contract.gt_set_name,
+        )
+        result = save_as_gt_set(cmd, token)
+        try:
+            validated = SaveAsGtSetResponse.model_validate(result)
+        except PydanticValidationError as e:
+            raise InternalError(
+                code="RESPONSE_CONTRACT_VIOLATED",
+                message="Internal response did not match expected schema.",
+                meta={"details": e.errors()},
+            )
         return jsonify(validated.model_dump()), 200

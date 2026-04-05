@@ -24,3 +24,7 @@ class EvaluateProjectsResponse(BaseModel):
     metrics: dict
     answer_comparison: list
     evaluation_output_path: str
+
+
+class SaveAsGtSetResponse(BaseModel):
+    gt_set_name: str
