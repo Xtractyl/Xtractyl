@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { saveAsGtSet } from "../../api/EvaluateAIPage/api.js";
 
-export default function SaveAsGtSet({ apiToken, projects, gtSets }) {
+export default function SaveAsGtSet({ apiToken, projects, gtSets, onSuccess}) {
   const [sourceProject, setSourceProject] = useState("");
   const [gtSetName, setGtSetName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,6 +20,7 @@ export default function SaveAsGtSet({ apiToken, projects, gtSets }) {
       const result = await saveAsGtSet(apiToken, sourceProject, gtSetName);
       setSuccessMsg(`GT set "${result.gt_set_name}" successfully created.`);
       setGtSetName("");
+      onSuccess?.(); 
     } catch (e) {
       setErrorMsg(e?.message || "Failed to save as GT set.");
     } finally {

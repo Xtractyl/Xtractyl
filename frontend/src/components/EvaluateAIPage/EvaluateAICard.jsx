@@ -19,13 +19,14 @@ export default function EvaluateAICard({ apiToken }) {
   const [evalLoading, setEvalLoading] = useState(false);
   const [evalError, setEvalError] = useState("");
   const [evalResult, setEvalResult] = useState(null);
+  const [gtSetVersion, setGtSetVersion] = useState(0);
 
   // Load GT sets from filesystem (independent of token)
   useEffect(() => {
     fetchGroundtruthQuestionsAndLabels()
       .then((sets) => setGtSets((sets || []).map((s) => s.name)))
       .catch(() => {});
-  }, []);
+  }, [gtSetVersion]);
 
   // Load project names from Label Studio via orchestrator
   useEffect(() => {
@@ -58,7 +59,7 @@ export default function EvaluateAICard({ apiToken }) {
         setComparisonProject("");
       })
       .finally(() => setLoading(false));
-  }, [localToken, gtSets]);
+  }, [localToken]);
 
   const handleRunEvaluation = async () => {
     setEvalLoading(true);
@@ -141,6 +142,7 @@ export default function EvaluateAICard({ apiToken }) {
           apiToken={localToken}
           projects={projects}
           gtSets={gtSets}
+          onSuccess={() => setGtSetVersion(v => v + 1)}
         />
       )}
 
