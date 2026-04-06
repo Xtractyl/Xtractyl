@@ -467,6 +467,7 @@ Planned next.
 
 8. **Evaluate the AI** (`/evaluate`)  
    - Enter the label studio token
+   - Optional: Export a new set as ground truth, select the project and name the new ground truth project (the project to be made ground truth has to have submitted annotations in label studio)
    - Select a project with your ground truth information
    - Select a project to compare against the ground truth 
    - Click "Run Evaluation and Save as JSON"
@@ -487,6 +488,10 @@ Planned next.
 ❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
 ![Evaluate AI 3](assets/evaluation_2.png)
+
+❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+
+![Evaluate AI 4](assets/evaluation_3.png)
 
 ❗❗THE ABOVE IMAGES SHOW SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
