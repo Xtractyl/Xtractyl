@@ -4,13 +4,6 @@ import Plot from "react-plotly.js";
 export default function PlotRegressionControlOverTime({ entries }) {
   if (!entries?.length) return null;
 
-  const seen = new Set();
-  const deduped = entries.filter((e) => {
-    if (seen.has(e.run_at_raw)) return false;
-    seen.add(e.run_at_raw);
-    return true;
-  });
-
   // Gruppieren nach fixer Konfiguration: system_prompt + questions + labels
   const configKey = (e) =>
     JSON.stringify({
@@ -21,14 +14,14 @@ export default function PlotRegressionControlOverTime({ entries }) {
 
   // Für jede fixe Konfiguration: eine Gruppe
   const groups = {};
-  deduped.forEach((e) => {
+  entries.forEach((e) => {
     const key = configKey(e);
     if (!groups[key]) groups[key] = [];
     groups[key].push(e);
   });
 
   const colors = [
-    "#f97316", "#22c55e", "#3b82f6", "#a855f7", "#ec4899",
+    "#000000", "#22c55e", "#3b82f6", "#a855f7", "#ec4899",
     "#14b8a6", "#eab308", "#ef4444",
   ];
 
@@ -49,6 +42,16 @@ export default function PlotRegressionControlOverTime({ entries }) {
       const color = colors[mi % colors.length];
 
       return [
+                {
+          x: sorted.map((e) => new Date(e.run_at_raw)),
+          y: sorted.map((e) => e.metrics?.micro?.recall ?? null),
+          mode: "lines+markers+text",
+          name: `${model} Recall`,
+          text: numbers,
+          textposition: "bottom center",
+          marker: { size: 6, color },
+          line: { color, dash: "solid" },
+        },
         {
           x: sorted.map((e) => new Date(e.run_at_raw)),
           y: sorted.map((e) => e.metrics?.micro?.precision ?? null),
@@ -57,40 +60,27 @@ export default function PlotRegressionControlOverTime({ entries }) {
           text: numbers,
           textposition: "top center",
           marker: { size: 6, color },
-          line: { color, dash: "solid" },
-        },
-        {
-          x: sorted.map((e) => new Date(e.run_at_raw)),
-          y: sorted.map((e) => e.metrics?.micro?.recall ?? null),
-          mode: "lines+markers+text",
-          name: `${model} Recall`,
-          text: numbers,
-          textposition: "bottom center",
-          marker: { size: 6, color },
           line: { color, dash: "dot" },
-        },
+        }
       ];
     });
 
     const config = JSON.parse(key);
-    const shortPrompt = config.system_prompt.slice(0, 60) + (config.system_prompt.length > 60 ? "…" : "");
 
     return (
       <div key={groupIdx}>
         <p className="text-xs text-xtractyl-outline/60 mb-1">
-          Prompt: <span title={config.system_prompt}>{shortPrompt}</span> |
-          Questions: {config.questions.length}
         </p>
         <Plot
           data={traces.flat()}
           layout={{
-            title: "Regression Control — fixed configuration",
             xaxis: { title: "Run" },
             yaxis: { title: "Score", range: [0, 1] },
             legend: { orientation: "h" },
             margin: { t: 40, b: 40, l: 50, r: 20 },
+            height: 400,
           }}
-          style={{ width: "100%", height: "350px" }}
+          style={{ width: "100%", height: "450px" }}
           config={{ responsive: true, displayModeBar: false }}
         />
       </div>

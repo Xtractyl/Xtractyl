@@ -2,6 +2,7 @@
 from http import HTTPStatus
 
 from domain.errors import (
+    AlreadyExists,
     DomainError,
     ExternalServiceError,
     InternalError,
@@ -32,5 +33,8 @@ def map_domain_error(err: DomainError) -> tuple[int, str]:
 
     if isinstance(err, InternalError):
         return HTTPStatus.INTERNAL_SERVER_ERROR, err.code
+
+    if isinstance(err, AlreadyExists):
+        return HTTPStatus.CONFLICT, err.code
 
     return HTTPStatus.BAD_REQUEST, err.code

@@ -1,19 +1,10 @@
 // src/components/EvaluationDriftPage/PlotEvaluationOverTimeGeneral.jsx
 import Plot from "react-plotly.js";
 
-export default function DriftPlot1({ entries }) {
+export default function PlotEvaluationOverTime({ entries }) {
   if (!entries?.length) return null;
 
-  // Deduplizierung nach run_at_raw
-  const seen = new Set();
-  const deduped = entries.filter((e) => {
-    if (seen.has(e.run_at_raw)) return false;
-    seen.add(e.run_at_raw);
-    return true;
-  });
-
-  // Sortierung nach Zeit
-  const sorted = [...deduped].sort((a, b) =>
+  const sorted = [...entries].sort((a, b) =>
     String(a.run_at_raw || "").localeCompare(String(b.run_at_raw || ""))
   );
 
@@ -30,7 +21,8 @@ export default function DriftPlot1({ entries }) {
     text: numbers,
     textposition: "top center",
     marker: { size: 6 },
-    line: { color: "#f97316" },
+    line: { color: "#000000", dash: "dot" },
+
   };
 
   const traceRecall = {
@@ -41,20 +33,20 @@ export default function DriftPlot1({ entries }) {
     text: numbers,
     textposition: "bottom center",
     marker: { size: 6 },
-    line: { color: "#22c55e" },
+    line: { color:"#000000", dash: "solid" },
   };
 
   return (
     <Plot
-      data={[tracePrecision, traceRecall]}
+      data={[traceRecall, tracePrecision]}
       layout={{
-        title: "Overall Precision & Recall over Time",
         xaxis: { title: "Run" },
         yaxis: { title: "Score", range: [0, 1] },
         legend: { orientation: "h" },
         margin: { t: 40, b: 40, l: 50, r: 20 },
+        height: 400,
       }}
-      style={{ width: "100%", height: "350px" }}
+      style={{ width: "100%", height: "450px" }}
       config={{ responsive: true, displayModeBar: false }}
     />
   );

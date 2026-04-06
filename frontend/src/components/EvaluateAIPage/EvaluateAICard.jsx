@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { fetchEvaluationProjects, evaluateAI } from "../../api/EvaluateAIPage/api.js";
 import { fetchGroundtruthQuestionsAndLabels } from "../../api/CreateProjectPage/api.js";
+import SaveAsGtSet from "./SaveAsGtSet.jsx";
 import ComparisonSelection from "./ComparisonSelection.jsx";
 import EvaluationResults from "./EvaluationResults.jsx";
 
@@ -18,13 +19,14 @@ export default function EvaluateAICard({ apiToken }) {
   const [evalLoading, setEvalLoading] = useState(false);
   const [evalError, setEvalError] = useState("");
   const [evalResult, setEvalResult] = useState(null);
+  const [gtSetVersion, setGtSetVersion] = useState(0);
 
   // Load GT sets from filesystem (independent of token)
   useEffect(() => {
     fetchGroundtruthQuestionsAndLabels()
       .then((sets) => setGtSets((sets || []).map((s) => s.name)))
       .catch(() => {});
-  }, []);
+  }, [gtSetVersion]);
 
   // Load project names from Label Studio via orchestrator
   useEffect(() => {
@@ -57,7 +59,7 @@ export default function EvaluateAICard({ apiToken }) {
         setComparisonProject("");
       })
       .finally(() => setLoading(false));
-  }, [localToken, gtSets]);
+  }, [localToken]);
 
   const handleRunEvaluation = async () => {
     setEvalLoading(true);
@@ -133,6 +135,16 @@ export default function EvaluateAICard({ apiToken }) {
           />
         </div>
       </div>
+
+      {/* === SAVE AS GT SET === */}
+      {localToken && (
+        <SaveAsGtSet
+          apiToken={localToken}
+          projects={projects}
+          gtSets={gtSets}
+          onSuccess={() => setGtSetVersion(v => v + 1)}
+        />
+      )}
 
       {/* === COMPARISON SELECTION === */}
       {localToken && (

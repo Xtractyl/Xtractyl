@@ -2,17 +2,19 @@
 
 import json
 import os
+import shutil
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
+import requests
 from utils.logging_utils import log_evaluation_over_time, safe_logger
 
-from domain.errors import InvalidState, NotFound
-from domain.models.evaluation import EvaluateProjectsCommand
+from domain.errors import AlreadyExists, ExternalServiceError, InvalidState, NotFound
+from domain.models.evaluation import EvaluateProjectsCommand, SaveAsGtSetCommand
 
 from .utils.calculate_metrics import compute_metrics_from_rows
-from .utils.evaluate_project_utils import create_evaluation_project
+from .utils.evaluate_project_utils import LABEL_STUDIO_URL, _auth_headers, create_evaluation_project
 from .utils.shared.label_studio_client import (
     fetch_task_annotations,
     fetch_tasks_page,
@@ -232,6 +234,7 @@ def evaluate_projects(cmd: EvaluateProjectsCommand) -> dict:
     except NotFound:
         if groundtruth_project in gt_sets_by_name:
             gt_id = create_evaluation_project(token, groundtruth_project)
+
         else:
             raise
 
@@ -291,6 +294,22 @@ def evaluate_projects(cmd: EvaluateProjectsCommand) -> dict:
             None,
         )
         if model and system_prompt:
+            questions = None
+            qal_labels = qal.get("labels", [])
+            raw_answers = next(
+                (
+                    r.get("meta", {}).get("raw_llm_answers", {})
+                    for r in pred_rows
+                    if r.get("meta", {}).get("raw_llm_answers")
+                ),
+                {},
+            )
+            if raw_answers and qal_labels:
+                questions = [
+                    raw_answers.get(label, {}).get("question")
+                    for label in qal_labels
+                    if raw_answers.get(label, {}).get("question")
+                ]
             log_evaluation_over_time(
                 {
                     "series": groundtruth_project,
@@ -299,8 +318,8 @@ def evaluate_projects(cmd: EvaluateProjectsCommand) -> dict:
                     "comparison_project_id": int(cmp_id),
                     "model": model,
                     "system_prompt": system_prompt,
-                    "questions": qal.get("questions"),
-                    "labels": qal.get("labels"),
+                    "questions": questions,
+                    "labels": qal_labels,
                     "metrics": overall,
                 }
             )
@@ -328,3 +347,86 @@ def get_groundtruth_qals() -> list[dict]:
             message="No groundtruth sets found.",
         )
     return sets
+
+
+def save_as_gt_set(cmd: SaveAsGtSetCommand, token: str) -> dict:
+    """
+    Save an existing Label Studio project as a ground truth set.
+    Exports tasks from Label Studio, copies HTMLs, PDFs and QAL,
+    and stores everything under GROUNDTRUTH_QAL_DIR/<gt_set_name>/.
+
+    Args:
+        cmd: SaveAsGtSetCommand with source_project and gt_set_name.
+        token: Label Studio API token.
+
+    Raises:
+        ValidationFailed: If gt_set_name already exists as a GT set.
+        NotFound: If source project or required folders do not exist.
+        ExternalServiceError: If Label Studio export fails.
+
+    Returns:
+        {"gt_set_name": str}
+    """
+    source_project = cmd.source_project
+    gt_set_name = cmd.gt_set_name
+
+    # Check gt_set_name not already taken
+    target_dir = GROUNDTRUTH_QAL_DIR / gt_set_name
+    if target_dir.exists():
+        raise AlreadyExists(
+            code="GT_SET_ALREADY_EXISTS",
+            message=f"A ground truth set with the name '{gt_set_name}' already exists.",
+        )
+
+    # Check QAL exists for source project
+    qal_src = Path("data") / "projects" / source_project / "questions_and_labels.json"
+    if not qal_src.is_file():
+        raise NotFound(
+            code="QAL_NOT_FOUND",
+            message=f"questions_and_labels.json not found for project '{source_project}'.",
+        )
+
+    # Export tasks from Label Studio in GUI export format
+    gt_project_id = resolve_project_id(token, source_project)
+    try:
+        export_resp = requests.get(
+            f"{LABEL_STUDIO_URL}/api/projects/{gt_project_id}/export?exportType=JSON",
+            headers={**_auth_headers(token), "Content-Type": "application/json"},
+            timeout=60,
+        )
+        export_resp.raise_for_status()
+        tasks = export_resp.json()
+    except requests.RequestException:
+        raise ExternalServiceError(
+            code="LABEL_STUDIO_EXPORT_FAILED",
+            message=f"Failed to export tasks from project '{source_project}'.",
+        )
+    if not tasks:
+        raise NotFound(
+            code="NO_TASKS_FOUND",
+            message=f"No tasks found in project '{source_project}'.",
+        )
+
+    # Create target directory
+    target_dir.mkdir(parents=True, exist_ok=True)
+
+    # Save Evaluation_Set.json
+    eval_set_path = target_dir / "Evaluation_Set.json"
+    eval_set_path.write_text(json.dumps(tasks, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    # Copy QAL
+    shutil.copy2(qal_src, target_dir / "questions_and_labels.json")
+
+    # Copy HTMLs
+    html_src = Path("data") / "htmls" / source_project
+    html_dst = Path("data") / "htmls" / "Evaluation_Sets_Do_Not_Delete" / gt_set_name
+    if html_src.is_dir():
+        shutil.copytree(html_src, html_dst)
+
+    # Copy PDFs
+    pdf_src = Path("data") / "pdfs" / source_project
+    pdf_dst = Path("data") / "pdfs" / "Evaluation_Sets_Do_Not_Delete" / gt_set_name
+    if pdf_src.is_dir():
+        shutil.copytree(pdf_src, pdf_dst)
+
+    return {"gt_set_name": gt_set_name}
