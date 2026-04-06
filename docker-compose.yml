@@ -68,6 +68,7 @@ services:
       - "${ORCH_PORT:-5001}:5001"
     volumes:
       - ${PROJECTS_DIR:-./data/projects}:/app/data/projects
+      - ${PDFS_DIR:-./data/pdfs}:/app/data/pdfs
       - ${HTMLS_DIR:-./data/htmls}:/app/data/htmls
       - ${EVAL_DIR:-./data/evaluation}:/app/data/evaluation
       - ${RESULTS_DIR:-./data/results}:/app/data/results
@@ -78,6 +79,7 @@ services:
     environment:
       - GROUNDTRUTH_QAL_DIR=/app/data/projects/Evaluation_Sets_Do_Not_Delete
       - PROJECTS_DIR=/app/data/projects
+      - PDFS_DIR=/app/data/pdfs
       - HTMLS_DIR=/app/data/htmls
       - RESULTS_DIR=/app/data/results     
       - EVAL_DIR=/app/data/evaluation
