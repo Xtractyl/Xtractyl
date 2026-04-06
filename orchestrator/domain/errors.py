@@ -38,3 +38,8 @@ class Unauthorized(DomainError):
 @dataclass
 class InternalError(DomainError):
     pass
+
+
+@dataclass
+class AlreadyExists(DomainError):
+    pass

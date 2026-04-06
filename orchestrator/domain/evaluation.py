@@ -10,7 +10,7 @@ from pathlib import Path
 import requests
 from utils.logging_utils import log_evaluation_over_time, safe_logger
 
-from domain.errors import ExternalServiceError, InvalidState, NotFound, ValidationFailed
+from domain.errors import AlreadyExists, ExternalServiceError, InvalidState, NotFound
 from domain.models.evaluation import EvaluateProjectsCommand, SaveAsGtSetCommand
 
 from .utils.calculate_metrics import compute_metrics_from_rows
@@ -373,7 +373,7 @@ def save_as_gt_set(cmd: SaveAsGtSetCommand, token: str) -> dict:
     # Check gt_set_name not already taken
     target_dir = GROUNDTRUTH_QAL_DIR / gt_set_name
     if target_dir.exists():
-        raise ValidationFailed(
+        raise AlreadyExists(
             code="GT_SET_ALREADY_EXISTS",
             message=f"A ground truth set with the name '{gt_set_name}' already exists.",
         )
