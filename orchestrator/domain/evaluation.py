@@ -7,13 +7,14 @@ from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
+import requests
 from utils.logging_utils import log_evaluation_over_time, safe_logger
 
-from domain.errors import InvalidState, NotFound, ValidationFailed
+from domain.errors import ExternalServiceError, InvalidState, NotFound, ValidationFailed
 from domain.models.evaluation import EvaluateProjectsCommand, SaveAsGtSetCommand
 
 from .utils.calculate_metrics import compute_metrics_from_rows
-from .utils.evaluate_project_utils import create_evaluation_project
+from .utils.evaluate_project_utils import LABEL_STUDIO_URL, _auth_headers, create_evaluation_project
 from .utils.shared.label_studio_client import (
     fetch_task_annotations,
     fetch_tasks_page,
@@ -233,6 +234,7 @@ def evaluate_projects(cmd: EvaluateProjectsCommand) -> dict:
     except NotFound:
         if groundtruth_project in gt_sets_by_name:
             gt_id = create_evaluation_project(token, groundtruth_project)
+
         else:
             raise
 
@@ -384,9 +386,21 @@ def save_as_gt_set(cmd: SaveAsGtSetCommand, token: str) -> dict:
             message=f"questions_and_labels.json not found for project '{source_project}'.",
         )
 
-    # Export tasks from Label Studio
+    # Export tasks from Label Studio in GUI export format
     gt_project_id = resolve_project_id(token, source_project)
-    tasks, _ = fetch_tasks_page(token, gt_project_id)
+    try:
+        export_resp = requests.get(
+            f"{LABEL_STUDIO_URL}/api/projects/{gt_project_id}/export?exportType=JSON",
+            headers={**_auth_headers(token), "Content-Type": "application/json"},
+            timeout=60,
+        )
+        export_resp.raise_for_status()
+        tasks = export_resp.json()
+    except requests.RequestException:
+        raise ExternalServiceError(
+            code="LABEL_STUDIO_EXPORT_FAILED",
+            message=f"Failed to export tasks from project '{source_project}'.",
+        )
     if not tasks:
         raise NotFound(
             code="NO_TASKS_FOUND",
