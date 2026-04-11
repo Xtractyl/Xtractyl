@@ -12,9 +12,6 @@ def client():
         yield client
 
 
-# --- Happy path ---
-
-
 def test_list_qal_jsons_returns_200(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.projects.list_qal_jsons",
@@ -57,9 +54,6 @@ def test_preview_qal_returns_200(client, monkeypatch):
     )
     res = client.get("/preview_qal?project=my_project&filename=questions_and_labels.json")
     assert res.status_code == 200
-
-
-# --- Unhappy path ---
 
 
 def test_create_project_missing_token_returns_401(client):
@@ -171,6 +165,64 @@ def test_preview_qal_contract_violated_returns_500(client, monkeypatch):
         lambda cmd: {"wrong_field": "oops"},
     )
     res = client.get("/preview_qal?project=my_project&filename=questions_and_labels.json")
+    assert res.status_code == 500
+    data = res.get_json()
+    assert data["error"] == "RESPONSE_CONTRACT_VIOLATED"
+
+
+# --- project_exists ---
+
+
+def test_project_exists_missing_project_returns_422(client):
+    res = client.post(
+        "/project_exists",
+        json={},
+    )
+    assert res.status_code == 422
+
+
+def test_project_exists_returns_200(client, monkeypatch):
+    monkeypatch.setattr(
+        "api.routes.projects.check_project_exists",
+        lambda cmd: {"exists": False},
+    )
+    res = client.post(
+        "/project_exists",
+        json={"project": "my_project"},
+    )
+    assert res.status_code == 200
+
+
+def test_project_exists_already_exists_returns_409(client, monkeypatch):
+    from domain.errors import InvalidState
+
+    monkeypatch.setattr(
+        "api.routes.projects.check_project_exists",
+        lambda cmd: (_ for _ in ()).throw(
+            InvalidState(
+                code="PROJECT_ALREADY_EXISTS",
+                message="A project with this name already exists.",
+            )
+        ),
+    )
+    res = client.post(
+        "/project_exists",
+        json={"project": "my_project"},
+    )
+    assert res.status_code == 409
+    data = res.get_json()
+    assert data["error"] == "PROJECT_ALREADY_EXISTS"
+
+
+def test_project_exists_contract_violated_returns_500(client, monkeypatch):
+    monkeypatch.setattr(
+        "api.routes.projects.check_project_exists",
+        lambda cmd: {"wrong_field": "oops"},
+    )
+    res = client.post(
+        "/project_exists",
+        json={"project": "my_project"},
+    )
     assert res.status_code == 500
     data = res.get_json()
     assert data["error"] == "RESPONSE_CONTRACT_VIOLATED"
