@@ -349,18 +349,17 @@ def get_groundtruth_qals() -> list[dict]:
     return sets
 
 
-def save_as_gt_set(cmd: SaveAsGtSetCommand, token: str) -> dict:
+def save_as_gt_set(cmd: SaveAsGtSetCommand) -> dict:
     """
     Save an existing Label Studio project as a ground truth set.
     Exports tasks from Label Studio, copies HTMLs, PDFs and QAL,
     and stores everything under GROUNDTRUTH_QAL_DIR/<gt_set_name>/.
 
     Args:
-        cmd: SaveAsGtSetCommand with source_project and gt_set_name.
-        token: Label Studio API token.
+        cmd: SaveAsGtSetCommand with source_project, gt_set_name and Label Studio API token.
 
     Raises:
-        ValidationFailed: If gt_set_name already exists as a GT set.
+        AlreadyExists: If gt_set_name already exists as a GT set.
         NotFound: If source project or required folders do not exist.
         ExternalServiceError: If Label Studio export fails.
 
@@ -369,7 +368,7 @@ def save_as_gt_set(cmd: SaveAsGtSetCommand, token: str) -> dict:
     """
     source_project = cmd.source_project
     gt_set_name = cmd.gt_set_name
-
+    token = cmd.token
     # Check gt_set_name not already taken
     target_dir = GROUNDTRUTH_QAL_DIR / gt_set_name
     if target_dir.exists():

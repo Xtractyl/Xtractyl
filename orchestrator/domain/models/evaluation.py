@@ -29,7 +29,10 @@ class EvaluateProjectsCommand(BaseModel):
 class SaveAsGtSetCommand(BaseModel):
     source_project: str
     gt_set_name: str
+    token: str
 
     @classmethod
-    def from_contract(cls, source_project: str, gt_set_name: str) -> "SaveAsGtSetCommand":
-        return cls(source_project=source_project, gt_set_name=gt_set_name)
+    def from_contract(
+        cls, source_project: str, gt_set_name: str, token: str
+    ) -> "SaveAsGtSetCommand":
+        return cls(source_project=source_project, gt_set_name=gt_set_name, token=token)

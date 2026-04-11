@@ -141,8 +141,9 @@ def register(app, spec):
         cmd = SaveAsGtSetCommand.from_contract(
             source_project=contract.source_project,
             gt_set_name=contract.gt_set_name,
+            token=token,
         )
-        result = save_as_gt_set(cmd, token)
+        result = save_as_gt_set(cmd)
         try:
             validated = SaveAsGtSetResponse.model_validate(result)
         except PydanticValidationError as e:
