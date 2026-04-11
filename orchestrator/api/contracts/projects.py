@@ -20,6 +20,10 @@ class PreviewQalRequest(BaseModel):
     filename: str = Field(..., min_length=1)
 
 
+class ProjectExistsRequest(BaseModel):
+    project: str = Field(..., min_length=1)
+
+
 class CreateProjectResponse(BaseModel):
     project_id: int
 
@@ -34,3 +38,7 @@ class ListQalJsonsResponse(BaseModel):
 
 class PreviewQalResponse(BaseModel):
     data: Any
+
+
+class ProjectExistsResponse(BaseModel):
+    exists: bool
