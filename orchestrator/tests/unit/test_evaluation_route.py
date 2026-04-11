@@ -109,7 +109,7 @@ def test_evaluate_ai_contract_violated_returns_500(client, monkeypatch):
 def test_save_as_gt_set_returns_200(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.evaluation.save_as_gt_set",
-        lambda cmd, token: {"gt_set_name": "My_GT_Set"},
+        lambda cmd: {"gt_set_name": "My_GT_Set"},
     )
     res = client.post(
         "/save-as-gt-set",
@@ -170,7 +170,7 @@ def test_save_as_gt_set_empty_gt_set_name_returns_422(client):
 def test_save_as_gt_set_already_exists_returns_409(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.evaluation.save_as_gt_set",
-        lambda cmd, token: (_ for _ in ()).throw(
+        lambda cmd: (_ for _ in ()).throw(
             AlreadyExists(code="GT_SET_ALREADY_EXISTS", message="Already exists.")
         ),
     )
