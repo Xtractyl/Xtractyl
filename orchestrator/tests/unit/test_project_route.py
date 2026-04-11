@@ -226,3 +226,64 @@ def test_project_exists_contract_violated_returns_500(client, monkeypatch):
     assert res.status_code == 500
     data = res.get_json()
     assert data["error"] == "RESPONSE_CONTRACT_VIOLATED"
+
+
+# --- upload_tasks ---
+
+
+def test_upload_tasks_missing_token_returns_401(client):
+    res = client.post(
+        "/upload_tasks",
+        json={"project": "my_project", "html_folder": "my_folder"},
+    )
+    assert res.status_code == 401
+    data = res.get_json()
+    assert data["error"] == "TOKEN_REQUIRED"
+
+
+def test_upload_tasks_missing_project_returns_422(client):
+    res = client.post(
+        "/upload_tasks",
+        headers={"Authorization": "Bearer dummy"},
+        json={"html_folder": "my_folder"},
+    )
+    assert res.status_code == 422
+
+
+def test_upload_tasks_missing_html_folder_returns_422(client):
+    res = client.post(
+        "/upload_tasks",
+        headers={"Authorization": "Bearer dummy"},
+        json={"project": "my_project"},
+    )
+    assert res.status_code == 422
+
+
+def test_upload_tasks_returns_200(client, monkeypatch):
+    monkeypatch.setattr(
+        "api.routes.projects.upload_tasks_main_from_payload",
+        lambda cmd: {"status": "ok"},
+    )
+    res = client.post(
+        "/upload_tasks",
+        headers={"Authorization": "Bearer dummy"},
+        json={"project": "my_project", "html_folder": "my_folder"},
+    )
+    assert res.status_code == 200
+    data = res.get_json()
+    assert data["status"] == "ok"
+
+
+def test_upload_tasks_contract_violated_returns_500(client, monkeypatch):
+    monkeypatch.setattr(
+        "api.routes.projects.upload_tasks_main_from_payload",
+        lambda cmd: {"wrong_field": "oops"},
+    )
+    res = client.post(
+        "/upload_tasks",
+        headers={"Authorization": "Bearer dummy"},
+        json={"project": "my_project", "html_folder": "my_folder"},
+    )
+    assert res.status_code == 500
+    data = res.get_json()
+    assert data["error"] == "RESPONSE_CONTRACT_VIOLATED"
