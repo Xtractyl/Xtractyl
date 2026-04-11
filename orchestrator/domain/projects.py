@@ -17,6 +17,7 @@ from domain.models.projects import (
     ListQalJsonsCommand,
     PreviewQalCommand,
     ProjectExistsCommand,
+    UploadTasksCommand,
 )
 
 # Fixed base dir (no env lookups)
@@ -306,31 +307,23 @@ def upload_in_batches(tasks, batch_size, project_id, headers):
             )
 
 
-def upload_tasks_main_from_payload(payload: dict, token: str):
+def upload_tasks_main_from_payload(cmd: UploadTasksCommand):
     """
     Upload HTML files from the selected folder as tasks to an existing Label Studio project.
 
     Args:
-        payload: Dict with project_name and html_folder.
-        token: Label Studio API token.
+        cmd: UploadTasksCommand with project name, html folder and token.
 
     Returns:
         {"status": "ok"} on success.
 
     Raises:
-        ValidationFailed: If required fields are missing.
         NotFound: If the folder or project does not exist in Label Studio.
         ExternalServiceError: If Label Studio is unreachable or upload fails.
     """
-    title = payload.get("project_name")
-    html_folder_name = payload.get("html_folder")
-
-    if not title or not token or not html_folder_name:
-        raise ValidationFailed(
-            code="MISSING_REQUIRED_FIELDS",
-            message="project_name, token, and html_folder are required.",
-        )
-
+    title = cmd.project
+    html_folder_name = cmd.html_folder
+    token = cmd.token
     html_folder = os.path.join("data", "htmls", html_folder_name)
     if not os.path.isdir(html_folder):
         raise NotFound(
