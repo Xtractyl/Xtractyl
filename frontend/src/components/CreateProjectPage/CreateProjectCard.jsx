@@ -17,12 +17,7 @@ export default function CreateProjectCard({ apiToken, onTokenSave , onProjectNam
         alert("Please enter and save an API token first.");
         return;
       }
-
-      const { exists } = await checkProjectExists(formData.title);
-      if (exists) {
-        alert("❌ A project with this name already exists.");
-        return;
-      }
+      await checkProjectExists(formData.title);
 
     if (onProjectNameSave) {
       onProjectNameSave(formData.title);
@@ -37,7 +32,11 @@ export default function CreateProjectCard({ apiToken, onTokenSave , onProjectNam
       alert("✅ Project successfully created!");
     } catch (error) {
       console.error("❌ Error");
-      alert("Something went wrong.");
+      if (error.message === "PROJECT_ALREADY_EXISTS") {
+        alert("❌ A project with this name already exists.");
+      } else {
+        alert("Something went wrong.");
+     }
     }
   };
 
