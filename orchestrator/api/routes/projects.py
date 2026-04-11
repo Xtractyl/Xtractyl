@@ -1,5 +1,5 @@
 # orchestrator/api/routes/projects.py
-from domain.errors import InternalError, Unauthorized, ValidationFailed
+from domain.errors import InternalError, Unauthorized
 from domain.models.projects import (
     CreateProjectCommand,
     ListQalJsonsCommand,
@@ -54,15 +54,7 @@ def register(app, spec):
         payload = request.get_json(silent=True) or {}
         token = extract_token(request)
 
-        try:
-            contract = CreateProjectRequest.model_validate(payload)
-        except ValidationError as e:
-            raise ValidationFailed(
-                code="VALIDATION_FAILED",
-                message="Invalid request payload.",
-                meta={"details": e.errors()},
-            )
-
+        contract = CreateProjectRequest.model_validate(payload)
         if not token:
             raise Unauthorized(
                 code="TOKEN_REQUIRED",
@@ -92,7 +84,6 @@ def register(app, spec):
         body=Request(UploadTasksRequest),
         resp=Response(
             HTTP_200=UploadTasksResponse,
-            HTTP_400=ErrorResponse,  # invalid path
             HTTP_401=ErrorResponse,
             HTTP_404=ErrorResponse,  # file not found
             HTTP_500=ErrorResponse,  # unexpected global exception handler
@@ -107,14 +98,7 @@ def register(app, spec):
                 code="TOKEN_REQUIRED",
                 message="Authorization token is required.",
             )
-        try:
-            contract = UploadTasksRequest.model_validate(request.get_json(silent=True) or {})
-        except ValidationError as e:
-            raise ValidationFailed(
-                code="VALIDATION_FAILED",
-                message="Invalid query parameters.",
-                meta={"details": e.errors()},
-            )
+        contract = UploadTasksRequest.model_validate(request.get_json(silent=True) or {})
         cmd = UploadTasksCommand.from_contract(
             project=contract.project, html_folder=contract.html_folder, token=token
         )
@@ -140,14 +124,7 @@ def register(app, spec):
         tags=["projects"],
     )
     def project_exists_route():
-        try:
-            contract = ProjectExistsRequest.model_validate(request.get_json(silent=True) or {})
-        except ValidationError as e:
-            raise ValidationFailed(
-                code="VALIDATION_FAILED",
-                message="Invalid query parameters.",
-                meta={"details": e.errors()},
-            )
+        contract = ProjectExistsRequest.model_validate(request.get_json(silent=True) or {})
         cmd = ProjectExistsCommand.from_contract(project=contract.project)
         result = check_project_exists(cmd)
         try:
@@ -191,14 +168,7 @@ def register(app, spec):
         tags=["projects"],
     )
     def list_qal_jsons_route():
-        try:
-            contract = ListQalJsonsRequest.model_validate(dict(request.args))
-        except ValidationError as e:
-            raise ValidationFailed(
-                code="VALIDATION_FAILED",
-                message="Invalid query parameters.",
-                meta={"details": e.errors()},
-            )
+        contract = ListQalJsonsRequest.model_validate(dict(request.args))
         cmd = ListQalJsonsCommand.from_contract(project=contract.project)
         result = list_qal_jsons(cmd)
         try:
@@ -216,21 +186,13 @@ def register(app, spec):
         query=PreviewQalRequest,
         resp=Response(
             HTTP_200=PreviewQalResponse,
-            HTTP_400=ErrorResponse,  # invalid path
             HTTP_404=ErrorResponse,  # file not found
             HTTP_500=ErrorResponse,  # unexpected global exception handler
         ),
         tags=["projects"],
     )
     def preview_qal():
-        try:
-            contract = PreviewQalRequest.model_validate(dict(request.args))
-        except ValidationError as e:
-            raise ValidationFailed(
-                code="VALIDATION_FAILED",
-                message="Invalid query parameters.",
-                meta={"details": e.errors()},
-            )
+        contract = PreviewQalRequest.model_validate(dict(request.args))
         cmd = PreviewQalCommand.from_contract(project=contract.project, filename=contract.filename)
         result = domain_preview_qal(cmd)
         try:
