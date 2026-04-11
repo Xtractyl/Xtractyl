@@ -116,6 +116,7 @@ def register(app, spec):
             HTTP_404=ErrorResponse,
             HTTP_409=ErrorResponse,
             HTTP_500=ErrorResponse,
+            HTTP_502=ErrorResponse,
         ),
         tags=["evaluation"],
     )
