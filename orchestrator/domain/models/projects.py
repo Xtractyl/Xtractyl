@@ -67,3 +67,20 @@ class ProjectExistsCommand(BaseModel):
                 message="Invalid command payload.",
                 details=e.errors(),
             )
+
+
+class UploadTasksCommand(BaseModel):
+    project: str
+    html_folder: str
+    token: str
+
+    @classmethod
+    def from_contract(cls, project: str, html_folder: str, token: str):
+        try:
+            return cls(project=project, html_folder=html_folder, token=token)
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="INVALID_COMMAND",
+                message="Invalid command payload.",
+                details=e.errors(),
+            )
