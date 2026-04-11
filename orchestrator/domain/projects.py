@@ -3,16 +3,21 @@ import json
 import os
 
 import requests
-from flask import jsonify, request
 
 from domain.errors import (
     DomainError,
     ExternalServiceError,
     InternalError,
+    InvalidState,
     NotFound,
     ValidationFailed,
 )
-from domain.models.projects import CreateProjectCommand, ListQalJsonsCommand, PreviewQalCommand
+from domain.models.projects import (
+    CreateProjectCommand,
+    ListQalJsonsCommand,
+    PreviewQalCommand,
+    ProjectExistsCommand,
+)
 
 # Fixed base dir (no env lookups)
 BASE_PROJECTS_DIR = os.path.join("data", "projects")
@@ -29,21 +34,26 @@ ML_BACKEND_URL = f"http://{ML_BACKEND_HOST}:{ML_BACKEND_PORT}"
 BATCH_SIZE = 50
 
 
-def check_project_exists():
+def check_project_exists(cmd: ProjectExistsCommand):
     try:
-        data = request.get_json()
-        title = data.get("title")
-        if not title:
-            return jsonify({"error": "Missing 'title' in request body"}), 400
-
-        project_path = os.path.join("data", "projects", title)
-        gt_path = os.path.join("data", "projects", "Evaluation_Sets_Do_Not_Delete", title)
+        project = cmd.project
+        project_path = os.path.join("data", "projects", project)
+        gt_path = os.path.join("data", "projects", "Evaluation_Sets_Do_Not_Delete", project)
         exists = os.path.exists(project_path) or os.path.exists(gt_path)
 
-        return jsonify({"exists": exists}), 200
-
+        if exists:
+            raise InvalidState(
+                code="PROJECT_ALREADY_EXISTS",
+                message="A project with this name already exists.",
+            )
+        return {"exists": False}
+    except DomainError:
+        raise
     except Exception:
-        return jsonify({"error": "internal error"}), 500
+        raise InternalError(
+            code="INTERNAL_ERROR",
+            message="Could not check if project exists.",
+        )
 
 
 def create_project_main_from_payload(cmd: CreateProjectCommand):
