@@ -38,7 +38,7 @@ from api.contracts.projects import (
 from api.utils.auth import extract_token
 
 
-def register(app, ok, spec):
+def register(app, spec):
     @app.route("/create_project", methods=["POST"])
     @spec.validate(
         body=Request(CreateProjectRequest),
