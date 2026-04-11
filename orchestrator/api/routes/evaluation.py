@@ -1,6 +1,6 @@
 # orchestrator/api/routes/evaluation.py
 
-from domain.errors import InternalError, Unauthorized, ValidationFailed
+from domain.errors import InternalError, Unauthorized
 from domain.evaluation import (
     evaluate_projects,
     get_groundtruth_qals,
@@ -30,7 +30,6 @@ def register(app, spec):
     @spec.validate(
         resp=Response(
             HTTP_200=ProjectNamesResponse,
-            HTTP_400=ErrorResponse,
             HTTP_401=ErrorResponse,  # missing token
             HTTP_502=ErrorResponse,  # label studio unreachable
             HTTP_500=ErrorResponse,
@@ -62,7 +61,6 @@ def register(app, spec):
         body=Request(EvaluateProjectsRequest),
         resp=Response(
             HTTP_200=EvaluateProjectsResponse,
-            HTTP_400=ErrorResponse,  # invalid payload
             HTTP_401=ErrorResponse,  # missing token
             HTTP_404=ErrorResponse,  # project not found
             HTTP_409=ErrorResponse,  # filename or label mismatch
@@ -75,15 +73,7 @@ def register(app, spec):
         payload = request.get_json(silent=True) or {}
         token = extract_token(request)
 
-        try:
-            contract = EvaluateProjectsRequest.model_validate(payload)
-        except PydanticValidationError as e:
-            raise ValidationFailed(
-                code="VALIDATION_FAILED",
-                message="Invalid request payload.",
-                meta={"details": e.errors()},
-            )
-
+        contract = EvaluateProjectsRequest.model_validate(payload)
         if not token:
             raise Unauthorized(
                 code="TOKEN_REQUIRED",
@@ -111,7 +101,6 @@ def register(app, spec):
         body=Request(SaveAsGtSetRequest),
         resp=Response(
             HTTP_200=SaveAsGtSetResponse,
-            HTTP_400=ErrorResponse,
             HTTP_401=ErrorResponse,
             HTTP_404=ErrorResponse,
             HTTP_409=ErrorResponse,
@@ -130,15 +119,7 @@ def register(app, spec):
                 message="Authorization token is required.",
             )
 
-        try:
-            contract = SaveAsGtSetRequest.model_validate(payload)
-        except PydanticValidationError as e:
-            raise ValidationFailed(
-                code="VALIDATION_FAILED",
-                message="Invalid request payload.",
-                meta={"details": e.errors()},
-            )
-
+        contract = SaveAsGtSetRequest.model_validate(payload)
         cmd = SaveAsGtSetCommand.from_contract(
             source_project=contract.source_project,
             gt_set_name=contract.gt_set_name,
