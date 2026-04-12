@@ -28,3 +28,7 @@ class EvaluateProjectsResponse(BaseModel):
 
 class SaveAsGtSetResponse(BaseModel):
     gt_set_name: str
+
+
+class GroundtruthQalsResponse(BaseModel):
+    sets: dict[str, dict]
