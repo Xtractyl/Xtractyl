@@ -5,14 +5,13 @@ from pydantic import BaseModel, ValidationError
 from domain.errors import ValidationFailed
 
 
-class PLACEHOLDERCommand(BaseModel):
-    token: str
-    project_name: str
+class JobStatusCommand(BaseModel):
+    job_id: str
 
     @classmethod
-    def from_contract(cls, project_name: str, token: str):
+    def from_contract(cls, job_id: str):
         try:
-            return cls(token=token, project_name=project_name)
+            return cls(job_id=job_id)
         except ValidationError as e:
             raise ValidationFailed(
                 code="INVALID_COMMAND",
