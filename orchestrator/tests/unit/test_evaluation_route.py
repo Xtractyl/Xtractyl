@@ -253,3 +253,46 @@ def test_project_exists_contract_violated_returns_500(client, monkeypatch):
     assert res.status_code == 500
     data = res.get_json()
     assert data["error"] == "RESPONSE_CONTRACT_VIOLATED"
+
+
+# --- groundtruth_qals ---
+
+
+def test_groundtruth_qals_returns_200(client, monkeypatch):
+    monkeypatch.setattr(
+        "api.routes.evaluation.get_groundtruth_qals",
+        lambda: {"sets": {"Evaluation_Set": {"questions": ["Q1"], "labels": ["L1"]}}},
+    )
+    res = client.get("/groundtruth_qals")
+    assert res.status_code == 200
+    data = res.get_json()
+    assert "sets" in data
+
+
+def test_groundtruth_qals_not_found_returns_404(client, monkeypatch):
+    from domain.errors import NotFound
+
+    monkeypatch.setattr(
+        "api.routes.evaluation.get_groundtruth_qals",
+        lambda: (_ for _ in ()).throw(
+            NotFound(
+                code="GROUNDTRUTH_QAL_NOT_FOUND",
+                message="No groundtruth sets found.",
+            )
+        ),
+    )
+    res = client.get("/groundtruth_qals")
+    assert res.status_code == 404
+    data = res.get_json()
+    assert data["error"] == "GROUNDTRUTH_QAL_NOT_FOUND"
+
+
+def test_groundtruth_qals_contract_violated_returns_500(client, monkeypatch):
+    monkeypatch.setattr(
+        "api.routes.evaluation.get_groundtruth_qals",
+        lambda: {"wrong_field": "oops"},
+    )
+    res = client.get("/groundtruth_qals")
+    assert res.status_code == 500
+    data = res.get_json()
+    assert data["error"] == "RESPONSE_CONTRACT_VIOLATED"
