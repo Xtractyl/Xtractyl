@@ -3,12 +3,16 @@
 from pydantic import BaseModel, Field
 
 
-class PLACEHOLDERRequest(BaseModel):
-    project_name: str = Field(..., min_length=1)
+class JobStatusRequest(BaseModel):
+    job_id: str = Field(..., min_length=1)
 
 
-class PLACEHOLDERResponse(BaseModel):
-    columns: list[str]
-    rows: list[dict]
-    total: int
-    results_output_path_csv: str
+class JobStatusResponse(BaseModel):
+    job_id: str
+    state: str
+    progress: str | None = None
+    project_name: str | None = None
+    model: str | None = None
+    created_at: str | None = None
+    error: str | None = None
+    result: dict | None = None
