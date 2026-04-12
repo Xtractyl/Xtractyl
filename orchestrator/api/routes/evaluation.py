@@ -10,12 +10,13 @@ from domain.evaluation import (
 from domain.models.evaluation import EvaluateProjectsCommand, SaveAsGtSetCommand
 from flask import jsonify, request
 from flask_pydantic_spec import Request, Response
-from pydantic import ValidationError as PydanticValidationError
+from pydantic import ValidationError
 
 from api.contracts.errors import ErrorResponse
 from api.contracts.evaluation import (
     EvaluateProjectsRequest,
     EvaluateProjectsResponse,
+    GroundtruthQalsResponse,
     ProjectNamesResponse,
     SaveAsGtSetRequest,
     SaveAsGtSetResponse,
@@ -24,8 +25,6 @@ from api.utils.auth import extract_token
 
 
 def register(app, spec):
-    # New standard endpoint
-
     @app.route("/evaluate-ai/projects", methods=["GET"])
     @spec.validate(
         resp=Response(
@@ -47,14 +46,26 @@ def register(app, spec):
         result = list_project_names(token)
         return jsonify(result), 200
 
-    # Internal frontend helper endpoint.
-    # No user input. Deterministic state check for groundtruth set existence.
-    # Not part of public API contract.
-
     @app.route("/groundtruth_qals", methods=["GET"])
+    @spec.validate(
+        resp=Response(
+            HTTP_200=GroundtruthQalsResponse,
+            HTTP_404=ErrorResponse,  # no groundtruth sets found
+            HTTP_500=ErrorResponse,
+        ),
+        tags=["evaluation"],
+    )
     def groundtruth_qals():
         result = get_groundtruth_qals()
-        return jsonify(result), 200
+        try:
+            validated = GroundtruthQalsResponse.model_validate(result)
+        except ValidationError as e:
+            raise InternalError(
+                code="RESPONSE_CONTRACT_VIOLATED",
+                message="Internal response did not match expected schema.",
+                meta={"details": e.errors()},
+            )
+        return jsonify(validated.model_dump()), 200
 
     @app.route("/evaluate-ai", methods=["POST"])
     @spec.validate(
@@ -87,7 +98,7 @@ def register(app, spec):
         result = evaluate_projects(cmd)
         try:
             validated = EvaluateProjectsResponse.model_validate(result)
-        except PydanticValidationError as e:
+        except ValidationError as e:
             raise InternalError(
                 code="RESPONSE_CONTRACT_VIOLATED",
                 message="Internal response did not match expected schema.",
@@ -128,7 +139,7 @@ def register(app, spec):
         result = save_as_gt_set(cmd)
         try:
             validated = SaveAsGtSetResponse.model_validate(result)
-        except PydanticValidationError as e:
+        except ValidationError as e:
             raise InternalError(
                 code="RESPONSE_CONTRACT_VIOLATED",
                 message="Internal response did not match expected schema.",
