@@ -45,7 +45,7 @@ export default function CreateProjectCard({ apiToken, onTokenSave , onProjectNam
     setGroundtruthLoading(true);
     try {
       const data = await fetchGroundtruthQuestionsAndLabels();
-      setGroundtruthSets(Array.isArray(data) ? data : []);
+      setGroundtruthSets(Object.entries(data).map(([name, qal]) => ({ name, qal })));
     } catch (err) {
       console.error(err);
       setGroundtruthError("Failed to load groundtruth questions and labels.");
