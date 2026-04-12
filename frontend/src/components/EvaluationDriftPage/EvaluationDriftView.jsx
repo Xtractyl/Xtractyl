@@ -108,11 +108,15 @@ export default function EvaluationDriftView() {
             <h4 className="text-sm font-medium text-xtractyl-outline mt-4 mb-1">
             Recall and Precision over Time
           </h4>
-            <PlotEvaluationOverTimeGeneral entries={numbered} />
+            <div className="overflow-x-auto">
+              <PlotEvaluationOverTimeGeneral entries={numbered} />
+            </div>
           <h4 className="text-sm font-medium text-xtractyl-outline mt-4 mb-1">
             Recall and Precision per Label over Time
           </h4>
-            <PlotEvaluationOverTimePerLabel entries={numbered} />
+          <div className="overflow-x-auto">
+              <PlotEvaluationOverTimePerLabel entries={numbered} />
+            </div>
             <h4 className="text-sm font-medium text-xtractyl-outline mt-4 mb-1">
             Raw Data
           </h4>
@@ -231,7 +235,9 @@ export default function EvaluationDriftView() {
             <h5 className="text-xs font-normal text-xtractyl-outline/70 mt-4 mb-1">
             For exact System Prompt, Questions and Labels see Raw Data
           </h5>
-            <PlotRegressionControlOverTime entries={numbered} />
+           <div className="overflow-x-auto">
+              <PlotEvaluationOverTimeGeneral entries={numbered} />
+            </div>
           </div>
         );
       })}
