@@ -12,6 +12,6 @@ def register_routes(app, ok, spec):
     register_health(app)
     register_evaluation(app, spec)
     register_evaluation_drift(app, spec)
-    register_jobs(app, ok)
+    register_jobs(app, ok, spec)
     register_results(app, spec)
     register_projects(app, spec)
