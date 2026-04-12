@@ -335,7 +335,7 @@ def get_groundtruth_qals() -> list[dict]:
     Load all groundtruth QAL files from GROUNDTRUTH_QAL_DIR subfolders.
 
     Returns:
-        List of {"name": str, "qal": dict}
+        dict[name: str, dict]
 
     Raises:
         NotFound: If the base directory does not exist or contains no valid sets.
@@ -346,7 +346,7 @@ def get_groundtruth_qals() -> list[dict]:
             code="GROUNDTRUTH_QAL_NOT_FOUND",
             message="No groundtruth sets found.",
         )
-    return sets
+    return {"sets": {s["name"]: s["qal"] for s in sets}}
 
 
 def save_as_gt_set(cmd: SaveAsGtSetCommand) -> dict:
