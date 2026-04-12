@@ -3,16 +3,22 @@ import json
 import os
 
 import requests
-from flask import jsonify, request
 
 from domain.errors import (
     DomainError,
     ExternalServiceError,
     InternalError,
+    InvalidState,
     NotFound,
     ValidationFailed,
 )
-from domain.models.projects import CreateProjectCommand, ListQalJsonsCommand, PreviewQalCommand
+from domain.models.projects import (
+    CreateProjectCommand,
+    ListQalJsonsCommand,
+    PreviewQalCommand,
+    ProjectExistsCommand,
+    UploadTasksCommand,
+)
 
 # Fixed base dir (no env lookups)
 BASE_PROJECTS_DIR = os.path.join("data", "projects")
@@ -29,21 +35,26 @@ ML_BACKEND_URL = f"http://{ML_BACKEND_HOST}:{ML_BACKEND_PORT}"
 BATCH_SIZE = 50
 
 
-def check_project_exists():
+def check_project_exists(cmd: ProjectExistsCommand):
     try:
-        data = request.get_json()
-        title = data.get("title")
-        if not title:
-            return jsonify({"error": "Missing 'title' in request body"}), 400
-
-        project_path = os.path.join("data", "projects", title)
-        gt_path = os.path.join("data", "projects", "Evaluation_Sets_Do_Not_Delete", title)
+        project = cmd.project
+        project_path = os.path.join("data", "projects", project)
+        gt_path = os.path.join("data", "projects", "Evaluation_Sets_Do_Not_Delete", project)
         exists = os.path.exists(project_path) or os.path.exists(gt_path)
 
-        return jsonify({"exists": exists}), 200
-
+        if exists:
+            raise InvalidState(
+                code="PROJECT_ALREADY_EXISTS",
+                message="A project with this name already exists.",
+            )
+        return {"exists": False}
+    except DomainError:
+        raise
     except Exception:
-        return jsonify({"error": "internal error"}), 500
+        raise InternalError(
+            code="INTERNAL_ERROR",
+            message="Could not check if project exists.",
+        )
 
 
 def create_project_main_from_payload(cmd: CreateProjectCommand):
@@ -296,31 +307,23 @@ def upload_in_batches(tasks, batch_size, project_id, headers):
             )
 
 
-def upload_tasks_main_from_payload(payload: dict, token: str):
+def upload_tasks_main_from_payload(cmd: UploadTasksCommand):
     """
     Upload HTML files from the selected folder as tasks to an existing Label Studio project.
 
     Args:
-        payload: Dict with project_name and html_folder.
-        token: Label Studio API token.
+        cmd: UploadTasksCommand with project name, html folder and token.
 
     Returns:
         {"status": "ok"} on success.
 
     Raises:
-        ValidationFailed: If required fields are missing.
         NotFound: If the folder or project does not exist in Label Studio.
         ExternalServiceError: If Label Studio is unreachable or upload fails.
     """
-    title = payload.get("project_name")
-    html_folder_name = payload.get("html_folder")
-
-    if not title or not token or not html_folder_name:
-        raise ValidationFailed(
-            code="MISSING_REQUIRED_FIELDS",
-            message="project_name, token, and html_folder are required.",
-        )
-
+    title = cmd.project
+    html_folder_name = cmd.html_folder
+    token = cmd.token
     html_folder = os.path.join("data", "htmls", html_folder_name)
     if not os.path.isdir(html_folder):
         raise NotFound(

@@ -8,6 +8,9 @@ from typing import Any, Dict
 
 import redis
 
+from domain.errors import ValidationFailed
+from domain.models.jobs import JobStatusCommand
+
 REDIS_HOST = os.getenv("REDIS_HOST", "job_queue")
 REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
 r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
@@ -36,7 +39,10 @@ REQUIRED_FIELDS = ("project_name", "model", "system_prompt", "token")
 def enqueue_prelabel_job(payload: Dict[str, Any]) -> Dict[str, Any]:
     for k in REQUIRED_FIELDS:
         if not payload.get(k):
-            raise ValueError(f"Missing field: {k}")
+            raise ValidationFailed(
+                code="MISSING_REQUIRED_FIELD",
+                message=f"Missing field: {k}",
+            )
 
     job_id = payload.get("job_id")
     if not job_id:
@@ -62,13 +68,13 @@ def enqueue_prelabel_job(payload: Dict[str, Any]) -> Dict[str, Any]:
 
     return {
         "job_id": job_id,
-        "status_url": f"/jobs/{job_id}",
-        "logs_url": f"/jobs/{job_id}/logs",
+        "status_url": f"/prelabel/status/{job_id}",
         "cancel_url": f"/prelabel/cancel/{job_id}",
     }
 
 
-def get_job_status(job_id: str) -> Dict[str, Any]:
+def get_job_status(cmd: JobStatusCommand):
+    job_id = cmd.job_id
     h = r.hgetall(_status_key(job_id)) or {}
     if not h:
         return {"job_id": job_id, "state": "NOT_FOUND"}
@@ -80,12 +86,6 @@ def get_job_status(job_id: str) -> Dict[str, Any]:
         except Exception:
             out["result"] = res
     return out
-
-
-def get_job_logs_since(job_id: str, start: int = 0) -> Dict[str, Any]:
-    lines = r.lrange(_logs_key(job_id), start, -1) or []
-    to = start + len(lines) - 1 if lines else start
-    return {"job_id": job_id, "from": start, "to": to, "lines": lines}
 
 
 def cancel_prelabel_job(job_id: str) -> Dict[str, Any]:

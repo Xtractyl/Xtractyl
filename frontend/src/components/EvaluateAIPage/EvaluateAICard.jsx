@@ -24,7 +24,7 @@ export default function EvaluateAICard({ apiToken }) {
   // Load GT sets from filesystem (independent of token)
   useEffect(() => {
     fetchGroundtruthQuestionsAndLabels()
-      .then((sets) => setGtSets((sets || []).map((s) => s.name)))
+      .then((sets) => setGtSets(Object.keys(sets || {})))
       .catch(() => {});
   }, [gtSetVersion]);
 

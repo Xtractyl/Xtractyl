@@ -67,7 +67,7 @@ export default function PlotEvaluationOverTimePerLabel({ entries }) {
         height: 400,
       }}
       style={{ width: "100%", height: "450px" }}
-      config={{ responsive: true, displayModeBar: false }}
+      config={{ responsive: false, displayModeBar: false }}
     />
   );
 }

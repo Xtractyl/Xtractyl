@@ -20,6 +20,15 @@ class PreviewQalRequest(BaseModel):
     filename: str = Field(..., min_length=1)
 
 
+class UploadTasksRequest(BaseModel):
+    project: str = Field(..., min_length=1)
+    html_folder: str = Field(..., min_length=1)
+
+
+class ProjectExistsRequest(BaseModel):
+    project: str = Field(..., min_length=1)
+
+
 class CreateProjectResponse(BaseModel):
     project_id: int
 
@@ -34,3 +43,11 @@ class ListQalJsonsResponse(BaseModel):
 
 class PreviewQalResponse(BaseModel):
     data: Any
+
+
+class ProjectExistsResponse(BaseModel):
+    exists: bool
+
+
+class UploadTasksResponse(BaseModel):
+    status: str

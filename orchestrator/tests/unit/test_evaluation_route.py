@@ -109,7 +109,7 @@ def test_evaluate_ai_contract_violated_returns_500(client, monkeypatch):
 def test_save_as_gt_set_returns_200(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.evaluation.save_as_gt_set",
-        lambda cmd, token: {"gt_set_name": "My_GT_Set"},
+        lambda cmd: {"gt_set_name": "My_GT_Set"},
     )
     res = client.post(
         "/save-as-gt-set",
@@ -170,7 +170,7 @@ def test_save_as_gt_set_empty_gt_set_name_returns_422(client):
 def test_save_as_gt_set_already_exists_returns_409(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.evaluation.save_as_gt_set",
-        lambda cmd, token: (_ for _ in ()).throw(
+        lambda cmd: (_ for _ in ()).throw(
             AlreadyExists(code="GT_SET_ALREADY_EXISTS", message="Already exists.")
         ),
     )
@@ -185,13 +185,114 @@ def test_save_as_gt_set_already_exists_returns_409(client, monkeypatch):
 def test_save_as_gt_set_contract_violated_returns_500(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.evaluation.save_as_gt_set",
-        lambda cmd, token: {"wrong_field": "oops"},
+        lambda cmd: {"wrong_field": "oops"},
     )
     res = client.post(
         "/save-as-gt-set",
         headers={"Authorization": "Bearer dummy"},
         json={"source_project": "my_project", "gt_set_name": "My_GT_Set"},
     )
+    assert res.status_code == 500
+    data = res.get_json()
+    assert data["error"] == "RESPONSE_CONTRACT_VIOLATED"
+
+
+# --- project_exists ---
+
+
+def test_project_exists_missing_project_returns_422(client):
+    res = client.post(
+        "/project_exists",
+        json={},
+    )
+    assert res.status_code == 422
+
+
+def test_project_exists_returns_200(client, monkeypatch):
+    monkeypatch.setattr(
+        "api.routes.projects.check_project_exists",
+        lambda cmd: {"exists": False},
+    )
+    res = client.post(
+        "/project_exists",
+        json={"project": "my_project"},
+    )
+    assert res.status_code == 200
+
+
+def test_project_exists_already_exists_returns_409(client, monkeypatch):
+    from domain.errors import InvalidState
+
+    monkeypatch.setattr(
+        "api.routes.projects.check_project_exists",
+        lambda cmd: (_ for _ in ()).throw(
+            InvalidState(
+                code="PROJECT_ALREADY_EXISTS",
+                message="A project with this name already exists.",
+            )
+        ),
+    )
+    res = client.post(
+        "/project_exists",
+        json={"project": "my_project"},
+    )
+    assert res.status_code == 409
+    data = res.get_json()
+    assert data["error"] == "PROJECT_ALREADY_EXISTS"
+
+
+def test_project_exists_contract_violated_returns_500(client, monkeypatch):
+    monkeypatch.setattr(
+        "api.routes.projects.check_project_exists",
+        lambda cmd: {"wrong_field": "oops"},
+    )
+    res = client.post(
+        "/project_exists",
+        json={"project": "my_project"},
+    )
+    assert res.status_code == 500
+    data = res.get_json()
+    assert data["error"] == "RESPONSE_CONTRACT_VIOLATED"
+
+
+# --- groundtruth_qals ---
+
+
+def test_groundtruth_qals_returns_200(client, monkeypatch):
+    monkeypatch.setattr(
+        "api.routes.evaluation.get_groundtruth_qals",
+        lambda: {"sets": {"Evaluation_Set": {"questions": ["Q1"], "labels": ["L1"]}}},
+    )
+    res = client.get("/groundtruth_qals")
+    assert res.status_code == 200
+    data = res.get_json()
+    assert "sets" in data
+
+
+def test_groundtruth_qals_not_found_returns_404(client, monkeypatch):
+    from domain.errors import NotFound
+
+    monkeypatch.setattr(
+        "api.routes.evaluation.get_groundtruth_qals",
+        lambda: (_ for _ in ()).throw(
+            NotFound(
+                code="GROUNDTRUTH_QAL_NOT_FOUND",
+                message="No groundtruth sets found.",
+            )
+        ),
+    )
+    res = client.get("/groundtruth_qals")
+    assert res.status_code == 404
+    data = res.get_json()
+    assert data["error"] == "GROUNDTRUTH_QAL_NOT_FOUND"
+
+
+def test_groundtruth_qals_contract_violated_returns_500(client, monkeypatch):
+    monkeypatch.setattr(
+        "api.routes.evaluation.get_groundtruth_qals",
+        lambda: {"wrong_field": "oops"},
+    )
+    res = client.get("/groundtruth_qals")
     assert res.status_code == 500
     data = res.get_json()
     assert data["error"] == "RESPONSE_CONTRACT_VIOLATED"

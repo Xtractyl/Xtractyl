@@ -2,19 +2,20 @@
 
 const ORCH_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001";
 
-export async function checkProjectExistsAPI(title) {
+export async function checkProjectExistsAPI(project) {
   const res = await fetch(`${ORCH_BASE}/project_exists`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ title }), // exakt wie vorher
+    body: JSON.stringify({ project }), 
   });
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(err || "Failed to check project existence");
+  if (res.status === 409) {
+    throw new Error("PROJECT_ALREADY_EXISTS");
   }
-
-  return res.json(); // { exists: true/false }
+  if (!res.ok) {
+    throw new Error("Failed to check project existence");
+  }
+  return res.json();
 }
 
 export async function createProjectAPI({ title, questions, labels, token }) {
@@ -37,10 +38,9 @@ export async function createProjectAPI({ title, questions, labels, token }) {
 
 export async function fetchGroundtruthQuestionsAndLabels() {
   const resp = await fetch(`${ORCH_BASE}/groundtruth_qals`);
-
+  const data = await resp.json();
   if (!resp.ok) {
     throw new Error(`Failed to fetch groundtruth Q&L (${resp.status})`);
   }
-
-  return resp.json();
+  return data.sets;
 }
