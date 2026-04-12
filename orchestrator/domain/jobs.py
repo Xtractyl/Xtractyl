@@ -82,12 +82,6 @@ def get_job_status(job_id: str) -> Dict[str, Any]:
     return out
 
 
-def get_job_logs_since(job_id: str, start: int = 0) -> Dict[str, Any]:
-    lines = r.lrange(_logs_key(job_id), start, -1) or []
-    to = start + len(lines) - 1 if lines else start
-    return {"job_id": job_id, "from": start, "to": to, "lines": lines}
-
-
 def cancel_prelabel_job(job_id: str) -> Dict[str, Any]:
     # mark cancel request; worker checks it between tasks
     r.hset(_status_key(job_id), "state", "CANCEL_REQUESTED")
