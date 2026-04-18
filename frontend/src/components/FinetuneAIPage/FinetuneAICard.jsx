@@ -1,4 +1,3 @@
-
 // frontend/src/components/FinetuneAIPage/FinetuneAICard.jsx
 export default function FinetuneAICard() {
     return (

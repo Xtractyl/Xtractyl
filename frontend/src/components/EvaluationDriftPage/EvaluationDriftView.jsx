@@ -1,4 +1,4 @@
-// frontend/src/components/EvaluationDriftPage/EvaluationDriftView.jsx
+// /src/components/EvaluationDriftPage/EvaluationDriftView.jsx
 import { useEffect, useState } from "react";
 import { fetchEvaluationDrift } from "../../api/EvaluationDriftPage/api.js";
 

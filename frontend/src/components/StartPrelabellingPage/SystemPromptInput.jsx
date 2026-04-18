@@ -1,3 +1,4 @@
+//src/components/StartPrelabellingPage/SystemPromptInput.jsx
 import React, { useEffect, useState } from "react";
 
 const DEFAULT_EXAMPLE = `You are a pure extraction model.

@@ -1,3 +1,4 @@
+///src/components/AboutPage/AboutPageCard.jsx
 export default function AboutPage() {
   return (
 <div className="min-h-screen bg-xtractyl-lightgreen/60 text-xtractyl-darktext px-6 py-16">
