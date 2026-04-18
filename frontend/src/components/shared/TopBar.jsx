@@ -1,3 +1,4 @@
+//src/components/shared/TopBar.jsx
 import logo from '../../assets/xtractyl_corporate_without_date_no_bg.png'
 import { ChevronRight } from 'lucide-react'
 import { Link, NavLink } from 'react-router-dom'
