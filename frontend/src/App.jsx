@@ -11,6 +11,7 @@ import EvaluateAIPage from './pages/EvaluateAI.jsx';
 import EvaluationDriftPage from './pages/EvaluationDrift.jsx';
 import FinetuneAIPage from './pages/FinetuneAI.jsx';
 import AboutPage from './pages/AboutPage.jsx';
+import { AppProvider } from "./context/AppContext";
 
 
 import { useState, useEffect } from 'react';
@@ -40,6 +41,7 @@ const handleProjectNameSave = (name) => {
 };
 
   return (
+    <AppProvider> 
     <Router>
       <Layout>
         <Routes>
@@ -56,5 +58,6 @@ const handleProjectNameSave = (name) => {
         </Routes>
       </Layout>
     </Router>
+    </AppProvider>  
   );
 }
