@@ -52,7 +52,7 @@ const handleProjectNameSave = (name) => {
           <Route path="/prelabelling" element={<StartPrelabellingPage apiToken={apiToken} projectName={projectName} />} />
           <Route path="/review" element={<ReviewAIPage />} />
           <Route path="/results" element={<GetResultsPage/>} />
-          <Route path="/evaluate" element={<EvaluateAIPage apiToken={apiToken} projectName={projectName} />} />
+          <Route path="/evaluate" element={<EvaluateAIPage />} />
           <Route path="/evaluationdrift" element={<EvaluationDriftPage />} />
           <Route path="/finetune" element={<FinetuneAIPage />} />
         </Routes>

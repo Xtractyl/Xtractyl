@@ -1,15 +1,16 @@
 // src/components/EvaluateAIPage/EvaluateAICard.jsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { fetchEvaluationProjects, evaluateAI } from "../../api/EvaluateAIPage/api.js";
 import { fetchGroundtruthQuestionsAndLabels } from "../../api/CreateProjectPage/api.js";
 import SaveAsGtSet from "./SaveAsGtSet.jsx";
 import ComparisonSelection from "./ComparisonSelection.jsx";
 import EvaluationResults from "./EvaluationResults.jsx";
+import { useAppContext } from "../../context/AppContext";
 
 const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080";
 
-export default function EvaluateAICard({ apiToken }) {
-  const [localToken, setToken] = useState(apiToken || "");
+export default function EvaluateAICard() {
+  const {token, saveToken } = useAppContext();
   const [gtSets, setGtSets] = useState([]);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -30,12 +31,12 @@ export default function EvaluateAICard({ apiToken }) {
 
   // Load project names from Label Studio via orchestrator
   useEffect(() => {
-    if (!localToken) return;
+    if (!token) return;
 
     setLoading(true);
     setErrorMsg("");
 
-    fetchEvaluationProjects(localToken)
+    fetchEvaluationProjects(token)
       .then((names) => {
         const projectList = names || [];
         setProjects(projectList);
@@ -59,7 +60,7 @@ export default function EvaluateAICard({ apiToken }) {
         setComparisonProject("");
       })
       .finally(() => setLoading(false));
-  }, [localToken]);
+  }, [token]);
 
   const handleRunEvaluation = async () => {
     setEvalLoading(true);
@@ -68,7 +69,7 @@ export default function EvaluateAICard({ apiToken }) {
 
     try {
       const result = await evaluateAI(
-        localToken,
+        token,
         groundtruthProject,
         comparisonProject
       );
@@ -126,9 +127,9 @@ export default function EvaluateAICard({ apiToken }) {
 
           <input
             type="password"
-            value={localToken}
-            onChange={(e) => setToken(e.target.value)}
-            placeholder={localToken || "Enter your Label Studio token"}
+            value={token}
+            onChange={(e) => saveToken(e.target.value)}
+            placeholder={token || "Enter your Label Studio token"}
             className="w-full border border-xtractyl-outline/30 rounded px-3 py-2 bg-xtractyl-white text-xtractyl-darktext"
             autoComplete="off"
             spellCheck={false}
@@ -137,9 +138,9 @@ export default function EvaluateAICard({ apiToken }) {
       </div>
 
       {/* === SAVE AS GT SET === */}
-      {localToken && (
+      {token && (
         <SaveAsGtSet
-          apiToken={localToken}
+          apiToken={token}
           projects={projects}
           gtSets={gtSets}
           onSuccess={() => setGtSetVersion(v => v + 1)}
@@ -147,7 +148,7 @@ export default function EvaluateAICard({ apiToken }) {
       )}
 
       {/* === COMPARISON SELECTION === */}
-      {localToken && (
+      {token && (
         <ComparisonSelection
           projects={projects}
           gtSets={gtSets}
@@ -162,7 +163,7 @@ export default function EvaluateAICard({ apiToken }) {
       )}
 
       {/* === EVALUATION RESULTS === */}
-      {localToken && (
+      {token && (
         <EvaluationResults
           loading={evalLoading}
           errorMsg={evalError}
