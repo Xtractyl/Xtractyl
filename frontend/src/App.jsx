@@ -51,7 +51,7 @@ const handleProjectNameSave = (name) => {
           <Route path="/tasks" element={<UploadTasksPage apiToken={apiToken} projectName={projectName}  />} />
           <Route path="/prelabelling" element={<StartPrelabellingPage apiToken={apiToken} projectName={projectName} />} />
           <Route path="/review" element={<ReviewAIPage />} />
-          <Route path="/results" element={<GetResultsPage apiToken={apiToken} projectName={projectName}  />} />
+          <Route path="/results" element={<GetResultsPage/>} />
           <Route path="/evaluate" element={<EvaluateAIPage apiToken={apiToken} projectName={projectName} />} />
           <Route path="/evaluationdrift" element={<EvaluationDriftPage />} />
           <Route path="/finetune" element={<FinetuneAIPage apiToken={apiToken} projectName={projectName} />} />

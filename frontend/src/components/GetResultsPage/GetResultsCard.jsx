@@ -1,13 +1,13 @@
 // frontend/src/components/GetResultsPage/GetResultsCard.jsx
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import ResultsTable from "./ResultsTable";
 import { getResultsTable } from "../../api/GetResultsPage/api.js";
+import { useAppContext } from "../../context/AppContext";
 
 const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080"; // only for links
 
-export default function GetResultsCard({ apiToken, projectName}) {
-  const [localProjectName, setLocalProjectName] = useState(projectName || "");
-  const [token, setToken] = useState(apiToken || "");
+export default function GetResultsCard() {
+  const { token, projectName, saveToken, saveProjectName } = useAppContext();
   const [columns, setColumns] = useState([]);
   const [rows, setRows] = useState([]);
 
@@ -15,32 +15,16 @@ export default function GetResultsCard({ apiToken, projectName}) {
   const [err, setErr] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const canSubmit = useMemo(
-    () => localProjectName.trim() && token.trim(),
-    [localProjectName, token]
-  );
+  const canSubmit = projectName.trim() && token.trim();
 
-  useEffect(() => {
-    setLocalProjectName(projectName || "");
-    setSubmitted(false);
-    setColumns([]);
-    setRows([]);
-  }, [projectName]);
 
-  useEffect(() => {
-      setToken(apiToken || "");
-      setSubmitted(false);
-      setColumns([]);
-      setRows([]);
-    }, [apiToken]);
-
-  const fetchData = useCallback(async () => {
+  const fetchData = async () => {
     if (!canSubmit) return;
     setLoading(true);
     setErr("");
     try {
       const data = await getResultsTable({
-        projectName: localProjectName,
+        projectName: projectName,
         token,
       });
       setColumns(Array.isArray(data.columns) ? data.columns : []);
@@ -52,7 +36,7 @@ export default function GetResultsCard({ apiToken, projectName}) {
     } finally {
       setLoading(false);
     }
-    }, [canSubmit, localProjectName, token]);
+    };
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -97,8 +81,8 @@ export default function GetResultsCard({ apiToken, projectName}) {
             <input
               type="text"
               placeholder="e.g., results"
-              value={localProjectName}
-              onChange={(e) => setLocalProjectName(e.target.value)}
+              value={projectName}
+              onChange={(e) => saveProjectName(e.target.value)}
               required
               className="border border-xtractyl-outline/30 rounded-md text-sm px-3 py-2 outline-none w-full focus:ring-2 focus:ring-xtractyl-lightgreen"
             />
@@ -110,7 +94,7 @@ export default function GetResultsCard({ apiToken, projectName}) {
               type="password"
               placeholder="Enter token"
               value={token}
-              onChange={(e) => setToken(e.target.value)}
+              onChange={(e) => saveToken(e.target.value)}
               required
               className="border border-xtractyl-outline/30 rounded-md text-sm px-3 py-2 outline-none w-full focus:ring-2 focus:ring-xtractyl-lightgreen"
             />
