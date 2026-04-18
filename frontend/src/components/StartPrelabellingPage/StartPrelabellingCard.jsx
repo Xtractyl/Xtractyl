@@ -1,22 +1,24 @@
 // src/components/StartPrelabellingPage/StartPrelabellingCard.jsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ModelDownloadInput from "./ModelDownloadInput";
 import ProjectNameInput from "../shared/ProjectNameInput";
 import ModelPicker from "./ModelPicker";
 import SystemPromptInput from "./SystemPromptInput";
 import QuestionsAndLabelsPicker from "./QuestionsAndLabelsPicker";
 import { prelabelProject, cancelPrelabel, getPrelabelStatus } from "../../api/StartPrelabellingPage/api.js";
+import { useAppContext } from "../../context/AppContext";
+
 
 const ORCH_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001";
 const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080"; // only for links
 
-export default function StartPrelabellingCard({ apiToken, projectName }) {
+export default function StartPrelabellingCard() {
   const [model, setModel] = useState(() => localStorage.getItem("ollamaModel") || "");
   const [refreshKey, setRefreshKey] = useState(0);
   const [systemPrompt, setSystemPrompt] = useState(
     () => localStorage.getItem("xtractylSystemPrompt") || ""
   );
-  const [localProjectName, setLocalProjectName] = useState(projectName || "");    
+  const { token, projectName, saveToken, saveProjectName } = useAppContext();
   const [qalFile, setQalFile] = useState(
     () => localStorage.getItem("xtractylQALFile") || ""
   );
@@ -27,18 +29,10 @@ export default function StartPrelabellingCard({ apiToken, projectName }) {
   const [preStatus, setPreStatus] = useState(null);
   const [busy, setBusy] = useState(false);
   const [statusMsg, setStatusMsg] = useState("");
-  const [localToken, setToken] = useState(apiToken || "");
 
   useEffect(() => { try { localStorage.setItem("ollamaModel", model || ""); } catch {} }, [model]);
   useEffect(() => { try { localStorage.setItem("xtractylSystemPrompt", systemPrompt || ""); } catch {} }, [systemPrompt]);
-  useEffect(() => {
-                    setLocalProjectName(projectName || "");
-                  }, [projectName]);
   useEffect(() => { try { localStorage.setItem("xtractylQALFile", qalFile || ""); } catch {} }, [qalFile]);
-  
-  useEffect(() => {
-      setToken(apiToken || "");
-    }, [apiToken]);
 
   const handleQalChange = (_project, file, json) => {
     setQalFile(file);
@@ -46,7 +40,7 @@ export default function StartPrelabellingCard({ apiToken, projectName }) {
   };
 
 const canStart =
-    !!localProjectName && !!model && !!systemPrompt.trim() && !!qalFile && !!localToken && !preJobId;
+    !!projectName && !!model && !!systemPrompt.trim() && !!qalFile && !!token && !preJobId;
 
   const handleStart = async () => {
     if (!canStart) return;
@@ -54,11 +48,11 @@ const canStart =
     setStatusMsg("");
     try {
       const payload = {
-        project_name: localProjectName,
+        project_name: projectName,
         model,
         system_prompt: systemPrompt,
         qal_file: qalFile,
-        token: localToken,
+        token: token,
         questions_and_labels: questionsAndLabels,
       };
 
@@ -167,7 +161,7 @@ const canStart =
       </div>
 
       <div className="space-y-6 bg-xtractyl-offwhite p-6 rounded shadow max-w-3xl">
-      <ProjectNameInput value={localProjectName} onChange={setLocalProjectName} />
+      <ProjectNameInput value={projectName} onChange={saveProjectName} />
         <div className="text-sm text-xtractyl-outline/70 -mt-2">
           <div>Forgot your project name?</div>
           <a
@@ -210,9 +204,9 @@ const canStart =
           <label className="block text-sm font-medium mb-1">Label Studio Token</label>
           <input
             type="password"
-            value={localToken}
-            onChange={(e) => setToken(e.target.value)}
-            placeholder={localToken || "Enter your Label Studio token"}
+            value={token}
+            onChange={(e) => saveToken(e.target.value)}
+            placeholder={token || "Enter your Label Studio token"}
             className="w-full border rounded px-3 py-2"
             autoComplete="off"
             spellCheck={false}
@@ -228,14 +222,14 @@ const canStart =
         />
 
         <QuestionsAndLabelsPicker
-          projectName={localProjectName}
+          projectName={projectName}
           selectedFile={qalFile}
           onChange={handleQalChange}
         />
 
         <div className="pt-2 text-sm text-xtractyl-outline/70">
           <div>
-            Project: <span className="font-mono">{localProjectName || "—"}</span>
+            Project: <span className="font-mono">{projectName || "—"}</span>
           </div>
           <div>
             Model: <span className="font-mono">{model || "—"}</span>
