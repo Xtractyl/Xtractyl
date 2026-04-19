@@ -17,22 +17,22 @@ export default function App() {
 
   return (
     <AppProvider> 
-    <Router>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<UploadAndConversionPage />} />
-          <Route path="/aboutpage" element={<AboutPage />} />
-          <Route path="/project" element={<CreateProjectPage />} />
-          <Route path="/tasks" element={<UploadTasksPage />} />
-          <Route path="/prelabelling" element={<StartPrelabellingPage />} />
-          <Route path="/review" element={<ReviewAIPage />} />
-          <Route path="/results" element={<GetResultsPage/>} />
-          <Route path="/evaluate" element={<EvaluateAIPage />} />
-          <Route path="/evaluationdrift" element={<EvaluationDriftPage />} />
-          <Route path="/finetune" element={<FinetuneAIPage />} />
-        </Routes>
-      </Layout>
-    </Router>
+      <Router>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<UploadAndConversionPage />} />
+            <Route path="/aboutpage" element={<AboutPage />} />
+            <Route path="/project" element={<CreateProjectPage />} />
+            <Route path="/tasks" element={<UploadTasksPage />} />
+            <Route path="/prelabelling" element={<StartPrelabellingPage />} />
+            <Route path="/review" element={<ReviewAIPage />} />
+            <Route path="/results" element={<GetResultsPage/>} />
+            <Route path="/evaluate" element={<EvaluateAIPage />} />
+            <Route path="/evaluationdrift" element={<EvaluationDriftPage />} />
+            <Route path="/finetune" element={<FinetuneAIPage />} />
+          </Routes>
+        </Layout>
+      </Router>
     </AppProvider>  
   );
 }
