@@ -1,31 +1,20 @@
 // src/components/UploadTasks/UploadTasksCard.jsx
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import ProjectNameInput from "../shared/ProjectNameInput";
 import HtmlFolderSelect from "./HTMLFolderSelect";
 import { uploadTasks } from "../../api/UploadTasksPage/api.js";
+import { useAppContext } from "../../context/AppContext";
 
 const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080";
 
-export default function UploadTasksCard({ apiToken, projectName }) {
-  const [localProjectName, setLocalProjectName] = useState(projectName || "");
+export default function UploadTasksCard() {
+  const { token, projectName, saveToken, saveProjectName } = useAppContext();
   const [htmlFolder, setHtmlFolder] = useState("");
-  const [localToken, setLocalToken] = useState(apiToken || "");
   const [status, setStatus] = useState(null);
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    setLocalToken(apiToken || "");
-  }, [apiToken]);
-
-  useEffect(() => {
-    setLocalProjectName((prev) => {
-      if (prev && prev.trim().length > 0) return prev;
-      return projectName || "";
-    });
-  }, [projectName]);
-
   const handleUpload = async () => {
-    if (!localProjectName || !htmlFolder || !localToken) {
+    if (!projectName || !htmlFolder || !token) {
       alert("Please provide all fields.");
       return;
     }
@@ -35,8 +24,8 @@ export default function UploadTasksCard({ apiToken, projectName }) {
       setStatus(null);
 
       await uploadTasks({
-        projectName: localProjectName,
-        token: localToken,
+        projectName: projectName,
+        token: token,
         htmlFolder,
       });
 
@@ -58,7 +47,7 @@ export default function UploadTasksCard({ apiToken, projectName }) {
       </p>
 
       <div className="space-y-6 bg-xtractyl-offwhite p-6 rounded shadow max-w-xl">
-        <ProjectNameInput value={localProjectName} onChange={setLocalProjectName} />
+        <ProjectNameInput value={projectName} onChange={saveProjectName} />
         <HtmlFolderSelect selected={htmlFolder} onChange={setHtmlFolder} />
 
         {/* Token helper link */}
@@ -94,11 +83,11 @@ export default function UploadTasksCard({ apiToken, projectName }) {
             Label Studio Token
           </label>
           <input
-            key={apiToken ?? "empty"}   
+            key={token ?? "empty"}   
             type="password"
-            value={localToken}
-            onChange={(e) => setLocalToken(e.target.value)}
-            placeholder={localToken || "Enter your Label Studio token"}
+            value={token}
+            onChange={(e) => saveToken(e.target.value)}
+            placeholder={token || "Enter your Label Studio token"}
             className="w-full border border-xtractyl-outline/30 rounded px-3 py-2 bg-xtractyl-white text-xtractyl-darktext"
           />
         </div>
