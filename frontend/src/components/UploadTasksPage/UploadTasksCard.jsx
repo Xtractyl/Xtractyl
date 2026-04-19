@@ -30,7 +30,7 @@ export default function UploadTasksCard() {
         htmlFolder,
       });
 
-    } catch (error) {
+    } catch {
       setStatus(`❌ Upload failed.`);
     } finally {
       setBusy(false);
