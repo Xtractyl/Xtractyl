@@ -29,10 +29,7 @@ export default function CreateProjectCard() {
         token: token, 
       });
 
-      console.log("✅ Project created");
-      alert("✅ Project successfully created!");
     } catch (error) {
-      console.error("❌ Error");
       if (error.message === "PROJECT_ALREADY_EXISTS") {
         alert("❌ A project with this name already exists.");
       } else {
