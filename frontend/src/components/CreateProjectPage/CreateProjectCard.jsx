@@ -11,7 +11,7 @@ export default function CreateProjectCard() {
   const [groundtruthSets, setGroundtruthSets] = useState([]);
   const [groundtruthError, setGroundtruthError] = useState("");
   const [groundtruthLoading, setGroundtruthLoading] = useState(false);
-  const { token, projectName, saveProjectName } = useAppContext();
+  const { token, saveProjectName } = useAppContext();
 
   const handleFormSubmit = async (formData) => {
     try {
@@ -24,7 +24,7 @@ export default function CreateProjectCard() {
 
       saveProjectName(formData.title);
 
-      const result = await createProject({
+      await createProject({
         ...formData,
         token, 
       });
