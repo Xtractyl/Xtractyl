@@ -1,5 +1,4 @@
 //src/components/GetResultsPage/ResultsTable.jsx
-import React from "react";
 
 export default function ResultsTable({ columns, rows }) {
   if (!columns?.length || !rows?.length) {

@@ -1,5 +1,5 @@
 // src/components/ModelPicker.jsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { listModels } from "../../api/StartPrelabellingPage/api.js";
 
 export default function ModelPicker({

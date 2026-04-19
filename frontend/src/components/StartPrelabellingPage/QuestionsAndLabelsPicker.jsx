@@ -1,5 +1,5 @@
 // src/components/QuestionsAndLabelsPicker.jsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { listQalJsons, previewQal } from "../../api/StartPrelabellingPage/api.js";
 
 export default function QuestionsAndLabelsPicker({
