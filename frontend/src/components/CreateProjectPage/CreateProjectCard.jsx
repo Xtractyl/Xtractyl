@@ -26,7 +26,7 @@ export default function CreateProjectCard() {
 
       const result = await createProject({
         ...formData,
-        token: token, 
+        token, 
       });
 
     } catch (error) {

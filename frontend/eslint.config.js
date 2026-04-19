@@ -27,6 +27,7 @@ export default [
         },
       ],
       "no-empty": ["error", { allowEmptyCatch: true }],
+        "object-shorthand": "warn", 
     },
   },
 ];

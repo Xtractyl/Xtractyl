@@ -25,7 +25,7 @@ export default function UploadTasksCard() {
 
       await uploadTasks({
         projectName: projectName,
-        token: token,
+        token,
         htmlFolder,
       });
 
