@@ -13,32 +13,7 @@ import FinetuneAIPage from './pages/FinetuneAI.jsx';
 import AboutPage from './pages/AboutPage.jsx';
 import { AppProvider } from "./context/AppContext";
 
-
-import { useState, useEffect } from 'react';
-
 export default function App() {
-  const [apiToken, setApiToken] = useState("");
-  const [projectName, setProjectName] = useState("");
-
-useEffect(() => {
-  const savedToken = localStorage.getItem("apiToken");
-  if (savedToken) setApiToken(savedToken);
-}, []);
-
-  const handleTokenSave = (token) => {
-    setApiToken(token);
-    localStorage.setItem("apiToken", token);
-  };
-
-useEffect(() => {
-  const saved = localStorage.getItem("projectName");
-  if (saved) setProjectName(saved);
-}, []);
-
-const handleProjectNameSave = (name) => {
-  setProjectName(name);
-  localStorage.setItem("projectName", name);
-};
 
   return (
     <AppProvider> 
