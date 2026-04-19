@@ -4,34 +4,32 @@ import useCreateProject from "../../hooks/CreateProjectPage/useCreateProject.js"
 import TokenInput from "./TokenInput";
 import CreateProjectForm from "./CreateProjectForm";
 import { fetchGroundtruthQuestionsAndLabels } from "../../api/CreateProjectPage/api";
+import { useAppContext } from "../../context/AppContext";
 
-export default function CreateProjectCard({ apiToken, onTokenSave , onProjectNameSave }) {
+export default function CreateProjectCard() {
   const { checkProjectExists, createProject } = useCreateProject();
   const [groundtruthSets, setGroundtruthSets] = useState([]);
   const [groundtruthError, setGroundtruthError] = useState("");
   const [groundtruthLoading, setGroundtruthLoading] = useState(false);
+  const { token, saveProjectName } = useAppContext();
 
   const handleFormSubmit = async (formData) => {
     try {
-      if (!apiToken) {
+      if (!token) {
         alert("Please enter and save an API token first.");
         return;
       }
       await checkProjectExists(formData.title);
 
-    if (onProjectNameSave) {
-      onProjectNameSave(formData.title);
-    }
 
-      const result = await createProject({
+      saveProjectName(formData.title);
+
+      await createProject({
         ...formData,
-        token: apiToken, // direkt aus App-Prop
+        token, 
       });
 
-      console.log("✅ Project created");
-      alert("✅ Project successfully created!");
     } catch (error) {
-      console.error("❌ Error");
       if (error.message === "PROJECT_ALREADY_EXISTS") {
         alert("❌ A project with this name already exists.");
       } else {
@@ -62,10 +60,10 @@ export default function CreateProjectCard({ apiToken, onTokenSave , onProjectNam
       </p>
 
       {/* TokenInput sagt nur nach oben Bescheid */}
-      <TokenInput onTokenSave={onTokenSave} />
+      <TokenInput />
 
       {/* Formular nur, wenn App schon einen Token kennt */}
-      {apiToken && <CreateProjectForm onSubmit={handleFormSubmit} />}
+      {token && <CreateProjectForm onSubmit={handleFormSubmit} />}
 
           {/* Groundtruth helper section */}
       <div className="mt-4 border rounded p-3 bg-xtractyl-offwhite">

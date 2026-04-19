@@ -1,5 +1,5 @@
 // src/components/ModelDownloadInput.jsx
-import React, { useState } from "react";
+import { useState } from "react";
 import { pullModel } from "../../api/StartPrelabellingPage/api.js";
 
 export default function ModelDownloadInput({

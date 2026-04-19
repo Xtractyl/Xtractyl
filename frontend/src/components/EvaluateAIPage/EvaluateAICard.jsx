@@ -1,15 +1,15 @@
 // src/components/EvaluateAIPage/EvaluateAICard.jsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { fetchEvaluationProjects, evaluateAI } from "../../api/EvaluateAIPage/api.js";
 import { fetchGroundtruthQuestionsAndLabels } from "../../api/CreateProjectPage/api.js";
 import SaveAsGtSet from "./SaveAsGtSet.jsx";
 import ComparisonSelection from "./ComparisonSelection.jsx";
 import EvaluationResults from "./EvaluationResults.jsx";
+import { useAppContext } from "../../context/AppContext";
+import TokenLink from "../shared/TokenLink";
 
-const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080";
-
-export default function EvaluateAICard({ apiToken }) {
-  const [localToken, setToken] = useState(apiToken || "");
+export default function EvaluateAICard() {
+  const {token, saveToken } = useAppContext();
   const [gtSets, setGtSets] = useState([]);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -30,12 +30,12 @@ export default function EvaluateAICard({ apiToken }) {
 
   // Load project names from Label Studio via orchestrator
   useEffect(() => {
-    if (!localToken) return;
+    if (!token) return;
 
     setLoading(true);
     setErrorMsg("");
 
-    fetchEvaluationProjects(localToken)
+    fetchEvaluationProjects(token)
       .then((names) => {
         const projectList = names || [];
         setProjects(projectList);
@@ -59,7 +59,7 @@ export default function EvaluateAICard({ apiToken }) {
         setComparisonProject("");
       })
       .finally(() => setLoading(false));
-  }, [localToken]);
+  }, [token, gtSets]);
 
   const handleRunEvaluation = async () => {
     setEvalLoading(true);
@@ -68,7 +68,7 @@ export default function EvaluateAICard({ apiToken }) {
 
     try {
       const result = await evaluateAI(
-        localToken,
+        token,
         groundtruthProject,
         comparisonProject
       );
@@ -92,31 +92,7 @@ export default function EvaluateAICard({ apiToken }) {
       {/* === TOKEN SECTION === */}
       <div className="mt-8">
         <div>
-          <a
-            href={`${LS_BASE}/user/account/legacy-token`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block bg-xtractyl-orange text-xtractyl-white font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange/80 transition"
-          >
-            Get your legacy token
-          </a>
-
-          <p className="mt-2 text-sm text-xtractyl-outline/60">
-            Return here after copying the token from Label Studio.
-          </p>
-
-          <p className="mt-1 text-sm text-xtractyl-outline/60">
-            ⚠️ If you see no legacy token there, go to{" "}
-            <a
-              href={`${LS_BASE}/organization/`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xtractyl-green hover:underline"
-            >
-              {LS_BASE}/organization
-            </a>{" "}
-            and enable it via the API Tokens settings.
-          </p>
+        < TokenLink />
         </div>
 
         <div className="mt-3">
@@ -126,9 +102,9 @@ export default function EvaluateAICard({ apiToken }) {
 
           <input
             type="password"
-            value={localToken}
-            onChange={(e) => setToken(e.target.value)}
-            placeholder={localToken || "Enter your Label Studio token"}
+            value={token}
+            onChange={(e) => saveToken(e.target.value)}
+            placeholder={token || "Enter your Label Studio token"}
             className="w-full border border-xtractyl-outline/30 rounded px-3 py-2 bg-xtractyl-white text-xtractyl-darktext"
             autoComplete="off"
             spellCheck={false}
@@ -137,9 +113,9 @@ export default function EvaluateAICard({ apiToken }) {
       </div>
 
       {/* === SAVE AS GT SET === */}
-      {localToken && (
+      {token && (
         <SaveAsGtSet
-          apiToken={localToken}
+          apiToken={token}
           projects={projects}
           gtSets={gtSets}
           onSuccess={() => setGtSetVersion(v => v + 1)}
@@ -147,7 +123,7 @@ export default function EvaluateAICard({ apiToken }) {
       )}
 
       {/* === COMPARISON SELECTION === */}
-      {localToken && (
+      {token && (
         <ComparisonSelection
           projects={projects}
           gtSets={gtSets}
@@ -162,7 +138,7 @@ export default function EvaluateAICard({ apiToken }) {
       )}
 
       {/* === EVALUATION RESULTS === */}
-      {localToken && (
+      {token && (
         <EvaluationResults
           loading={evalLoading}
           errorMsg={evalError}

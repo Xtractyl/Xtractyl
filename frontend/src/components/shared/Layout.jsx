@@ -1,3 +1,4 @@
+//src/components/shared/Layout.jsx
 import TopBar from './TopBar'
 
 export default function Layout({ children }) {

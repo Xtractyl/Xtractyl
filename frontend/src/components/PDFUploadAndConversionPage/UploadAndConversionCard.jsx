@@ -1,5 +1,5 @@
 // src/components/UploadAndConvertCard.jsx
-import React, { useState } from "react";
+import { useState } from "react";
 import useSubfolders from "../../hooks/PDFUploadAndConversionPage/useSubfolders";
 import useFilesInFolder from "../../hooks/PDFUploadAndConversionPage/useFilesInFolder";
 import useJobManager from "../../hooks/PDFUploadAndConversionPage/useJobManager";

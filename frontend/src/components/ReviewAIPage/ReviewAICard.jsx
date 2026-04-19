@@ -1,6 +1,6 @@
+//src/components/ReviewAIPage/ReviewAICard.jsx
 export default function ReviewAICard() {
     const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080";
-    const PROJECT_ID = 1; // später gern dynamisch/aus Zustand
   
     return (
     <div className="p-8 bg-xtractyl-background min-h-screen text-xtractyl-darktext">

@@ -1,13 +1,12 @@
 // frontend/src/components/GetResultsPage/GetResultsCard.jsx
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import ResultsTable from "./ResultsTable";
 import { getResultsTable } from "../../api/GetResultsPage/api.js";
+import { useAppContext } from "../../context/AppContext";
+import TokenLink from "../shared/TokenLink";
 
-const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080"; // only for links
-
-export default function GetResultsCard({ apiToken, projectName}) {
-  const [localProjectName, setLocalProjectName] = useState(projectName || "");
-  const [token, setToken] = useState(apiToken || "");
+export default function GetResultsCard() {
+  const { token, projectName, saveToken, saveProjectName } = useAppContext();
   const [columns, setColumns] = useState([]);
   const [rows, setRows] = useState([]);
 
@@ -15,32 +14,16 @@ export default function GetResultsCard({ apiToken, projectName}) {
   const [err, setErr] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const canSubmit = useMemo(
-    () => localProjectName.trim() && token.trim(),
-    [localProjectName, token]
-  );
+  const canSubmit = projectName.trim() && token.trim();
 
-  useEffect(() => {
-    setLocalProjectName(projectName || "");
-    setSubmitted(false);
-    setColumns([]);
-    setRows([]);
-  }, [projectName]);
 
-  useEffect(() => {
-      setToken(apiToken || "");
-      setSubmitted(false);
-      setColumns([]);
-      setRows([]);
-    }, [apiToken]);
-
-  const fetchData = useCallback(async () => {
+  const fetchData = async () => {
     if (!canSubmit) return;
     setLoading(true);
     setErr("");
     try {
       const data = await getResultsTable({
-        projectName: localProjectName,
+        projectName,
         token,
       });
       setColumns(Array.isArray(data.columns) ? data.columns : []);
@@ -52,7 +35,7 @@ export default function GetResultsCard({ apiToken, projectName}) {
     } finally {
       setLoading(false);
     }
-    }, [canSubmit, localProjectName, token]);
+    };
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -67,29 +50,7 @@ export default function GetResultsCard({ apiToken, projectName}) {
         Enter your project name, enter your API token and submit to get your database (re-submit your data to update in case the AI is still running).
       </p>
       <div className="mb-6"></div>
-          <a
-            href={`${LS_BASE}/user/account/legacy-token`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block bg-xtractyl-orange text-xtractyl-white font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange/80 transition"
-          >
-            Get your legacy token
-          </a>
-          <p className="mt-2 text-sm text-xtractyl-outline/60">
-            Return here after copying the token from Label Studio.
-          </p>
-          <p className="mt-1 text-sm text-xtractyl-outline/60">
-            ⚠️ If you see no legacy token there, go to{" "}
-            <a
-              href={`${LS_BASE}/organization/`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xtractyl-green hover:underline"
-            >
-              {LS_BASE}/organization
-            </a>{" "}
-            and enable it via the API Tokens settings.
-          </p>        
+      < TokenLink />    
       <div className="mt-6 border border-xtractyl-outline/20 p-4 flex flex-col gap-4 bg-xtractyl-offwhite">
         <form onSubmit={onSubmit} className="flex flex-row items-end gap-4">
           <div className="flex flex-col flex-1">
@@ -97,8 +58,8 @@ export default function GetResultsCard({ apiToken, projectName}) {
             <input
               type="text"
               placeholder="e.g., results"
-              value={localProjectName}
-              onChange={(e) => setLocalProjectName(e.target.value)}
+              value={projectName}
+              onChange={(e) => saveProjectName(e.target.value)}
               required
               className="border border-xtractyl-outline/30 rounded-md text-sm px-3 py-2 outline-none w-full focus:ring-2 focus:ring-xtractyl-lightgreen"
             />
@@ -110,7 +71,7 @@ export default function GetResultsCard({ apiToken, projectName}) {
               type="password"
               placeholder="Enter token"
               value={token}
-              onChange={(e) => setToken(e.target.value)}
+              onChange={(e) => saveToken(e.target.value)}
               required
               className="border border-xtractyl-outline/30 rounded-md text-sm px-3 py-2 outline-none w-full focus:ring-2 focus:ring-xtractyl-lightgreen"
             />

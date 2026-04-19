@@ -1,4 +1,4 @@
-import React from "react";
+//src/components/GetResultsPage/ResultsTable.jsx
 
 export default function ResultsTable({ columns, rows }) {
   if (!columns?.length || !rows?.length) {

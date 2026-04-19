@@ -1,6 +1,4 @@
 // src/components/EvaluateAIPage/ComparisonSelection.jsx
-import React from "react";
-
 export default function ComparisonSelection({
   projects,
   gtSets,

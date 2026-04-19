@@ -1,31 +1,21 @@
 // src/components/UploadTasks/UploadTasksCard.jsx
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import ProjectNameInput from "../shared/ProjectNameInput";
 import HtmlFolderSelect from "./HTMLFolderSelect";
 import { uploadTasks } from "../../api/UploadTasksPage/api.js";
+import { useAppContext } from "../../context/AppContext";
+import TokenLink from "../shared/TokenLink";
 
 const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080";
 
-export default function UploadTasksCard({ apiToken, projectName }) {
-  const [localProjectName, setLocalProjectName] = useState(projectName || "");
+export default function UploadTasksCard() {
+  const { token, projectName, saveToken, saveProjectName } = useAppContext();
   const [htmlFolder, setHtmlFolder] = useState("");
-  const [localToken, setLocalToken] = useState(apiToken || "");
   const [status, setStatus] = useState(null);
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    setLocalToken(apiToken || "");
-  }, [apiToken]);
-
-  useEffect(() => {
-    setLocalProjectName((prev) => {
-      if (prev && prev.trim().length > 0) return prev;
-      return projectName || "";
-    });
-  }, [projectName]);
-
   const handleUpload = async () => {
-    if (!localProjectName || !htmlFolder || !localToken) {
+    if (!projectName || !htmlFolder || !token) {
       alert("Please provide all fields.");
       return;
     }
@@ -35,15 +25,12 @@ export default function UploadTasksCard({ apiToken, projectName }) {
       setStatus(null);
 
       await uploadTasks({
-        projectName: localProjectName,
-        token: localToken,
+        projectName,
+        token,
         htmlFolder,
       });
 
-      console.log("✅ Upload success");
-      setStatus("✅ Tasks uploaded successfully.");
-    } catch (error) {
-      console.error("❌ Upload error");
+    } catch {
       setStatus(`❌ Upload failed.`);
     } finally {
       setBusy(false);
@@ -58,34 +45,12 @@ export default function UploadTasksCard({ apiToken, projectName }) {
       </p>
 
       <div className="space-y-6 bg-xtractyl-offwhite p-6 rounded shadow max-w-xl">
-        <ProjectNameInput value={localProjectName} onChange={setLocalProjectName} />
+        <ProjectNameInput value={projectName} onChange={saveProjectName} />
         <HtmlFolderSelect selected={htmlFolder} onChange={setHtmlFolder} />
 
         {/* Token helper link */}
         <div>
-          <a
-            href={`${LS_BASE}/user/account/legacy-token`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block bg-xtractyl-orange text-xtractyl-white text-xtractyl-outline/70 font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange/80 transition"
-          >
-            Get your legacy token
-          </a>
-          <p className="mt-2 text-sm text-xtractyl-outline/60">
-            Return here after copying the token from Label Studio.
-          </p>
-          <p className="mt-1 text-sm  text-xtractyl-outline/60">
-            ⚠️ If you see no legacy token there, go to{" "}
-            <a
-              href={`${LS_BASE}/organization`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xtractyl-green hover:underline"
-            >
-              {LS_BASE}/organization
-            </a>{" "}
-            and enable it via the API Tokens settings.
-          </p>
+          <TokenLink />
         </div>
 
         {/* Token Input */}
@@ -94,11 +59,11 @@ export default function UploadTasksCard({ apiToken, projectName }) {
             Label Studio Token
           </label>
           <input
-            key={apiToken ?? "empty"}   
+            key={token ?? "empty"}   
             type="password"
-            value={localToken}
-            onChange={(e) => setLocalToken(e.target.value)}
-            placeholder={localToken || "Enter your Label Studio token"}
+            value={token}
+            onChange={(e) => saveToken(e.target.value)}
+            placeholder={token || "Enter your Label Studio token"}
             className="w-full border border-xtractyl-outline/30 rounded px-3 py-2 bg-xtractyl-white text-xtractyl-darktext"
           />
         </div>

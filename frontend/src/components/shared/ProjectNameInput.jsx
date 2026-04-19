@@ -1,4 +1,4 @@
-import React from "react";
+//src/components/shared/ProjectNameInput.jsx
 
 export default function ProjectNameInput({ value, onChange }) {
   return (
