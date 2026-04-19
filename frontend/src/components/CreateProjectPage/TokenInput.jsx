@@ -2,8 +2,6 @@
 import { useAppContext } from "../../context/AppContext";
 import TokenLink from "../shared/TokenLink";
 
-const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080";
-
 export default function TokenInput() {
   const { token, saveToken } = useAppContext();
 
@@ -12,8 +10,6 @@ export default function TokenInput() {
     e.preventDefault();
     const trimmed = token.trim();
     if (!trimmed) return;
-
-    onTokenSave?.(trimmed);
     saveToken(trimmed);
   };
 
