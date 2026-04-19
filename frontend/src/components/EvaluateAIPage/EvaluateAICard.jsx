@@ -8,8 +8,6 @@ import EvaluationResults from "./EvaluationResults.jsx";
 import { useAppContext } from "../../context/AppContext";
 import TokenLink from "../shared/TokenLink";
 
-const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080";
-
 export default function EvaluateAICard() {
   const {token, saveToken } = useAppContext();
   const [gtSets, setGtSets] = useState([]);
@@ -61,7 +59,7 @@ export default function EvaluateAICard() {
         setComparisonProject("");
       })
       .finally(() => setLoading(false));
-  }, [token]);
+  }, [token, gtSets]);
 
   const handleRunEvaluation = async () => {
     setEvalLoading(true);
