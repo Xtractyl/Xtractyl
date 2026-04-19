@@ -7,6 +7,7 @@ import SystemPromptInput from "./SystemPromptInput";
 import QuestionsAndLabelsPicker from "./QuestionsAndLabelsPicker";
 import { prelabelProject, cancelPrelabel, getPrelabelStatus } from "../../api/StartPrelabellingPage/api.js";
 import { useAppContext } from "../../context/AppContext";
+import TokenLink from "../shared/TokenLink";
 
 
 const ORCH_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001";
@@ -52,7 +53,7 @@ const canStart =
         model,
         system_prompt: systemPrompt,
         qal_file: qalFile,
-        token: token,
+        token,
         questions_and_labels: questionsAndLabels,
       };
 
@@ -175,29 +176,7 @@ const canStart =
         </div>
 
         <div>
-          <a
-            href={`${LS_BASE}/user/account/legacy-token`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block bg-xtractyl-orange text-xtractyl-white  text-xtractyl-outline/70ase font-medium px-5 py-2 rounded shadow hover:bg-xtractyl-orange-600 transition"
-          >
-            Get your legacy token
-          </a>
-          <p className="mt-2 text-sm text-xtractyl-outline/60">
-            Return here after copying the token from Label Studio.
-          </p>
-          <p className="mt-1 text-sm text-xtractyl-outline/60">
-            ⚠️ If you see no legacy token there, go to{" "}
-            <a
-              href={`${LS_BASE}/organization/`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xtractyl-green hover:underline"
-            >
-              {LS_BASE}/organization
-            </a>{" "}
-            and enable it via the API Tokens settings.
-          </p>
+          < TokenLink />
         </div>
 
         <div className="mt-3">
