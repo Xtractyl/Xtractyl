@@ -1,15 +1,12 @@
 //src/components/CreateProjectPage/TokenInput.jsx
 import { useState, useEffect } from "react";
+import { useAppContext } from "../../context/AppContext";
 
 const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080";
 
-export default function TokenInput({ onTokenSave }) {
-  const [token, setToken] = useState("");
+export default function TokenInput() {
+  const { token, saveToken } = useAppContext();
 
-  useEffect(() => {
-    const saved = localStorage.getItem("apiToken");
-    if (saved) setToken(saved);
-  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -17,7 +14,7 @@ export default function TokenInput({ onTokenSave }) {
     if (!trimmed) return;
 
     onTokenSave?.(trimmed);
-    localStorage.setItem("apiToken", trimmed);
+    saveToken(trimmed);
   };
 
   return (
@@ -29,7 +26,7 @@ export default function TokenInput({ onTokenSave }) {
         type="password"
         id="ls-token"
         value={token}
-        onChange={(e) => setToken(e.target.value)}
+        onChange={(e) => saveToken(e.target.value)}
         placeholder="Paste your legacy token"
         className="w-full px-3 py-2 border border-xtractyl-outline/30 rounded mb-3 bg-xtractyl-white text-xtractyl-darktext"
         autoComplete="off"
