@@ -5,8 +5,6 @@ import { getResultsTable } from "../../api/GetResultsPage/api.js";
 import { useAppContext } from "../../context/AppContext";
 import TokenLink from "../shared/TokenLink";
 
-const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080"; // only for links
-
 export default function GetResultsCard() {
   const { token, projectName, saveToken, saveProjectName } = useAppContext();
   const [columns, setColumns] = useState([]);
@@ -25,7 +23,7 @@ export default function GetResultsCard() {
     setErr("");
     try {
       const data = await getResultsTable({
-        projectName: projectName,
+        projectName,
         token,
       });
       setColumns(Array.isArray(data.columns) ? data.columns : []);
