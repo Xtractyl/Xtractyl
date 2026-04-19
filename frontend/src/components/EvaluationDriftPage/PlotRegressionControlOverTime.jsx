@@ -26,7 +26,7 @@ export default function PlotRegressionControlOverTime({ entries }) {
   ];
 
   // Für jede Konfigurationsgruppe: eine Linie pro Modell
-  const plots = Object.entries(groups).map(([key, groupEntries], groupIdx) => {
+  const plots = Object.entries(groups).map(([, groupEntries], groupIdx) => {
     const byModel = {};
     groupEntries.forEach((e) => {
       const model = e.model || "unknown";
@@ -65,7 +65,6 @@ export default function PlotRegressionControlOverTime({ entries }) {
       ];
     });
 
-    const config = JSON.parse(key);
 
     return (
       <div key={groupIdx}>
