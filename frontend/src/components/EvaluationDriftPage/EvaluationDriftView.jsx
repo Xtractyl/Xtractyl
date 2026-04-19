@@ -4,7 +4,6 @@ import { fetchEvaluationDrift } from "../../api/EvaluationDriftPage/api.js";
 
 import PlotEvaluationOverTimeGeneral from "./PlotEvaluationOverTimeGeneral.jsx"
 import PlotEvaluationOverTimePerLabel from "./PlotEvaluationOverTimePerLabel.jsx"
-import PlotRegressionControlOverTime from "./PlotRegressionControlOverTime.jsx"
 
 export default function EvaluationDriftView() {
   const [loading, setLoading] = useState(true);
