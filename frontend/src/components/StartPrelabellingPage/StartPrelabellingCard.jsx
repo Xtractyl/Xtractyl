@@ -10,8 +10,6 @@ import { useAppContext } from "../../context/AppContext";
 import TokenLink from "../shared/TokenLink";
 
 
-const ORCH_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001";
-const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080"; // only for links
 
 export default function StartPrelabellingCard() {
   const [model, setModel] = useState(() => localStorage.getItem("ollamaModel") || "");
