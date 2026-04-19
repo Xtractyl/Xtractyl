@@ -1,7 +1,7 @@
 //src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/shared/Layout';
-import UploadandConversionPage from './pages/PDFUploadandConversion.jsx';
+import UploadAndConversionPage from './pages/PDFUploadAndConversion.jsx';
 import CreateProjectPage from './pages/CreateProject.jsx';
 import UploadTasksPage from './pages/UploadTasks.jsx';
 import StartPrelabellingPage from './pages/StartPrelabelling.jsx';
@@ -20,7 +20,7 @@ export default function App() {
     <Router>
       <Layout>
         <Routes>
-          <Route path="/" element={<UploadandConversionPage />} />
+          <Route path="/" element={<UploadAndConversionPage />} />
           <Route path="/aboutpage" element={<AboutPage />} />
           <Route path="/project" element={<CreateProjectPage />} />
           <Route path="/tasks" element={<UploadTasksPage />} />
