@@ -44,7 +44,7 @@ export default function StartPrelabellingCard() {
         <ModelDownloadInput onDone={() => setRefreshKey((k) => k + 1)} />
       </div>
 
-      <div className="space-y-6 bg-xtractyl-offwhite p-6 rounded shadow max-w-3xl">
+      <div className="space-y-6 bg-xtractyl-offwhite p-6 rounded shadow">
         <ProjectNameInput value={projectName} onChange={saveProjectName} />
         <div className="text-sm text-xtractyl-outline/70 -mt-2">
           <div>Forgot your project name?</div>

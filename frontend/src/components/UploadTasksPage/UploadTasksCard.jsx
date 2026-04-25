@@ -45,7 +45,7 @@ export default function UploadTasksCard() {
         Select your project, API token, and HTML folder to upload tasks.
       </p>
 
-      <div className="space-y-6 bg-xtractyl-offwhite p-6 rounded shadow max-w-xl">
+      <div className="space-y-6 bg-xtractyl-offwhite p-6 rounded shadow">
         <ProjectNameInput value={projectName} onChange={saveProjectName} />
         <HtmlFolderSelect selected={htmlFolder} onChange={setHtmlFolder} />
 
