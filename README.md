@@ -21,8 +21,7 @@ Planned: local fine-tuning of models on domain-specific data to further improve 
 
 🔍 Designed for **privacy-first**, human-validated data extraction with built-in evaluation and comparison tools.
 
-> **Status:** Core pipeline functional for simple PDFs. Hardening in progress — see [Current Status & Roadmap](#-current-status--roadmap).
-
+> **Status:** Core pipeline functional. Active development — see [Current Status & Roadmap](#️-current-status--roadmap). See [Known Limitations](#️-known-limitations) for current constraints.
 
 ---
 
@@ -40,15 +39,7 @@ While not a medical device, Xtractyl addresses key challenges relevant to MedTec
 	•	🤖 AI-assisted annotation with human validation
 	•	🧩 Extensible pipeline architecture using Docker and modern ML tools
 
-⚠️ Note: Xtractyl is a research-only tool — not intended for commercial or medical use.
-
-⚠️ Note: All included medical test data are fully synthetic and created with AI.
-
-⚠️ Note: For development purposes data currently shows up in the local log files (be aware of that when working with real data), this is currently being hardened, see below under "logging" for additional information.
-
-⚠️ Note: Label Studio currently needs short time online connection to display projects: https://github.com/HumanSignal/label-studio/issues/9086#issuecomment-3817949828 
-A solution is being worked on.
-
+⚠️ **Note:** Xtractyl is a research-only tool, not intended for clinical or  commercial use. All included test data is fully synthetic. See [Current Status & Roadmap](#-current-status--roadmap) for current constraints.
 
 ---
 
@@ -269,13 +260,19 @@ After training, the finetuned model is evaluated against the ground truth using 
 - Comparable — finetuned models are evaluated with the same framework as base models
 - Integrated — finetuning is triggered and monitored through the Xtractyl frontend, not a separate tool
 
---
+---
+
+## ⚠️ Known Limitations
+- Complex/long PDFs not yet reliably handled — see [Current Status & Roadmap](#️-current-status--roadmap)
+- Label Studio requires a brief internet connection on startup, see github issue for a manual workaround ([upstream issue](https://github.com/HumanSignal/label-studio/issues/9086#issuecomment-3817949828))
+- Dev mode may log sensitive data — use default mode with real data
+
+
+---
 
 ## Project Management & Collaboration
-This project is managed using industry-standard tools:
 
-- [Jira Board (private, invitation only – link available on request)]
-- [Miro Board (private, invitation only – link available on request)]
+see CONTRIBUTING.md for further details on how to contribute.
 
 ---
 
@@ -597,7 +594,7 @@ VERSION
 
 ---
 
-## 📜 logging (hardening in progress)
+## 🪵 Logging
 
 1) Default mode (safe logs)
 	•	enabled by default
