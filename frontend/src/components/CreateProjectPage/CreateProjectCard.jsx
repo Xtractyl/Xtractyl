@@ -12,11 +12,12 @@ export default function CreateProjectCard() {
   const [groundtruthError, setGroundtruthError] = useState("");
   const [groundtruthLoading, setGroundtruthLoading] = useState(false);
   const { token, saveProjectName } = useAppContext();
+  const [statusMsg, setStatusMsg] = useState("");
 
   const handleFormSubmit = async (formData) => {
     try {
       if (!token) {
-        alert("Please enter and save an API token first.");
+        setStatusMsg("❌ Please enter and save an API token first.");
         return;
       }
       await checkProjectExists(formData.title);
@@ -28,12 +29,12 @@ export default function CreateProjectCard() {
         ...formData,
         token, 
       });
-
+      setStatusMsg("✅ Project created successfully.");
     } catch (error) {
       if (error.message === "PROJECT_ALREADY_EXISTS") {
-        alert("❌ A project with this name already exists.");
+        setStatusMsg("❌ A project with this name already exists.");
       } else {
-        alert("Something went wrong.");
+        setStatusMsg("❌ Something went wrong.");
      }
     }
   };
@@ -63,7 +64,12 @@ export default function CreateProjectCard() {
       <TokenInput />
 
       {/* Formular nur, wenn App schon einen Token kennt */}
-      {token && <CreateProjectForm onSubmit={handleFormSubmit} />}
+      {token && (
+        <div>
+          <CreateProjectForm onSubmit={handleFormSubmit} />
+          {statusMsg && <div className="text-sm mt-2">{statusMsg}</div>}
+        </div>
+      )}
 
           {/* Groundtruth helper section */}
       <div className="mt-4 border rounded p-3 bg-xtractyl-offwhite">
