@@ -4,6 +4,14 @@
 
 # 🦕 Extract structured data from messy medical PDFs
 
+![Lint](https://github.com/Xtractyl/xtractyl/actions/workflows/lint.yml/badge.svg)
+![Unit Tests](https://github.com/Xtractyl/xtractyl/actions/workflows/unit.yml/badge.svg)
+![Smoke Tests](https://github.com/Xtractyl/xtractyl/actions/workflows/smoke.yml/badge.svg)
+![License](https://img.shields.io/badge/license-non--commercial-red)
+![Status](https://img.shields.io/badge/status-active-green)
+![React](https://img.shields.io/badge/react-19-61DAFB)
+![Docker](https://img.shields.io/badge/docker-compose-2496ED)
+
 **Xtractyl** is a modular, local, human-in-the-loop AI pipeline that searches unstructured PDF documents for specific cases and builds a structured database from them.
 
 It converts PDFs → HTML → DOM → pre-labels them with an LLM → enables manual review via Label Studio → and 🦕 **xtracts** structured data for downstream analysis.
