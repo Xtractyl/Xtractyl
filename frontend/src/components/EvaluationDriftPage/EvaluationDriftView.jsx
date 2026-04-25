@@ -90,14 +90,10 @@ export default function EvaluationDriftView() {
           seen.add(e.run_at_raw);
           return true;
         });
-        const numbered = deduped.map((e, i) => ({ ...e, number: i + 1 }));
-        const sorted = [...numbered].sort((a, b) => {
-          const m = String(a.model || "").localeCompare(String(b.model || ""));
-          if (m !== 0) return m;
-          return String(a.run_at_raw || "").localeCompare(
-            String(b.run_at_raw || "")
-          );
-        });
+      const sorted = [...deduped].sort((a, b) =>
+        String(a.run_at_raw || "").localeCompare(String(b.run_at_raw || ""))
+      );
+      const numbered = sorted.map((e, i) => ({ ...e, number: i + 1 }));
 
         return (
           <div key={set.series}>
@@ -134,7 +130,7 @@ export default function EvaluationDriftView() {
                   </tr>
                 </thead>
                 <tbody>
-                  {sorted.map((it, idx) => {
+                  {numbered.map((it, idx) => {
                     const micro = it.metrics?.micro || {};
                     const tp = typeof micro.tp === "number" ? micro.tp : 0;
                     const fp = typeof micro.fp === "number" ? micro.fp : 0;
