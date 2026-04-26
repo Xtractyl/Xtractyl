@@ -11,27 +11,28 @@ const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080";
 export default function UploadTasksCard() {
   const { token, projectName, saveToken, saveProjectName } = useAppContext();
   const [htmlFolder, setHtmlFolder] = useState("");
-  const [status, setStatus] = useState(null);
+  const [statusMsg, setStatusMsg] = useState("");
   const [busy, setBusy] = useState(false);
+
 
   const handleUpload = async () => {
     if (!projectName || !htmlFolder || !token) {
-      alert("Please provide all fields.");
+      setStatusMsg("❌ Please provide all fields.");
       return;
     }
 
     try {
       setBusy(true);
-      setStatus(null);
+      setStatusMsg(null);
 
       await uploadTasks({
         projectName,
         token,
         htmlFolder,
       });
-
+      setStatusMsg("✅ Tasks uploaded successfully.");
     } catch {
-      setStatus(`❌ Upload failed.`);
+      setStatusMsg(`❌ Upload failed.`);
     } finally {
       setBusy(false);
     }
@@ -44,7 +45,7 @@ export default function UploadTasksCard() {
         Select your project, API token, and HTML folder to upload tasks.
       </p>
 
-      <div className="space-y-6 bg-xtractyl-offwhite p-6 rounded shadow max-w-xl">
+      <div className="space-y-6 bg-xtractyl-offwhite p-6 rounded shadow">
         <ProjectNameInput value={projectName} onChange={saveProjectName} />
         <HtmlFolderSelect selected={htmlFolder} onChange={setHtmlFolder} />
 
@@ -95,7 +96,7 @@ export default function UploadTasksCard() {
           </a>
         </div>
 
-        {status && <p className="mt-4 text-sm">{status}</p>}
+        {statusMsg && <p className="mt-4 text-sm">{statusMsg}</p>}
       </div>
     </div>
   );
