@@ -14,7 +14,7 @@
 ![Docker](https://img.shields.io/badge/docker-compose-2496ED)
 
 
-[![Xtractyl Demo](https://img.youtube.com/vi/ZyQJqWzFoLg/maxresdefault.jpg)](https://www.youtube.com/watch?v=ZyQJqWzFoLg)
+[![Xtractyl Demo](assets/thumbnail_screener.png)](https://www.youtube.com/watch?v=ZyQJqWzFoLg)
 
 
 **Xtractyl** is a modular, local, human-in-the-loop AI pipeline that searches unstructured PDF documents for specific cases and builds a structured database from them.
