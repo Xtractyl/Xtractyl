@@ -44,7 +44,24 @@ While not a medical device, Xtractyl addresses key challenges relevant to MedTec
 	•	🤖 AI-assisted annotation with human validation
 	•	🧩 Extensible pipeline architecture using Docker and modern ML tools
 
-⚠️ **Note:** Xtractyl is a research-only tool, not intended for clinical or  commercial use. All included test data is fully synthetic. See [Current Status & Roadmap](#-current-status--roadmap) for current constraints.
+>⚠️ **Note:** Xtractyl is a research-only tool, not intended for clinical or  commercial use. All included test data is fully synthetic. See [Current Status & Roadmap](#-current-status--roadmap) for current constraints.
+
+## 📋 Regulatory & Quality Documentation
+
+Xtractyl is developed with software quality and regulatory transparency 
+in mind. A Design History File (DHF) structured according to the principles 
+of IEC 62304 and ISO 14971 is maintained in a separate private repository.
+
+This documentation is intended to support organizations that wish to build 
+regulated AI systems on top of Xtractyl — for example under MDR or the 
+EU AI Act — by providing auditable documentation of the training 
+infrastructure.
+
+> ⚠️ The existence of this documentation does not imply that Xtractyl 
+> is a certified medical device or MDR-compliant product. Xtractyl 
+> remains a research-only tool. Organizations building regulated systems 
+> on top of Xtractyl are solely responsible for their own regulatory 
+> assessment and certification.
 
 ---
 
@@ -299,9 +316,9 @@ Create a file named .env in root/frontend/src (the .env.example file in xtractyl
 
 For testing you can simply rename the .env.example files to .env (this will use default passwords and ports)
 
-⚠️ **Warning:** The build currently downloads *all* Docling models (several GB) to ensure full offline functionality. This can be changed to the specific use case via modification of the file docker/docling/Dockerfile at the line: RUN docling-tools models download --all -o /opt/docling-models.
+>⚠️ **Warning:** The build currently downloads *all* Docling models (several GB) to ensure full offline functionality. This can be changed to the specific use case via modification of the file docker/docling/Dockerfile at the line: RUN docling-tools models download --all -o /opt/docling-models.
 
- Then start the Docker containers from the xtractyl folder with:
+Then start the Docker containers from the xtractyl folder with:
 docker compose up --build
 
 Access the frontend via your browser at http://localhost:5173/ following the workflow shown below under Usage
@@ -447,15 +464,15 @@ Planned next.
 
 
 ### Review AI 
-❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+>❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 ![Review AI Page](assets/review_0.png)
-❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+>❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 ![Review AI 1](assets/review_1.png)
-❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+>❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 ![Review AI 2](assets/review_2.png)
-❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+>❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 ![Review AI 3](assets/review_3.png)
-❗❗THE ABOVE IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+>❗❗THE ABOVE IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
 
 7. **Results Page** 
@@ -467,11 +484,11 @@ Planned next.
 
 
 ### Get Results 
-❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+>❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
 ![Get results](assets/results.png)
 
-❗❗THE ABOVE IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+>❗❗THE ABOVE IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
 
 
@@ -487,23 +504,23 @@ Planned next.
 
 
 ### Evaluate the AI 
-❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+>❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
 ![Evaluate AI 1](assets/evaluation_0.png)
 
-❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+>❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
 ![Evaluate AI 2](assets/evaluation_1.png)
 
-❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+>❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
 ![Evaluate AI 3](assets/evaluation_2.png)
 
-❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+>❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
 ![Evaluate AI 4](assets/evaluation_3.png)
 
-❗❗THE ABOVE IMAGES SHOW SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+>❗❗THE ABOVE IMAGES SHOW SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
 
 
@@ -515,15 +532,15 @@ Planned next.
    - View Recall and Precision for Regression Monitoring for sets with same System Prompt, same Questions and same Labels
 
 ### Evaluation Drift 
-❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+>❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
 ![Evaluation Drift 1](assets/evaluation_drift_0.png)
 
-❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+>❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
 ![Evaluation Drift 2](assets/evaluation_drift_1.png)
 
-❗❗THE ABOVE IMAGES SHOW SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+>❗❗THE ABOVE IMAGES SHOW SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
 
 
 
