@@ -72,3 +72,5 @@ test-results/
 #logs
 logs/
 
+#ignore workspaces
+*.code-workspace
