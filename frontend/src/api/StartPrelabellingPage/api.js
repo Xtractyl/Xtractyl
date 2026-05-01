@@ -26,11 +26,14 @@ export async function pullModel(model, onProgress, baseUrl = OLLAMA_BASE) {
     buffer += decoder.decode(value, { stream: true });
     const lines = buffer.split("\n");
     buffer = lines.pop() || "";
-
+    let streamError = null;
     for (const line of lines) {
       if (!line.trim()) continue;
       try {
         const obj = JSON.parse(line);
+        if (obj.error) {
+                 streamError = new Error(obj.error);
+                 break;            }
         if (typeof obj.total === "number" && typeof obj.completed === "number" && obj.total > 0) {
           const pct = Math.round((obj.completed / obj.total) * 100);
           onProgress?.(`${pct}%`);
@@ -41,6 +44,8 @@ export async function pullModel(model, onProgress, baseUrl = OLLAMA_BASE) {
         // ignore partial/garbage lines in the stream
       }
     }
+    if (streamError) throw streamError;
+
   }
 }
 
