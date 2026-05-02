@@ -195,6 +195,12 @@ style ZA8 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
 style ZA9 fill:#FCA5A5,stroke:#88a,stroke-width:1px;
   ```
 
+ **Note:** Docling is intentionally addressed directly by the frontend. 
+ PDF conversion has no pipeline context — Docling operates independently 
+ of projects, jobs, and evaluation state. Routing file uploads through 
+ the Orchestrator would add latency and complexity without architectural 
+ benefit. All other services — including Ollama for model management — 
+ are accessed exclusively through the Orchestrator.
 
 ---
 
