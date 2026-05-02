@@ -31,8 +31,8 @@ export default function UploadTasksCard() {
         htmlFolder,
       });
       setStatusMsg("✅ Tasks uploaded successfully.");
-    } catch {
-      setStatusMsg(`❌ Upload failed.`);
+    } catch (e) {
+     setStatusMsg(`❌ ${e.message || "Upload failed."}`);
     } finally {
       setBusy(false);
     }

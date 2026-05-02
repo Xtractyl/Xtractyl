@@ -4,13 +4,16 @@ import { getHtmlSubfolders } from "../../api/UploadTasksPage/api.js";
 
 export default function HtmlFolderSelect({ selected, onChange }) {
   const [folders, setFolders] = useState([]);
-
+  const [err, setErr] = useState("");
 
 
   useEffect(() => {
     getHtmlSubfolders()
       .then(setFolders)
-      .catch(() => setFolders([]));
+     .catch((e) => {
+       setFolders([]);
+       setErr(e.message || "Failed to load folders.");
+     });
   }, []);
 
   return (
@@ -37,6 +40,7 @@ export default function HtmlFolderSelect({ selected, onChange }) {
         );
       })}
       </select>
+      {err && <div className="text-sm text-xtractyl-orange mt-1">❌ {err}</div>}
     </div>
   );
 }
