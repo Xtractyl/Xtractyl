@@ -59,9 +59,9 @@ export default function QuestionsAndLabelsPicker({
       const text = await file.text();
       const json = JSON.parse(text);
       onChange(projectName, file.name, json);
-    } catch {
-      alert("Invalid JSON file.");
-    }
+   } catch (e) {
+     setErr(e.message || "Failed to load file content.");
+   }
   };
 
   const handleDropdownSelect = async (fileName) => {
@@ -69,8 +69,8 @@ export default function QuestionsAndLabelsPicker({
     try {
       const json = await previewQal(projectName, fileName, apiBase);
       onChange(projectName, fileName, json);
-    } catch {
-      alert("❌ Failed to load file content.");
+   } catch {
+     setErr("Invalid JSON file.");
     }
   };
 
