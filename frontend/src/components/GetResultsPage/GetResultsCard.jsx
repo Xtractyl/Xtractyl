@@ -87,9 +87,9 @@ export default function GetResultsCard() {
         </form>
 
         {err ? (
-          <div className="p-3 border border-xtractyl-orange/30 bg-xtractyl-offwhite text-xtractyl-darktext rounded-md">
-            <strong>Error, does the project already exist in labelstudio?</strong> {err}
-          </div>
+       <div className="p-3 border border-xtractyl-orange/30 bg-xtractyl-offwhite text-xtractyl-darktext rounded-md">
+        ❌ {err}
+      </div>
         ) : null}
 
          {submitted ? <ResultsTable columns={columns} rows={rows} /> : null}
