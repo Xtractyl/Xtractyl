@@ -11,7 +11,7 @@ export default function PlotEvaluationOverTime({ entries }) {
   const x = sorted.map((e) => new Date(e.run_at_raw));
   const precision = sorted.map((e) => e.metrics?.micro?.precision ?? null);
   const recall = sorted.map((e) => e.metrics?.micro?.recall ?? null);
-  const numbers = sorted.map((_, i) => String(i + 1));
+  const numbers = sorted.map((e) => String(e.number));
 
   const tracePrecision = {
     x,
