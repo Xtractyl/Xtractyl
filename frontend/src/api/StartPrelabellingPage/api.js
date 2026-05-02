@@ -1,7 +1,9 @@
 // src/api/StartPrelabellingPage/api.js
-
+ import { request } from "../shared/request";
 const OLLAMA_BASE = import.meta.env.VITE_OLLAMA_BASE || "http://localhost:11434";
 const ORCH_BASE = (import.meta.env.VITE_ORCH_BASE || "http://localhost:5001").replace(/\/$/, "");
+const orch = (path, opts) => request(ORCH_BASE, path, opts);
+const ollama = (path, opts) => request(OLLAMA_BASE, path, opts);
 
 /** Pull a model from Ollama with streaming progress updates */
 export async function pullModel(model, onProgress, baseUrl = OLLAMA_BASE) {
@@ -50,33 +52,21 @@ export async function pullModel(model, onProgress, baseUrl = OLLAMA_BASE) {
 }
 
 /** List locally available Ollama models */
-export async function listModels(baseUrl = OLLAMA_BASE) {
-  const res = await fetch(`${baseUrl}/api/tags`);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const data = await res.json();
-
-  return Array.isArray(data?.models)
-    ? data.models.map((m) => m.model || m.name).filter(Boolean)
-    : [];
-}
+export async function listModels() {
+   const data = await ollama(`/api/tags`);
+   return Array.isArray(data?.models) ? data.models.map((m) => m.model || m.name).filter(Boolean) : [];
+ }
 
 /** List QAL json files for a project */
-export async function listQalJsons(projectName, base = ORCH_BASE) {
-  const url = `${base}/list_qal_jsons?project=${encodeURIComponent(projectName)}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const data = await res.json();
-  return Array.isArray(data.files) ? data.files : [];
-}
+ export async function listQalJsons(projectName) {
+   const data = await orch(`/list_qal_jsons?project=${encodeURIComponent(projectName)}`);
+   return Array.isArray(data.files) ? data.files : [];
+ }
 
 /** Preview a QAL file */
-export async function previewQal(projectName, fileName, base = ORCH_BASE) {
-  const url = `${base}/preview_qal?project=${encodeURIComponent(projectName)}&filename=${encodeURIComponent(fileName)}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const data = await res.json();
-  return data;
-}
+ export async function previewQal(projectName, fileName) {
+   return orch(`/preview_qal?project=${encodeURIComponent(projectName)}&filename=${encodeURIComponent(fileName)}`);
+ }
 
 /**
  * Enqueue prelabel job (or start it, depending on backend).
@@ -112,17 +102,7 @@ export async function cancelPrelabel(jobId, base = ORCH_BASE) {
  * { state, progress, project_name, model, created_at, ... }
  * If not found: { notFound: true }
  */
-export async function getPrelabelStatus(jobId, base = ORCH_BASE) {
-  const url = `${base}/prelabel/status/${encodeURIComponent(jobId)}`;
-  const res = await fetch(url);
-
-  if (res.status === 404) {
-    return { notFound: true };
-  }
-
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
-
-  // Orchestrator wraps under { status, data: {...} } (legacy: logs)
-  return data?.data ?? data?.logs ?? data;
-}
+ export async function getPrelabelStatus(jobId) {
+   const data = await orch(`/prelabel/status/${encodeURIComponent(jobId)}`);
+   return data?.data ?? data?.logs ?? data;
+ }
