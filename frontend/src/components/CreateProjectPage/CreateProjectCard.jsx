@@ -31,10 +31,10 @@ export default function CreateProjectCard() {
       });
       setStatusMsg("✅ Project created successfully.");
     } catch (error) {
-      if (error.message === "PROJECT_ALREADY_EXISTS") {
+         if (error.status === 409) {
         setStatusMsg("❌ A project with this name already exists.");
       } else {
-        setStatusMsg("❌ Something went wrong.");
+     setStatusMsg(`❌ ${error.message || "Something went wrong."}`);
      }
     }
   };
@@ -47,7 +47,7 @@ export default function CreateProjectCard() {
       setGroundtruthSets(Object.entries(data).map(([name, qal]) => ({ name, qal })));
     } catch (err) {
       console.error(err);
-      setGroundtruthError("Failed to load groundtruth questions and labels.");
+       setGroundtruthError(err.message || "Failed to load groundtruth questions and labels.");
     } finally {
       setGroundtruthLoading(false);
     }
