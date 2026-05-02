@@ -3,7 +3,7 @@ import Plot from "react-plotly.js";
 
 export default function PlotEvaluationOverTimePerLabel({ entries }) {
   if (!entries?.length) return null;
-
+  
   const sorted = [...entries].sort((a, b) =>
     String(a.run_at_raw || "").localeCompare(String(b.run_at_raw || ""))
   );
@@ -13,14 +13,16 @@ export default function PlotEvaluationOverTimePerLabel({ entries }) {
     Object.keys(e.metrics?.per_label || {}).forEach((l) => labelSet.add(l));
   });
   const labels = [...labelSet];
+  const legendY = 1.05 + labels.length * 0.08;
+  const plotHeight = 400 + labels.length * 20;
 
   const colors = [
     "#000000", "#22c55e", "#3b82f6", "#a855f7", "#ec4899",
     "#14b8a6", "#eab308", "#ef4444",
   ];
 
-  const numbers = sorted.map((_, i) => String(i + 1));
-  const x = sorted.map((e) => new Date(e.run_at_raw));
+  const numbers = sorted.map((e) => String(e.number));
+  const x = sorted.map((e) => e.number);
 
   const traces = labels.flatMap((label, li) => {
     const color = colors[li % colors.length];
@@ -60,13 +62,19 @@ export default function PlotEvaluationOverTimePerLabel({ entries }) {
     <Plot
       data={traces}
       layout={{
-        xaxis: { title: "Run" },
+        xaxis: { title: "Run",
+          tickmode: "array",
+          tickvals: sorted.map((e) => e.number),
+          ticktext: sorted.map((e) => new Date(e.run_at_raw).toLocaleString()),
+          tickangle: 45,
+          tickfont: { size: 12 },
+        },
         yaxis: { title: "Score", range: [0, 1] },
-        legend: { orientation: "h" },
-        margin: { t: 40, b: 40, l: 50, r: 20 },
-        height: 400,
+        legend: { orientation: "h", x: 0, y: legendY },
+        margin: { t: 40, b: 120, l: 50, r: 20 },
+        height: plotHeight,
       }}
-      style={{ width: "100%", height: "450px" }}
+      style={{ width: "100%", height: `${plotHeight + 50}px` }}
       config={{ responsive: false, displayModeBar: false }}
     />
   );
