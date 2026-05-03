@@ -390,6 +390,9 @@ make deps
 make unit-orchestrator
 ```
 
+**Note:** Unit tests for evaluation metrics (precision, recall, F1, confusion matrix calculations) are planned but not yet implemented. Current unit tests cover API route contracts, request/response validation, and error handling.
+
+
 #### Integration tests (pytest)
 Currently in implementation.
 
