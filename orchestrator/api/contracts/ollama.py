@@ -9,3 +9,7 @@ class ListModelsResponse(BaseModel):
 
 class PullModelRequest(BaseModel):
     model: str = Field(..., min_length=1)
+
+
+class PullModelResponse(BaseModel):
+    pass  # streaming response, no validation
