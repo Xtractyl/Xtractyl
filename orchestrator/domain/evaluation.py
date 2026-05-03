@@ -254,22 +254,17 @@ def evaluate_projects(cmd: EvaluateProjectsCommand) -> dict:
             message="Filenames in groundtruth and comparison project do not match.",
             meta={"missing_in_pred": missing_in_pred[:20], "extra_in_pred": extra_in_pred[:20]},
         )
-    gt_label_set = set()
-    for r in gt_rows:
-        gt_label_set |= set((r.get("labels") or {}).keys())
-
-    pred_label_set = set()
-    for r in pred_rows:
-        pred_label_set |= set((r.get("labels") or {}).keys())
-
-    if gt_label_set != pred_label_set:
-        missing_in_pred = sorted(gt_label_set - pred_label_set)
-        extra_in_pred = sorted(pred_label_set - gt_label_set)
-        raise InvalidState(
-            code="LABEL_MISMATCH",
-            message="Label sets in groundtruth and comparison project do not match.",
-            meta={"missing_in_pred": missing_in_pred, "extra_in_pred": extra_in_pred},
-        )
+    if groundtruth_project in gt_sets_by_name:
+        expected_labels = set(gt_sets_by_name[groundtruth_project].get("labels", []))
+        gt_label_set = set()
+        for r in gt_rows:
+            gt_label_set |= set((r.get("labels") or {}).keys())
+        if gt_label_set != expected_labels:
+            raise InvalidState(
+                code="LABEL_MISMATCH",
+                message="Label sets in groundtruth project do not match the expected QAL configuration.",
+                meta={"expected": sorted(expected_labels), "found": sorted(gt_label_set)},
+            )
 
     overall = compute_metrics_from_rows(gt_rows, pred_rows)
     times = [r.get("run_at_raw") for r in pred_rows if r.get("run_at_raw")]

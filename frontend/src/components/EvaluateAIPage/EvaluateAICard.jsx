@@ -25,7 +25,7 @@ export default function EvaluateAICard() {
   useEffect(() => {
     fetchGroundtruthQuestionsAndLabels()
       .then((sets) => setGtSets(Object.keys(sets || {})))
-      .catch(() => {});
+     .catch((e) => setErrorMsg(e.message || "Failed to load ground truth sets."));
   }, [gtSetVersion]);
 
   // Load project names from Label Studio via orchestrator
@@ -53,8 +53,8 @@ export default function EvaluateAICard() {
           setComparisonProject("");
         }
       })
-      .catch(() => {
-        setErrorMsg("Failed to load Label Studio projects.");
+    .catch((e) => {
+     setErrorMsg(e.message || "Failed to load Label Studio projects.");
         setGroundtruthProject(gtSets[0] || "");
         setComparisonProject("");
       })
@@ -73,8 +73,8 @@ export default function EvaluateAICard() {
         comparisonProject
       );
       setEvalResult(result);
-    } catch {
-      setEvalError("Evaluation failed.");
+ } catch (e) {
+   setEvalError(e.message || "Evaluation failed.");
     } finally {
       setEvalLoading(false);
     }

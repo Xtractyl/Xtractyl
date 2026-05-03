@@ -230,9 +230,30 @@ export default function EvaluationDriftView() {
             <h5 className="text-xs font-normal text-xtractyl-outline/70 mt-4 mb-1">
             For exact System Prompt, Questions and Labels see Raw Data
           </h5>
-           <div className="overflow-x-auto">
-              <PlotEvaluationOverTimeGeneral entries={numbered} />
-            </div>
+          {(() => {
+            const groupMap = {};
+            for (const e of numbered) {
+              const key = [
+                (e.system_prompt || "").trim(),
+                (Array.isArray(e.questions) ? e.questions : []).join("|"),
+                (Array.isArray(e.labels) ? e.labels : []).join("|"),
+              ].join("___");
+              if (!groupMap[key]) groupMap[key] = [];
+              groupMap[key].push(e);
+            }
+            const groups = Object.values(groupMap).filter((g) => g.length > 1);
+            if (!groups.length)
+              return (
+                <div className="text-sm text-xtractyl-outline/70">
+                  No runs with identical prompt and questions yet.
+                </div>
+              );
+            return groups.map((group, gi) => (
+              <div key={gi} className="overflow-x-auto mt-4">
+                <PlotEvaluationOverTimeGeneral entries={group} />
+              </div>
+            ));
+          })()}
           </div>
         );
       })}

@@ -78,11 +78,6 @@ export function usePrelabelJob() {
     const tick = async () => {
       try {
         const s = await getPrelabelStatus(preJobId);
-        if (s?.notFound) {
-          setPreJobId("");
-          dispatch({ type: "JOB_FINISHED" });
-          return;
-        }
         dispatch({ type: "STATUS_UPDATED", payload: s });
         const st = String(s?.state || "").toLowerCase();
         const pct = Number(s?.progress ?? 0);
@@ -97,7 +92,12 @@ export function usePrelabelJob() {
           return;
         }
         schedule();
-      } catch {
+     } catch (e) {
+       if (e?.status === 404) {
+         setPreJobId("");
+         dispatch({ type: "JOB_FINISHED" });
+         return;
+       }
         schedule();
       }
     };

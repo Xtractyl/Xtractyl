@@ -8,10 +8,10 @@ export default function PlotEvaluationOverTime({ entries }) {
     String(a.run_at_raw || "").localeCompare(String(b.run_at_raw || ""))
   );
 
-  const x = sorted.map((e) => new Date(e.run_at_raw));
+  const x = sorted.map((e) => e.number);
   const precision = sorted.map((e) => e.metrics?.micro?.precision ?? null);
   const recall = sorted.map((e) => e.metrics?.micro?.recall ?? null);
-  const numbers = sorted.map((_, i) => String(i + 1));
+  const numbers = sorted.map((e) => String(e.number));
 
   const tracePrecision = {
     x,
@@ -40,10 +40,15 @@ export default function PlotEvaluationOverTime({ entries }) {
     <Plot
       data={[traceRecall, tracePrecision]}
       layout={{
-        xaxis: { title: "Run" },
+        xaxis: { title: "Run",
+        tickmode: "array",
+        tickvals: sorted.map((e) => e.number),
+        ticktext: sorted.map((e) => new Date(e.run_at_raw).toLocaleString()),
+        tickangle: 45,
+        tickfont: { size: 12 },},
         yaxis: { title: "Score", range: [0, 1] },
-        legend: { orientation: "h" },
-        margin: { t: 40, b: 40, l: 50, r: 20 },
+         legend: { orientation: "h", x: 0, y: 1.15 },
+        margin: { t: 40, b: 120, l: 50, r: 20 },
         height: 400,
       }}
       style={{ width: "100%", height: "450px" }}
