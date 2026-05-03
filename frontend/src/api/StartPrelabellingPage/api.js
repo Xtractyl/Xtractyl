@@ -1,16 +1,14 @@
 // src/api/StartPrelabellingPage/api.js
  import { request } from "../shared/request";
-const OLLAMA_BASE = import.meta.env.VITE_OLLAMA_BASE || "http://localhost:11434";
 const ORCH_BASE = (import.meta.env.VITE_ORCH_BASE || "http://localhost:5001").replace(/\/$/, "");
 const orch = (path, opts) => request(ORCH_BASE, path, opts);
-const ollama = (path, opts) => request(OLLAMA_BASE, path, opts);
 
 /** Pull a model from Ollama with streaming progress updates */
-export async function pullModel(model, onProgress, baseUrl = OLLAMA_BASE) {
-  const res = await fetch(`${baseUrl}/api/pull`, {
+export async function pullModel(model, onProgress) {
+  const res = await fetch(`${ORCH_BASE}/ollama/models/pull`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name: model }),
+    body: JSON.stringify({ model: model }),
   });
 
   if (!res.ok || !res.body) {
@@ -53,8 +51,8 @@ export async function pullModel(model, onProgress, baseUrl = OLLAMA_BASE) {
 
 /** List locally available Ollama models */
 export async function listModels() {
-   const data = await ollama(`/api/tags`);
-   return Array.isArray(data?.models) ? data.models.map((m) => m.model || m.name).filter(Boolean) : [];
+   const data = await orch(`/ollama/models`);
+   return Array.isArray(data?.models) ? data.models : [];
  }
 
 /** List QAL json files for a project */
