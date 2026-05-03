@@ -4,11 +4,12 @@ const ORCH_BASE = (import.meta.env.VITE_ORCH_BASE || "http://localhost:5001").re
 const orch = (path, opts) => request(ORCH_BASE, path, opts);
 
 /** Pull a model from Ollama with streaming progress updates */
+/** not updated with request pattern due to streaming */
 export async function pullModel(model, onProgress) {
   const res = await fetch(`${ORCH_BASE}/ollama/models/pull`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ model: model }),
+    body: JSON.stringify({ model }),
   });
 
   if (!res.ok || !res.body) {
