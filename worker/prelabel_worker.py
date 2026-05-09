@@ -93,7 +93,6 @@ def handle_job(payload: dict) -> None:
 
 
 def main() -> None:
-    print("[worker] started, waiting for jobs...", flush=True)
     while True:
         item = r.brpop(QUEUE, timeout=5)
         if not item:
@@ -103,7 +102,6 @@ def main() -> None:
         try:
             payload = json.loads(raw)
         except Exception:
-            print("[worker] invalid payload received, skipping", flush=True)
             continue
         handle_job(payload)
 

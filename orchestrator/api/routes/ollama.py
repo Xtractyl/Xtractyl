@@ -23,11 +23,8 @@ def register(app, spec):
         tags=["ollama"],
     )
     def list_models_route():
-        print("list_models_route called", flush=True)
         cmd = ListModelsCommand.from_contract()
-        print("cmd ok", cmd, flush=True)
         result = list_models(cmd)
-        print("result", result, flush=True)
         try:
             validated = ListModelsResponse.model_validate(result)
         except ValidationError as e:
