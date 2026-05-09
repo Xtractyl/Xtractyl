@@ -69,39 +69,41 @@ export async function listModels() {
 
 /**
  * Enqueue prelabel job (or start it, depending on backend).
- * Returns the unwrapped payload so callers can read job_id directly.
+ * Token is sent via Authorization header, not in the payload.
  */
-export async function prelabelProject(payload, base = ORCH_BASE) {
-  const url = `${base}/prelabel_project`;
+export async function prelabelProject(payload) {
+  const { token, ...rest } = payload;
+  console.log("prelabelProject rest:", JSON.stringify(rest, null, 2));
+  const url = `${ORCH_BASE}/prelabel_project`;
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+    body: JSON.stringify(rest),
   });
-
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
-
-  // Orchestrator wraps under { status, data: {...} } (legacy: logs)
-  return data?.data ?? data?.logs ?? data;
+  if (!res.ok) {
+    const msg = data?.message || data?.error || 
+      (Array.isArray(data) ? data.map(d => d.msg).join(", ") : null) ||
+      `HTTP ${res.status}`;
+    throw new Error(msg);
+  }
+  return data;
 }
 
 /** Ask backend to cancel a running job (best effort). */
-export async function cancelPrelabel(jobId, base = ORCH_BASE) {
-  const url = `${base}/prelabel/cancel/${encodeURIComponent(jobId)}`;
-  const res = await fetch(url, { method: "POST" });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
-  // Orchestrator wraps under { status, data: {...} } (legacy: logs)
-  return data?.data ?? data?.logs ?? data;
+export async function cancelPrelabel(jobId) {
+  return orch(`/prelabel/cancel/${encodeURIComponent(jobId)}`, { method: "POST" });
 }
 
 /**
  * Get job status. Returns the unwrapped status object:
  * { state, progress, project_name, model, created_at, ... }
- * If not found: { notFound: true }
+ * Returns { state: "NOT_FOUND" } if job does not exist.
+
  */
  export async function getPrelabelStatus(jobId) {
-   const data = await orch(`/prelabel/status/${encodeURIComponent(jobId)}`);
-   return data?.data ?? data?.logs ?? data;
+   return orch(`/prelabel/status/${encodeURIComponent(jobId)}`);
  }
