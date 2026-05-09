@@ -32,31 +32,39 @@ def _auth_headers(token: str) -> dict:
 
 def resolve_project_id(token: str, project_name: str) -> int:
     url = f"{LABEL_STUDIO_URL}/api/projects"
-    try:
-        r = requests.get(url, headers=_auth_headers(token), timeout=20)
-        r.raise_for_status()
-        projects = r.json()
-    except HTTPError as e:
-        status = getattr(e.response, "status_code", None)
-        if status in (401, 403):
-            raise ExternalServiceError(
-                code="LABEL_STUDIO_UNAUTHORIZED",
-                message="Label Studio token is invalid or unauthorized.",
+    while True:
+        try:
+            r = requests.get(
+                url,
+                headers=_auth_headers(token),
+                timeout=20,
             )
-        raise ExternalServiceError(
-            code="LABEL_STUDIO_UNAVAILABLE",
-            message="Label Studio is unavailable.",
-        )
-    except requests.RequestException:
-        raise ExternalServiceError(
-            code="LABEL_STUDIO_UNAVAILABLE",
-            message="Label Studio is unavailable.",
-        )
-    if isinstance(projects, dict) and "results" in projects:
-        projects = projects["results"]
-    for p in projects:
-        if p.get("title") == project_name:
-            return int(p["id"])
+            r.raise_for_status()
+            data = r.json()
+        except HTTPError as e:
+            status = getattr(e.response, "status_code", None)
+            if status in (401, 403):
+                raise ExternalServiceError(
+                    code="LABEL_STUDIO_UNAUTHORIZED",
+                    message="Label Studio token is invalid or unauthorized.",
+                )
+            raise ExternalServiceError(
+                code="LABEL_STUDIO_UNAVAILABLE",
+                message="Label Studio is unavailable.",
+            )
+        except requests.RequestException:
+            raise ExternalServiceError(
+                code="LABEL_STUDIO_UNAVAILABLE",
+                message="Label Studio is unavailable.",
+            )
+        projects = data if isinstance(data, list) else data.get("results", [])
+        for p in projects:
+            if p.get("title") == project_name:
+                return int(p["id"])
+        next_url = data.get("next") if isinstance(data, dict) else None
+        if not next_url:
+            break
+        url = next_url
     raise NotFound(
         code="PROJECT_NOT_FOUND",
         message=f'Project "{project_name}" not found.',
