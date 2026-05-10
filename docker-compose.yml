@@ -197,7 +197,6 @@ services:
       - DEBUG_ARTIFACTS=${DEBUG_ARTIFACTS:-0}
       - CAPTURE_FIXTURES=${CAPTURE_FIXTURES:-0}
       - SYNTHETIC_DATA=${SYNTHETIC_DATA:-0}
-    command: ["python", "-m", "worker.prelabel_worker"]
 
 volumes:
   labelstudio_data:
