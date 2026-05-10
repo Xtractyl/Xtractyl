@@ -9,11 +9,11 @@ from .projects import register as register_projects
 from .results import register as register_results
 
 
-def register_routes(app, ok, spec):
+def register_routes(app, spec):
     register_health(app)
     register_evaluation(app, spec)
     register_evaluation_drift(app, spec)
-    register_jobs(app, ok, spec)
+    register_jobs(app, spec)
     register_results(app, spec)
     register_projects(app, spec)
     register_ollama(app, spec)

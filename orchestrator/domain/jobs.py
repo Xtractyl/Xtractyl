@@ -8,8 +8,7 @@ from typing import Any, Dict
 
 import redis
 
-from domain.errors import ValidationFailed
-from domain.models.jobs import JobStatusCommand
+from domain.models.jobs import CancelJobCommand, EnqueueJobCommand, JobStatusCommand
 
 REDIS_HOST = os.getenv("REDIS_HOST", "job_queue")
 REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
@@ -33,46 +32,6 @@ def _logs_key(job_id: str) -> str:
     return f"{LOGS}{job_id}"
 
 
-REQUIRED_FIELDS = ("project_name", "model", "system_prompt", "token")
-
-
-def enqueue_prelabel_job(payload: Dict[str, Any]) -> Dict[str, Any]:
-    for k in REQUIRED_FIELDS:
-        if not payload.get(k):
-            raise ValidationFailed(
-                code="MISSING_REQUIRED_FIELD",
-                message=f"Missing field: {k}",
-            )
-
-    job_id = payload.get("job_id")
-    if not job_id:
-        # prefer uuid, but keep it minimal here
-        job_id = str(int(time.time() * 1000))
-        payload["job_id"] = job_id
-
-    r.hset(
-        _status_key(job_id),
-        mapping={
-            "state": "PENDING",
-            "progress": "0",
-            "project_name": payload["project_name"],
-            "model": payload["model"],
-            "created_at": str(time.time()),
-            "error": "",
-        },
-    )
-    r.delete(_result_key(job_id))
-    r.delete(_logs_key(job_id))
-
-    r.rpush(QUEUE, json.dumps(payload))
-
-    return {
-        "job_id": job_id,
-        "status_url": f"/prelabel/status/{job_id}",
-        "cancel_url": f"/prelabel/cancel/{job_id}",
-    }
-
-
 def get_job_status(cmd: JobStatusCommand):
     job_id = cmd.job_id
     h = r.hgetall(_status_key(job_id)) or {}
@@ -88,7 +47,41 @@ def get_job_status(cmd: JobStatusCommand):
     return out
 
 
-def cancel_prelabel_job(job_id: str) -> Dict[str, Any]:
-    # mark cancel request; worker checks it between tasks
+def enqueue_prelabel_job(cmd: EnqueueJobCommand) -> Dict[str, Any]:
+    job_id = str(int(time.time() * 1000))
+
+    r.hset(
+        _status_key(job_id),
+        mapping={
+            "state": "PENDING",
+            "progress": "0",
+            "project_name": cmd.project_name,
+            "model": cmd.model,
+            "created_at": str(time.time()),
+            "error": "",
+        },
+    )
+    r.delete(_result_key(job_id))
+    r.delete(_logs_key(job_id))
+
+    payload = {
+        "job_id": job_id,
+        "project_name": cmd.project_name,
+        "model": cmd.model,
+        "system_prompt": cmd.system_prompt,
+        "questions_and_labels": cmd.questions_and_labels,
+        "token": cmd.token,
+    }
+    r.rpush(QUEUE, json.dumps(payload))
+
+    return {
+        "job_id": job_id,
+        "status_url": f"/prelabel/status/{job_id}",
+        "cancel_url": f"/prelabel/cancel/{job_id}",
+    }
+
+
+def cancel_prelabel_job(cmd: CancelJobCommand) -> Dict[str, Any]:
+    job_id = cmd.job_id
     r.hset(_status_key(job_id), "state", "CANCEL_REQUESTED")
     return {"job_id": job_id, "status": "cancel_requested"}

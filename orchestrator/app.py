@@ -3,7 +3,7 @@ import os
 
 from api.error_handler import register_error_handlers
 from api.routes import register_routes
-from flask import Flask, Response, jsonify
+from flask import Flask
 from flask_cors import CORS
 from flask_pydantic_spec import FlaskPydanticSpec
 from utils.logging_utils import dev_logger, safe_logger
@@ -19,37 +19,13 @@ FRONTEND_ORIGIN = os.getenv(
 APP_PORT = int(os.getenv("ORCH_PORT", "5001"))
 
 
-def ok(fn):
-    data = fn()
-
-    # passthrough: (payload, status) oder (Response, status)
-    if isinstance(data, tuple) and len(data) == 2:
-        body, status = data
-        if isinstance(body, Response):
-            return body, status
-        return jsonify(body), status
-
-    # passthrough: Response direkt
-    if isinstance(data, Response):
-        return data
-
-    # legacy passthrough: {"status": "..."}
-    if isinstance(data, dict) and data.get("status") in ("success", "error", "ok"):
-        st = data["status"]
-        code = 200 if st in ("success", "ok") else 400
-        return jsonify(data), code
-
-    # default wrapper
-    return jsonify({"status": "success", "data": data}), 200
-
-
 def create_app() -> Flask:
     app = Flask(__name__)
     # CORS: keep browser frontend working (incl. Authorization header)
     CORS(app, origins=[FRONTEND_ORIGIN], allow_headers=["Content-Type", "Authorization"])
 
     spec = FlaskPydanticSpec("flask", title="Orchestrator API", version="v1", path="apidoc")
-    register_routes(app, ok, spec)
+    register_routes(app, spec)
     register_error_handlers(
         app=app,
         logger_safe=safe_logger,

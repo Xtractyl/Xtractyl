@@ -1,41 +1,28 @@
-# worker/prelabel_logic.py
+# worker/domain/prelabel_project.py
 from __future__ import annotations
 
-import json
-import os
 import time
-import uuid
-from typing import Any, Callable, List, Optional
+from typing import Callable, List, Optional
 
-from worker.utils.prelabel_utils import (
+from contracts.jobs import JobPayload
+from infrastructure.label_studio import (
     get_tasks_without_predictions,
-    resolve_project_id_by_title,
-    send_predict,
+    resolve_project_id,
     wait_until_prediction_saved,
 )
+from infrastructure.ml_backend import send_predict
 
 LogCB = Optional[Callable[[str], None]]
 ProgressCB = Optional[Callable[[int], None]]
 CancelCB = Optional[Callable[[], bool]]
 
 
-def prelabel_complete_project_main(
-    payload: dict[str, Any],
+def prelabel_project(
+    job: JobPayload,
     log_cb: LogCB = None,
     progress_cb: ProgressCB = None,
     cancel_cb: CancelCB = None,
 ) -> List[str]:
-    """
-    Synchronous pre-label run based on explicit payload.
-
-    Required payload keys:
-      - project_name: str
-      - model: str
-      - system_prompt: str
-      - qal_file: str
-      - token: str
-      - (optional) job_id: str
-    """
     logs: List[str] = []
 
     def _log(line: str) -> None:
@@ -44,7 +31,7 @@ def prelabel_complete_project_main(
             try:
                 log_cb(line)
             except Exception:
-                pass  # do not let logging crash the job
+                pass
 
     def _progress(pct: int) -> None:
         pct = max(0, min(100, int(pct)))
@@ -55,29 +42,10 @@ def prelabel_complete_project_main(
                 pass
         _log(f"[PROGRESS] {pct}%")
 
-    for k in ("project_name", "model", "system_prompt", "qal_file", "token"):
-        if not payload.get(k):
-            raise ValueError(f"Missing field: {k}")
+    project_id = resolve_project_id(job.token, job.project_name)
+    _log(f"[INFO] Using project '{job.project_name}' (id={project_id}).")
 
-    project_name: str = payload["project_name"]
-    model: str = payload["model"]
-    system_prompt: str = payload["system_prompt"]
-    token: str = payload["token"]
-    qal_file: str = payload["qal_file"]
-
-    job_id = payload.get("job_id") or f"sync-{uuid.uuid4()}"
-
-    # Load questions & labels (dict with 'questions' and 'labels' arrays).
-    qal_path = os.path.join("data", "projects", project_name, qal_file)
-    if not os.path.exists(qal_path):
-        raise FileNotFoundError(f"Questions & Labels file not found: {qal_path}")
-    with open(qal_path, encoding="utf-8") as f:
-        questions_and_labels = json.load(f)
-
-    project_id = resolve_project_id_by_title(project_name, token)
-    _log(f"[INFO] Using project '{project_name}' (id={project_id}).")
-
-    tasks = get_tasks_without_predictions(project_id, token)
+    tasks = get_tasks_without_predictions(project_id, job.token)
     total = len(tasks)
     _log(f"[INFO] Found {total} tasks without predictions.")
 
@@ -85,7 +53,6 @@ def prelabel_complete_project_main(
     durations: List[float] = []
     done = 0
 
-    # initial progress
     _progress(0 if total > 0 else 100)
 
     for t in tasks:
@@ -102,18 +69,10 @@ def prelabel_complete_project_main(
             continue
 
         start = time.time()
-        resp = send_predict(
-            task_id=task_id,
-            html=html,
-            job_id=job_id,
-            model=model,
-            system_prompt=system_prompt,
-            token=token,
-            questions_and_labels=questions_and_labels,
-        )
+        resp = send_predict(task_id=task_id, html=html, job=job)
         _log(f"[SEND] Task {task_id} → /predict: {resp.status_code}")
 
-        ok = wait_until_prediction_saved(task_id, token)
+        ok = wait_until_prediction_saved(task_id, job.token)
         dt = time.time() - start
         durations.append(dt)
         total_time += dt
@@ -129,5 +88,5 @@ def prelabel_complete_project_main(
             f"[SUMMARY] Processed: {len(durations)} tasks | Total: {round(total_time, 2)}s | Avg: {round(avg, 2)}s"
         )
 
-    _log(f"[JOB] job_id={job_id}")
+    _log(f"[JOB] job_id={job.job_id}")
     return logs

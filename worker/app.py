@@ -1,4 +1,4 @@
-# worker/prelabel_worker.py
+# worker/app.py
 from __future__ import annotations
 
 import json
@@ -6,10 +6,11 @@ import os
 import traceback
 
 import redis
+from contracts.jobs import JobPayload
+from domain.prelabel_project import prelabel_project
+from pydantic import ValidationError
+from utils.logging_utils import dev_logger, safe_logger
 
-from worker.prelabel_logic import prelabel_complete_project_main
-
-# Redis connection (queue + job state)
 r = redis.Redis(
     host=os.getenv("REDIS_HOST", "job_queue"),
     port=int(os.getenv("REDIS_PORT", "6379")),
@@ -55,31 +56,25 @@ def _mark_cancelled(job_id: str) -> None:
     _add_log(job_id, "[INFO] Job cancelled.")
 
 
-def handle_job(payload: dict) -> None:
-    """
-    Execute a prelabel job taken from Redis. Supports cancel + progress reporting.
-    """
-    job_id = payload["job_id"]
+def handle_job(job: JobPayload) -> None:
+    job_id = job.job_id
     _set_status(job_id, state="RUNNING")
     _add_log(job_id, "[INFO] Worker picked up job.")
 
     try:
-        logs = prelabel_complete_project_main(
-            payload,
+        logs = prelabel_project(
+            job,
             log_cb=lambda line: _add_log(job_id, line),
             progress_cb=lambda pct: _set_status(job_id, progress=str(pct)),
             cancel_cb=lambda: _cancelled(job_id),
         )
 
-        # If a cancel was requested at any point, finalize as CANCELLED and stop here.
         if _cancelled(job_id):
             _mark_cancelled(job_id)
             return
 
-        # Persist a small result blob
         r.set(_result_key(job_id), json.dumps({"job_id": job_id, "logs_count": len(logs)}))
 
-        # Do not overwrite terminal states
         final_state = _get_state(job_id) or "RUNNING"
         if final_state not in ("CANCELLED", "FAILED"):
             _set_status(job_id, state="SUCCEEDED", progress="100")
@@ -88,24 +83,30 @@ def handle_job(payload: dict) -> None:
 
     except Exception as e:
         _set_status(job_id, state="FAILED", error=str(e))
-        _add_log(job_id, "[ERROR] " + str(e))
-        _add_log(job_id, "[TRACEBACK]\n" + traceback.format_exc())
+        safe_logger.error("job_failed", extra={"job_id": job_id})
+        if dev_logger:
+            dev_logger.exception(
+                "job_failed_dev",
+                extra={"job_id": job_id, "traceback": traceback.format_exc()},
+            )
 
 
 def main() -> None:
-    print("[worker] started, waiting for jobs...", flush=True)
+    safe_logger.info("worker_starting")
     while True:
         item = r.brpop(QUEUE, timeout=5)
         if not item:
-            # idle
             continue
         _, raw = item
         try:
             payload = json.loads(raw)
-        except Exception:
-            print("[worker] invalid payload received, skipping", flush=True)
+            job = JobPayload.model_validate(payload)
+        except (json.JSONDecodeError, ValidationError) as e:
+            safe_logger.error("invalid_payload")
+            if dev_logger:
+                dev_logger.error("invalid_payload_dev", extra={"error": str(e)})
             continue
-        handle_job(payload)
+        handle_job(job)
 
 
 if __name__ == "__main__":

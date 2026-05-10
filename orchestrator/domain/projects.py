@@ -184,7 +184,7 @@ def _safe_join(base: str, *paths: str) -> str:
     """Prevent path traversal by resolving and checking commonprefix."""
     full = os.path.abspath(os.path.join(base, *paths))
     base_abs = os.path.abspath(base)
-    if not os.path.commonprefix([full, base_abs]) == base_abs:
+    if not full.startswith(base_abs + os.sep):
         raise ValueError("Invalid path")
     return full
 
