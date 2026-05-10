@@ -69,7 +69,6 @@ def enqueue_prelabel_job(cmd: EnqueueJobCommand) -> Dict[str, Any]:
         "project_name": cmd.project_name,
         "model": cmd.model,
         "system_prompt": cmd.system_prompt,
-        "qal_file": cmd.qal_file,
         "questions_and_labels": cmd.questions_and_labels,
         "token": cmd.token,
     }
