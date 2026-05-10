@@ -249,9 +249,15 @@ The focus is on building a consistent engineering foundation before scaling feat
 - Fixture logging for synthetic test data
 - Unit tests with CI integration
 
+**Worker (completed)**
+- Layered architecture: `app.py` → `contracts` → `domain` → `infrastructure`
+- Pydantic-based queue contract validation
+- Structured logging with safe/dev modes
+- Unit tests with CI integration
+
 **All remaining containers (planned, sequential)**
 
-The same pattern will be applied to `ml_backend`, `worker`, and `docling`:
+The same pattern will be applied to `ml_backend` and `docling`:
 - Layered architecture mirroring the orchestrator
 - Structured logging
 - Fixture generation and unit tests integrated into CI
@@ -388,9 +394,10 @@ Currently in implementation.  Starting with the orchestrator
 ```bash
 make deps
 make unit-orchestrator
+make unit-worker
 ```
 
-**Note:** Unit tests for evaluation metrics (precision, recall, F1, confusion matrix calculations) are planned but not yet implemented. Current unit tests cover API route contracts, request/response validation, and error handling.
+**Note:** Unit tests for evaluation metrics (precision, recall, F1, confusion matrix calculations) are planned but not yet implemented. Current unit tests cover API route contracts, request/response validation, error handling (orchestrator), and queue contract validation and job state management (worker).
 
 
 #### Integration tests (pytest)
@@ -587,6 +594,7 @@ make down
 ```bash
 make deps
 make unit-orchestrator
+make unit-worker
 ```
 ---
 
