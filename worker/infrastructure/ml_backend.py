@@ -5,7 +5,6 @@ import os
 from typing import Any, Dict
 
 import requests
-
 from contracts.jobs import JobPayload
 from domain.errors import ExternalServiceError
 from infrastructure.label_studio import LS_BASE

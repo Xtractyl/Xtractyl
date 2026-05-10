@@ -6,9 +6,8 @@ import time
 from typing import Any, Dict, List, Optional
 
 import requests
-from requests.exceptions import HTTPError
-
 from domain.errors import ExternalServiceError, NotFound
+from requests.exceptions import HTTPError
 
 LS_HOST = os.getenv("LS_HOST", "labelstudio")
 LS_PORT = int(os.getenv("LS_PORT", "8080"))

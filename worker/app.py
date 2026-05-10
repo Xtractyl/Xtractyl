@@ -6,10 +6,9 @@ import os
 import traceback
 
 import redis
-from pydantic import ValidationError
-
 from contracts.jobs import JobPayload
 from domain.prelabel_project import prelabel_project
+from pydantic import ValidationError
 from utils.logging_utils import dev_logger, safe_logger
 
 r = redis.Redis(

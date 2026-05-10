@@ -1,14 +1,13 @@
 # worker/tests/unit/test_worker.py
-import json
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
+from contracts.jobs import JobPayload
+from domain.errors import ExternalServiceError, NotFound
 from pydantic import ValidationError
 
-from contracts.jobs import JobPayload, QuestionsAndLabels
-from domain.errors import ExternalServiceError, NotFound
-
-
 # --- Fixtures ---
+
 
 @pytest.fixture
 def valid_payload():
@@ -31,6 +30,7 @@ def valid_job(valid_payload):
 
 
 # --- Contract ---
+
 
 def test_job_payload_valid(valid_payload):
     job = JobPayload.model_validate(valid_payload)
@@ -58,14 +58,17 @@ def test_job_payload_missing_job_id_raises(valid_payload):
 
 # --- handle_job ---
 
+
 def test_handle_job_sets_running_and_succeeded(valid_job):
     from worker import app as worker_app
 
     mock_r = MagicMock()
     mock_r.hget.return_value = "RUNNING"
 
-    with patch.object(worker_app, "r", mock_r), \
-         patch("worker.app.prelabel_project", return_value=["log1", "log2"]):
+    with (
+        patch.object(worker_app, "r", mock_r),
+        patch("worker.app.prelabel_project", return_value=["log1", "log2"]),
+    ):
         worker_app.handle_job(valid_job)
 
     calls = [str(c) for c in mock_r.hset.call_args_list]
@@ -79,8 +82,10 @@ def test_handle_job_sets_failed_on_exception(valid_job):
     mock_r = MagicMock()
     mock_r.hget.return_value = "RUNNING"
 
-    with patch.object(worker_app, "r", mock_r), \
-         patch("worker.app.prelabel_project", side_effect=Exception("boom")):
+    with (
+        patch.object(worker_app, "r", mock_r),
+        patch("worker.app.prelabel_project", side_effect=Exception("boom")),
+    ):
         worker_app.handle_job(valid_job)
 
     calls = [str(c) for c in mock_r.hset.call_args_list]
@@ -93,8 +98,10 @@ def test_handle_job_sets_cancelled_when_cancel_requested(valid_job):
     mock_r = MagicMock()
     mock_r.hget.return_value = "CANCEL_REQUESTED"
 
-    with patch.object(worker_app, "r", mock_r), \
-         patch("worker.app.prelabel_project", return_value=[]):
+    with (
+        patch.object(worker_app, "r", mock_r),
+        patch("worker.app.prelabel_project", return_value=[]),
+    ):
         worker_app.handle_job(valid_job)
 
     calls = [str(c) for c in mock_r.hset.call_args_list]
@@ -103,10 +110,10 @@ def test_handle_job_sets_cancelled_when_cancel_requested(valid_job):
 
 # --- resolve_project_id ---
 
+
 def test_resolve_project_id_401_raises_external_service_error():
     from infrastructure.label_studio import resolve_project_id
     from requests.exceptions import HTTPError
-    import requests
 
     mock_response = MagicMock()
     mock_response.status_code = 401

@@ -6,7 +6,6 @@ import os
 import traceback
 
 import redis
-
 from prelabel_logic import prelabel_complete_project_main
 
 # Redis connection (queue + job state)
