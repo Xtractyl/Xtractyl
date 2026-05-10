@@ -7,6 +7,8 @@ from typing import Any, Dict
 import requests
 
 from worker.contracts.jobs import JobPayload
+from worker.domain.errors import ExternalServiceError
+from worker.infrastructure.label_studio import LS_BASE
 
 ML_HOST = os.getenv("ML_BACKEND_HOST", "ml_backend")
 ML_PORT = int(os.getenv("ML_BACKEND_PORT", "6789"))
@@ -34,14 +36,7 @@ def send_predict(*, task_id: int, html: str, job: JobPayload) -> requests.Respon
         "questions": job.questions_and_labels.questions,
         "labels": job.questions_and_labels.labels,
         "params": {
-            "label_studio_url": LS_BASE
-            if (
-                LS_BASE := os.getenv(
-                    "LS_BASE",
-                    f"http://{os.getenv('LS_HOST', 'labelstudio')}:{os.getenv('LS_PORT', '8080')}",
-                )
-            )
-            else "",
+            "label_studio_url": LS_BASE,  # war Walrus-Konstrukt
             "ls_token": job.token,
             "ollama_model": job.model,
             "ollama_base": os.getenv("OLLAMA_BASE", "http://ollama:11434"),
@@ -50,4 +45,10 @@ def send_predict(*, task_id: int, html: str, job: JobPayload) -> requests.Respon
         },
     }
 
-    return requests.post(url, json=payload, timeout=request_timeout)
+    try:
+        return requests.post(url, json=payload, timeout=request_timeout)
+    except requests.RequestException:
+        raise ExternalServiceError(
+            code="ML_BACKEND_UNAVAILABLE",
+            message="ML backend is unavailable.",
+        )
