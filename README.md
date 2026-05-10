@@ -241,6 +241,20 @@ Current limitation: the pipeline has been validated on structurally simple PDFs.
 
 The focus is on building a consistent engineering foundation before scaling features. The orchestrator serves as the template; patterns established there will be replicated across all containers. The orchestrator is the central integration point of the pipeline and therefore the highest-leverage starting point. Hardening it first ensures that architectural decisions are validated before being replicated across the remaining containers.
 
+**Completed**
+- Orchestrator: layered architecture, typed domain errors, Pydantic contracts, OpenAPI documentation, structured logging, unit tests with CI integration
+- Worker: layered architecture, queue contract validation, structured logging, unit tests with CI integration
+
+**In progress**
+- ML backend: layered architecture, Pydantic contracts, OpenAPI documentation, structured logging, unit tests with CI integration
+- Docling: layered architecture, structured logging, unit tests with CI integration
+
+**Planned**
+- Database & Object Storage: Postgres schema and migrations via Alembic, MinIO as local S3-compatible object storage for binary files (HTMLs, PDFs, models), full replacement of filesystem-based state management
+- E2E tests: full pipeline coverage from PDF ingestion to structured export
+- TypeScript migration: frontend type safety aligned with backend contracts
+
+
 **Orchestrator (template, in progress)**
 - Layered architecture: `app.py` → `routes` → `contracts` → `domain` → `services` → `clients`
 - Centralized error handling with typed domain errors
@@ -267,32 +281,13 @@ The same pattern will be applied to `ml_backend` and `docling`:
 
 ---
 
-## 🧠 Finetuning Architecture (Planned)
+### Phase 3 – Finetuning & Model Hosting (planned)
 
-The finetuning pipeline closes the improvement cycle that Xtractyl is designed around. Once a ground truth has been established and validated through human-in-the-loop review, the labeled data can be used to train a domain-specific small language model (SLM) — reducing inference cost and latency while maintaining or improving accuracy on the target document type.
-
-### Pipeline: Label Studio → Finetuned SLM
-
-**1. Dataset export and conversion**
-Label Studio annotations are exported as JSON and converted into an instruction-tuning format suitable for SLM training. This conversion is handled by a dedicated service within the Xtractyl architecture, ensuring that only reviewed and submitted annotations are used as training data.
-
-**2. Train/test split**
-The converted dataset is split into training and validation sets using HuggingFace Datasets (`train_test_split`), allowing overfitting to be detected during training.
-
-**3. Training**
-Training is performed using [Unsloth](https://github.com/unslothai/unsloth) with LoRA/QLoRA via the HuggingFace Trainer — optimized for memory efficiency and speed on local hardware. No cloud infrastructure required.
-
-**4. Metrics and live monitoring**
-Training metrics (loss, validation loss, learning rate) are logged via TensorBoard and visualized locally — consistent with Xtractyl's privacy-first, fully local architecture.
-
-**5. Evaluation**
-After training, the finetuned model is evaluated against the ground truth using the same metrics as the base model (precision, recall, F1, accuracy, latency) — enabling direct comparison and informed model selection.
-
-### Design principles
-- Fully local — no data leaves the system at any point
-- Ground truth controlled — only human-validated annotations enter the training pipeline
-- Comparable — finetuned models are evaluated with the same framework as base models
-- Integrated — finetuning is triggered and monitored through the Xtractyl frontend, not a separate tool
+- Local finetuning pipeline: export from Label Studio → instruction-tuning format conversion → LoRA/QLoRA training via Unsloth
+- Dedicated inference container for finetuned models with output filtering — ensures models trained on sensitive data cannot reproduce raw training content
+- Evaluation of finetuned models against ground truth using the same metrics as base models
+- Frontend integration for triggering and monitoring finetuning runs
+- Finetuned model exposed as an external API endpoint with output filtering — responses are validated against the extraction schema, ensuring that no training data can be reproduced regardless of input
 
 ---
 
