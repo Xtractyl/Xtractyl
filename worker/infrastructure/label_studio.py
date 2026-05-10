@@ -82,9 +82,26 @@ def get_tasks_without_predictions(
             "include": "predictions",
             "fields": "id,data,predictions",
         }
-        resp = requests.get(url, headers=headers, params=params, timeout=HTTP_TIMEOUT)
-        resp.raise_for_status()
-        data = resp.json()
+        try:
+            resp = requests.get(url, headers=headers, params=params, timeout=HTTP_TIMEOUT)
+            resp.raise_for_status()
+            data = resp.json()
+        except HTTPError as e:
+            status = getattr(e.response, "status_code", None)
+            if status in (401, 403):
+                raise ExternalServiceError(
+                    code="LABEL_STUDIO_UNAUTHORIZED",
+                    message="Label Studio token is invalid or unauthorized.",
+                )
+            raise ExternalServiceError(
+                code="LABEL_STUDIO_UNAVAILABLE",
+                message="Label Studio is unavailable.",
+            )
+        except requests.RequestException:
+            raise ExternalServiceError(
+                code="LABEL_STUDIO_UNAVAILABLE",
+                message="Label Studio is unavailable.",
+            )
 
         if isinstance(data, dict):
             if "results" in data:
@@ -129,9 +146,26 @@ def _fetch_task(task_id: int, token: str) -> Dict[str, Any]:
     url = f"{LS_BASE}/api/tasks/{task_id}"
     headers = _ls_headers(token)
     params = {"include": "predictions", "fields": "id,data,predictions"}
-    resp = requests.get(url, headers=headers, params=params, timeout=HTTP_TIMEOUT)
-    resp.raise_for_status()
-    return resp.json()
+    try:
+        resp = requests.get(url, headers=headers, params=params, timeout=HTTP_TIMEOUT)
+        resp.raise_for_status()
+        return resp.json()
+    except HTTPError as e:
+        status = getattr(e.response, "status_code", None)
+        if status in (401, 403):
+            raise ExternalServiceError(
+                code="LABEL_STUDIO_UNAUTHORIZED",
+                message="Label Studio token is invalid or unauthorized.",
+            )
+        raise ExternalServiceError(
+            code="LABEL_STUDIO_UNAVAILABLE",
+            message="Label Studio is unavailable.",
+        )
+    except requests.RequestException:
+        raise ExternalServiceError(
+            code="LABEL_STUDIO_UNAVAILABLE",
+            message="Label Studio is unavailable.",
+        )
 
 
 def wait_until_prediction_saved(
