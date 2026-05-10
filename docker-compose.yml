@@ -183,6 +183,7 @@ services:
       - ${PROJECTS_DIR:-./data/projects}:/app/data/projects
       - ${HTMLS_DIR:-./data/htmls}:/app/data/htmls
       - ${LOGS_DIR:-./logs}:/logs
+      - ./data/logs:/app/data/logs
     environment:
       - LLM_TIMEOUT=${LLM_TIMEOUT:-20}
       - LLM_OVERHEAD=${LLM_OVERHEAD:-5}
