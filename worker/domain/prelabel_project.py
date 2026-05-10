@@ -42,7 +42,7 @@ def prelabel_project(
                 pass
         _log(f"[PROGRESS] {pct}%")
 
-    project_id = resolve_project_id(job.project_name, job.token)
+    project_id = resolve_project_id(job.token, job.project_name)
     _log(f"[INFO] Using project '{job.project_name}' (id={project_id}).")
 
     tasks = get_tasks_without_predictions(project_id, job.token)
