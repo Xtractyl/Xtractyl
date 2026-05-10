@@ -4,8 +4,8 @@ import pytest
 from unittest.mock import MagicMock, patch
 from pydantic import ValidationError
 
-from worker.contracts.jobs import JobPayload, QuestionsAndLabels
-from worker.domain.errors import ExternalServiceError, NotFound
+from contracts.jobs import JobPayload, QuestionsAndLabels
+from domain.errors import ExternalServiceError, NotFound
 
 
 # --- Fixtures ---
@@ -104,7 +104,7 @@ def test_handle_job_sets_cancelled_when_cancel_requested(valid_job):
 # --- resolve_project_id ---
 
 def test_resolve_project_id_401_raises_external_service_error():
-    from worker.infrastructure.label_studio import resolve_project_id
+    from infrastructure.label_studio import resolve_project_id
     from requests.exceptions import HTTPError
     import requests
 
@@ -119,7 +119,7 @@ def test_resolve_project_id_401_raises_external_service_error():
 
 
 def test_resolve_project_id_not_found_raises_not_found():
-    from worker.infrastructure.label_studio import resolve_project_id
+    from infrastructure.label_studio import resolve_project_id
 
     mock_response = MagicMock()
     mock_response.raise_for_status.return_value = None
@@ -132,7 +132,7 @@ def test_resolve_project_id_not_found_raises_not_found():
 
 
 def test_resolve_project_id_returns_id():
-    from worker.infrastructure.label_studio import resolve_project_id
+    from infrastructure.label_studio import resolve_project_id
 
     mock_response = MagicMock()
     mock_response.raise_for_status.return_value = None

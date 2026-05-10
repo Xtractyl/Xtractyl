@@ -7,7 +7,7 @@ import time
 import uuid
 from typing import Any, Callable, List, Optional
 
-from worker.utils.prelabel_utils import (
+from utils.prelabel_utils import (
     get_tasks_without_predictions,
     resolve_project_id_by_title,
     send_predict,

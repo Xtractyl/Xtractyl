@@ -6,9 +6,9 @@ from typing import Any, Dict
 
 import requests
 
-from worker.contracts.jobs import JobPayload
-from worker.domain.errors import ExternalServiceError
-from worker.infrastructure.label_studio import LS_BASE
+from contracts.jobs import JobPayload
+from domain.errors import ExternalServiceError
+from infrastructure.label_studio import LS_BASE
 
 ML_HOST = os.getenv("ML_BACKEND_HOST", "ml_backend")
 ML_PORT = int(os.getenv("ML_BACKEND_PORT", "6789"))

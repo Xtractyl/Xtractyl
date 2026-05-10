@@ -4,13 +4,13 @@ from __future__ import annotations
 import time
 from typing import Callable, List, Optional
 
-from worker.contracts.jobs import JobPayload
-from worker.infrastructure.label_studio import (
+from contracts.jobs import JobPayload
+from infrastructure.label_studio import (
     get_tasks_without_predictions,
     resolve_project_id,
     wait_until_prediction_saved,
 )
-from worker.infrastructure.ml_backend import send_predict
+from infrastructure.ml_backend import send_predict
 
 LogCB = Optional[Callable[[str], None]]
 ProgressCB = Optional[Callable[[int], None]]

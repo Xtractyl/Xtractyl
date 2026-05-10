@@ -8,9 +8,9 @@ import traceback
 import redis
 from pydantic import ValidationError
 
-from worker.contracts.jobs import JobPayload
-from worker.domain.prelabel_project import prelabel_project
-from worker.utils.logging_utils import dev_logger, safe_logger
+from contracts.jobs import JobPayload
+from domain.prelabel_project import prelabel_project
+from utils.logging_utils import dev_logger, safe_logger
 
 r = redis.Redis(
     host=os.getenv("REDIS_HOST", "job_queue"),

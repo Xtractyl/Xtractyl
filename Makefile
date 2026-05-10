@@ -23,3 +23,5 @@ smoke:
 unit-orchestrator:
 	docker compose run --rm orchestrator python -m pytest -q tests/unit
 
+unit-worker:
+	docker compose run --rm worker_prelabel python -m pytest -q tests/unit
