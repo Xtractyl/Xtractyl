@@ -1,4 +1,4 @@
-# worker/domain/prelabel.py
+# worker/domain/prelabel_project.py
 from __future__ import annotations
 
 import time
