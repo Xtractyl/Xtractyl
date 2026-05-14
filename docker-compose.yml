@@ -16,7 +16,7 @@ services:
     working_dir: /app
 
   postgres:
-    image: ${POSTGRES_IMAGE:-postgres@sha256:c189d272e4fcdd1ac419adee675d30be3d389c22ee770d593f15819d22a68a0d}
+    image: postgres@sha256:c189d272e4fcdd1ac419adee675d30be3d389c22ee770d593f15819d22a68a0d
     container_name: ${POSTGRES_CONTAINER_NAME:-postgres}
     restart: unless-stopped
     ports:
@@ -34,7 +34,7 @@ services:
       timeout: 5s
 
   labelstudio:
-    image: ${LABELSTUDIO_IMAGE:-heartexlabs/label-studio@sha256:046db042674bca7e9535b7c3a9688683405d4cbf37114cc0e3a0d5dd85de0e7a}
+    image: heartexlabs/label-studio@sha256:046db042674bca7e9535b7c3a9688683405d4cbf37114cc0e3a0d5dd85de0e7a
     container_name: ${LABELSTUDIO_CONTAINER_NAME:-labelstudio}
     ports:
       - "${LABELSTUDIO_PORT:-8080}:8080"
@@ -122,7 +122,7 @@ services:
       retries: 60
 
   ollama:
-    image: ${OLLAMA_IMAGE:-ollama/ollama@sha256:3ca37ec2b9cb6341b62554074205c616778fe98abcf9e4fc50361b79a07407ae}
+    image: ollama/ollama@sha256:3ca37ec2b9cb6341b62554074205c616778fe98abcf9e4fc50361b79a07407ae
     container_name: ${OLLAMA_CONTAINER_NAME:-ollama}
     ports:
       - "${OLLAMA_PORT:-11434}:11434"
@@ -199,9 +199,65 @@ services:
       - CAPTURE_FIXTURES=${CAPTURE_FIXTURES:-0}
       - SYNTHETIC_DATA=${SYNTHETIC_DATA:-0}
 
+# --- Xtractyl database (separate from labelsstudio postgres) ---
+  postgres_xtractyl:
+    image: postgres@sha256:c189d272e4fcdd1ac419adee675d30be3d389c22ee770d593f15819d22a68a0d
+    container_name: ${POSTGRES_XTRACTYL_CONTAINER_NAME:-postgres_xtractyl}
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_XTRACTYL_PORT:-5433}:5432"
+    volumes:
+      - ${PGDATA_XTRACTYL_VOLUME:-pgdata_xtractyl}:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${POSTGRES_XTRACTYL_DB:-xtractyl}
+      POSTGRES_USER: ${POSTGRES_XTRACTYL_USER:-xtractyl}
+      POSTGRES_PASSWORD: ${POSTGRES_XTRACTYL_PASSWORD:-yourpassword}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_XTRACTYL_USER:-xtractyl} -d ${POSTGRES_XTRACTYL_DB:-xtractyl}"]
+      interval: 5s
+      retries: 5
+      timeout: 5s
+
+  # --- Object Storage ---
+  minio:
+    image: minio/minio@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
+    container_name: ${MINIO_CONTAINER_NAME:-minio}
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    ports:
+      - "${MINIO_API_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - ${MINIO_DATA_VOLUME:-minio_data}:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --- Admin GUI for Xtractyl Postgres ---
+  # access only to xtractyl database to avoid damaging label studio database 
+  pgadmin:
+    image: dpage/pgadmin4@sha256:cefc4cc6b7d9d71a9e81e76fb9d7e14038ab5661b539a190eea1b63fa612589a
+    container_name: ${PGADMIN_CONTAINER_NAME:-pgadmin}
+    restart: unless-stopped
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@xtractyl.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-yourpassword}
+    depends_on:
+      postgres_xtractyl:
+        condition: service_healthy
+
 volumes:
   labelstudio_data:
   pgdata:
+  pgdata_xtractyl:  
+  minio_data:
   ollama_models:
   fontcache:
   xdg_cache:
