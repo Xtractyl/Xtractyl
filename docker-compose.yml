@@ -246,6 +246,8 @@ services:
     restart: unless-stopped
     ports:
       - "${PGADMIN_PORT:-5050}:80"
+    volumes:
+      - ./pgadmin/servers.json:/pgadmin4/servers.json
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@xtractyl.internal}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-yourpassword}

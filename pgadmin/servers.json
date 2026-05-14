@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "xtractyl",
+      "Group": "Servers",
+      "Host": "postgres_xtractyl",
+      "Port": 5432,
+      "MaintenanceDB": "xtractyl",
+      "Username": "xtractyl",
+      "SSLMode": "prefer"
+    }
+  }
+}
