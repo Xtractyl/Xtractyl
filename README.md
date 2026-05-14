@@ -250,7 +250,9 @@ The focus is on building a consistent engineering foundation before scaling feat
 - Docling: layered architecture, structured logging, unit tests with CI integration
 
 **Planned**
-- Database & Object Storage: Postgres schema and migrations via Alembic, MinIO as local S3-compatible object storage for binary files (HTMLs, PDFs, models), full replacement of filesystem-based state management
+- The infrastructure containers for Postgres (Xtractyl), MinIO, and pgAdmin are already running as part of the stack. Migration of filesystem-based state to Postgres and MinIO is in progress.
+- **pgAdmin** (Postgres admin UI): `http://localhost:5050` — login with credentials from `.env` server connection in pgAdmin via postgres_xtractyl credentials from `.env`
+- **MinIO Console** (object storage UI): `http://localhost:9001` — login with `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD` from `.env`
 - E2E tests: full pipeline coverage from PDF ingestion to structured export
 - TypeScript migration: frontend type safety aligned with backend contracts
 
