@@ -12,4 +12,4 @@ RUN pip install --no-cache-dir -r /app/requirements.txt -r /app/requirements-dev
 COPY orchestrator/ /app/
 
 EXPOSE 5001
-CMD ["python", "app.py"]
+CMD ["sh", "-c", "alembic upgrade head && python app.py"]

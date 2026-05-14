@@ -35,3 +35,6 @@ tomli==2.4.0
 typing-inspection==0.4.2
 typing_extensions==4.15.0
 urllib3==2.6.2
+alembic==1.18.4
+psycopg2-binary==2.9.10
+SQLAlchemy==2.0.49
