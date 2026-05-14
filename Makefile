@@ -11,7 +11,11 @@ up:
 		ml_backend \
 		orchestrator \
 		frontend \
-		job_queue
+		job_queue \
+		postgres_xtractyl \
+		minio \
+		pgadmin \
+		worker_prelabel
 
 down:
 	docker compose down 
