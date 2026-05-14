@@ -595,6 +595,23 @@ make unit-worker
 ```
 ---
 
+## Database migrations (Alembic)
+
+Migrations run automatically on container start via `alembic upgrade head`.
+
+To create a new migration after changing `orchestrator/db/models.py`:
+
+```bash
+cd orchestrator
+POSTGRES_XTRACTYL_HOST=localhost \
+POSTGRES_XTRACTYL_PORT=5433 \
+POSTGRES_XTRACTYL_DB=xtractyl \
+POSTGRES_XTRACTYL_USER=xtractyl \
+POSTGRES_XTRACTYL_PASSWORD=yourpassword \
+alembic revision --autogenerate -m "description of change"
+```
+ ---
+
 ## Versioning (SemVer)
 
 This project uses Semantic Versioning (SemVer) with the format:
