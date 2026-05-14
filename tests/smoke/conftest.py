@@ -37,3 +37,38 @@ def redis_host():
 @pytest.fixture(scope="session")
 def redis_port():
     return int(os.getenv("REDIS_PORT", "6379"))
+
+
+@pytest.fixture(scope="session")
+def postgres_xtractyl_host():
+    return os.getenv("POSTGRES_XTRACTYL_HOST", "localhost")
+
+
+@pytest.fixture(scope="session")
+def postgres_xtractyl_port():
+    return int(os.getenv("POSTGRES_XTRACTYL_PORT", "5433"))
+
+
+@pytest.fixture(scope="session")
+def postgres_xtractyl_db():
+    return os.getenv("POSTGRES_XTRACTYL_DB", "xtractyl")
+
+
+@pytest.fixture(scope="session")
+def postgres_xtractyl_user():
+    return os.getenv("POSTGRES_XTRACTYL_USER", "xtractyl")
+
+
+@pytest.fixture(scope="session")
+def postgres_xtractyl_password():
+    return os.getenv("POSTGRES_XTRACTYL_PASSWORD", "yourpassword")
+
+
+@pytest.fixture(scope="session")
+def minio_base():
+    return os.getenv("MINIO_BASE", "http://localhost:9000")
+
+
+@pytest.fixture(scope="session")
+def pgadmin_base():
+    return os.getenv("PGADMIN_BASE", "http://localhost:5050")
