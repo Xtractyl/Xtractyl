@@ -72,7 +72,3 @@ def minio_base():
 @pytest.fixture(scope="session")
 def pgadmin_base():
     return os.getenv("PGADMIN_BASE", "http://localhost:5050")
-
-
-
-
