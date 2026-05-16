@@ -1,7 +1,8 @@
 # ml_backend/api/routes/health.py
-from api.contracts.health import HealthResponse
 from flask import Flask, jsonify
 from flask_pydantic_spec import FlaskPydanticSpec, Response
+
+from api.contracts.health import HealthResponse
 
 
 def register(app: Flask, spec: FlaskPydanticSpec) -> None:
