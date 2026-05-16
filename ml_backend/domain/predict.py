@@ -2,13 +2,14 @@
 from __future__ import annotations
 
 from bs4 import BeautifulSoup
+from infrastructure.label_studio import attach_meta_to_task, save_predictions_to_labelstudio
+from infrastructure.ollama import ask_llm_with_timeout
+
 from domain.errors import ExternalServiceError, InternalError
 from domain.models.predict import PredictCommand
-from infrastructure.label_studio import attach_meta_to_task, save_predictions_to_labelstudio
-from utils.client import ask_llm_with_timeout
-from utils.dom_extract import extract_dom_with_chromium
-from utils.dom_match import extract_xpath_matches_from_dom
-from utils.perf_collector import PerfCollector
+from domain.utils.dom_extract import extract_dom_with_chromium
+from domain.utils.dom_match import extract_xpath_matches_from_dom
+from domain.utils.perf_collector import PerfCollector
 
 
 def run_predict(cmd: PredictCommand) -> dict:
