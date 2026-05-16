@@ -2,10 +2,11 @@
 import os
 import traceback
 
-from api.contracts.errors import ErrorResponse
-from api.error_mapping import map_domain_error
 from domain.errors import DomainError, ValidationFailed
 from flask import jsonify
+
+from api.contracts.errors import ErrorResponse
+from api.error_mapping import map_domain_error
 
 DEBUG_ARTIFACTS = os.getenv("DEBUG_ARTIFACTS") == "1"
 

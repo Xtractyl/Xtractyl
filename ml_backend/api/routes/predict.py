@@ -1,12 +1,13 @@
 # ml_backend/api/routes/predict.py
-from api.contracts.errors import ErrorResponse
-from api.contracts.predict import PredictRequest, PredictResponse
 from domain.errors import InternalError, ValidationFailed
 from domain.models.predict import PredictCommand
 from domain.predict import run_predict
 from flask import Flask, jsonify, request
 from flask_pydantic_spec import FlaskPydanticSpec, Request, Response
 from pydantic import ValidationError
+
+from api.contracts.errors import ErrorResponse
+from api.contracts.predict import PredictRequest, PredictResponse
 
 
 def register(app: Flask, spec: FlaskPydanticSpec) -> None:
