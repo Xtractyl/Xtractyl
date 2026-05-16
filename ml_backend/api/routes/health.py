@@ -14,6 +14,7 @@ def register(app: Flask, spec: FlaskPydanticSpec) -> None:
     def health():
         return jsonify({"status": "ok"}), 200
 
+# /setup is required by Label Studio for ML backend registration
     @app.route("/setup", methods=["GET", "POST"])
     @spec.validate(
         resp=Response(HTTP_200=HealthResponse),
