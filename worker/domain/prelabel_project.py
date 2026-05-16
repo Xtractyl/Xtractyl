@@ -70,6 +70,8 @@ def prelabel_project(
 
         start = time.time()
         resp = send_predict(task_id=task_id, html=html, job=job)
+        if resp.status_code != 200:
+            _log(f"[WARN] /predict returned {resp.status_code} for task {task_id}. Continuing.")
         _log(f"[SEND] Task {task_id} → /predict: {resp.status_code}")
 
         ok = wait_until_prediction_saved(task_id, job.token)
