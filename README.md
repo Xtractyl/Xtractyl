@@ -336,11 +336,12 @@ Access the frontend via your browser at http://localhost:5173/ following the wor
 
 ## 📘 API Documentation (OpenAPI / Swagger)
 
-Automatically generated OpenAPI documentation using `flask-pydantic-spec` is currently being added. Currently available starting with the orchestrator.
+Automatically generated OpenAPI documentation using `flask-pydantic-spec` is currently being added. Currently available starting with the orchestrator and the ml_backend.
 
 When the containers are running, the documentation is available at:
 
 http://localhost:5001/apidoc/swagger for the orchestrator
+http://localhost:6789/apidoc/swagger for the ml_backend
 
 Each backend container exposes its own OpenAPI documentation on its respective port.
 
@@ -610,6 +611,9 @@ POSTGRES_XTRACTYL_USER=xtractyl \
 POSTGRES_XTRACTYL_PASSWORD=yourpassword \
 alembic revision --autogenerate -m "description of change"
 ```
+
+to apply it:
+```docker compose restart orchestrator```
  ---
 
 ## Versioning (SemVer)
