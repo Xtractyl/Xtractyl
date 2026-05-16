@@ -1,7 +1,7 @@
 # /ml_backend/utils/dom_match.py
 import uuid
 
-from utils import normalize_text_block
+from domain.utils.normalization import normalize_text_block
 
 
 def extract_xpath_matches_from_dom(dom_data, answers):

@@ -1,7 +1,8 @@
 # /ml_backend/utils/dom_extract.py
 
 from playwright.sync_api import sync_playwright
-from utils import build_norm_index, normalize_xpath_for_labelstudio
+
+from domain.utils.normalization import build_norm_index, normalize_xpath_for_labelstudio
 
 
 # ----------------------------------
