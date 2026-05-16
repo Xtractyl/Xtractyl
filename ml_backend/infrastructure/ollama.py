@@ -1,4 +1,4 @@
-# ml_backend/utils/client.py
+# ml_backend/infrastructure/client.py
 import requests
 
 
