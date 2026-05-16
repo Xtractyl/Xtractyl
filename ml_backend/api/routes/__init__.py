@@ -1,7 +1,8 @@
 # ml_backend/api/routes/__init__.py
-from api.routes import health, predict
 from flask import Flask
 from flask_pydantic_spec import FlaskPydanticSpec
+
+from api.routes import health, predict
 
 
 def register_routes(app: Flask, spec: FlaskPydanticSpec) -> None:
