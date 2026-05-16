@@ -1,4 +1,4 @@
-# /ml_backend/perf_collector.py
+# /ml_backend/utils/perf_collector.py
 from __future__ import annotations
 
 import statistics

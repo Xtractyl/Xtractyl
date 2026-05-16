@@ -28,3 +28,6 @@ unit-orchestrator:
 
 unit-worker:
 	docker compose run --rm worker_prelabel python -m pytest -q tests/unit
+
+unit-ml_backend:
+	docker compose run --rm ml_backend python -m pytest -q tests/unit

@@ -1,14 +1,16 @@
-# /ml_backend/client.py
-
+# ml_backend/infrastructure/client.py
 import requests
 
 
-def ask_llm_with_timeout(params, prompt: str, timeout: int, model_name: str) -> dict:
-    base = params["ollama_base"]
-
+def ask_llm_with_timeout(
+    ollama_base: str,
+    prompt: str,
+    timeout: int,
+    model_name: str,
+) -> dict:
     try:
         response = requests.post(
-            f"{base}/api/generate",
+            f"{ollama_base}/api/generate",
             json={
                 "model": model_name,
                 "prompt": prompt,
