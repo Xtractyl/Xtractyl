@@ -4,7 +4,6 @@ from __future__ import annotations
 import io
 import json
 import os
-import traceback
 from datetime import timedelta
 
 import redis
@@ -63,9 +62,9 @@ def _send_callback(
             timeout=10,
         )
     except requests.RequestException as e:
-        safe_logger.error("callback_failed", extra={"job_id": job_id, "pdf_filename": filename})
+        safe_logger.error("callback_failed | job_id=%s | pdf_filename=%s", job_id, filename)
         if dev_logger:
-            dev_logger.error("callback_failed_dev", extra={"error": str(e)})
+            dev_logger.exception("callback_failed_dev | error=%s", str(e))
 
 
 def convert_file(job_id: int, bucket: str, pdf_key: str) -> tuple[bool, str | None, str | None]:
@@ -105,7 +104,7 @@ def convert_file(job_id: int, bucket: str, pdf_key: str) -> tuple[bool, str | No
 
 
 def handle_job(job: ConversionJobPayload) -> None:
-    safe_logger.info("conversion_job_started", extra={"job_id": job.job_id})
+    safe_logger.info("conversion_job_started | job_id=%s", job.job_id)
     for pdf_key in job.pdf_keys:
         filename = os.path.basename(pdf_key)
         success, html_key, error = convert_file(job.job_id, job.minio_bucket, pdf_key)
@@ -114,14 +113,17 @@ def handle_job(job: ConversionJobPayload) -> None:
         )
         if not success:
             safe_logger.error(
-                "file_conversion_failed", extra={"job_id": job.job_id, "pdf_filename": filename}
+                "file_conversion_failed | job_id=%s | pdf_filename=%s", job.job_id, filename
             )
             if dev_logger:
                 dev_logger.error(
-                    "file_conversion_failed_dev",
-                    extra={"job_id": job.job_id, "pdf_filename": filename, "error": error},
+                    "file_conversion_failed_dev | job_id=%s | pdf_filename=%s | error=%s",
+                    job.job_id,
+                    filename,
+                    error,
                 )
-    safe_logger.info("conversion_job_finished", extra={"job_id": job.job_id})
+
+    safe_logger.info("conversion_job_finished | job_id=%s", job.job_id)
 
 
 def main() -> None:
@@ -134,20 +136,21 @@ def main() -> None:
         try:
             job = ConversionJobPayload.model_validate(json.loads(raw))
         except (json.JSONDecodeError, ValidationError) as e:
-            safe_logger.error("invalid_conversion_payload")
+            safe_logger.error("invalid_conversion_payload | error=%s", str(e))
             if dev_logger:
-                dev_logger.error("invalid_conversion_payload_dev", extra={"error": str(e)})
+                dev_logger.exception("invalid_conversion_payload_dev | error=%s", str(e))
             continue
         try:
             handle_job(job)
         except Exception as e:
             safe_logger.error(
-                "conversion_job_crashed", extra={"job_id": getattr(job, "job_id", "unknown")}
+                "conversion_job_crashed | job_id=%s", getattr(job, "job_id", "unknown")
             )
             if dev_logger:
                 dev_logger.exception(
-                    "conversion_job_crashed_dev",
-                    extra={"error": str(e), "traceback": traceback.format_exc()},
+                    "conversion_job_crashed_dev | job_id=%s | error=%s",
+                    getattr(job, "job_id", "unknown"),
+                    str(e),
                 )
 
 
