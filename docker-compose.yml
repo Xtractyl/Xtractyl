@@ -90,8 +90,8 @@ services:
       - RESULTS_DIR=/app/data/results     
       - EVAL_DIR=/app/data/evaluation
       - FRONTEND_PORT=${FRONTEND_PORT:-5173}
-      - LOGS_DIR=/logs
-      - DEV_LOGS_DIR=/app/data/logs
+      - LOGS_DIR=${LOGS_DIR:-/logs}
+      - DEV_LOGS_DIR=${DEV_LOGS_DIR:-/app/data/logs}
       - DEBUG_ARTIFACTS=${DEBUG_ARTIFACTS:-0}
       - CAPTURE_FIXTURES=${CAPTURE_FIXTURES:-0}
       - SYNTHETIC_DATA=${SYNTHETIC_DATA:-0}
@@ -227,6 +227,9 @@ services:
         condition: service_healthy
       orchestrator:
         condition: service_started
+    volumes:
+     - ${LOGS_DIR:-./logs}:/logs
+     - ${DEV_LOGS_DIR:-./data/logs}:/app/data/logs
     environment:
       - REDIS_HOST=${REDIS_HOST:-job_queue}
       - REDIS_PORT=${REDIS_PORT:-6379}
@@ -240,6 +243,8 @@ services:
       - ORCH_CONTAINER_NAME=${ORCH_CONTAINER_NAME:-orchestrator}
       - ORCH_PORT=${ORCH_PORT:-5001}
       - DEBUG_ARTIFACTS=${DEBUG_ARTIFACTS:-0}
+      - LOGS_DIR=${LOGS_DIR:-/logs}
+      - DEV_LOGS_DIR=${DEV_LOGS_DIR:-/app/data/logs}
 
 
 # --- Xtractyl database (separate from labelsstudio postgres) ---
