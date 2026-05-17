@@ -80,6 +80,8 @@ services:
       - ${DEV_LOGS_DIR:-./data/logs}:/app/data/logs
       - ${FIXTURES_DIR:-./data/fixtures}:/app/data/fixtures
       - ${DRIFT_DIR:-./data/evaluation_drift}:/app/data/evaluation_drift
+      - ./orchestrator/alembic/versions:/app/alembic/versions
+
     environment:
       - GROUNDTRUTH_QAL_DIR=/app/data/projects/Evaluation_Sets_Do_Not_Delete
       - PROJECTS_DIR=/app/data/projects
