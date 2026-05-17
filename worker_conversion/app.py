@@ -63,7 +63,7 @@ def _send_callback(
             timeout=10,
         )
     except requests.RequestException as e:
-        safe_logger.error("callback_failed", extra={"job_id": job_id, "filename": filename})
+        safe_logger.error("callback_failed", extra={"job_id": job_id, "pdf_filename": filename})
         if dev_logger:
             dev_logger.error("callback_failed_dev", extra={"error": str(e)})
 
@@ -114,12 +114,12 @@ def handle_job(job: ConversionJobPayload) -> None:
         )
         if not success:
             safe_logger.error(
-                "file_conversion_failed", extra={"job_id": job.job_id, "filename": filename}
+                "file_conversion_failed", extra={"job_id": job.job_id, "pdf_filename": filename}
             )
             if dev_logger:
                 dev_logger.error(
                     "file_conversion_failed_dev",
-                    extra={"job_id": job.job_id, "filename": filename, "error": error},
+                    extra={"job_id": job.job_id, "pdf_filename": filename, "error": error},
                 )
     safe_logger.info("conversion_job_finished", extra={"job_id": job.job_id})
 
