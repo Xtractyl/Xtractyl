@@ -1,0 +1,4 @@
+redis==5.0.7
+requests==2.32.3
+minio==7.2.7
+pydantic==2.7.1

@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import json
 import os
-import traceback
 
 import redis
 from contracts.jobs import JobPayload
@@ -83,12 +82,9 @@ def handle_job(job: JobPayload) -> None:
 
     except Exception as e:
         _set_status(job_id, state="FAILED", error=str(e))
-        safe_logger.error("job_failed", extra={"job_id": job_id})
+        safe_logger.error("job_failed | job_id=%s", job_id)
         if dev_logger:
-            dev_logger.exception(
-                "job_failed_dev",
-                extra={"job_id": job_id, "traceback": traceback.format_exc()},
-            )
+            dev_logger.exception("job_failed_dev | job_id=%s", job_id)
 
 
 def main() -> None:
@@ -104,7 +100,7 @@ def main() -> None:
         except (json.JSONDecodeError, ValidationError) as e:
             safe_logger.error("invalid_payload")
             if dev_logger:
-                dev_logger.error("invalid_payload_dev", extra={"error": str(e)})
+                dev_logger.exception("invalid_payload_dev | error=%s", str(e))
             continue
         handle_job(job)
 

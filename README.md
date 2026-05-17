@@ -246,7 +246,6 @@ The focus is on building a consistent engineering foundation before scaling feat
 - Worker: layered architecture, queue contract validation, structured logging, unit tests with CI integration
 
 **In progress**
-- ML backend: layered architecture, Pydantic contracts, OpenAPI documentation, structured logging, unit tests with CI integration
 - Docling: layered architecture, structured logging, unit tests with CI integration
 
 **Planned**

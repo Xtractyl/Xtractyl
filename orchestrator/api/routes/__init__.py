@@ -1,5 +1,6 @@
 # orchestrator/api/routes/__init__.py
 
+from .conversion import register as register_conversion
 from .evaluation import register as register_evaluation
 from .evaluation_drift import register as register_evaluation_drift
 from .health import register as register_health
@@ -11,6 +12,7 @@ from .results import register as register_results
 
 def register_routes(app, spec):
     register_health(app)
+    register_conversion(app, spec)
     register_evaluation(app, spec)
     register_evaluation_drift(app, spec)
     register_jobs(app, spec)

@@ -64,6 +64,10 @@ services:
         condition: service_started
       ml_backend:
         condition: service_healthy
+      postgres_xtractyl:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
     ports:
       - "${ORCH_PORT:-5001}:5001"
     volumes:
@@ -76,6 +80,8 @@ services:
       - ${DEV_LOGS_DIR:-./data/logs}:/app/data/logs
       - ${FIXTURES_DIR:-./data/fixtures}:/app/data/fixtures
       - ${DRIFT_DIR:-./data/evaluation_drift}:/app/data/evaluation_drift
+      - ./orchestrator/alembic/versions:/app/alembic/versions
+
     environment:
       - GROUNDTRUTH_QAL_DIR=/app/data/projects/Evaluation_Sets_Do_Not_Delete
       - PROJECTS_DIR=/app/data/projects
@@ -84,13 +90,20 @@ services:
       - RESULTS_DIR=/app/data/results     
       - EVAL_DIR=/app/data/evaluation
       - FRONTEND_PORT=${FRONTEND_PORT:-5173}
-      - LOGS_DIR=/logs
-      - DEV_LOGS_DIR=/app/data/logs
+      - LOGS_DIR=${LOGS_DIR:-/logs}
+      - DEV_LOGS_DIR=${DEV_LOGS_DIR:-/app/data/logs}
       - DEBUG_ARTIFACTS=${DEBUG_ARTIFACTS:-0}
       - CAPTURE_FIXTURES=${CAPTURE_FIXTURES:-0}
       - SYNTHETIC_DATA=${SYNTHETIC_DATA:-0}
       - FIXTURES_DIR=/app/data/fixtures
       - DRIFT_DIR=/app/data/evaluation_drift
+      - DATABASE_URL=postgresql://${POSTGRES_XTRACTYL_USER:-xtractyl}:${POSTGRES_XTRACTYL_PASSWORD:-yourpassword}@${POSTGRES_XTRACTYL_CONTAINER_NAME:-postgres_xtractyl}:5432/${POSTGRES_XTRACTYL_DB:-xtractyl}
+      - MINIO_CONTAINER_NAME=${MINIO_CONTAINER_NAME:-minio}
+      - MINIO_API_PORT=${MINIO_API_PORT:-9000}
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-yourpassword}
+      - MINIO_BUCKET=${MINIO_BUCKET:-xtractyl}
+      - MINIO_PRESIGN_EXPIRY_SECONDS=${MINIO_PRESIGN_EXPIRY_SECONDS:-3600}
 
   ml_backend:
     build:
@@ -198,6 +211,41 @@ services:
       - DEBUG_ARTIFACTS=${DEBUG_ARTIFACTS:-0}
       - CAPTURE_FIXTURES=${CAPTURE_FIXTURES:-0}
       - SYNTHETIC_DATA=${SYNTHETIC_DATA:-0}
+
+
+  worker_conversion:
+    build:
+      context: .
+      dockerfile: docker/worker_conversion/Dockerfile
+    container_name: worker_conversion
+    depends_on:
+      job_queue:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      postgres_xtractyl:
+        condition: service_healthy
+      orchestrator:
+        condition: service_started
+    volumes:
+     - ${LOGS_DIR:-./logs}:/logs
+     - ${DEV_LOGS_DIR:-./data/logs}:/app/data/logs
+    environment:
+      - REDIS_HOST=${REDIS_HOST:-job_queue}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - MINIO_CONTAINER_NAME=${MINIO_CONTAINER_NAME:-minio}
+      - MINIO_API_PORT=${MINIO_API_PORT:-9000}
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-yourpassword}
+      - MINIO_BUCKET=${MINIO_BUCKET:-xtractyl}
+      - DOCLING_CONTAINER_NAME=${DOCLING_CONTAINER_NAME:-docling}
+      - DOCLING_PORT=${DOCLING_PORT:-5004}
+      - ORCH_CONTAINER_NAME=${ORCH_CONTAINER_NAME:-orchestrator}
+      - ORCH_PORT=${ORCH_PORT:-5001}
+      - DEBUG_ARTIFACTS=${DEBUG_ARTIFACTS:-0}
+      - LOGS_DIR=${LOGS_DIR:-/logs}
+      - DEV_LOGS_DIR=${DEV_LOGS_DIR:-/app/data/logs}
+
 
 # --- Xtractyl database (separate from labelsstudio postgres) ---
   postgres_xtractyl:
