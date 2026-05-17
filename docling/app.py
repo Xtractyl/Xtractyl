@@ -1,8 +1,11 @@
 import os
+import subprocess
+import tempfile
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from threading import Event
 
+import requests as req
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from utils.conversion_worker import run_conversion
@@ -104,6 +107,58 @@ def cancel_job(job_id):
     )
 
     return jsonify({"status": "cancel_requested"}), 200
+
+
+##new endpoint only one remaining after switch to database
+@app.route("/convert", methods=["POST"])
+def convert_from_url():
+    """
+    Accept a pdf_url, download it, convert to HTML via Docling CLI,
+    return the HTML content as JSON.
+    """
+
+    data = request.get_json(silent=True) or {}
+    pdf_url = data.get("pdf_url")
+    filename = data.get("filename", "document.pdf")
+
+    if not pdf_url:
+        return jsonify({"error": "Missing pdf_url"}), 400
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        pdf_path = os.path.join(tmpdir, filename)
+        html_dir = os.path.join(tmpdir, "html_out")
+        os.makedirs(html_dir, exist_ok=True)
+
+        # Download PDF
+        try:
+            r = req.get(pdf_url, timeout=60)
+            r.raise_for_status()
+            with open(pdf_path, "wb") as f:
+                f.write(r.content)
+        except Exception as e:
+            return jsonify({"error": f"Failed to download PDF: {e}"}), 502
+
+        # Convert via Docling CLI
+        cmd = ["docling", pdf_path, "--from", "pdf", "--to", "html", "--output", html_dir]
+        try:
+            subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except subprocess.CalledProcessError as e:
+            return jsonify({"error": f"Docling conversion failed (exit={e.returncode})"}), 500
+
+        # Read HTML output
+        html_filename = os.path.splitext(filename)[0] + ".html"
+        html_path = os.path.join(html_dir, html_filename)
+        if not os.path.exists(html_path):
+            # Try to find any html file
+            html_files = [f for f in os.listdir(html_dir) if f.endswith(".html")]
+            if not html_files:
+                return jsonify({"error": "No HTML output found"}), 500
+            html_path = os.path.join(html_dir, html_files[0])
+
+        with open(html_path, "r", encoding="utf-8") as f:
+            html_content = f.read()
+
+    return jsonify({"html": html_content}), 200
 
 
 # =========================
