@@ -63,3 +63,16 @@ class Evaluation(Base):
     metrics_per_label = Column(JSONB, nullable=True)
     performance = Column(JSONB, nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+
+
+class ConversionJob(Base):
+    __tablename__ = "conversion_jobs"
+
+    id = Column(Integer, primary_key=True)
+    project = Column(Text, ForeignKey("projects.name"), nullable=False)
+    status = Column(Text, nullable=False, default="pending")  # pending | converting | done | failed
+    total_files = Column(Integer, nullable=False)
+    converted_files = Column(Integer, nullable=False, default=0)
+    error = Column(Text, nullable=True)
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
