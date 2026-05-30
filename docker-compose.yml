@@ -158,10 +158,14 @@ services:
       - ${PDFS_DIR:-./data/pdfs}:/pdfs
       - ${DOC_HTMLS_DIR:-./data/htmls}:/htmls
       - ${LOGS_DIR:-./logs}:/app/logs
+      - ${DEV_LOGS_DIR:-./data/logs}:/app/data/logs
       - ${FONTCACHE_VOLUME:-fontcache}:/var/cache/fontconfig
       - ${XDG_CACHE_VOLUME:-xdg_cache}:/root/.cache
       - ${XDG_DATA_VOLUME:-xdg_data}:/root/.local/share
     environment:
+      - SERVICE_NAME=docling
+      - LOGS_DIR=/app/logs
+      - DEV_LOGS_DIR=/app/data/logs
       - XDG_CACHE_HOME=${XDG_CACHE_HOME:-/root/.cache}
       - XDG_DATA_HOME=${XDG_DATA_HOME:-/root/.local/share}
       - DOCLING_PORT=${DOCLING_PORT:-5004}
