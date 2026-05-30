@@ -48,6 +48,9 @@ ENV DOCLING_ARTIFACTS_PATH=/opt/docling-models
 # App-Code
 COPY docling/ /app/
 
+# add centralized logger code
+COPY shared/logging_utils.py /app/utils/logging_utils.py  
+
 EXPOSE 5004
 
 CMD ["sh", "-c", "flask --app app.py run --host=0.0.0.0 --port=${DOCLING_PORT:-5004}"]
