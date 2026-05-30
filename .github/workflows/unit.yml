@@ -24,3 +24,9 @@ jobs:
 
       - name: Run unit tests for orchestrator
         run: make unit-orchestrator
+
+      - name: Run unit tests for worker_prelabel
+        run: make unit-worker_prelabel
+
+      - name: Run unit tests for ml_backend
+        run: make unit-ml_backend
