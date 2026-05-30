@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List
 
-from utils.logging_utils import write_fixture
+from utils.orchestrator_logging import write_fixture
 
 from domain.models.results import GetResultsTableCommand
 

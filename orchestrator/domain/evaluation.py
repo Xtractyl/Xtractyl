@@ -8,7 +8,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
-from utils.logging_utils import log_evaluation_over_time, safe_logger
+from utils.logging_utils import safe_logger
+from utils.orchestrator_logging import log_evaluation_over_time
 
 from domain.errors import AlreadyExists, ExternalServiceError, InvalidState, NotFound
 from domain.models.evaluation import EvaluateProjectsCommand, SaveAsGtSetCommand
