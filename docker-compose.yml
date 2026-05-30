@@ -200,7 +200,6 @@ services:
       ml_backend:
         condition: service_started
     volumes:
-      - ./worker:/app/worker
       - ${PROJECTS_DIR:-./data/projects}:/app/data/projects
       - ${HTMLS_DIR:-./data/htmls}:/app/data/htmls
       - ${LOGS_DIR:-./logs}:/app/logs
