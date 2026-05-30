@@ -129,7 +129,7 @@ def handle_job(job: ConversionJobPayload) -> None:
 def main() -> None:
     safe_logger.info("worker_conversion_starting")
     while True:
-        item = r.brpop(QUEUE, timeout=5)
+        item = r.blpop(QUEUE, timeout=5)
         if not item:
             continue
         _, raw = item
