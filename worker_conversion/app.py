@@ -32,12 +32,13 @@ DOCLING_URL = (
 )
 ORCHESTRATOR_CALLBACK_URL = f"http://{os.getenv('ORCH_CONTAINER_NAME', 'orchestrator')}:{os.getenv('ORCH_PORT', '5001')}/conversion/callback"
 
+MINIO_BUCKET = os.getenv("MINIO_BUCKET", "xtractyl")
+
 
 class ConversionJobPayload(BaseModel):
     job_id: int
     project: str
     pdf_keys: list[str]
-    minio_bucket: str
 
 
 def _minio_client() -> Minio:
@@ -67,13 +68,13 @@ def _send_callback(
             dev_logger.exception("callback_failed_dev | error=%s", str(e))
 
 
-def convert_file(job_id: int, bucket: str, pdf_key: str) -> tuple[bool, str | None, str | None]:
+def convert_file(job_id: int, pdf_key: str) -> tuple[bool, str | None, str | None]:
     filename = os.path.basename(pdf_key)
     html_key = pdf_key.replace("/pdfs/", "/htmls/").replace(".pdf", ".html")
     minio = _minio_client()
 
     try:
-        pdf_url = minio.presigned_get_object(bucket, pdf_key, expires=timedelta(minutes=30))
+        pdf_url = minio.presigned_get_object(MINIO_BUCKET, pdf_key, expires=timedelta(minutes=30))
     except S3Error as e:
         return False, None, f"Could not generate presigned URL: {e}"
 
@@ -91,7 +92,7 @@ def convert_file(job_id: int, bucket: str, pdf_key: str) -> tuple[bool, str | No
     try:
         html_bytes = html_content.encode("utf-8")
         minio.put_object(
-            bucket,
+            MINIO_BUCKET,
             html_key,
             io.BytesIO(html_bytes),
             length=len(html_bytes),
@@ -107,7 +108,7 @@ def handle_job(job: ConversionJobPayload) -> None:
     safe_logger.info("conversion_job_started | job_id=%s", job.job_id)
     for pdf_key in job.pdf_keys:
         filename = os.path.basename(pdf_key)
-        success, html_key, error = convert_file(job.job_id, job.minio_bucket, pdf_key)
+        success, html_key, error = convert_file(job.job_id, pdf_key)
         _send_callback(
             job_id=job.job_id, filename=filename, html_key=html_key, success=success, error=error
         )
