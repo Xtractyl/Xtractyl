@@ -15,6 +15,7 @@ from domain.models.conversion import (
 )
 from flask import jsonify, request
 from flask_pydantic_spec import Request, Response
+from infrastructure.repository.conversion_repository import ConversionRepository
 from pydantic import ValidationError
 
 from api.contracts.conversion import (
@@ -28,7 +29,7 @@ from api.contracts.conversion import (
 from api.contracts.errors import ErrorResponse
 
 
-def register(app, spec):
+def register(app, spec, storage, queue, session_factory):
     @app.route("/conversion/prepare", methods=["POST"])
     @spec.validate(
         body=Request(PrepareConversionRequest),
@@ -46,7 +47,16 @@ def register(app, spec):
         cmd = PrepareConversionCommand.from_contract(
             project=contract.project, filenames=contract.filenames
         )
-        result = prepare_conversion(cmd)
+        db = session_factory()
+        try:
+            repo = ConversionRepository(db)
+            result = prepare_conversion(cmd, storage=storage, repo=repo)
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
         try:
             validated = PrepareConversionResponse.model_validate(result)
         except ValidationError as e:
@@ -71,7 +81,16 @@ def register(app, spec):
     def conversion_convert():
         contract = ConvertRequest.model_validate(request.get_json(silent=True) or {})
         cmd = ConvertCommand.from_contract(job_id=contract.job_id)
-        result = start_conversion(cmd)
+        db = session_factory()
+        try:
+            repo = ConversionRepository(db)
+            result = start_conversion(cmd, repo=repo, queue=queue)
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
         try:
             validated = ConvertResponse.model_validate(result)
         except ValidationError as e:
@@ -91,7 +110,12 @@ def register(app, spec):
     )
     def conversion_status(job_id: int):
         cmd = ConversionStatusCommand.from_contract(job_id=job_id)
-        result = get_conversion_status(cmd)
+        db = session_factory()
+        try:
+            repo = ConversionRepository(db)
+            result = get_conversion_status(cmd, repo=repo)
+        finally:
+            db.close()
         try:
             validated = ConversionStatusResponse.model_validate(result)
         except ValidationError as e:
@@ -117,4 +141,14 @@ def register(app, spec):
             success=contract.success,
             error=contract.error,
         )
-        return jsonify(handle_conversion_callback(cmd)), 200
+        db = session_factory()
+        try:
+            repo = ConversionRepository(db)
+            result = handle_conversion_callback(cmd, repo=repo)
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
+        return jsonify(result), 200
