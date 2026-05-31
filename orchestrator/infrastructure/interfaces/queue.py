@@ -9,5 +9,4 @@ class QueueInterface(ABC):
         job_id: int,
         project: str,
         pdf_keys: list[str],
-        minio_bucket: str,
     ) -> None: ...
