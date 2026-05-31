@@ -60,14 +60,14 @@ def test_job_payload_missing_job_id_raises(valid_payload):
 
 
 def test_handle_job_sets_running_and_succeeded(valid_job):
-    from worker import app as worker_app
+    import app as worker_app
 
     mock_r = MagicMock()
     mock_r.hget.return_value = "RUNNING"
 
     with (
         patch.object(worker_app, "r", mock_r),
-        patch("worker.app.prelabel_project", return_value=["log1", "log2"]),
+        patch("app.prelabel_project", return_value=["log1", "log2"]),
     ):
         worker_app.handle_job(valid_job)
 
@@ -77,14 +77,14 @@ def test_handle_job_sets_running_and_succeeded(valid_job):
 
 
 def test_handle_job_sets_failed_on_exception(valid_job):
-    from worker import app as worker_app
+    import app as worker_app
 
     mock_r = MagicMock()
     mock_r.hget.return_value = "RUNNING"
 
     with (
         patch.object(worker_app, "r", mock_r),
-        patch("worker.app.prelabel_project", side_effect=Exception("boom")),
+        patch("app.prelabel_project", side_effect=Exception("boom")),
     ):
         worker_app.handle_job(valid_job)
 
@@ -93,14 +93,14 @@ def test_handle_job_sets_failed_on_exception(valid_job):
 
 
 def test_handle_job_sets_cancelled_when_cancel_requested(valid_job):
-    from worker import app as worker_app
+    import app as worker_app
 
     mock_r = MagicMock()
     mock_r.hget.return_value = "CANCEL_REQUESTED"
 
     with (
         patch.object(worker_app, "r", mock_r),
-        patch("worker.app.prelabel_project", return_value=[]),
+        patch("app.prelabel_project", return_value=[]),
     ):
         worker_app.handle_job(valid_job)
 
@@ -119,7 +119,7 @@ def test_resolve_project_id_401_raises_external_service_error():
     mock_response.status_code = 401
     mock_response.raise_for_status.side_effect = HTTPError(response=mock_response)
 
-    with patch("worker.infrastructure.label_studio.requests.get", return_value=mock_response):
+    with patch("infrastructure.label_studio.requests.get", return_value=mock_response):
         with pytest.raises(ExternalServiceError) as exc:
             resolve_project_id("bad_token", "my_project")
         assert exc.value.code == "LABEL_STUDIO_UNAUTHORIZED"
@@ -132,7 +132,7 @@ def test_resolve_project_id_not_found_raises_not_found():
     mock_response.raise_for_status.return_value = None
     mock_response.json.return_value = {"results": [], "next": None}
 
-    with patch("worker.infrastructure.label_studio.requests.get", return_value=mock_response):
+    with patch("infrastructure.label_studio.requests.get", return_value=mock_response):
         with pytest.raises(NotFound) as exc:
             resolve_project_id("good_token", "nonexistent_project")
         assert exc.value.code == "PROJECT_NOT_FOUND"
@@ -148,6 +148,6 @@ def test_resolve_project_id_returns_id():
         "next": None,
     }
 
-    with patch("worker.infrastructure.label_studio.requests.get", return_value=mock_response):
+    with patch("infrastructure.label_studio.requests.get", return_value=mock_response):
         project_id = resolve_project_id("good_token", "my_project")
     assert project_id == 42

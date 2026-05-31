@@ -10,6 +10,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from utils.conversion_worker import run_conversion
 from utils.job_files import read_latest_status, write_status
+from utils.logging_utils import dev_logger, safe_logger
 
 # In-memory job registry: job_id -> {"future": Future, "stop": Event}
 JOBS = {}
@@ -25,7 +26,7 @@ HTML_DIR = "/htmls"
 
 # --- Threading ---
 executor = ThreadPoolExecutor(max_workers=2)
-
+safe_logger.info("docling_starting")
 # =========================
 # Job lifecycle endpoints
 # =========================
@@ -136,14 +137,20 @@ def convert_from_url():
             with open(pdf_path, "wb") as f:
                 f.write(r.content)
         except Exception as e:
-            return jsonify({"error": f"Failed to download PDF: {e}"}), 502
+            safe_logger.error("pdf_download_failed")
+            if dev_logger:
+                dev_logger.exception("pdf_download_failed_dev | error=%s", str(e))
+            return jsonify({"error": "Failed to download PDF"}), 502
 
         # Convert via Docling CLI
         cmd = ["docling", pdf_path, "--from", "pdf", "--to", "html", "--output", html_dir]
         try:
             subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         except subprocess.CalledProcessError as e:
-            return jsonify({"error": f"Docling conversion failed (exit={e.returncode})"}), 500
+            safe_logger.error("docling_conversion_failed")
+            if dev_logger:
+                dev_logger.exception("docling_conversion_failed_dev | exit=%s", str(e.returncode))
+            return jsonify({"error": "Docling conversion failed"}), 500
 
         # Read HTML output
         html_filename = os.path.splitext(filename)[0] + ".html"

@@ -601,18 +601,10 @@ Migrations run automatically on container start via `alembic upgrade head`.
 
 To create a new migration after changing `orchestrator/db/models.py`:
 
-```bash
-cd orchestrator
-POSTGRES_XTRACTYL_HOST=localhost \
-POSTGRES_XTRACTYL_PORT=5433 \
-POSTGRES_XTRACTYL_DB=xtractyl \
-POSTGRES_XTRACTYL_USER=xtractyl \
-POSTGRES_XTRACTYL_PASSWORD=yourpassword \
-alembic revision --autogenerate -m "description of change"
-```
+```docker exec -it orchestrator alembic revision --autogenerate -m "Describe changes made"```
 
 to apply it:
-```docker compose restart orchestrator```
+```docker compose up --build orchestrator```
  ---
 
 ## Versioning (SemVer)

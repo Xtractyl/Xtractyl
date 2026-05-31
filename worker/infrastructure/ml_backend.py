@@ -6,6 +6,7 @@ import os
 import requests
 from contracts.jobs import JobPayload
 from domain.errors import ExternalServiceError
+
 from infrastructure.label_studio import LS_BASE
 
 ML_HOST = os.getenv("ML_BACKEND_HOST", "ml_backend")

@@ -76,13 +76,14 @@ services:
       - ${HTMLS_DIR:-./data/htmls}:/app/data/htmls
       - ${EVAL_DIR:-./data/evaluation}:/app/data/evaluation
       - ${RESULTS_DIR:-./data/results}:/app/data/results
-      - ${LOGS_DIR:-./logs}:/logs
+      - ${LOGS_DIR:-./logs}:/app/logs
       - ${DEV_LOGS_DIR:-./data/logs}:/app/data/logs
       - ${FIXTURES_DIR:-./data/fixtures}:/app/data/fixtures
       - ${DRIFT_DIR:-./data/evaluation_drift}:/app/data/evaluation_drift
       - ./orchestrator/alembic/versions:/app/alembic/versions
 
     environment:
+      - SERVICE_NAME=orchestrator
       - GROUNDTRUTH_QAL_DIR=/app/data/projects/Evaluation_Sets_Do_Not_Delete
       - PROJECTS_DIR=/app/data/projects
       - PDFS_DIR=/app/data/pdfs
@@ -90,8 +91,8 @@ services:
       - RESULTS_DIR=/app/data/results     
       - EVAL_DIR=/app/data/evaluation
       - FRONTEND_PORT=${FRONTEND_PORT:-5173}
-      - LOGS_DIR=${LOGS_DIR:-/logs}
-      - DEV_LOGS_DIR=${DEV_LOGS_DIR:-/app/data/logs}
+      - LOGS_DIR=/app/logs
+      - DEV_LOGS_DIR=/app/data/logs
       - DEBUG_ARTIFACTS=${DEBUG_ARTIFACTS:-0}
       - CAPTURE_FIXTURES=${CAPTURE_FIXTURES:-0}
       - SYNTHETIC_DATA=${SYNTHETIC_DATA:-0}
@@ -116,9 +117,10 @@ services:
       - labelstudio
       - ollama
     volumes:
-      - ./ml_backend:/app
-      - ${LOGS_DIR:-./logs}:/logs
+      - ${LOGS_DIR:-./logs}:/app/logs
+      - ${DEV_LOGS_DIR:-./data/logs}:/app/data/logs 
     environment:
+    - SERVICE_NAME=ml_backend
     - ML_BACKEND_PORT=${ML_BACKEND_PORT:-6789}
     - ML_BACKEND_INTERNAL_PORT=${ML_BACKEND_INTERNAL_PORT:-6789}
     - FRONTEND_PORT=${FRONTEND_PORT:-5173}
@@ -127,6 +129,8 @@ services:
     - DEBUG_ARTIFACTS=${DEBUG_ARTIFACTS:-0}
     - CAPTURE_FIXTURES=${CAPTURE_FIXTURES:-0}
     - SYNTHETIC_DATA=${SYNTHETIC_DATA:-0}
+    - LOGS_DIR=/app/logs        
+    - DEV_LOGS_DIR=/app/data/logs
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${ML_BACKEND_INTERNAL_PORT:-6789}/health"]
@@ -152,11 +156,15 @@ services:
     volumes:
       - ${PDFS_DIR:-./data/pdfs}:/pdfs
       - ${DOC_HTMLS_DIR:-./data/htmls}:/htmls
-      - ${LOGS_DIR:-./logs}:/logs
+      - ${LOGS_DIR:-./logs}:/app/logs
+      - ${DEV_LOGS_DIR:-./data/logs}:/app/data/logs
       - ${FONTCACHE_VOLUME:-fontcache}:/var/cache/fontconfig
       - ${XDG_CACHE_VOLUME:-xdg_cache}:/root/.cache
       - ${XDG_DATA_VOLUME:-xdg_data}:/root/.local/share
     environment:
+      - SERVICE_NAME=docling
+      - LOGS_DIR=/app/logs
+      - DEV_LOGS_DIR=/app/data/logs
       - XDG_CACHE_HOME=${XDG_CACHE_HOME:-/root/.cache}
       - XDG_DATA_HOME=${XDG_DATA_HOME:-/root/.local/share}
       - DOCLING_PORT=${DOCLING_PORT:-5004}
@@ -192,12 +200,14 @@ services:
       ml_backend:
         condition: service_started
     volumes:
-      - ./worker:/app/worker
       - ${PROJECTS_DIR:-./data/projects}:/app/data/projects
       - ${HTMLS_DIR:-./data/htmls}:/app/data/htmls
-      - ${LOGS_DIR:-./logs}:/logs
-      - ./data/logs:/app/data/logs
+      - ${LOGS_DIR:-./logs}:/app/logs
+      - ${DEV_LOGS_DIR:-./data/logs}:/app/data/logs
     environment:
+      - SERVICE_NAME=worker_pre_label
+      - LOGS_DIR=/app/logs       
+      - DEV_LOGS_DIR=/app/data/logs 
       - LLM_TIMEOUT=${LLM_TIMEOUT:-20}
       - LLM_OVERHEAD=${LLM_OVERHEAD:-5}
       - UPLOAD_MARGIN=${UPLOAD_MARGIN:-30}
@@ -228,9 +238,10 @@ services:
       orchestrator:
         condition: service_started
     volumes:
-     - ${LOGS_DIR:-./logs}:/logs
+     - ${LOGS_DIR:-./logs}:/app/logs
      - ${DEV_LOGS_DIR:-./data/logs}:/app/data/logs
     environment:
+      - SERVICE_NAME=worker_conversion
       - REDIS_HOST=${REDIS_HOST:-job_queue}
       - REDIS_PORT=${REDIS_PORT:-6379}
       - MINIO_CONTAINER_NAME=${MINIO_CONTAINER_NAME:-minio}
@@ -243,8 +254,8 @@ services:
       - ORCH_CONTAINER_NAME=${ORCH_CONTAINER_NAME:-orchestrator}
       - ORCH_PORT=${ORCH_PORT:-5001}
       - DEBUG_ARTIFACTS=${DEBUG_ARTIFACTS:-0}
-      - LOGS_DIR=${LOGS_DIR:-/logs}
-      - DEV_LOGS_DIR=${DEV_LOGS_DIR:-/app/data/logs}
+      - LOGS_DIR=/app/logs
+      - DEV_LOGS_DIR=/app/data/logs
 
 
 # --- Xtractyl database (separate from labelsstudio postgres) ---
@@ -285,6 +296,25 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  # One-shot init container: creates the bucket and sets CORS policy for presigned PUT uploads from the browser.
+  # Exits after completion.
+  minio_init:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minioadmin}
+      - MINIO_BUCKET=${MINIO_BUCKET:-xtractyl}
+      - FRONTEND_PORT=${FRONTEND_PORT:-5173}
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://${MINIO_CONTAINER_NAME:-minio}:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD;
+      mc mb --ignore-existing local/$$MINIO_BUCKET;
+      mc cors set local/$$MINIO_BUCKET --allowed-origin http://localhost:$$FRONTEND_PORT --allowed-method PUT --allowed-header '*';
+      "
 
   # --- Admin GUI for Xtractyl Postgres ---
   # access only to xtractyl database to avoid damaging label studio database 
