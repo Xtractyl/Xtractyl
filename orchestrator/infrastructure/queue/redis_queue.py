@@ -16,7 +16,6 @@ class RedisQueue(QueueInterface):
         job_id: int,
         project: str,
         pdf_keys: list[str],
-        minio_bucket: str,
     ) -> None:
         try:
             self._client.rpush(
@@ -26,7 +25,6 @@ class RedisQueue(QueueInterface):
                         "job_id": job_id,
                         "project": project,
                         "pdf_keys": pdf_keys,
-                        "minio_bucket": minio_bucket,
                     }
                 ),
             )
