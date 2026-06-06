@@ -19,6 +19,7 @@ from domain.projects import (
 )
 from flask import jsonify, request
 from flask_pydantic_spec import Request, Response
+from infrastructure.repository.project_repository import ProjectRepository
 from pydantic import ValidationError
 
 from api.contracts.errors import ErrorResponse
@@ -38,7 +39,7 @@ from api.contracts.projects import (
 from api.utils.auth import extract_token
 
 
-def register(app, spec):
+def register(app, spec, session_factory, label_studio):
     @app.route("/create_project", methods=["POST"])
     @spec.validate(
         body=Request(CreateProjectRequest),
@@ -67,8 +68,16 @@ def register(app, spec):
             labels=contract.labels,
             token=token,
         )
-
-        result = create_project_main_from_payload(cmd)
+        db = session_factory()
+        try:
+            repo = ProjectRepository(db)
+            result = create_project_main_from_payload(cmd, repo=repo, label_studio=label_studio)
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
         try:
             validated = CreateProjectResponse.model_validate(result)
         except ValidationError as e:
@@ -126,7 +135,16 @@ def register(app, spec):
     def project_exists_route():
         contract = ProjectExistsRequest.model_validate(request.get_json(silent=True) or {})
         cmd = ProjectExistsCommand.from_contract(project=contract.project)
-        result = check_project_exists(cmd)
+        db = session_factory()
+        try:
+            repo = ProjectRepository(db)
+            result = check_project_exists(cmd, repo=repo)
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
         try:
             validated = ProjectExistsResponse.model_validate(result)
         except ValidationError as e:

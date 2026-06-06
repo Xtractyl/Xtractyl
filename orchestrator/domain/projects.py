@@ -3,6 +3,8 @@ import json
 import os
 
 import requests
+from infrastructure.interfaces.label_studio import LabelStudioInterface
+from infrastructure.interfaces.repository import ProjectRepositoryInterface
 
 from domain.errors import (
     DomainError,
@@ -23,20 +25,25 @@ from domain.models.projects import (
 # Fixed base dir (no env lookups)
 BASE_PROJECTS_DIR = os.path.join("data", "projects")
 
-# === Base URLs / Ports (from env with defaults) ===
+BATCH_SIZE = 50
+
+USE_DB_BACKEND = os.getenv("USE_DB_BACKEND", "0") == "1"
+
 LABELSTUDIO_HOST = os.getenv("LABELSTUDIO_CONTAINER_NAME", "labelstudio")
 LABELSTUDIO_PORT = os.getenv("LABELSTUDIO_PORT", "8080")
 LABEL_STUDIO_URL = f"http://{LABELSTUDIO_HOST}:{LABELSTUDIO_PORT}"
 
-ML_BACKEND_HOST = os.getenv("ML_BACKEND_CONTAINER_NAME", "ml_backend")
-ML_BACKEND_PORT = os.getenv("ML_BACKEND_PORT", "6789")
-ML_BACKEND_URL = f"http://{ML_BACKEND_HOST}:{ML_BACKEND_PORT}"
 
-BATCH_SIZE = 50
-
-
-def check_project_exists(cmd: ProjectExistsCommand):
+def check_project_exists(cmd: ProjectExistsCommand, repo: ProjectRepositoryInterface):
     try:
+        if USE_DB_BACKEND:
+            if repo.project_exists(cmd.project):
+                raise InvalidState(
+                    code="PROJECT_ALREADY_EXISTS",
+                    message="A project with this name already exists.",
+                )
+            return {"exists": False}
+
         project = cmd.project
         project_path = os.path.join("data", "projects", project)
         gt_path = os.path.join("data", "projects", "Evaluation_Sets_Do_Not_Delete", project)
@@ -57,7 +64,9 @@ def check_project_exists(cmd: ProjectExistsCommand):
         )
 
 
-def create_project_main_from_payload(cmd: CreateProjectCommand):
+def create_project_main_from_payload(
+    cmd: CreateProjectCommand, repo: ProjectRepositoryInterface, label_studio: LabelStudioInterface
+):
     """
     Create a Label Studio project and store the provided questions/labels alongside it.
     Also attempts to attach the ML backend to the created project.
@@ -77,14 +86,12 @@ def create_project_main_from_payload(cmd: CreateProjectCommand):
     labels = cmd.labels
     token = cmd.token
 
-    # Create project folder
-    base_path = os.path.join("data", "projects", title)
-    os.makedirs(base_path, exist_ok=True)
-
-    # Save questions_and_labels.json
-    qa_path = os.path.join(base_path, "questions_and_labels.json")
-    with open(qa_path, "w", encoding="utf-8") as f:
-        json.dump({"questions": questions, "labels": labels}, f, indent=2, ensure_ascii=False)
+    if not USE_DB_BACKEND:
+        base_path = os.path.join("data", "projects", title)
+        os.makedirs(base_path, exist_ok=True)
+        qa_path = os.path.join(base_path, "questions_and_labels.json")
+        with open(qa_path, "w", encoding="utf-8") as f:
+            json.dump({"questions": questions, "labels": labels}, f, indent=2, ensure_ascii=False)
 
     # Label Studio label config
     label_tags = "\n    ".join([f'<Label value="{label}"/>' for label in labels])
@@ -101,46 +108,11 @@ def create_project_main_from_payload(cmd: CreateProjectCommand):
         <HyperText name="html" value="$html" granularity="symbol" />
     </View>"""
 
-    # Create project via API
-    headers = {"Authorization": f"Token {token}", "Content-Type": "application/json"}
-    project_payload = {"title": title, "label_config": label_config}
+    project_id = label_studio.create_project(title, label_config, token)
+    label_studio.attach_ml_backend(project_id, token)
 
-    try:
-        response = requests.post(
-            f"{LABEL_STUDIO_URL}/api/projects",
-            headers=headers,
-            json=project_payload,
-            timeout=20,
-        )
-        response.raise_for_status()
-    except requests.RequestException:
-        raise ExternalServiceError(
-            code="LABEL_STUDIO_UNAVAILABLE",
-            message="Label Studio project creation failed.",
-        )
-
-    project_id = response.json().get("id")
-    if not project_id:
-        raise ExternalServiceError(
-            code="LABEL_STUDIO_UNAVAILABLE",
-            message="Label Studio project creation failed.",
-        )
-
-    # Attach ML backend
-    ml_payload = {"url": ML_BACKEND_URL, "title": "xtractyl-backend", "project": project_id}
-    try:
-        ml_response = requests.post(
-            f"{LABEL_STUDIO_URL}/api/ml",
-            headers=headers,
-            json=ml_payload,
-            timeout=20,
-        )
-        ml_response.raise_for_status()
-    except requests.RequestException:
-        raise ExternalServiceError(
-            code="ML_BACKEND_UNAVAILABLE",
-            message="Could not attach ML backend to project.",
-        )
+    if USE_DB_BACKEND:
+        repo.set_label_studio_id(title, project_id)
 
     return {"project_id": project_id}
 

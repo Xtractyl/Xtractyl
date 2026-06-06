@@ -6,6 +6,7 @@ from api.routes import register_routes
 from flask import Flask
 from flask_cors import CORS
 from flask_pydantic_spec import FlaskPydanticSpec
+from infrastructure.label_studio.label_studio_client import LabelStudioClient
 from infrastructure.queue.redis_queue import RedisQueue
 from infrastructure.storage.minio_storage import MinioStorage
 from sqlalchemy import create_engine
@@ -41,12 +42,20 @@ def create_app() -> Flask:
     )
     engine = create_engine(os.getenv("DATABASE_URL"))
     session_factory = sessionmaker(bind=engine)
+    label_studio = LabelStudioClient()
     app = Flask(__name__)
     # CORS: keep browser frontend working (incl. Authorization header)
     CORS(app, origins=[FRONTEND_ORIGIN], allow_headers=["Content-Type", "Authorization"])
 
     spec = FlaskPydanticSpec("flask", title="Orchestrator API", version="v1", path="apidoc")
-    register_routes(app, spec, storage=storage, queue=queue, session_factory=session_factory)
+    register_routes(
+        app,
+        spec,
+        storage=storage,
+        queue=queue,
+        session_factory=session_factory,
+        label_studio=label_studio,
+    )
 
     register_error_handlers(
         app=app,
