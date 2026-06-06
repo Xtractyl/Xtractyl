@@ -597,7 +597,7 @@ make unit-worker
 
 ## Database migrations (Alembic)
 
-Migrations run automatically on container start via `alembic upgrade head`.
+Migrations run automatically on container rebuild via `alembic upgrade head`.
 
 To create a new migration after changing `orchestrator/db/models.py`:
 
