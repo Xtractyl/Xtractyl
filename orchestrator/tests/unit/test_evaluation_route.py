@@ -197,64 +197,6 @@ def test_save_as_gt_set_contract_violated_returns_500(client, monkeypatch):
     assert data["error"] == "RESPONSE_CONTRACT_VIOLATED"
 
 
-# --- project_exists ---
-
-
-def test_project_exists_missing_project_returns_422(client):
-    res = client.post(
-        "/project_exists",
-        json={},
-    )
-    assert res.status_code == 422
-
-
-def test_project_exists_returns_200(client, monkeypatch):
-    monkeypatch.setattr(
-        "api.routes.projects.check_project_exists",
-        lambda cmd: {"exists": False},
-    )
-    res = client.post(
-        "/project_exists",
-        json={"project": "my_project"},
-    )
-    assert res.status_code == 200
-
-
-def test_project_exists_already_exists_returns_409(client, monkeypatch):
-    from domain.errors import InvalidState
-
-    monkeypatch.setattr(
-        "api.routes.projects.check_project_exists",
-        lambda cmd: (_ for _ in ()).throw(
-            InvalidState(
-                code="PROJECT_ALREADY_EXISTS",
-                message="A project with this name already exists.",
-            )
-        ),
-    )
-    res = client.post(
-        "/project_exists",
-        json={"project": "my_project"},
-    )
-    assert res.status_code == 409
-    data = res.get_json()
-    assert data["error"] == "PROJECT_ALREADY_EXISTS"
-
-
-def test_project_exists_contract_violated_returns_500(client, monkeypatch):
-    monkeypatch.setattr(
-        "api.routes.projects.check_project_exists",
-        lambda cmd: {"wrong_field": "oops"},
-    )
-    res = client.post(
-        "/project_exists",
-        json={"project": "my_project"},
-    )
-    assert res.status_code == 500
-    data = res.get_json()
-    assert data["error"] == "RESPONSE_CONTRACT_VIOLATED"
-
-
 # --- groundtruth_qals ---
 
 
