@@ -105,6 +105,7 @@ services:
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-yourpassword}
       - MINIO_BUCKET=${MINIO_BUCKET:-xtractyl}
       - MINIO_PRESIGN_EXPIRY_SECONDS=${MINIO_PRESIGN_EXPIRY_SECONDS:-3600}
+      - USE_DB_BACKEND=${USE_DB_BACKEND:-0}
 
   ml_backend:
     build:
