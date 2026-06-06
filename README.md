@@ -99,7 +99,7 @@ T[Frontend]
 %% ====== ROW 1 ======
 subgraph ZA[" "]
 direction LR
- A1A[Frontend - Upload & Convert Docs] --> B1A[Docling]
+ A1A[Frontend - Upload & Convert Docs] --> B1A[Job Queue] --> C1A[Worker Conversion] --> D1A[Docling]
 end
 
 T --> ZA
@@ -125,7 +125,7 @@ subgraph ZA4[" "]
 direction LR
  A4A[Frontend - Start AI]
  B4A[Orchestrator]
- C4A[Redis] 
+ C4A[Job Queue] 
  D4A[Worker] 
  E4A[ML backend] 
  F4A[Ollama]
