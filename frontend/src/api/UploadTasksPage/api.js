@@ -7,9 +7,10 @@ const r = (path, opts) => request(ORCH_BASE, path, opts);
  export async function uploadTasks({ projectName, token, htmlFolder }) {
    return r(`/upload_tasks`, {
      method: "POST",
-     headers: { "Content-Type": "application/json" },
-     body: JSON.stringify({ project: projectName, token, html_folder: htmlFolder }),
-   });
+     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+     body: JSON.stringify({ project: projectName, html_folder: htmlFolder }),
+
+    });
  }
 
  export async function getHtmlSubfolders() {
