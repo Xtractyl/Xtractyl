@@ -14,7 +14,8 @@ up:
 		job_queue \
 		postgres_xtractyl \
 		minio \
-		worker_prelabel
+		worker_prelabel \
+		worker_conversion 
 
 down:
 	docker compose down 
