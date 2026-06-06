@@ -2,6 +2,7 @@
 
 from sqlalchemy import (
     TIMESTAMP,
+    Boolean,
     Column,
     ForeignKey,
     Integer,
@@ -22,6 +23,8 @@ class Project(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(Text, nullable=False, unique=True)
+    label_studio_id = Column(Integer, nullable=True)
+    is_groundtruth = Column(Boolean, nullable=False, default=False)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
 
