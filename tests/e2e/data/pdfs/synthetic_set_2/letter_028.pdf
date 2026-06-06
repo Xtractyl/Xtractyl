@@ -1,0 +1,596 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<<
+/Producer (pypdf)
+>>
+endobj
+2 0 obj
+<<
+/Type /Pages
+/Count 3
+/Kids [ 4 0 R 9 0 R 11 0 R ]
+>>
+endobj
+3 0 obj
+<<
+/Type /Catalog
+/Pages 2 0 R
+>>
+endobj
+4 0 obj
+<<
+/Contents 5 0 R
+/MediaBox [ 0 0 595.2756 841.8898 ]
+/Resources <<
+/Font <<
+/F1 6 0 R
+/F1-0 7 0 R
+/F2 8 0 R
+>>
+/ProcSet [ /ImageB /ImageC /ImageI /PDF /Text ]
+>>
+/Rotate 0
+/Trans <<
+>>
+/Type /Page
+/Annots [ ]
+/Parent 2 0 R
+>>
+endobj
+5 0 obj
+<<
+/Length 6153
+>>
+stream
+q
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+q
+1 0 0 1 56.69291 688.1969 cm
+q
+0 0 0 rg
+BT /F1 10 Tf 12 TL ET
+q
+1 0 0 1 6 40 cm
+q
+BT 1 0 0 1 0 38 Tm 16 TL /F2 10 Tf 0 0 0 rg (University Hospital Medical Center) Tj /F1 10 Tf  T* (Dept. of Hematology) Tj  T* /F1 8 Tf .533333 .533333 .533333 rg (15 University Drive, Albuquerque, NM 87101) Tj T* ET
+Q
+Q
+q
+1 0 0 1 261.1181 8 cm
+q
+BT 1 0 0 1 0 71 Tm 16 TL /F2 9 Tf 0 0 0 rg (Patient:) Tj /F1 9 Tf ( Klaus-Dieter Richter) Tj  T* /F2 9 Tf (Date of Birth:) Tj /F1 9 Tf ( 12/22/1954) Tj  T* /F2 9 Tf (Admission Date:) Tj /F1 9 Tf ( 01/02/2025) Tj  T* /F2 9 Tf (Discharge Date:) Tj /F1 9 Tf ( 01/10/2025) Tj  T* /F2 9 Tf (Attending Physician:) Tj /F1 9 Tf ( Prof. Julia Kern, MD) Tj T* ET
+Q
+Q
+q
+1 J
+1 j
+.101961 .227451 .360784 RG
+1 w
+n 0 0 m 481.8898 0 l S
+Q
+Q
+Q
+q
+1 0 0 1 76.86614 676.8583 cm
+Q
+q
+1 0 0 1 76.86614 660.8583 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 3 Tm /F2 13 Tf 16 TL (Discharge Summary) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 652.3583 cm
+q
+.5 w
+1 J
+.8 .8 .8 RG
+n 0 0 m 441.5433 0 l S
+Q
+Q
+q
+1 0 0 1 76.86614 628.3583 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 6 Tm /F1 10 Tf 16 TL (Mr. Klaus-Dieter Richter was admitted to initiate VCD therapy for multiple myeloma.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 604.3583 cm
+q
+BT 1 0 0 1 0 6 Tm 16 TL /F2 10 Tf 0 0 0 rg (Primary Diagnosis:) Tj /F1 10 Tf ( Multiple myeloma \(C90.0\) \227 Tumor staging: T3 N1 M1) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 580.3583 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 6 Tm /F1 10 Tf 16 TL (Laboratory values:) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 563.8543 cm
+Q
+q
+1 0 0 1 77.95276 453.8543 cm
+q
+.101961 .227451 .360784 rg
+n 0 110 439.3701 -22 re f*
+1 1 1 rg
+n 0 88 439.3701 -22 re f*
+.956863 .972549 .988235 rg
+n 0 66 439.3701 -22 re f*
+1 1 1 rg
+n 0 44 439.3701 -22 re f*
+.956863 .972549 .988235 rg
+n 0 22 439.3701 -22 re f*
+1 1 1 rg
+BT /F1 10 Tf 12 TL ET
+q
+1 0 0 1 6 93 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F2 10 Tf 12 TL (Parameter) Tj T* ET
+Q
+Q
+q
+1 0 0 1 176.0787 93 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F2 10 Tf 12 TL (Value) Tj T* ET
+Q
+Q
+q
+1 0 0 1 289.4646 93 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F2 10 Tf 12 TL (Reference) Tj T* ET
+Q
+Q
+0 0 0 rg
+q
+1 0 0 1 6 71 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (HbA1c) Tj T* ET
+Q
+Q
+q
+1 0 0 1 176.0787 71 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (6.7%) Tj T* ET
+Q
+Q
+q
+1 0 0 1 289.4646 71 cm
+q
+BT 1 0 0 1 0 2 Tm 12 TL /F1 10 Tf 0 0 0 rg (< 6.5%) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 49 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Total protein) Tj T* ET
+Q
+Q
+q
+1 0 0 1 176.0787 49 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (9.8 g/dL) Tj T* ET
+Q
+Q
+q
+1 0 0 1 289.4646 49 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (6.0\2268.3 g/dL) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 27 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Calcium) Tj T* ET
+Q
+Q
+q
+1 0 0 1 176.0787 27 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (2.8 mmol/L) Tj T* ET
+Q
+Q
+q
+1 0 0 1 289.4646 27 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (2.1\2262.6 mmol/L) Tj T* ET
+Q
+Q
+q
+1 0 0 1 6 5 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Creatinine) Tj T* ET
+Q
+Q
+q
+1 0 0 1 176.0787 5 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (1.9 mg/dL) Tj T* ET
+Q
+Q
+q
+1 0 0 1 289.4646 5 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (0.7\2261.2 mg/dL) Tj T* ET
+Q
+Q
+q
+1 J
+1 j
+.666667 .666667 .666667 RG
+.4 w
+n 0 110 m 439.3701 110 l S
+n 0 0 m 439.3701 0 l S
+n 0 0 m 0 110 l S
+n 439.3701 0 m 439.3701 110 l S
+n 0 88 m 439.3701 88 l S
+n 0 66 m 439.3701 66 l S
+n 0 44 m 439.3701 44 l S
+n 0 22 m 439.3701 22 l S
+n 170.0787 0 m 170.0787 110 l S
+n 283.4646 0 m 283.4646 110 l S
+Q
+Q
+Q
+q
+1 0 0 1 76.86614 445.3504 cm
+Q
+q
+1 0 0 1 76.86614 429.3504 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 6 Tm /F1 10 Tf 16 TL (Therapy tolerated. Discharged 01/10/2025.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 405.3504 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 6 Tm /F2 10 Tf 16 TL (Relevant Medical History:) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 285.3504 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 102 Tm /F1 10 Tf 16 TL (The patient has a long-standing history of arterial hypertension, first diagnosed in 2008 and) Tj T* (currently managed with an ACE inhibitor and a calcium channel blocker. Type 2 diabetes mellitus) Tj T* (was diagnosed in 2015 and is managed with oral antidiabetic agents and basal insulin. The patient) Tj T* (also has a history of hypercholesterolemia treated with a statin, and underwent cholecystectomy in) Tj T* (2004 without complications. No known drug allergies. The patient reports intermittent use of) Tj T* (over-the-counter NSAIDs for chronic joint discomfort, which has been advised against given the) Tj T* (renal function.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 197.3504 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 70 Tm /F1 10 Tf 16 TL (Family history is significant for coronary artery disease \227 the patient's father suffered a myocardial) Tj T* (infarction at age 62 and underwent coronary artery bypass surgery. The patient's mother was) Tj T* (diagnosed with type 2 diabetes at age 70. Two siblings are reported to be in good health. The) Tj T* (patient is a former smoker with a 20 pack-year history, having ceased smoking in 2010. Alcohol) Tj T* (consumption is moderate, approximately 5 units per week. No illicit drug use was reported.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 173.3504 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 6 Tm /F2 10 Tf 16 TL (Physical Examination on Admission:) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 85.35039 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 70 Tm /F1 10 Tf 16 TL (General appearance: The patient presented in a reduced but stable general condition, awake,) Tj T* (oriented, and cooperative. Anthropometric data: height 172 cm, weight 84 kg, BMI 28.4 kg/m2. Vital) Tj T* (signs on admission: blood pressure 158/94 mmHg, heart rate 88 bpm and regular, respiratory rate) Tj T* (16 breaths per minute, oxygen saturation 96% on room air, body temperature 37.2\260C. Skin was) Tj T* (warm, dry, and of normal color with no jaundice, rash, or suspicious lesions noted. Cervical lymph) Tj T* ET
+Q
+Q
+ 
+
+Q
+
+q
+0.0 0.0 595.2756 841.8898 re
+W
+n
+1 0 0 1 0 0 cm
+BT
+/F1-0 12 Tf
+14.4 TL
+ET
+BT
+/F1-0 7 Tf
+8.4 TL
+ET
+0.666667 0.666667 0.666667 rg
+BT
+1 0 0 1 150.9633 18 Tm
+(Synthetic document \227 generated for benchmarking purposes only \227 not a real medical record) Tj
+T*
+ET
+Q
+
+
+endstream
+endobj
+6 0 obj
+<<
+/BaseFont /Helvetica
+/Encoding /WinAnsiEncoding
+/Name /F1
+/Subtype /Type1
+/Type /Font
+>>
+endobj
+7 0 obj
+<<
+/BaseFont /Helvetica
+/Encoding /WinAnsiEncoding
+/Name /F1
+/Subtype /Type1
+/Type /Font
+>>
+endobj
+8 0 obj
+<<
+/BaseFont /Helvetica-Bold
+/Encoding /WinAnsiEncoding
+/Name /F2
+/Subtype /Type1
+/Type /Font
+>>
+endobj
+9 0 obj
+<<
+/Contents 10 0 R
+/MediaBox [ 0 0 595.2756 841.8898 ]
+/Resources <<
+/Font <<
+/F1 6 0 R
+/F1-0 7 0 R
+/F2 8 0 R
+>>
+/ProcSet [ /ImageB /ImageC /ImageI /PDF /Text ]
+>>
+/Rotate 0
+/Trans <<
+>>
+/Type /Page
+/Annots [ ]
+/Parent 2 0 R
+>>
+endobj
+10 0 obj
+<<
+/Length 4627
+>>
+stream
+q
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+q
+1 0 0 1 76.86614 763.1969 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 6 Tm /F1 10 Tf 16 TL (nodes were not palpable.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 627.1969 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 118 Tm /F1 10 Tf 16 TL (Cardiovascular system: Heart sounds were regular, with normal S1 and S2. No murmurs, rubs, or) Tj T* (gallops detected. Jugular venous pressure was mildly elevated. Peripheral pulses were palpable) Tj T* (bilaterally. Respiratory system: Breath sounds were diminished at the right base with mild bibasal) Tj T* (crackles on auscultation. No wheezing. Abdomen: soft, non-tender, with no guarding or rigidity. The) Tj T* (liver edge was palpable 1 cm below the right costal margin. No splenomegaly. Bowel sounds were) Tj T* (present and normoactive. Extremities: 1+ pitting edema present bilaterally below the knees.) Tj T* (Neurological examination was grossly intact \227 cranial nerves II\226XII were intact, motor strength was) Tj T* (5/5 in all extremities, and reflexes were symmetric.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 603.1969 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 6 Tm /F2 10 Tf 16 TL (Diagnostic Procedures and Results:) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 515.1969 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 70 Tm /F1 10 Tf 16 TL (12-lead ECG performed on admission: sinus rhythm at 88 bpm, normal axis, no acute ST-segment) Tj T* (changes, no T-wave inversions, QTc within normal limits. Transthoracic echocardiography) Tj T* (performed on day 2: ejection fraction 58%, preserved systolic function, mild diastolic dysfunction) Tj T* (grade I, no significant valvular pathology, no pericardial effusion. Chest X-ray \(PA view\): no acute) Tj T* (pulmonary infiltrate, no pleural effusion, cardiac silhouette within normal limits.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 395.1969 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 102 Tm /F1 10 Tf 16 TL (Abdominal ultrasound: liver of normal echogenicity and size, gallbladder status) Tj T* (post-cholecystectomy, no biliary dilation, kidneys of normal size with no hydronephrosis, spleen not) Tj T* (enlarged, no free abdominal fluid. Duplex sonography of the lower extremities: no evidence of deep) Tj T* (vein thrombosis bilaterally. CT thorax and abdomen with intravenous contrast medium: performed) Tj T* -0.021907 Tw (on day 3, results reviewed by the radiology department and discussed at the interdisciplinary clinical) Tj T* 0 Tw (conference on day 4. Findings are summarized in the separate radiology report appended to this) Tj T* (letter.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 371.1969 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 6 Tm /F2 10 Tf 16 TL (Medication Prescribed at Discharge:) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 235.1969 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 118 Tm /F1 10 Tf 16 TL (The following medications were prescribed at the time of discharge, with dosing instructions clearly) Tj T* (communicated to the patient: \(1\) Metformin 1000 mg orally twice daily with meals; \(2\) Ramipril 5 mg) Tj T* (orally once daily in the morning; \(3\) Atorvastatin 40 mg orally once daily in the evening; \(4\) Aspirin) Tj T* (100 mg orally once daily; \(5\) Pantoprazole 40 mg orally once daily before breakfast; \(6\) Bisoprolol) Tj T* (2.5 mg orally once daily in the morning; \(7\) Torasemide 5 mg orally once daily. The patient was) Tj T* (counseled in detail regarding the purpose, expected benefits, potential side effects, and warning) Tj T* (signs for each medication. A written medication plan was provided in the patient's preferred) Tj T* (language.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 211.1969 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 6 Tm /F2 10 Tf 16 TL (Follow-up Plan and Recommendations:) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 107.1969 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 86 Tm /F1 10 Tf 16 TL -0.059764 Tw (We recommend the following structured follow-up: \(1\) Visit to the general practitioner within 2 weeks) Tj T* 0 Tw (of discharge for medication review, blood pressure reassessment, and inspection of any wound or) Tj T* (access sites. \(2\) Comprehensive laboratory workup in 3 months including complete blood count,) Tj T* (serum electrolytes, renal function panel, liver enzymes, fasting lipid profile, fasting glucose, and) Tj T* (HbA1c. \(3\) Cardiology outpatient follow-up in 6 weeks. \(4\) Diabetology referral for structured) Tj T* (outpatient management optimization. \(5\) Repeat transthoracic echocardiography in 6 months.) Tj T* ET
+Q
+Q
+ 
+
+Q
+
+q
+0.0 0.0 595.2756 841.8898 re
+W
+n
+1 0 0 1 0 0 cm
+BT
+/F1-0 12 Tf
+14.4 TL
+ET
+BT
+/F1-0 7 Tf
+8.4 TL
+ET
+0.666667 0.666667 0.666667 rg
+BT
+1 0 0 1 150.9633 18 Tm
+(Synthetic document \227 generated for benchmarking purposes only \227 not a real medical record) Tj
+T*
+ET
+Q
+
+
+endstream
+endobj
+11 0 obj
+<<
+/Contents 12 0 R
+/MediaBox [ 0 0 595.2756 841.8898 ]
+/Resources <<
+/Font <<
+/F1 6 0 R
+/F1-0 7 0 R
+/F2 8 0 R
+>>
+/ProcSet [ /ImageB /ImageC /ImageI /PDF /Text ]
+>>
+/Rotate 0
+/Trans <<
+>>
+/Type /Page
+/Annots [ ]
+/Parent 2 0 R
+>>
+endobj
+12 0 obj
+<<
+/Length 2770
+>>
+stream
+q
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+q
+1 0 0 1 76.86614 683.1969 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 86 Tm /F1 10 Tf 16 TL (The patient was additionally enrolled in a structured diabetes self-management education program) Tj T* (beginning 4 weeks after discharge. Dietary counseling was initiated during the inpatient stay, and a) Tj T* (referral to a registered dietitian was arranged for ongoing nutritional support. The patient and) Tj T* (accompanying family member were fully informed of the diagnosis, treatment rationale, expected) Tj T* (clinical trajectory, and all follow-up requirements. Written discharge instructions were provided, and) Tj T* (a direct contact number for the ward team was given in case questions or concerns arise.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 659.1969 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 6 Tm /F2 10 Tf 16 TL (Social and Functional Assessment:) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 555.1969 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 86 Tm /F1 10 Tf 16 TL (Prior to this admission, the patient was living independently at home with a supportive spouse. The) Tj T* (patient was fully mobile and independent in all activities of daily living without assistive devices.) Tj T* (During the hospital stay, physiotherapy was initiated on day 2 with a focus on mobilization and) Tj T* (functional recovery. The patient demonstrated good cooperation and satisfactory progress) Tj T* (throughout. Occupational therapy was consulted and confirmed that the patient is safe to return to) Tj T* (the home environment without structural modifications.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 451.1969 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 86 Tm /F1 10 Tf 16 TL (A comprehensive social work assessment was conducted on day 3 of the hospital stay. No) Tj T* (immediate social interventions were identified as necessary at this time. The patient confirmed) Tj T* (adequate health insurance coverage and established relationships with a primary care physician) Tj T* (and relevant outpatient specialists. Home nursing was arranged to assist with wound care and) Tj T* (medication management for a period of two weeks following discharge. Both the patient and spouse) Tj T* (expressed confidence in managing the post-discharge plan at home.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 420.5197 cm
+Q
+q
+1 0 0 1 76.86614 419.0197 cm
+q
+.5 w
+1 J
+.8 .8 .8 RG
+n 0 0 m 441.5433 0 l S
+Q
+Q
+q
+1 0 0 1 76.86614 379.0197 cm
+q
+BT 1 0 0 1 0 22 Tm 16 TL /F1 10 Tf 0 0 0 rg (Prof. Julia Kern, MD) Tj  T* /F1 9 Tf .4 .4 .4 rg (Director, Hematology) Tj T* ET
+Q
+Q
+ 
+
+Q
+
+q
+0.0 0.0 595.2756 841.8898 re
+W
+n
+1 0 0 1 0 0 cm
+BT
+/F1-0 12 Tf
+14.4 TL
+ET
+BT
+/F1-0 7 Tf
+8.4 TL
+ET
+0.666667 0.666667 0.666667 rg
+BT
+1 0 0 1 150.9633 18 Tm
+(Synthetic document \227 generated for benchmarking purposes only \227 not a real medical record) Tj
+T*
+ET
+Q
+
+
+endstream
+endobj
+xref
+0 13
+0000000000 65535 f 
+0000000015 00000 n 
+0000000054 00000 n 
+0000000126 00000 n 
+0000000175 00000 n 
+0000000418 00000 n 
+0000006623 00000 n 
+0000006730 00000 n 
+0000006837 00000 n 
+0000006949 00000 n 
+0000007193 00000 n 
+0000011873 00000 n 
+0000012118 00000 n 
+trailer
+<<
+/Size 13
+/Root 3 0 R
+/Info 1 0 R
+>>
+startxref
+14941
+%%EOF
