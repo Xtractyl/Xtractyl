@@ -42,13 +42,12 @@ class MinioStorage(StorageInterface):
                 message=f"Could not generate presigned URL for {key}.",
             ) from e
 
-    def presigned_get(self, key: str) -> str:
+    def get_object(self, key: str) -> str:
         try:
-            return self._client.presigned_get_object(
-                self._bucket, key, expires=timedelta(seconds=self._expiry)
-            )
+            response = self._client.get_object(self._bucket, key)
+            return response.read().decode("utf-8")
         except S3Error as e:
             raise ExternalServiceError(
-                code="MINIO_PRESIGN_FAILED",
-                message=f"Could not generate presigned GET URL for {key}.",
+                code="MINIO_GET_FAILED",
+                message=f"Could not read object {key} from MinIO.",
             ) from e
