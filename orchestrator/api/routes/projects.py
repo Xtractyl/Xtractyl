@@ -10,7 +10,7 @@ from domain.models.projects import (
 from domain.projects import (
     check_project_exists,
     create_project_main_from_payload,
-    list_html_subfolders,
+    list_projects_ready_for_upload,
     list_qal_jsons,
     upload_tasks_main_from_payload,
 )
@@ -26,7 +26,7 @@ from api.contracts.errors import ErrorResponse
 from api.contracts.projects import (
     CreateProjectRequest,
     CreateProjectResponse,
-    ListHtmlSubfoldersResponse,
+    ListProjectsReadyForUploadResponse,
     ListQalJsonsRequest,
     ListQalJsonsResponse,
     PreviewQalRequest,
@@ -155,18 +155,18 @@ def register(app, spec, session_factory, label_studio):
             )
         return jsonify(validated.model_dump()), 200
 
-    @app.route("/list_html_subfolders", methods=["GET"])
+    @app.route("/list_projects_ready_for_upload", methods=["GET"])
     @spec.validate(
         resp=Response(
-            HTTP_200=ListHtmlSubfoldersResponse,
+            HTTP_200=ListProjectsReadyForUploadResponse,
             HTTP_500=ErrorResponse,  # unexpected global exception handler
         ),
         tags=["projects"],
     )
-    def list_html_subfolders_route():
-        result = list_html_subfolders()
+    def list_projects_ready_for_upload_route():
+        result = list_projects_ready_for_upload()
         try:
-            validated = ListHtmlSubfoldersResponse.model_validate(result)
+            validated = ListProjectsReadyForUploadResponse.model_validate(result)
         except ValidationError as e:
             raise InternalError(
                 code="RESPONSE_CONTRACT_VIOLATED",

@@ -117,7 +117,7 @@ def create_project_main_from_payload(
     return {"project_id": project_id}
 
 
-def list_html_subfolders():
+def list_projects_ready_for_upload():
     """
     List all subfolders in the HTML base directory.
     Includes subfolders of Evaluation_Sets_Do_Not_Delete as relative paths.
@@ -144,7 +144,7 @@ def list_html_subfolders():
                 if os.path.isdir(os.path.join(gt_sets_dir, name))
             )
             subfolders = gt_subfolders + subfolders
-        return {"subfolders": subfolders}
+        return {"projects": subfolders}
     except Exception:
         raise InternalError(
             code="INTERNAL_ERROR",
