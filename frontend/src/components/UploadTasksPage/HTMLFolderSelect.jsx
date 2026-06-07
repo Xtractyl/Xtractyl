@@ -1,6 +1,6 @@
 //src/components/UploadTasksPage/HTMLFolderSelect.jsx
 import { useEffect, useState } from "react";
-import { getHtmlSubfolders } from "../../api/UploadTasksPage/api.js"; 
+import { getProjectsReadyForUpload } from "../../api/UploadTasksPage/api.js";
 
 export default function HtmlFolderSelect({ selected, onChange }) {
   const [folders, setFolders] = useState([]);
@@ -8,7 +8,7 @@ export default function HtmlFolderSelect({ selected, onChange }) {
 
 
   useEffect(() => {
-    getHtmlSubfolders()
+    getProjectsReadyForUpload()
       .then(setFolders)
      .catch((e) => {
        setFolders([]);

@@ -13,7 +13,7 @@ class ConversionRepository(ConversionRepositoryInterface):
         return self._db.query(Project).filter(Project.name == name).first() is not None
 
     def create_project(self, name: str) -> None:
-        project = Project(name=name, questions_and_labels={})
+        project = Project(name=name)
         self._db.add(project)
         self._db.flush()
 

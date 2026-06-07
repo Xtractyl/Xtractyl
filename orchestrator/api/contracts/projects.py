@@ -33,8 +33,8 @@ class CreateProjectResponse(BaseModel):
     project_id: int
 
 
-class ListHtmlSubfoldersResponse(BaseModel):
-    subfolders: list[str]
+class ListProjectsReadyForUploadResponse(BaseModel):
+    projects: list[str]
 
 
 class ListQalJsonsResponse(BaseModel):

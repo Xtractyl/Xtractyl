@@ -35,3 +35,23 @@ class ConversionRepositoryInterface(ABC):
 
     @abstractmethod
     def count_files_without_html_key(self, project: str) -> int: ...
+
+
+class ProjectRepositoryInterface(ABC):
+    @abstractmethod
+    def project_exists(self, name: str) -> bool: ...
+
+    @abstractmethod
+    def set_label_studio_id(self, name: str, label_studio_id: int) -> None: ...
+
+    @abstractmethod
+    def get_label_studio_id(self, name: str) -> int | None: ...
+
+    @abstractmethod
+    def get_projects_ready_for_upload(self) -> list: ...
+
+    @abstractmethod
+    def get_html_keys_for_project(self, name: str) -> list[str]: ...
+
+    @abstractmethod
+    def set_ls_tasks_uploaded(self, name: str) -> None: ...

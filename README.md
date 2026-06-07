@@ -99,7 +99,7 @@ T[Frontend]
 %% ====== ROW 1 ======
 subgraph ZA[" "]
 direction LR
- A1A[Frontend - Upload & Convert Docs] --> B1A[Docling]
+ A1A[Frontend - Upload & Convert Docs] --> B1A[Job Queue] --> C1A[Worker Conversion] --> D1A[Docling]
 end
 
 T --> ZA
@@ -125,7 +125,7 @@ subgraph ZA4[" "]
 direction LR
  A4A[Frontend - Start AI]
  B4A[Orchestrator]
- C4A[Redis] 
+ C4A[Job Queue] 
  D4A[Worker] 
  E4A[ML backend] 
  F4A[Ollama]
@@ -597,14 +597,17 @@ make unit-worker
 
 ## Database migrations (Alembic)
 
-Migrations run automatically on container start via `alembic upgrade head`.
 
-To create a new migration after changing `orchestrator/db/models.py`:
 
-```docker exec -it orchestrator alembic revision --autogenerate -m "Describe changes made"```
+To create a new migration (when you do not want to install alembic outside the container):
 
-to apply it:
-```docker compose up --build orchestrator```
+1. make the changes in `orchestrator/db/models.py`
+
+2. ```docker compose up --build orchestrator``` (to write the new models.py into the container)
+
+3. ```docker exec -it orchestrator alembic revision --autogenerate -m "Describe changes made"``` (to create a new version in alembic/versions/)
+
+4. ```docker compose up --build orchestrator``` (to adopt the changes in DB; migrations run automatically on container rebuild via `alembic upgrade head`)
  ---
 
 ## Versioning (SemVer)

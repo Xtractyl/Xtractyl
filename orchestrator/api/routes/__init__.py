@@ -10,12 +10,14 @@ from .projects import register as register_projects
 from .results import register as register_results
 
 
-def register_routes(app, spec, storage, queue, session_factory):
+def register_routes(app, spec, storage, queue, session_factory, label_studio):
     register_health(app)
     register_conversion(app, spec, storage=storage, queue=queue, session_factory=session_factory)
     register_evaluation(app, spec)
     register_evaluation_drift(app, spec)
     register_jobs(app, spec)
     register_results(app, spec)
-    register_projects(app, spec)
+    register_projects(
+        app, spec, session_factory=session_factory, label_studio=label_studio, storage=storage
+    )
     register_ollama(app, spec)

@@ -10,7 +10,7 @@ from domain.models.projects import (
 from domain.projects import (
     check_project_exists,
     create_project_main_from_payload,
-    list_html_subfolders,
+    list_projects_ready_for_upload,
     list_qal_jsons,
     upload_tasks_main_from_payload,
 )
@@ -19,13 +19,14 @@ from domain.projects import (
 )
 from flask import jsonify, request
 from flask_pydantic_spec import Request, Response
+from infrastructure.repository.project_repository import ProjectRepository
 from pydantic import ValidationError
 
 from api.contracts.errors import ErrorResponse
 from api.contracts.projects import (
     CreateProjectRequest,
     CreateProjectResponse,
-    ListHtmlSubfoldersResponse,
+    ListProjectsReadyForUploadResponse,
     ListQalJsonsRequest,
     ListQalJsonsResponse,
     PreviewQalRequest,
@@ -38,7 +39,7 @@ from api.contracts.projects import (
 from api.utils.auth import extract_token
 
 
-def register(app, spec):
+def register(app, spec, session_factory, label_studio, storage):
     @app.route("/create_project", methods=["POST"])
     @spec.validate(
         body=Request(CreateProjectRequest),
@@ -67,8 +68,16 @@ def register(app, spec):
             labels=contract.labels,
             token=token,
         )
-
-        result = create_project_main_from_payload(cmd)
+        db = session_factory()
+        try:
+            repo = ProjectRepository(db)
+            result = create_project_main_from_payload(cmd, repo=repo, label_studio=label_studio)
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
         try:
             validated = CreateProjectResponse.model_validate(result)
         except ValidationError as e:
@@ -102,7 +111,18 @@ def register(app, spec):
         cmd = UploadTasksCommand.from_contract(
             project=contract.project, html_folder=contract.html_folder, token=token
         )
-        result = upload_tasks_main_from_payload(cmd)
+        db = session_factory()
+        try:
+            repo = ProjectRepository(db)
+            result = upload_tasks_main_from_payload(
+                cmd, repo=repo, storage=storage, label_studio=label_studio
+            )
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
         try:
             validated = UploadTasksResponse.model_validate(result)
         except ValidationError as e:
@@ -126,7 +146,16 @@ def register(app, spec):
     def project_exists_route():
         contract = ProjectExistsRequest.model_validate(request.get_json(silent=True) or {})
         cmd = ProjectExistsCommand.from_contract(project=contract.project)
-        result = check_project_exists(cmd)
+        db = session_factory()
+        try:
+            repo = ProjectRepository(db)
+            result = check_project_exists(cmd, repo=repo)
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
         try:
             validated = ProjectExistsResponse.model_validate(result)
         except ValidationError as e:
@@ -137,18 +166,27 @@ def register(app, spec):
             )
         return jsonify(validated.model_dump()), 200
 
-    @app.route("/list_html_subfolders", methods=["GET"])
+    @app.route("/list_projects_ready_for_upload", methods=["GET"])
     @spec.validate(
         resp=Response(
-            HTTP_200=ListHtmlSubfoldersResponse,
+            HTTP_200=ListProjectsReadyForUploadResponse,
             HTTP_500=ErrorResponse,  # unexpected global exception handler
         ),
         tags=["projects"],
     )
-    def list_html_subfolders_route():
-        result = list_html_subfolders()
+    def list_projects_ready_for_upload_route():
+        db = session_factory()
         try:
-            validated = ListHtmlSubfoldersResponse.model_validate(result)
+            repo = ProjectRepository(db)
+            result = list_projects_ready_for_upload(repo=repo)
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
+        try:
+            validated = ListProjectsReadyForUploadResponse.model_validate(result)
         except ValidationError as e:
             raise InternalError(
                 code="RESPONSE_CONTRACT_VIOLATED",

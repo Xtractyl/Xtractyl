@@ -105,6 +105,7 @@ services:
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-yourpassword}
       - MINIO_BUCKET=${MINIO_BUCKET:-xtractyl}
       - MINIO_PRESIGN_EXPIRY_SECONDS=${MINIO_PRESIGN_EXPIRY_SECONDS:-3600}
+      - USE_DB_BACKEND=${USE_DB_BACKEND:-0}
 
   ml_backend:
     build:
@@ -139,7 +140,7 @@ services:
       retries: 60
 
   ollama:
-    image: ollama/ollama@sha256:3ca37ec2b9cb6341b62554074205c616778fe98abcf9e4fc50361b79a07407ae
+    image: ollama/ollama@sha256:fbaaecc6c632a73c2b4ca25ef52dbee0b68d07783fcb850f916404c004040f90
     container_name: ${OLLAMA_CONTAINER_NAME:-ollama}
     ports:
       - "${OLLAMA_PORT:-11434}:11434"

@@ -68,10 +68,9 @@ def _send_callback(
             dev_logger.exception("callback_failed_dev | error=%s", str(e))
 
 
-def convert_file(job_id: int, pdf_key: str) -> tuple[bool, str | None, str | None]:
+def convert_file(job_id: int, pdf_key: str, minio: Minio) -> tuple[bool, str | None, str | None]:
     filename = os.path.basename(pdf_key)
     html_key = pdf_key.replace("/pdfs/", "/htmls/").replace(".pdf", ".html")
-    minio = _minio_client()
 
     try:
         pdf_url = minio.presigned_get_object(MINIO_BUCKET, pdf_key, expires=timedelta(minutes=30))
@@ -106,9 +105,10 @@ def convert_file(job_id: int, pdf_key: str) -> tuple[bool, str | None, str | Non
 
 def handle_job(job: ConversionJobPayload) -> None:
     safe_logger.info("conversion_job_started | job_id=%s", job.job_id)
+    minio = _minio_client()
     for pdf_key in job.pdf_keys:
         filename = os.path.basename(pdf_key)
-        success, html_key, error = convert_file(job.job_id, pdf_key)
+        success, html_key, error = convert_file(job.job_id, pdf_key, minio)
         _send_callback(
             job_id=job.job_id, filename=filename, html_key=html_key, success=success, error=error
         )
