@@ -5,6 +5,7 @@ import os
 import requests
 from infrastructure.interfaces.label_studio import LabelStudioInterface
 from infrastructure.interfaces.repository import ProjectRepositoryInterface
+from infrastructure.interfaces.storage import StorageInterface
 
 from domain.errors import (
     DomainError,
@@ -117,17 +118,10 @@ def create_project_main_from_payload(
     return {"project_id": project_id}
 
 
-def list_projects_ready_for_upload():
-    """
-    List all subfolders in the HTML base directory.
-    Includes subfolders of Evaluation_Sets_Do_Not_Delete as relative paths.
-
-    Returns:
-        {"subfolders": list[str]} — alphabetically sorted folder names.
-
-    Raises:
-        InternalError: If the directory cannot be read.
-    """
+def list_projects_ready_for_upload(repo: ProjectRepositoryInterface):
+    if USE_DB_BACKEND:
+        projects = repo.get_projects_ready_for_upload()
+        return {"projects": [p.name for p in projects]}
     base_dir = os.path.join("data", "htmls")
     gt_sets_dir = os.path.join("data", "htmls", "Evaluation_Sets_Do_Not_Delete")
     try:
@@ -279,20 +273,32 @@ def upload_in_batches(tasks, batch_size, project_id, headers):
             )
 
 
-def upload_tasks_main_from_payload(cmd: UploadTasksCommand):
-    """
-    Upload HTML files from the selected folder as tasks to an existing Label Studio project.
-
-    Args:
-        cmd: UploadTasksCommand with project name, html folder and token.
-
-    Returns:
-        {"status": "ok"} on success.
-
-    Raises:
-        NotFound: If the folder or project does not exist in Label Studio.
-        ExternalServiceError: If Label Studio is unreachable or upload fails.
-    """
+def upload_tasks_main_from_payload(
+    cmd: UploadTasksCommand,
+    repo: ProjectRepositoryInterface,
+    storage: StorageInterface,
+    label_studio: LabelStudioInterface,
+):
+    if USE_DB_BACKEND:
+        label_studio_id = repo.get_label_studio_id(cmd.project)
+        if not label_studio_id:
+            raise NotFound(
+                code="PROJECT_NOT_FOUND",
+                message="Project not found or has no Label Studio ID.",
+            )
+        html_keys = repo.get_html_keys_for_project(cmd.project)
+        if not html_keys:
+            raise NotFound(
+                code="NO_HTML_FILES",
+                message="No converted HTML files found for this project.",
+            )
+        tasks = [
+            {"data": {"html": storage.get_object(key), "name": os.path.basename(key)}}
+            for key in html_keys
+        ]
+        label_studio.upload_tasks(label_studio_id, tasks, cmd.token)
+        repo.set_ls_tasks_uploaded(cmd.project)
+        return {"status": "ok"}
     title = cmd.project
     html_folder_name = cmd.html_folder
     token = cmd.token

@@ -39,7 +39,7 @@ from api.contracts.projects import (
 from api.utils.auth import extract_token
 
 
-def register(app, spec, session_factory, label_studio):
+def register(app, spec, session_factory, label_studio, storage):
     @app.route("/create_project", methods=["POST"])
     @spec.validate(
         body=Request(CreateProjectRequest),
@@ -111,7 +111,18 @@ def register(app, spec, session_factory, label_studio):
         cmd = UploadTasksCommand.from_contract(
             project=contract.project, html_folder=contract.html_folder, token=token
         )
-        result = upload_tasks_main_from_payload(cmd)
+        db = session_factory()
+        try:
+            repo = ProjectRepository(db)
+            result = upload_tasks_main_from_payload(
+                cmd, repo=repo, storage=storage, label_studio=label_studio
+            )
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
         try:
             validated = UploadTasksResponse.model_validate(result)
         except ValidationError as e:
@@ -164,7 +175,16 @@ def register(app, spec, session_factory, label_studio):
         tags=["projects"],
     )
     def list_projects_ready_for_upload_route():
-        result = list_projects_ready_for_upload()
+        db = session_factory()
+        try:
+            repo = ProjectRepository(db)
+            result = list_projects_ready_for_upload(repo=repo)
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
         try:
             validated = ListProjectsReadyForUploadResponse.model_validate(result)
         except ValidationError as e:
