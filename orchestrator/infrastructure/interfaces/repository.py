@@ -45,6 +45,9 @@ class ProjectRepositoryInterface(ABC):
     def set_label_studio_id(self, name: str, label_studio_id: int) -> None: ...
 
     @abstractmethod
+    def get_label_studio_id(self, name: str) -> int | None: ...
+
+    @abstractmethod
     def get_projects_ready_for_upload(self) -> list: ...
 
     @abstractmethod
