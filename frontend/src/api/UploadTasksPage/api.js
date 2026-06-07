@@ -13,7 +13,7 @@ const r = (path, opts) => request(ORCH_BASE, path, opts);
     });
  }
 
- export async function getHtmlSubfolders() {
-   const data = await r(`/list_html_subfolders`);
-   return data.subfolders;
+ export async function getProjectsReadyForUpload() {
+   const data = await r(`/list_projects_ready_for_upload`);
+   return data.projects;
  }
