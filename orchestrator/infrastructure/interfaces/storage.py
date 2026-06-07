@@ -8,3 +8,6 @@ class StorageInterface(ABC):
 
     @abstractmethod
     def presigned_put(self, key: str) -> str: ...
+
+    @abstractmethod
+    def presigned_get(self, key: str) -> str: ...
