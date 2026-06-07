@@ -9,3 +9,6 @@ class LabelStudioInterface(ABC):
 
     @abstractmethod
     def attach_ml_backend(self, project_id: int, token: str) -> None: ...
+
+    @abstractmethod
+    def upload_tasks(self, project_id: int, tasks: list, token: str) -> None: ...
