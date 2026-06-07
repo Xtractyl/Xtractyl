@@ -597,14 +597,17 @@ make unit-worker
 
 ## Database migrations (Alembic)
 
-Migrations run automatically on container rebuild via `alembic upgrade head`.
 
-To create a new migration after changing `orchestrator/db/models.py`:
 
-```docker exec -it orchestrator alembic revision --autogenerate -m "Describe changes made"```
+To create a new migration (when you do not want to install alembic outside the container):
 
-to apply it:
-```docker compose up --build orchestrator```
+1. make the changes in `orchestrator/db/models.py`
+
+2. ```docker compose up --build orchestrator``` (to write the new models.py into the container)
+
+3. ```docker exec -it orchestrator alembic revision --autogenerate -m "Describe changes made"``` (to create a new version in alembic/versions/)
+
+4. ```docker compose up --build orchestrator``` (to adopt the changes in DB; migrations run automatically on container rebuild via `alembic upgrade head`)
  ---
 
 ## Versioning (SemVer)
