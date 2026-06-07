@@ -13,6 +13,8 @@ ML_BACKEND_HOST = os.getenv("ML_BACKEND_CONTAINER_NAME", "ml_backend")
 ML_BACKEND_PORT = os.getenv("ML_BACKEND_PORT", "6789")
 ML_BACKEND_URL = f"http://{ML_BACKEND_HOST}:{ML_BACKEND_PORT}"
 
+BATCH_SIZE = 50
+
 
 class LabelStudioClient(LabelStudioInterface):
     def create_project(self, title: str, label_config: str, token: str) -> int:
@@ -53,3 +55,17 @@ class LabelStudioClient(LabelStudioInterface):
                 code="ML_BACKEND_UNAVAILABLE",
                 message="Could not attach ML backend to project.",
             )
+
+    def upload_tasks(self, project_id: int, tasks: list, token: str) -> None:
+        headers = {"Authorization": f"Token {token}", "Content-Type": "application/json"}
+        url = f"{LABEL_STUDIO_URL}/api/projects/{project_id}/tasks/bulk"
+        for i in range(0, len(tasks), BATCH_SIZE):
+            batch = tasks[i : i + BATCH_SIZE]
+            try:
+                resp = requests.post(url, headers=headers, json=batch, timeout=30)
+                resp.raise_for_status()
+            except requests.RequestException:
+                raise ExternalServiceError(
+                    code="LABEL_STUDIO_UNAVAILABLE",
+                    message=f"Task upload failed at batch {i}.",
+                )
