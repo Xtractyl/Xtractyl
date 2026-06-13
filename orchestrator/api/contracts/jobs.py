@@ -40,3 +40,9 @@ class EnqueueJobResponse(BaseModel):
 class CancelJobResponse(BaseModel):
     job_id: str
     status: str
+
+
+class PrelabelCallbackRequest(BaseModel):
+    run_id: int
+    status: str
+    error: str | None = None
