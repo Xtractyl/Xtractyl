@@ -55,3 +55,9 @@ class ProjectRepositoryInterface(ABC):
 
     @abstractmethod
     def set_ls_tasks_uploaded(self, name: str) -> None: ...
+
+    @abstractmethod
+    def save_questions_and_labels(self, name: str, qal: dict) -> None: ...
+
+    @abstractmethod
+    def get_questions_and_labels(self, name: str) -> dict | None: ...
