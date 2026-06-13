@@ -8,8 +8,8 @@ endobj
 2 0 obj
 <<
 /Type /Pages
-/Count 2
-/Kids [ 4 0 R 9 0 R ]
+/Count 1
+/Kids [ 4 0 R ]
 >>
 endobj
 3 0 obj
@@ -40,7 +40,7 @@ endobj
 endobj
 5 0 obj
 <<
-/Length 6361
+/Length 5440
 >>
 stream
 q
@@ -114,30 +114,30 @@ BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Dear Colleagues,) Tj T* ET
 Q
 Q
 q
-1 0 0 1 91.03937 535.8504 cm
+1 0 0 1 91.03937 507.8504 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 19 Tm /F1 9 Tf 14 TL (We are reporting on Ms. Maria Hofmann, admitted January 15 to January 24, 2024 to initiate adjuvant) Tj T* (chemotherapy.) Tj T* ET
+BT 1 0 0 1 0 47 Tm /F1 9 Tf 14 TL (Ms. Maria Hofmann, DOB 09/22/1965, was admitted January 15\22624, 2024 to initiate adjuvant) Tj T* -0.041923 Tw (chemotherapy. She was diagnosed with breast carcinoma following routine mammography. Core biopsy) Tj T* 0 Tw (confirmed invasive ductal carcinoma grade 2, ER-positive, HER2-negative. Staging workup revealed no) Tj T* (distant metastases.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 91.03937 515.8504 cm
+1 0 0 1 91.03937 487.8504 cm
 q
 BT 1 0 0 1 0 5 Tm 14 TL /F2 9 Tf 0 0 0 rg (Primary Diagnosis:) Tj /F1 9 Tf ( Breast carcinoma \(C50.9\) \227 Tumor staging: T2 N1 M0) Tj T* ET
 Q
 Q
 q
-1 0 0 1 91.03937 495.8504 cm
+1 0 0 1 91.03937 467.8504 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Relevant laboratory findings on admission:) Tj T* ET
 Q
 Q
 q
-1 0 0 1 91.03937 484.1811 cm
+1 0 0 1 91.03937 456.1811 cm
 Q
 q
-1 0 0 1 77.95276 384.1811 cm
+1 0 0 1 77.95276 356.1811 cm
 q
 .101961 .227451 .360784 rg
 n 0 100 439.3701 -20 re f*
@@ -275,55 +275,45 @@ Q
 Q
 Q
 q
-1 0 0 1 91.03937 378.5118 cm
+1 0 0 1 91.03937 350.5118 cm
 Q
 q
-1 0 0 1 91.03937 364.5118 cm
+1 0 0 1 91.03937 322.5118 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Therapy was well tolerated. Close oncological follow-up is recommended.) Tj T* ET
+BT 1 0 0 1 0 19 Tm /F1 9 Tf 14 TL (The first cycle of AC chemotherapy was initiated and well tolerated. The patient was discharged with) Tj T* (antiemetic prophylaxis and a follow-up appointment in 3 weeks.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 91.03937 344.5118 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Relevant Medical History:) Tj T* ET
-Q
-Q
-q
-1 0 0 1 91.03937 268.5118 cm
+1 0 0 1 91.03937 288.5118 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 61 Tm /F1 9 Tf 14 TL (The patient has a long-standing history of arterial hypertension diagnosed in 2008, currently managed) Tj T* (with an ACE inhibitor and a calcium channel blocker. Type 2 diabetes mellitus was diagnosed in 2015) Tj T* (and is managed with oral antidiabetic agents and insulin. Additionally, the patient has a history of) Tj T* (hypercholesterolemia and is on statin therapy. There is no known history of malignancy, significant) Tj T* (surgical procedures, or major allergies.) Tj T* ET
+BT 1 0 0 1 0 19 Tm /F1 9 Tf 14 TL (Past medical history: well-controlled hypothyroidism on levothyroxine 75 mcg and a prior appendectomy) Tj T* (in 2001. Non-smoker, no relevant allergies.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 91.03937 220.5118 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 33 Tm /F1 9 Tf 14 TL (Family history is notable for coronary artery disease in the patient's father, who suffered a myocardial) Tj T* (infarction at age 62. The patient is a former smoker with a 20 pack-year history, having ceased smoking) Tj T* (in 2010. Alcohol consumption is reported as moderate.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 91.03937 200.5118 cm
+1 0 0 1 91.03937 254.5118 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Follow-up Recommendations:) Tj T* ET
+BT 1 0 0 1 0 19 Tm /F1 9 Tf 14 TL (We recommend close oncological follow-up and repeat laboratory workup prior to the next) Tj T* (chemotherapy cycle.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 91.03937 138.5118 cm
+1 0 0 1 91.03937 231.5039 cm
+Q
 q
-0 0 0 rg
-BT 1 0 0 1 0 47 Tm /F1 9 Tf 14 TL (We recommend the following follow-up measures: \(1\) General practitioner visit within 2 weeks for) Tj T* (medication review and blood pressure control. \(2\) Laboratory workup including complete blood count,) Tj T* (renal function, liver enzymes, and HbA1c in 3 months. \(3\) Specialist referral as outlined above. \(4\)) Tj T* (Repeat imaging in 6 months if clinically indicated.) Tj T* ET
+1 0 0 1 91.03937 230.0039 cm
+q
+.5 w
+1 J
+.8 .8 .8 RG
+n 0 0 m 413.1969 0 l S
 Q
 Q
 q
-1 0 0 1 91.03937 90.51181 cm
+1 0 0 1 91.03937 196.0039 cm
 q
-0 0 0 rg
-BT 1 0 0 1 0 33 Tm /F1 9 Tf 14 TL (The patient has been fully informed of the diagnosis, treatment plan, and recommended follow-up) Tj T* (schedule. Written discharge instructions were provided. The patient expressed understanding and) Tj T* (willingness to comply with the recommended measures.) Tj T* ET
+BT 1 0 0 1 0 19 Tm 14 TL /F1 9 Tf 0 0 0 rg (Prof. Klaus Richter, MD) Tj  T* /F1 8 Tf .4 .4 .4 rg (Chief of Hematology and Oncology) Tj T* ET
 Q
 Q
  
@@ -381,112 +371,23 @@ endobj
 /Type /Font
 >>
 endobj
-9 0 obj
-<<
-/Contents 10 0 R
-/MediaBox [ 0 0 595.2756 841.8898 ]
-/Resources <<
-/Font <<
-/F1 6 0 R
-/F1-0 7 0 R
-/F2 8 0 R
->>
-/ProcSet [ /ImageB /ImageC /ImageI /PDF /Text ]
->>
-/Rotate 0
-/Trans <<
->>
-/Type /Page
-/Annots [ ]
-/Parent 2 0 R
->>
-endobj
-10 0 obj
-<<
-/Length 1119
->>
-stream
-q
-1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
-q
-1 0 0 1 91.03937 751.0236 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Medication on Discharge:) Tj T* ET
-Q
-Q
-q
-1 0 0 1 91.03937 703.0236 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 33 Tm /F1 9 Tf 14 TL (The following medications were prescribed at discharge: metformin 1000 mg twice daily, ramipril 5 mg) Tj T* (once daily, atorvastatin 40 mg once daily, aspirin 100 mg once daily, and pantoprazole 40 mg once) Tj T* (daily. The patient was counseled on the importance of adherence and potential side effects.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 91.03937 680.0157 cm
-Q
-q
-1 0 0 1 91.03937 678.5157 cm
-q
-.5 w
-1 J
-.8 .8 .8 RG
-n 0 0 m 413.1969 0 l S
-Q
-Q
-q
-1 0 0 1 91.03937 644.5157 cm
-q
-BT 1 0 0 1 0 19 Tm 14 TL /F1 9 Tf 0 0 0 rg (Prof. Klaus Richter, MD) Tj  T* /F1 8 Tf .4 .4 .4 rg (Chief of Hematology and Oncology) Tj T* ET
-Q
-Q
- 
-
-Q
-
-q
-0.0 0.0 595.2756 841.8898 re
-W
-n
-1 0 0 1 0 0 cm
-BT
-/F1-0 12 Tf
-14.4 TL
-ET
-BT
-/F1-0 7 Tf
-8.4 TL
-ET
-0.666667 0.666667 0.666667 rg
-BT
-1 0 0 1 150.9633 18 Tm
-(Synthetic document \227 generated for benchmarking purposes only \227 not a real medical record) Tj
-T*
-ET
-Q
-
-
-endstream
-endobj
 xref
-0 11
+0 9
 0000000000 65535 f 
 0000000015 00000 n 
 0000000054 00000 n 
-0000000119 00000 n 
-0000000168 00000 n 
-0000000411 00000 n 
-0000006824 00000 n 
-0000006931 00000 n 
-0000007038 00000 n 
-0000007150 00000 n 
-0000007394 00000 n 
+0000000113 00000 n 
+0000000162 00000 n 
+0000000405 00000 n 
+0000005897 00000 n 
+0000006004 00000 n 
+0000006111 00000 n 
 trailer
 <<
-/Size 11
+/Size 9
 /Root 3 0 R
 /Info 1 0 R
 >>
 startxref
-8566
+6223
 %%EOF

@@ -27,6 +27,7 @@ endobj
 /F1 6 0 R
 /F1-0 7 0 R
 /F2 8 0 R
+/F3 9 0 R
 >>
 /ProcSet [ /ImageB /ImageC /ImageI /PDF /Text ]
 >>
@@ -40,7 +41,7 @@ endobj
 endobj
 5 0 obj
 <<
-/Length 2377
+/Length 2721
 >>
 stream
 q
@@ -125,7 +126,7 @@ q
 1 0 0 1 62.69291 603.3661 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 19 Tm /F1 9 Tf 14 TL (Ms. Waltraud Siebert was admitted following a domestic fall with right femoral neck fracture. A hemiarthroplasty was) Tj T* (performed. Postoperative mobilization was initiated.) Tj T* ET
+BT 1 0 0 1 0 19 Tm /F1 9 Tf 14 TL (Ms. Waltraud Siebert, DOB 03/18/1938, was admitted on 01/13/2025 following a domestic fall resulting in a right) Tj T* (subcapital femoral neck fracture. She lives independently with a sheltered housing warden on site.) Tj T* ET
 Q
 Q
 q
@@ -135,17 +136,17 @@ BT 1 0 0 1 0 5 Tm 14 TL /F2 9 Tf 0 0 0 rg (Primary Diagnosis:) Tj /F1 9 Tf ( Fem
 Q
 Q
 q
-1 0 0 1 62.69291 563.3661 cm
+1 0 0 1 62.69291 535.3661 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Discharged to geriatric rehabilitation 01/24/2025.) Tj T* ET
+BT 1 0 0 1 0 33 Tm /F1 9 Tf 14 TL (Hemiarthroplasty with cemented femoral stem performed on the day of admission. VTE prophylaxis with enoxaparin) Tj T* (for 35 days. Physiotherapy commenced day 1. Comorbidities: osteoporosis \(T-score ) Tj /F3 9 Tf 14 TL (-) Tj /F1 9 Tf 14 TL (2.8\), mild cognitive impairment,) Tj T* (hypothyroidism. Discharged to geriatric rehabilitation 01/24/2025.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 540.3583 cm
+1 0 0 1 62.69291 512.3583 cm
 Q
 q
-1 0 0 1 62.69291 538.8583 cm
+1 0 0 1 62.69291 510.8583 cm
 q
 .5 w
 1 J
@@ -154,7 +155,7 @@ n 0 0 m 469.8898 0 l S
 Q
 Q
 q
-1 0 0 1 62.69291 504.8583 cm
+1 0 0 1 62.69291 476.8583 cm
 q
 BT 1 0 0 1 0 19 Tm 14 TL /F1 9 Tf 0 0 0 rg (Dr. Petra Vogel, MD) Tj  T* /F1 8 Tf .4 .4 .4 rg (Chief of Geriatrics) Tj T* ET
 Q
@@ -214,23 +215,32 @@ endobj
 /Type /Font
 >>
 endobj
+9 0 obj
+<<
+/BaseFont /Symbol
+/Name /F3
+/Subtype /Type1
+/Type /Font
+>>
+endobj
 xref
-0 9
+0 10
 0000000000 65535 f 
 0000000015 00000 n 
 0000000054 00000 n 
 0000000113 00000 n 
 0000000162 00000 n 
-0000000405 00000 n 
-0000002834 00000 n 
-0000002941 00000 n 
-0000003048 00000 n 
+0000000415 00000 n 
+0000003188 00000 n 
+0000003295 00000 n 
+0000003402 00000 n 
+0000003514 00000 n 
 trailer
 <<
-/Size 9
+/Size 10
 /Root 3 0 R
 /Info 1 0 R
 >>
 startxref
-3160
+3591
 %%EOF

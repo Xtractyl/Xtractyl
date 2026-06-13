@@ -40,7 +40,7 @@ endobj
 endobj
 5 0 obj
 <<
-/Length 3216
+/Length 3478
 >>
 stream
 q
@@ -192,7 +192,7 @@ q
 1 0 0 1 76.86614 549.3583 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 19 Tm /F1 9 Tf 14 TL (Mr. Alfred Sommer was admitted with fever and productive cough. Community-acquired pneumonia was) Tj T* (diagnosed. Rapid clinical improvement under antibiotic therapy.) Tj T* ET
+BT 1 0 0 1 0 19 Tm /F1 9 Tf 14 TL -0.045407 Tw (Mr. Alfred Sommer, DOB 11/11/1945, was admitted with fever, productive cough, and right-sided pleuritic chest) Tj T* 0 Tw (pain. Chest X-ray confirmed right lower lobe consolidation. CRP 184 mg/L.) Tj T* ET
 Q
 Q
 q
@@ -202,17 +202,17 @@ BT 1 0 0 1 0 5 Tm 14 TL /F2 9 Tf 0 0 0 rg (Primary Diagnosis:) Tj /F1 9 Tf ( Pne
 Q
 Q
 q
-1 0 0 1 76.86614 509.3583 cm
+1 0 0 1 76.86614 481.3583 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Discharged 11/11/2024.) Tj T* ET
+BT 1 0 0 1 0 33 Tm /F1 9 Tf 14 TL (IV amoxicillin-clavulanate initiated, switched to oral on day 3. Sputum: Streptococcus pneumoniae sensitive to) Tj T* (penicillin. Oxygen for first 48 hours. Mr. Sommer has mild COPD on tiotropium. Discharged 11/11/2024. GP in) Tj T* (1 week.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 486.3504 cm
+1 0 0 1 76.86614 458.3504 cm
 Q
 q
-1 0 0 1 76.86614 484.8504 cm
+1 0 0 1 76.86614 456.8504 cm
 q
 .5 w
 1 J
@@ -221,7 +221,7 @@ n 0 0 m 441.5433 0 l S
 Q
 Q
 q
-1 0 0 1 76.86614 450.8504 cm
+1 0 0 1 76.86614 422.8504 cm
 q
 BT 1 0 0 1 0 19 Tm 14 TL /F1 9 Tf 0 0 0 rg (Dr. Christine Haas, MD) Tj  T* /F1 8 Tf .4 .4 .4 rg (Specialist in Internal Medicine) Tj T* ET
 Q
@@ -289,9 +289,9 @@ xref
 0000000113 00000 n 
 0000000162 00000 n 
 0000000405 00000 n 
-0000003673 00000 n 
-0000003780 00000 n 
-0000003887 00000 n 
+0000003935 00000 n 
+0000004042 00000 n 
+0000004149 00000 n 
 trailer
 <<
 /Size 9
@@ -299,5 +299,5 @@ trailer
 /Info 1 0 R
 >>
 startxref
-3999
+4261
 %%EOF

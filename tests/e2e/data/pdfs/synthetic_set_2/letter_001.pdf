@@ -40,7 +40,7 @@ endobj
 endobj
 5 0 obj
 <<
-/Length 5560
+/Length 5359
 >>
 stream
 q
@@ -55,8 +55,7 @@ Q
 q
 1 0 0 1 76.86614 749.1969 cm
 q
-.333333 .333333 .333333 rg
-BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Dept. of Internal Medicine and Diabetology) Tj T* ET
+BT 1 0 0 1 0 5 Tm 14 TL /F1 9 Tf .333333 .333333 .333333 rg (Dept. of Internal Medicine & Diabetology) Tj T* ET
 Q
 Q
 q
@@ -196,24 +195,17 @@ BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Dear Colleagues,) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 529.3583 cm
+1 0 0 1 76.86614 515.3583 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 19 Tm /F1 9 Tf 14 TL (We are writing to inform you of the inpatient stay of our mutual patient, Mr. Thomas Bergmann, born) Tj T* (03/14/1958, admitted January 3 to January 11, 2024.) Tj T* ET
+BT 1 0 0 1 0 33 Tm /F1 9 Tf 14 TL (Mr. Thomas Bergmann, born 03/14/1958, was admitted January 3 to January 11, 2024 for optimization of) Tj T* (diabetic metabolic control. He has been managed with metformin and glipizide for six years but self-monitoring) Tj T* (logs showed persistently elevated fasting glucose values.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 495.3583 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 19 Tm /F1 9 Tf 14 TL (Mr. Bergmann was admitted for optimization of his diabetic metabolic control. On admission, HbA1c was) Tj T* (markedly elevated and renal function was impaired. Relevant laboratory findings are summarized below:) Tj T* ET
-Q
+1 0 0 1 76.86614 503.689 cm
 Q
 q
-1 0 0 1 76.86614 483.689 cm
-Q
-q
-1 0 0 1 77.95276 403.689 cm
+1 0 0 1 77.95276 423.689 cm
 q
 .101961 .227451 .360784 rg
 n 0 80 439.3701 -20 re f*
@@ -327,26 +319,26 @@ Q
 Q
 Q
 q
-1 0 0 1 76.86614 398.0197 cm
+1 0 0 1 76.86614 418.0197 cm
+Q
+q
+1 0 0 1 76.86614 390.0197 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 19 Tm /F1 9 Tf 14 TL -0.041981 Tw (Basal insulin was initiated and the oral regimen adjusted. Diabetes education was provided and the patient was) Tj T* 0 Tw (discharged in improved condition.) Tj T* ET
+Q
 Q
 q
 1 0 0 1 76.86614 370.0197 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 19 Tm /F1 9 Tf 14 TL (Following adjustment of insulin therapy, significant improvement of glycemic control was achieved. We request) Tj T* (continued outpatient follow-up and repeat HbA1c measurement in 3 months.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 76.86614 350.0197 cm
 q
 BT 1 0 0 1 0 5 Tm 14 TL /F2 9 Tf 0 0 0 rg (Primary Diagnosis:) Tj /F1 9 Tf ( Type 2 diabetes mellitus with diabetic nephropathy \(E11.2\)) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 327.0118 cm
+1 0 0 1 76.86614 347.0118 cm
 Q
 q
-1 0 0 1 76.86614 325.5118 cm
+1 0 0 1 76.86614 345.5118 cm
 q
 .5 w
 1 J
@@ -355,9 +347,9 @@ n 0 0 m 441.5433 0 l S
 Q
 Q
 q
-1 0 0 1 76.86614 291.5118 cm
+1 0 0 1 76.86614 311.5118 cm
 q
-BT 1 0 0 1 0 19 Tm 14 TL /F1 9 Tf 0 0 0 rg (Dr. Sabine Kr\374ger, MD) Tj  T* /F1 8 Tf .4 .4 .4 rg (Senior Physician, Internal Medicine and Diabetology) Tj T* ET
+BT 1 0 0 1 0 19 Tm 14 TL /F1 9 Tf 0 0 0 rg (Dr. Sabine Kr\374ger, MD) Tj  T* /F1 8 Tf .4 .4 .4 rg (Senior Physician, Internal Medicine & Diabetology) Tj T* ET
 Q
 Q
  
@@ -423,9 +415,9 @@ xref
 0000000113 00000 n 
 0000000162 00000 n 
 0000000405 00000 n 
-0000006017 00000 n 
-0000006124 00000 n 
-0000006231 00000 n 
+0000005816 00000 n 
+0000005923 00000 n 
+0000006030 00000 n 
 trailer
 <<
 /Size 9
@@ -433,5 +425,5 @@ trailer
 /Info 1 0 R
 >>
 startxref
-6343
+6142
 %%EOF

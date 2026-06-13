@@ -40,30 +40,30 @@ endobj
 endobj
 5 0 obj
 <<
-/Length 6063
+/Length 5420
 >>
 stream
 q
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
-1 0 0 1 -170.0787 761.3701 cm
+1 0 0 1 -170.0787 763.3701 cm
 q
 .101961 .227451 .360784 rg
-n 0 32 935.4331 -32 re f*
+n 0 30 935.4331 -30 re f*
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
 1 0 0 1 10 8 cm
 q
 1 1 1 rg
-BT 1 0 0 1 0 4 Tm /F2 12 Tf 16 TL (Academic Medical Center) Tj T* ET
+BT 1 0 0 1 0 2 Tm /F2 12 Tf 14 TL (Academic Medical Center) Tj T* ET
 Q
 Q
 q
 1 0 0 1 477.7165 8 cm
 q
 .8 .878431 .960784 rg
-BT 1 0 0 1 0 7 Tm /F1 9 Tf 16 TL (Dept. of Hematology) Tj T* ET
+BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Dept. of Hematology) Tj T* ET
 Q
 Q
 q
@@ -71,91 +71,91 @@ Q
 Q
 Q
 q
-1 0 0 1 76.86614 745.3701 cm
+1 0 0 1 76.86614 749.3701 cm
 q
 .533333 .533333 .533333 rg
-BT 1 0 0 1 0 8 Tm /F1 8 Tf 16 TL (62 University Boulevard, Columbus, OH 43201) Tj T* ET
+BT 1 0 0 1 0 6 Tm /F1 8 Tf 14 TL (62 University Boulevard, Columbus, OH 43201) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 719.3701 cm
+1 0 0 1 76.86614 725.3701 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 1 Tm /F2 15 Tf 16 TL (Discharge Summary) Tj T* ET
+BT 1 0 0 1 0 -1 Tm /F2 15 Tf 14 TL (Discharge Summary) Tj T* ET
 Q
 Q
 q
-1 0 0 1 77.95276 611.3701 cm
+1 0 0 1 77.95276 627.3701 cm
 q
 .933333 .952941 .972549 rg
-n 0 100 439.3701 -100 re f*
+n 0 90 439.3701 -90 re f*
 0 0 0 rg
-BT /F1 10 Tf 12 TL ET
+BT /F1 11 Tf 12 TL ET
 q
-1 0 0 1 6 84 cm
+1 0 0 1 6 75 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F2 10 Tf 12 TL (Patient:) Tj T* ET
 Q
 Q
 q
-1 0 0 1 133.5591 84 cm
+1 0 0 1 133.5591 75 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Siegfried Wagner) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 64 cm
+1 0 0 1 6 57 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F2 10 Tf 12 TL (Date of Birth:) Tj T* ET
 Q
 Q
 q
-1 0 0 1 133.5591 64 cm
+1 0 0 1 133.5591 57 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (01/08/1958) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 44 cm
+1 0 0 1 6 39 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F2 10 Tf 12 TL (Admission Date:) Tj T* ET
 Q
 Q
 q
-1 0 0 1 133.5591 44 cm
+1 0 0 1 133.5591 39 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (10/28/2024) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 24 cm
+1 0 0 1 6 21 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F2 10 Tf 12 TL (Discharge Date:) Tj T* ET
 Q
 Q
 q
-1 0 0 1 133.5591 24 cm
+1 0 0 1 133.5591 21 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (11/06/2024) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 4 cm
+1 0 0 1 6 3 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F2 10 Tf 12 TL (Attending Physician:) Tj T* ET
 Q
 Q
 q
-1 0 0 1 133.5591 4 cm
+1 0 0 1 133.5591 3 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Prof. Andreas Engert, MD) Tj T* ET
@@ -166,99 +166,106 @@ q
 1 j
 .752941 .811765 .878431 RG
 .3 w
-n 0 100 m 439.3701 100 l S
+n 0 90 m 439.3701 90 l S
 n 0 0 m 439.3701 0 l S
-n 0 0 m 0 100 l S
-n 439.3701 0 m 439.3701 100 l S
-n 0 80 m 439.3701 80 l S
-n 0 60 m 439.3701 60 l S
-n 0 40 m 439.3701 40 l S
-n 0 20 m 439.3701 20 l S
-n 127.5591 0 m 127.5591 100 l S
+n 0 0 m 0 90 l S
+n 439.3701 0 m 439.3701 90 l S
+n 0 72 m 439.3701 72 l S
+n 0 54 m 439.3701 54 l S
+n 0 36 m 439.3701 36 l S
+n 0 18 m 439.3701 18 l S
+n 127.5591 0 m 127.5591 90 l S
 Q
 Q
 Q
 q
-1 0 0 1 76.86614 597.1969 cm
+1 0 0 1 76.86614 613.1969 cm
 Q
 q
-1 0 0 1 76.86614 581.1969 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 6 Tm /F1 10 Tf 16 TL (Dear Colleagues,) Tj T* ET
-Q
-Q
-q
-1 0 0 1 76.86614 541.1969 cm
+1 0 0 1 76.86614 593.1969 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 22 Tm /F1 10 Tf 16 TL (Mr. Siegfried Wagner was admitted to initiate R-CHOP chemotherapy for diffuse large B-cell) Tj T* (lymphoma.) Tj T* ET
+BT 1 0 0 1 0 8 Tm /F1 12 Tf 20 TL (Dear Colleagues,) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 517.1969 cm
-q
-BT 1 0 0 1 0 6 Tm 16 TL /F2 10 Tf 0 0 0 rg (Primary Diagnosis:) Tj /F1 10 Tf ( Diffuse large B-cell lymphoma \(C83.3\) \227 Tumor staging: T3 N2 M1) Tj T* ET
-Q
-Q
-q
-1 0 0 1 76.86614 493.1969 cm
+1 0 0 1 76.86614 523.1969 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 6 Tm /F1 10 Tf 16 TL (Laboratory values:) Tj T* ET
+BT 1 0 0 1 0 48 Tm /F1 12 Tf 20 TL (Mr. Siegfried Wagner, DOB 01/08/1958, was admitted on 10/28/2024 to initiate) Tj T* (R-CHOP immunochemotherapy for newly diagnosed diffuse large B-cell) Tj T* (lymphoma.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 476.6929 cm
+1 0 0 1 76.86614 433.1969 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 68 Tm /F1 12 Tf 20 TL (Mr. Wagner was referred 6 weeks ago with a 3-month history of rapidly progressive) Tj T* (bilateral cervical lymphadenopathy, drenching night sweats, and 8 kg weight loss.) Tj T* (Excision biopsy confirmed GCB-type DLBCL, MYC-negative, Ki-67 80%. PET-CT) Tj T* (staging: bulky mediastinal and para-aortic disease with liver involvement.) Tj T* ET
+Q
 Q
 q
-1 0 0 1 77.95276 416.6929 cm
+1 0 0 1 76.86614 383.1969 cm
+q
+BT 1 0 0 1 0 28 Tm 20 TL /F2 12 Tf 0 0 0 rg (Primary Diagnosis:) Tj /F1 12 Tf ( Diffuse large B-cell lymphoma \(C83.3\) \227 Tumor staging: T3) Tj T* (N2 M1) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 353.1969 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 8 Tm /F1 12 Tf 20 TL (Laboratory values:) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 337.5276 cm
+Q
+q
+1 0 0 1 77.95276 283.5276 cm
 q
 .980392 .980392 .980392 rg
-n 0 60 439.3701 -20 re f*
+n 0 54 439.3701 -18 re f*
 1 1 1 rg
-n 0 40 439.3701 -20 re f*
+n 0 36 439.3701 -18 re f*
 .980392 .980392 .980392 rg
-n 0 20 439.3701 -20 re f*
+n 0 18 439.3701 -18 re f*
 0 0 0 rg
-BT /F1 10 Tf 12 TL ET
+BT /F1 11 Tf 12 TL ET
 q
-1 0 0 1 6 44 cm
+1 0 0 1 6 39 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F2 10 Tf 12 TL (HbA1c) Tj T* ET
 Q
 Q
 q
-1 0 0 1 176.0787 44 cm
+1 0 0 1 176.0787 39 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (6.0%) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 24 cm
+1 0 0 1 6 21 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F2 10 Tf 12 TL (LDH) Tj T* ET
 Q
 Q
 q
-1 0 0 1 176.0787 24 cm
+1 0 0 1 176.0787 21 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (412 U/L) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 4 cm
+1 0 0 1 6 3 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F2 10 Tf 12 TL (Creatinine) Tj T* ET
 Q
 Q
 q
-1 0 0 1 176.0787 4 cm
+1 0 0 1 176.0787 3 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (0.9 mg/dL) Tj T* ET
@@ -269,59 +276,38 @@ q
 1 j
 .8 .8 .8 RG
 .4 w
-n 0 60 m 439.3701 60 l S
+n 0 54 m 439.3701 54 l S
 n 0 0 m 439.3701 0 l S
-n 0 0 m 0 60 l S
-n 439.3701 0 m 439.3701 60 l S
-n 0 40 m 439.3701 40 l S
-n 0 20 m 439.3701 20 l S
-n 170.0787 0 m 170.0787 60 l S
+n 0 0 m 0 54 l S
+n 439.3701 0 m 439.3701 54 l S
+n 0 36 m 439.3701 36 l S
+n 0 18 m 439.3701 18 l S
+n 170.0787 0 m 170.0787 54 l S
 Q
 Q
 Q
 q
-1 0 0 1 76.86614 408.189 cm
+1 0 0 1 76.86614 277.8583 cm
 Q
 q
-1 0 0 1 76.86614 392.189 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 6 Tm /F1 10 Tf 16 TL (First chemotherapy cycle well tolerated. Discharged 11/06/2024.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 76.86614 368.189 cm
+1 0 0 1 76.86614 217.8583 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 6 Tm /F2 10 Tf 16 TL (Relevant Medical History:) Tj T* ET
+BT 1 0 0 1 0 48 Tm /F1 12 Tf 20 TL (Past Medical History: Well-controlled type 2 diabetes on metformin 850 mg twice) Tj T* (daily \(HbA1c 6.0%\). Mild hypertension on amlodipine 5 mg. No prior malignancy.) Tj T* (Non-smoker. Retired civil engineer, lives with his wife of 32 years.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 248.189 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 102 Tm /F1 10 Tf 16 TL (The patient has a long-standing history of arterial hypertension, first diagnosed in 2008 and) Tj T* (currently managed with an ACE inhibitor and a calcium channel blocker. Type 2 diabetes mellitus) Tj T* (was diagnosed in 2015 and is managed with oral antidiabetic agents and basal insulin. The patient) Tj T* (also has a history of hypercholesterolemia treated with a statin, and underwent cholecystectomy in) Tj T* (2004 without complications. No known drug allergies. The patient reports intermittent use of) Tj T* (over-the-counter NSAIDs for chronic joint discomfort, which has been advised against given the) Tj T* (renal function.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 76.86614 160.189 cm
+1 0 0 1 76.86614 147.8583 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 70 Tm /F1 10 Tf 16 TL (Family history is significant for coronary artery disease \227 the patient's father suffered a myocardial) Tj T* (infarction at age 62 and underwent coronary artery bypass surgery. The patient's mother was) Tj T* (diagnosed with type 2 diabetes at age 70. Two siblings are reported to be in good health. The) Tj T* (patient is a former smoker with a 20 pack-year history, having ceased smoking in 2010. Alcohol) Tj T* (consumption is moderate, approximately 5 units per week. No illicit drug use was reported.) Tj T* ET
+BT 1 0 0 1 0 48 Tm /F1 12 Tf 20 TL (Cardiac Assessment Prior to Anthracycline: Echocardiography day 1: EF 62%, no) Tj T* (significant valvular pathology, normal LV dimensions. ECG: normal sinus rhythm.) Tj T* (Cleared for doxorubicin-containing therapy.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 136.189 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 6 Tm /F2 10 Tf 16 TL (Physical Examination on Admission:) Tj T* ET
-Q
-Q
-q
-1 0 0 1 76.86614 80.18898 cm
+1 0 0 1 76.86614 77.85827 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 38 Tm /F1 10 Tf 16 TL (General appearance: The patient presented in a reduced but stable general condition, awake,) Tj T* (oriented, and cooperative. Anthropometric data: height 172 cm, weight 84 kg, BMI 28.4 kg/m2. Vital) Tj T* (signs on admission: blood pressure 158/94 mmHg, heart rate 88 bpm and regular, respiratory rate) Tj T* ET
+BT 1 0 0 1 0 48 Tm /F1 12 Tf 20 TL (Hospital Course: Cycle 1 of R-CHOP administered over 3 days. Pre-medication:) Tj T* (ondansetron 8 mg IV, dexamethasone 8 mg IV, allopurinol 300 mg \(TLS) Tj T* (prophylaxis\). Grade 1 nausea day 2, managed satisfactorily with oral ondansetron.) Tj T* ET
 Q
 Q
  
@@ -401,72 +387,72 @@ endobj
 endobj
 10 0 obj
 <<
-/Length 4838
+/Length 3501
 >>
 stream
 q
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
-1 0 0 1 76.86614 745.3701 cm
+1 0 0 1 76.86614 753.3701 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 38 Tm /F1 10 Tf 16 TL (16 breaths per minute, oxygen saturation 96% on room air, body temperature 37.2\260C. Skin was) Tj T* (warm, dry, and of normal color with no jaundice, rash, or suspicious lesions noted. Cervical lymph) Tj T* (nodes were not palpable.) Tj T* ET
+BT 1 0 0 1 0 28 Tm /F1 12 Tf 20 TL (Appetite returned by day 3. No febrile episodes. BP and glucose well controlled) Tj T* (throughout. Metformin held on admission, reinitiated at discharge.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 609.3701 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 118 Tm /F1 10 Tf 16 TL (Cardiovascular system: Heart sounds were regular, with normal S1 and S2. No murmurs, rubs, or) Tj T* (gallops detected. Jugular venous pressure was mildly elevated. Peripheral pulses were palpable) Tj T* (bilaterally. Respiratory system: Breath sounds were diminished at the right base with mild bibasal) Tj T* (crackles on auscultation. No wheezing. Abdomen: soft, non-tender, with no guarding or rigidity. The) Tj T* (liver edge was palpable 1 cm below the right costal margin. No splenomegaly. Bowel sounds were) Tj T* (present and normoactive. Extremities: 1+ pitting edema present bilaterally below the knees.) Tj T* (Neurological examination was grossly intact \227 cranial nerves II\226XII were intact, motor strength was) Tj T* (5/5 in all extremities, and reflexes were symmetric.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 76.86614 585.3701 cm
+1 0 0 1 76.86614 583.3701 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 6 Tm /F2 10 Tf 16 TL (Diagnostic Procedures and Results:) Tj T* ET
+BT 1 0 0 1 0 148 Tm /F1 12 Tf 20 TL (Patient and Carer Education: Hematology specialist nurse provided comprehensive) Tj T* (education session on day 5 covering the R-CHOP treatment schedule \(6 cycles) Tj T* (planned\), expected side effect profile including haematological toxicity, infection) Tj T* -0.068966 Tw (risk, peripheral neuropathy, hair loss, and infusion reactions; G-CSF administration;) Tj T* 0 Tw (febrile neutropenia recognition \(temperature above 38\260C requires immediate) Tj T* (emergency assessment\); and precautions during neutropaenic nadirs. Mr. Wagner) Tj T* (and his wife attended and asked detailed questions. A patient information booklet) Tj T* (with key telephone numbers was provided.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 497.3701 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 70 Tm /F1 10 Tf 16 TL (12-lead ECG performed on admission: sinus rhythm at 88 bpm, normal axis, no acute ST-segment) Tj T* (changes, no T-wave inversions, QTc within normal limits. Transthoracic echocardiography) Tj T* (performed on day 2: ejection fraction 58%, preserved systolic function, mild diastolic dysfunction) Tj T* (grade I, no significant valvular pathology, no pericardial effusion. Chest X-ray \(PA view\): no acute) Tj T* (pulmonary infiltrate, no pleural effusion, cardiac silhouette within normal limits.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 76.86614 377.3701 cm
+1 0 0 1 76.86614 533.3701 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 102 Tm /F1 10 Tf 16 TL (Abdominal ultrasound: liver of normal echogenicity and size, gallbladder status) Tj T* (post-cholecystectomy, no biliary dilation, kidneys of normal size with no hydronephrosis, spleen not) Tj T* (enlarged, no free abdominal fluid. Duplex sonography of the lower extremities: no evidence of deep) Tj T* (vein thrombosis bilaterally. CT thorax and abdomen with intravenous contrast medium: performed) Tj T* -0.021907 Tw (on day 3, results reviewed by the radiology department and discussed at the interdisciplinary clinical) Tj T* 0 Tw (conference on day 4. Findings are summarized in the separate radiology report appended to this) Tj T* (letter.) Tj T* ET
+BT 1 0 0 1 0 28 Tm /F1 12 Tf 20 TL (G-CSF \(filgrastim 300 mcg subcutaneously\) was prescribed for 5 days starting 48) Tj T* (hours post-chemotherapy.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 353.3701 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 6 Tm /F2 10 Tf 16 TL (Medication Prescribed at Discharge:) Tj T* ET
-Q
-Q
-q
-1 0 0 1 76.86614 217.3701 cm
+1 0 0 1 76.86614 463.3701 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 118 Tm /F1 10 Tf 16 TL (The following medications were prescribed at the time of discharge, with dosing instructions clearly) Tj T* (communicated to the patient: \(1\) Metformin 1000 mg orally twice daily with meals; \(2\) Ramipril 5 mg) Tj T* (orally once daily in the morning; \(3\) Atorvastatin 40 mg orally once daily in the evening; \(4\) Aspirin) Tj T* (100 mg orally once daily; \(5\) Pantoprazole 40 mg orally once daily before breakfast; \(6\) Bisoprolol) Tj T* (2.5 mg orally once daily in the morning; \(7\) Torasemide 5 mg orally once daily. The patient was) Tj T* (counseled in detail regarding the purpose, expected benefits, potential side effects, and warning) Tj T* (signs for each medication. A written medication plan was provided in the patient's preferred) Tj T* (language.) Tj T* ET
+BT 1 0 0 1 0 48 Tm /F1 12 Tf 20 TL (Medication at Discharge: Metformin 850 mg twice daily, amlodipine 5 mg,) Tj T* (allopurinol 300 mg \(4 weeks\), filgrastim 5-day course, ondansetron as needed,) Tj T* (pantoprazole 40 mg.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 193.3701 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 6 Tm /F2 10 Tf 16 TL (Follow-up Plan and Recommendations:) Tj T* ET
-Q
-Q
-q
-1 0 0 1 76.86614 89.37008 cm
+1 0 0 1 76.86614 413.3701 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 86 Tm /F1 10 Tf 16 TL -0.059764 Tw (We recommend the following structured follow-up: \(1\) Visit to the general practitioner within 2 weeks) Tj T* 0 Tw (of discharge for medication review, blood pressure reassessment, and inspection of any wound or) Tj T* (access sites. \(2\) Comprehensive laboratory workup in 3 months including complete blood count,) Tj T* (serum electrolytes, renal function panel, liver enzymes, fasting lipid profile, fasting glucose, and) Tj T* (HbA1c. \(3\) Cardiology outpatient follow-up in 6 weeks. \(4\) Diabetology referral for structured) Tj T* (outpatient management optimization. \(5\) Repeat transthoracic echocardiography in 6 months.) Tj T* ET
+BT 1 0 0 1 0 28 Tm /F1 12 Tf 20 TL (Follow-up: Hematology in 3 weeks for pre-cycle 2 assessment. CBC in 10 days.) Tj T* (Interim PET-CT after cycle 2. Seek urgent care if temperature exceeds 38\260C.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 383.3701 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 8 Tm /F2 12 Tf 20 TL (Supportive Care During Chemotherapy Administration:) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 213.3701 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 148 Tm /F1 12 Tf 20 TL (The oncology nursing team monitored Mr. Wagner continuously during) Tj T* (chemotherapy. IV access was maintained via a peripheral cannula throughout the) Tj T* (admission. A discussion regarding implantable port insertion for future cycles was) Tj T* (held \227 the patient preferred to defer this decision until after the second cycle.) Tj T* (Antiemetic prophylaxis was effective and no IV rescue antiemetics were required.) Tj T* (Vital signs were recorded hourly during rituximab infusion and every 4 hours on) Tj T* (chemotherapy days. No infusion-related reactions occurred during rituximab) Tj T* (administration.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 183.3701 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 8 Tm /F2 12 Tf 20 TL (Steroid-Related Glycaemia and Future Cycle Planning:) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 93.37008 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 68 Tm /F1 12 Tf 20 TL (Mr. Wagner's blood glucose was monitored four times daily on days when) Tj T* (prednisolone 100 mg was being administered. Steroid-induced hyperglycaemia) Tj T* (was mild \227 peak glucose 218 mg/dL on day 2 of chemotherapy \227 and did not) Tj T* (require insulin intervention. Metformin was held throughout the admission and) Tj T* ET
 Q
 Q
  
@@ -519,44 +505,37 @@ endobj
 endobj
 12 0 obj
 <<
-/Length 2774
+/Length 1885
 >>
 stream
 q
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
-1 0 0 1 76.86614 697.3701 cm
+1 0 0 1 76.86614 693.3701 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 86 Tm /F1 10 Tf 16 TL (The patient was additionally enrolled in a structured diabetes self-management education program) Tj T* (beginning 4 weeks after discharge. Dietary counseling was initiated during the inpatient stay, and a) Tj T* (referral to a registered dietitian was arranged for ongoing nutritional support. The patient and) Tj T* (accompanying family member were fully informed of the diagnosis, treatment rationale, expected) Tj T* (clinical trajectory, and all follow-up requirements. Written discharge instructions were provided, and) Tj T* (a direct contact number for the ward team was given in case questions or concerns arise.) Tj T* ET
+BT 1 0 0 1 0 88 Tm /F1 12 Tf 20 TL (reinitiated at discharge. The diabetes management plan for subsequent cycles) Tj T* (specifies: intensified glucose monitoring on prednisolone days; metformin to be) Tj T* (held 48 hours before any contrast-enhanced CT; a glucose threshold of 250 mg/dL) Tj T* (above which the patient should contact the diabetes team for sliding scale insulin) Tj T* (advice.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 673.3701 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 6 Tm /F2 10 Tf 16 TL (Social and Functional Assessment:) Tj T* ET
-Q
-Q
-q
-1 0 0 1 76.86614 569.3701 cm
+1 0 0 1 76.86614 663.3701 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 86 Tm /F1 10 Tf 16 TL (Prior to this admission, the patient was living independently at home with a supportive spouse. The) Tj T* (patient was fully mobile and independent in all activities of daily living without assistive devices.) Tj T* (During the hospital stay, physiotherapy was initiated on day 2 with a focus on mobilization and) Tj T* (functional recovery. The patient demonstrated good cooperation and satisfactory progress) Tj T* (throughout. Occupational therapy was consulted and confirmed that the patient is safe to return to) Tj T* (the home environment without structural modifications.) Tj T* ET
+BT 1 0 0 1 0 8 Tm /F2 12 Tf 20 TL (Future Treatment Plan and Response Assessment:) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 465.3701 cm
+1 0 0 1 76.86614 513.3701 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 86 Tm /F1 10 Tf 16 TL (A comprehensive social work assessment was conducted on day 3 of the hospital stay. No) Tj T* (immediate social interventions were identified as necessary at this time. The patient confirmed) Tj T* (adequate health insurance coverage and established relationships with a primary care physician) Tj T* (and relevant outpatient specialists. Home nursing was arranged to assist with wound care and) Tj T* (medication management for a period of two weeks following discharge. Both the patient and spouse) Tj T* (expressed confidence in managing the post-discharge plan at home.) Tj T* ET
+BT 1 0 0 1 0 128 Tm /F1 12 Tf 20 TL (The total planned treatment is 6 cycles of R-CHOP at 21-day intervals. An interim) Tj T* (PET-CT will be performed following cycle 2 to assess early metabolic response. A) Tj T* (complete metabolic response at interim PET is associated with excellent outcomes) Tj T* (in DLBCL. End-of-treatment PET-CT will be performed 6\2268 weeks after cycle 6.) Tj T* (CNS prophylaxis with intrathecal methotrexate is not indicated based on the) Tj T* (CNS-IPI score of 2. The patient and his wife were fully informed of the treatment) Tj T* (schedule, the role of interim imaging, and the expected outcomes.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 434.6929 cm
+1 0 0 1 76.86614 486.3622 cm
 Q
 q
-1 0 0 1 76.86614 433.1929 cm
+1 0 0 1 76.86614 484.8622 cm
 q
 .5 w
 1 J
@@ -565,9 +544,9 @@ n 0 0 m 441.5433 0 l S
 Q
 Q
 q
-1 0 0 1 76.86614 393.1929 cm
+1 0 0 1 76.86614 438.8622 cm
 q
-BT 1 0 0 1 0 22 Tm 16 TL /F1 10 Tf 0 0 0 rg (Prof. Andreas Engert, MD) Tj  T* /F1 9 Tf .4 .4 .4 rg (Director, Hematology) Tj T* ET
+BT 1 0 0 1 0 28 Tm 20 TL /F1 12 Tf 0 0 0 rg (Prof. Andreas Engert, MD) Tj  T* /F1 11 Tf .4 .4 .4 rg (Director, Dept. of Hematology) Tj T* ET
 Q
 Q
  
@@ -606,13 +585,13 @@ xref
 0000000126 00000 n 
 0000000175 00000 n 
 0000000418 00000 n 
-0000006533 00000 n 
-0000006640 00000 n 
-0000006747 00000 n 
-0000006859 00000 n 
-0000007103 00000 n 
-0000011994 00000 n 
-0000012239 00000 n 
+0000005890 00000 n 
+0000005997 00000 n 
+0000006104 00000 n 
+0000006216 00000 n 
+0000006460 00000 n 
+0000010014 00000 n 
+0000010259 00000 n 
 trailer
 <<
 /Size 13
@@ -620,5 +599,5 @@ trailer
 /Info 1 0 R
 >>
 startxref
-15066
+12197
 %%EOF
