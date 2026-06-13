@@ -43,6 +43,10 @@ class CancelJobResponse(BaseModel):
 
 
 class PrelabelCallbackRequest(BaseModel):
-    run_id: int
+    job_id: str
     status: str
     error: str | None = None
+
+
+class PrelabelCallbackResponse(BaseModel):
+    status: str
