@@ -26,6 +26,7 @@ class Project(Base):
     label_studio_id = Column(Integer, nullable=True)
     is_groundtruth = Column(Boolean, nullable=False, default=False)
     ls_tasks_uploaded = Column(Boolean, nullable=False, default=False)
+    questions_and_labels = Column(JSONB, nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
 
@@ -80,12 +81,11 @@ class PrelabellingRun(Base):
 
     id = Column(Integer, primary_key=True)
     project = Column(Text, ForeignKey("projects.name"), nullable=False)
-    label_studio_project_name = Column(Text, nullable=False)
     label_studio_id = Column(Integer, nullable=True)
-    questions_and_labels = Column(JSONB, nullable=True)
     ollama_model = Column(Text, nullable=True)
     system_prompt = Column(Text, nullable=True)
     llm_timeout_seconds = Column(Integer, nullable=True)
     status = Column(Text, nullable=False, default="pending")  # pending | running | done | failed
+    error = Column(Text, nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
