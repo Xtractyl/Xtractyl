@@ -29,11 +29,11 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
         self._db.refresh(run)
         return run.id
 
-    def get_run(self, run_id: int):
-        return self._db.query(PrelabellingRun).filter(PrelabellingRun.id == run_id).first()
+    def get_run(self, job_id: int):
+        return self._db.query(PrelabellingRun).filter(PrelabellingRun.id == job_id).first()
 
-    def set_run_status(self, run_id: int, status: str, error: str | None = None) -> None:
-        run = self._db.query(PrelabellingRun).filter(PrelabellingRun.id == run_id).first()
+    def set_run_status(self, job_id: int, status: str, error: str | None = None) -> None:
+        run = self._db.query(PrelabellingRun).filter(PrelabellingRun.id == job_id).first()
         if run:
             run.status = status
             if error:
