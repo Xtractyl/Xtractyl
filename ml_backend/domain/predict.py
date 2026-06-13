@@ -41,6 +41,7 @@ def run_predict(cmd: PredictCommand) -> dict:
                 prompt=prompt,
                 timeout=llm.llm_timeout_seconds,
                 model_name=llm.ollama_model,
+                num_ctx=llm.num_ctx,
             )
             t["status"] = result.get("status")
             if result.get("status") == "timeout":
