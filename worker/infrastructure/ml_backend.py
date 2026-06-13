@@ -18,6 +18,7 @@ OLLAMA_BASE = os.getenv("OLLAMA_BASE", "http://ollama:11434")
 LLM_TIMEOUT = int(os.getenv("LLM_TIMEOUT", "20"))
 LLM_OVERHEAD = int(os.getenv("LLM_OVERHEAD", "5"))
 UPLOAD_MARGIN = int(os.getenv("UPLOAD_MARGIN", "30"))
+LLM_NUM_CTX = int(os.getenv("LLM_NUM_CTX", "4096"))
 
 
 def send_predict(*, task_id: int, html: str, job: JobPayload) -> requests.Response:
@@ -36,6 +37,7 @@ def send_predict(*, task_id: int, html: str, job: JobPayload) -> requests.Respon
             "ollama_base": OLLAMA_BASE,
             "system_prompt": job.system_prompt,
             "llm_timeout_seconds": LLM_TIMEOUT,
+            "num_ctx": LLM_NUM_CTX,
         },
         "label_studio_config": {
             "label_studio_url": LS_BASE,
