@@ -40,30 +40,30 @@ endobj
 endobj
 5 0 obj
 <<
-/Length 6127
+/Length 5371
 >>
 stream
 q
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
-1 0 0 1 -170.0787 761.3701 cm
+1 0 0 1 -170.0787 763.3701 cm
 q
 .101961 .227451 .360784 rg
-n 0 32 935.4331 -32 re f*
+n 0 30 935.4331 -30 re f*
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
 1 0 0 1 10 8 cm
 q
 1 1 1 rg
-BT 1 0 0 1 0 4 Tm /F2 12 Tf 16 TL (University Medical Center) Tj T* ET
+BT 1 0 0 1 0 2 Tm /F2 12 Tf 14 TL (University Medical Center) Tj T* ET
 Q
 Q
 q
 1 0 0 1 477.7165 8 cm
 q
 .8 .878431 .960784 rg
-BT 1 0 0 1 0 7 Tm /F1 9 Tf 16 TL (Dept. of Oncology) Tj T* ET
+BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Dept. of Oncology) Tj T* ET
 Q
 Q
 q
@@ -71,91 +71,91 @@ Q
 Q
 Q
 q
-1 0 0 1 76.86614 745.3701 cm
+1 0 0 1 76.86614 749.3701 cm
 q
 .533333 .533333 .533333 rg
-BT 1 0 0 1 0 8 Tm /F1 8 Tf 16 TL (15 Academic Health Drive, Lexington, KY 40501) Tj T* ET
+BT 1 0 0 1 0 6 Tm /F1 8 Tf 14 TL (15 Academic Health Drive, Lexington, KY 40501) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 719.3701 cm
+1 0 0 1 76.86614 725.3701 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 1 Tm /F2 15 Tf 16 TL (Discharge Summary) Tj T* ET
+BT 1 0 0 1 0 -1 Tm /F2 15 Tf 14 TL (Discharge Summary) Tj T* ET
 Q
 Q
 q
-1 0 0 1 77.95276 611.3701 cm
+1 0 0 1 77.95276 627.3701 cm
 q
 .933333 .952941 .972549 rg
-n 0 100 439.3701 -100 re f*
+n 0 90 439.3701 -90 re f*
 0 0 0 rg
-BT /F1 10 Tf 12 TL ET
+BT /F1 11 Tf 12 TL ET
 q
-1 0 0 1 6 84 cm
+1 0 0 1 6 75 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F2 10 Tf 12 TL (Patient:) Tj T* ET
 Q
 Q
 q
-1 0 0 1 133.5591 84 cm
+1 0 0 1 133.5591 75 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Hildegard Maier) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 64 cm
+1 0 0 1 6 57 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F2 10 Tf 12 TL (Date of Birth:) Tj T* ET
 Q
 Q
 q
-1 0 0 1 133.5591 64 cm
+1 0 0 1 133.5591 57 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (12/05/1953) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 44 cm
+1 0 0 1 6 39 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F2 10 Tf 12 TL (Admission Date:) Tj T* ET
 Q
 Q
 q
-1 0 0 1 133.5591 44 cm
+1 0 0 1 133.5591 39 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (10/27/2025) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 24 cm
+1 0 0 1 6 21 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F2 10 Tf 12 TL (Discharge Date:) Tj T* ET
 Q
 Q
 q
-1 0 0 1 133.5591 24 cm
+1 0 0 1 133.5591 21 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (11/04/2025) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 4 cm
+1 0 0 1 6 3 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F2 10 Tf 12 TL (Attending Physician:) Tj T* ET
 Q
 Q
 q
-1 0 0 1 133.5591 4 cm
+1 0 0 1 133.5591 3 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Prof. Andrea Sommer, MD) Tj T* ET
@@ -166,92 +166,99 @@ q
 1 j
 .752941 .811765 .878431 RG
 .3 w
-n 0 100 m 439.3701 100 l S
+n 0 90 m 439.3701 90 l S
 n 0 0 m 439.3701 0 l S
-n 0 0 m 0 100 l S
-n 439.3701 0 m 439.3701 100 l S
-n 0 80 m 439.3701 80 l S
-n 0 60 m 439.3701 60 l S
-n 0 40 m 439.3701 40 l S
-n 0 20 m 439.3701 20 l S
-n 127.5591 0 m 127.5591 100 l S
+n 0 0 m 0 90 l S
+n 439.3701 0 m 439.3701 90 l S
+n 0 72 m 439.3701 72 l S
+n 0 54 m 439.3701 54 l S
+n 0 36 m 439.3701 36 l S
+n 0 18 m 439.3701 18 l S
+n 127.5591 0 m 127.5591 90 l S
 Q
 Q
 Q
 q
-1 0 0 1 76.86614 597.1969 cm
+1 0 0 1 76.86614 613.1969 cm
 Q
 q
-1 0 0 1 76.86614 581.1969 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 6 Tm /F1 10 Tf 16 TL (Ms. Hildegard Maier was admitted for palliative chemotherapy with gemcitabine/nab-paclitaxel.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 76.86614 557.1969 cm
-q
-BT 1 0 0 1 0 6 Tm 16 TL /F2 10 Tf 0 0 0 rg (Primary Diagnosis:) Tj /F1 10 Tf ( Pancreatic carcinoma \(C25.9\) \227 Tumor staging: T3 N1 M1) Tj T* ET
-Q
-Q
-q
-1 0 0 1 76.86614 533.1969 cm
+1 0 0 1 76.86614 593.1969 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 6 Tm /F1 10 Tf 16 TL (Laboratory values:) Tj T* ET
+BT 1 0 0 1 0 8 Tm /F1 12 Tf 20 TL (Dear Colleagues,) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 516.6929 cm
+1 0 0 1 76.86614 463.1969 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 108 Tm /F1 12 Tf 20 TL (Ms. Hildegard Maier, DOB 12/05/1953, was admitted on 10/27/2025 to initiate) Tj T* (palliative chemotherapy for locally advanced pancreatic ductal adenocarcinoma.) Tj T* (She presented 6 weeks ago with painless jaundice, 10 kg weight loss, and) Tj T* (new-onset diabetes. CT: 4.8 cm head of pancreas mass, encasement of the SMA) Tj T* (and portal vein \(unresectable\), liver metastases in segments IV and VI. Biopsy) Tj T* (confirmed pancreatic ductal adenocarcinoma.) Tj T* ET
+Q
 Q
 q
-1 0 0 1 77.95276 456.6929 cm
+1 0 0 1 76.86614 433.1969 cm
+q
+BT 1 0 0 1 0 8 Tm 20 TL /F2 12 Tf 0 0 0 rg (Primary Diagnosis:) Tj /F1 12 Tf ( Pancreatic carcinoma \(C25.9\) \227 Tumor staging: T3 N1 M1) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 403.1969 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 8 Tm /F1 12 Tf 20 TL (Laboratory values:) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 387.5276 cm
+Q
+q
+1 0 0 1 77.95276 333.5276 cm
 q
 .980392 .980392 .980392 rg
-n 0 60 439.3701 -20 re f*
+n 0 54 439.3701 -18 re f*
 1 1 1 rg
-n 0 40 439.3701 -20 re f*
+n 0 36 439.3701 -18 re f*
 .980392 .980392 .980392 rg
-n 0 20 439.3701 -20 re f*
+n 0 18 439.3701 -18 re f*
 0 0 0 rg
-BT /F1 10 Tf 12 TL ET
+BT /F1 11 Tf 12 TL ET
 q
-1 0 0 1 6 44 cm
+1 0 0 1 6 39 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F2 10 Tf 12 TL (HbA1c) Tj T* ET
 Q
 Q
 q
-1 0 0 1 176.0787 44 cm
+1 0 0 1 176.0787 39 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (8.2%) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 24 cm
+1 0 0 1 6 21 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F2 10 Tf 12 TL (CA 19-9) Tj T* ET
 Q
 Q
 q
-1 0 0 1 176.0787 24 cm
+1 0 0 1 176.0787 21 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (4820 U/mL) Tj T* ET
 Q
 Q
 q
-1 0 0 1 6 4 cm
+1 0 0 1 6 3 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F2 10 Tf 12 TL (Bilirubin) Tj T* ET
 Q
 Q
 q
-1 0 0 1 176.0787 4 cm
+1 0 0 1 176.0787 3 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (2.8 mg/dL) Tj T* ET
@@ -262,59 +269,38 @@ q
 1 j
 .8 .8 .8 RG
 .4 w
-n 0 60 m 439.3701 60 l S
+n 0 54 m 439.3701 54 l S
 n 0 0 m 439.3701 0 l S
-n 0 0 m 0 60 l S
-n 439.3701 0 m 439.3701 60 l S
-n 0 40 m 439.3701 40 l S
-n 0 20 m 439.3701 20 l S
-n 170.0787 0 m 170.0787 60 l S
+n 0 0 m 0 54 l S
+n 439.3701 0 m 439.3701 54 l S
+n 0 36 m 439.3701 36 l S
+n 0 18 m 439.3701 18 l S
+n 170.0787 0 m 170.0787 54 l S
 Q
 Q
 Q
 q
-1 0 0 1 76.86614 448.189 cm
+1 0 0 1 76.86614 327.8583 cm
 Q
 q
-1 0 0 1 76.86614 432.189 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 6 Tm /F1 10 Tf 16 TL (First cycle tolerated. Discharged 11/04/2025.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 76.86614 408.189 cm
+1 0 0 1 76.86614 267.8583 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 6 Tm /F2 10 Tf 16 TL (Relevant Medical History:) Tj T* ET
+BT 1 0 0 1 0 48 Tm /F1 12 Tf 20 TL (Past Medical History: No prior significant medical history. Heavy smoker until 2018,) Tj T* (40 pack-years. No alcohol. Retired schoolteacher, widowed. Adult son Michael) Tj T* (present throughout admission.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 288.189 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 102 Tm /F1 10 Tf 16 TL (The patient has a long-standing history of arterial hypertension, first diagnosed in 2008 and) Tj T* (currently managed with an ACE inhibitor and a calcium channel blocker. Type 2 diabetes mellitus) Tj T* (was diagnosed in 2015 and is managed with oral antidiabetic agents and basal insulin. The patient) Tj T* (also has a history of hypercholesterolemia treated with a statin, and underwent cholecystectomy in) Tj T* (2004 without complications. No known drug allergies. The patient reports intermittent use of) Tj T* (over-the-counter NSAIDs for chronic joint discomfort, which has been advised against given the) Tj T* (renal function.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 76.86614 200.189 cm
+1 0 0 1 76.86614 197.8583 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 70 Tm /F1 10 Tf 16 TL (Family history is significant for coronary artery disease \227 the patient's father suffered a myocardial) Tj T* (infarction at age 62 and underwent coronary artery bypass surgery. The patient's mother was) Tj T* (diagnosed with type 2 diabetes at age 70. Two siblings are reported to be in good health. The) Tj T* (patient is a former smoker with a 20 pack-year history, having ceased smoking in 2010. Alcohol) Tj T* (consumption is moderate, approximately 5 units per week. No illicit drug use was reported.) Tj T* ET
+BT 1 0 0 1 0 48 Tm /F1 12 Tf 20 TL (Biliary Drainage: Self-expanding metal stent placed endoscopically 3 weeks prior) Tj T* (for obstructive jaundice. Bilirubin improved from 18.4 to 2.8 mg/dL. Stent function) Tj T* (confirmed on abdominal ultrasound day 2.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 176.189 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 6 Tm /F2 10 Tf 16 TL (Physical Examination on Admission:) Tj T* ET
-Q
-Q
-q
-1 0 0 1 76.86614 88.18898 cm
+1 0 0 1 76.86614 107.8583 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 70 Tm /F1 10 Tf 16 TL (General appearance: The patient presented in a reduced but stable general condition, awake,) Tj T* (oriented, and cooperative. Anthropometric data: height 172 cm, weight 84 kg, BMI 28.4 kg/m2. Vital) Tj T* (signs on admission: blood pressure 158/94 mmHg, heart rate 88 bpm and regular, respiratory rate) Tj T* (16 breaths per minute, oxygen saturation 96% on room air, body temperature 37.2\260C. Skin was) Tj T* (warm, dry, and of normal color with no jaundice, rash, or suspicious lesions noted. Cervical lymph) Tj T* ET
+BT 1 0 0 1 0 68 Tm /F1 12 Tf 20 TL (Nutritional and Metabolic Assessment: BMI 20.4 kg/m2, 10 kg weight loss in 2) Tj T* (months. Nutritional risk score 4 \(high risk\). High-calorie oral supplementation) Tj T* -0.025592 Tw (initiated at 3 \327 125 mL per day. Pancreatic enzyme replacement \(creon 25,000 with) Tj T* 0 Tw (main meals\) started for exocrine insufficiency. Dietitian reviewed on days 2 and 4.) Tj T* ET
 Q
 Q
  
@@ -394,79 +380,65 @@ endobj
 endobj
 10 0 obj
 <<
-/Length 4925
+/Length 3471
 >>
 stream
 q
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
-1 0 0 1 76.86614 777.3701 cm
+1 0 0 1 76.86614 673.3701 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 6 Tm /F1 10 Tf 16 TL (nodes were not palpable.) Tj T* ET
+BT 1 0 0 1 0 108 Tm /F1 12 Tf 20 TL (New-Onset Diabetes Management: Fasting glucose 312 mg/dL on admission.) Tj T* (Insulin glargine 10 units at bedtime continued from GP initiation. Correction insulin) Tj T* (aspart added during admission for values above 200 mg/dL. Patient counselled) Tj T* (that pancreatic cancer-related diabetes is sensitive to insulin and has an) Tj T* (unpredictable course. Written glucose monitoring and insulin administration) Tj T* (instructions provided.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 641.3701 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 118 Tm /F1 10 Tf 16 TL (Cardiovascular system: Heart sounds were regular, with normal S1 and S2. No murmurs, rubs, or) Tj T* (gallops detected. Jugular venous pressure was mildly elevated. Peripheral pulses were palpable) Tj T* (bilaterally. Respiratory system: Breath sounds were diminished at the right base with mild bibasal) Tj T* (crackles on auscultation. No wheezing. Abdomen: soft, non-tender, with no guarding or rigidity. The) Tj T* (liver edge was palpable 1 cm below the right costal margin. No splenomegaly. Bowel sounds were) Tj T* (present and normoactive. Extremities: 1+ pitting edema present bilaterally below the knees.) Tj T* (Neurological examination was grossly intact \227 cranial nerves II\226XII were intact, motor strength was) Tj T* (5/5 in all extremities, and reflexes were symmetric.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 76.86614 617.3701 cm
+1 0 0 1 76.86614 563.3701 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 6 Tm /F2 10 Tf 16 TL (Diagnostic Procedures and Results:) Tj T* ET
+BT 1 0 0 1 0 88 Tm /F1 12 Tf 20 TL (Hospital Course: Gemcitabine 1000 mg/m2 combined with nab-paclitaxel 125) Tj T* (mg/m2 administered day 1. Pre-medication: dexamethasone, ondansetron,) Tj T* (granisetron. Infusion completed without acute adverse reactions. Grade 1) Tj T* (peripheral neuropathy documented at baseline. Moderate fatigue day 2, improving) Tj T* (by day 4.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 529.3701 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 70 Tm /F1 10 Tf 16 TL (12-lead ECG performed on admission: sinus rhythm at 88 bpm, normal axis, no acute ST-segment) Tj T* (changes, no T-wave inversions, QTc within normal limits. Transthoracic echocardiography) Tj T* (performed on day 2: ejection fraction 58%, preserved systolic function, mild diastolic dysfunction) Tj T* (grade I, no significant valvular pathology, no pericardial effusion. Chest X-ray \(PA view\): no acute) Tj T* (pulmonary infiltrate, no pleural effusion, cardiac silhouette within normal limits.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 76.86614 409.3701 cm
+1 0 0 1 76.86614 433.3701 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 102 Tm /F1 10 Tf 16 TL (Abdominal ultrasound: liver of normal echogenicity and size, gallbladder status) Tj T* (post-cholecystectomy, no biliary dilation, kidneys of normal size with no hydronephrosis, spleen not) Tj T* (enlarged, no free abdominal fluid. Duplex sonography of the lower extremities: no evidence of deep) Tj T* (vein thrombosis bilaterally. CT thorax and abdomen with intravenous contrast medium: performed) Tj T* -0.021907 Tw (on day 3, results reviewed by the radiology department and discussed at the interdisciplinary clinical) Tj T* 0 Tw (conference on day 4. Findings are summarized in the separate radiology report appended to this) Tj T* (letter.) Tj T* ET
+BT 1 0 0 1 0 108 Tm /F1 12 Tf 20 TL (Goals of Care: Detailed discussion day 3 with Ms. Maier, her son, oncology) Tj T* (consultant, and palliative care specialist nurse. Priorities documented: quality of life) Tj T* (and cognitive clarity, remaining at home as long as possible, time with son and) Tj T* (grandchildren. She declined DNACPR documentation at this time but agreed to) Tj T* (revisit at a future appointment. Advance care planning documentation completed) Tj T* (and shared with GP.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 385.3701 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 6 Tm /F2 10 Tf 16 TL (Medication Prescribed at Discharge:) Tj T* ET
-Q
-Q
-q
-1 0 0 1 76.86614 249.3701 cm
+1 0 0 1 76.86614 303.3701 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 118 Tm /F1 10 Tf 16 TL (The following medications were prescribed at the time of discharge, with dosing instructions clearly) Tj T* (communicated to the patient: \(1\) Metformin 1000 mg orally twice daily with meals; \(2\) Ramipril 5 mg) Tj T* (orally once daily in the morning; \(3\) Atorvastatin 40 mg orally once daily in the evening; \(4\) Aspirin) Tj T* (100 mg orally once daily; \(5\) Pantoprazole 40 mg orally once daily before breakfast; \(6\) Bisoprolol) Tj T* (2.5 mg orally once daily in the morning; \(7\) Torasemide 5 mg orally once daily. The patient was) Tj T* (counseled in detail regarding the purpose, expected benefits, potential side effects, and warning) Tj T* (signs for each medication. A written medication plan was provided in the patient's preferred) Tj T* (language.) Tj T* ET
+BT 1 0 0 1 0 108 Tm /F1 12 Tf 20 TL (Palliative Care Integration: The palliative care team was fully integrated from day 3.) Tj T* (The specialist nurse established a therapeutic relationship with both patient and) Tj T* (son. Symptom assessment identified moderate fatigue and intermittent nausea as) Tj T* (primary concerns \227 both addressed through medication optimisation and practical) Tj T* (coping strategies. Son was given contact details for the palliative care team's) Tj T* (community service.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 225.3701 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 6 Tm /F2 10 Tf 16 TL (Follow-up Plan and Recommendations:) Tj T* ET
-Q
-Q
-q
-1 0 0 1 76.86614 121.3701 cm
+1 0 0 1 76.86614 233.3701 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 86 Tm /F1 10 Tf 16 TL -0.059764 Tw (We recommend the following structured follow-up: \(1\) Visit to the general practitioner within 2 weeks) Tj T* 0 Tw (of discharge for medication review, blood pressure reassessment, and inspection of any wound or) Tj T* (access sites. \(2\) Comprehensive laboratory workup in 3 months including complete blood count,) Tj T* (serum electrolytes, renal function panel, liver enzymes, fasting lipid profile, fasting glucose, and) Tj T* (HbA1c. \(3\) Cardiology outpatient follow-up in 6 weeks. \(4\) Diabetology referral for structured) Tj T* (outpatient management optimization. \(5\) Repeat transthoracic echocardiography in 6 months.) Tj T* ET
+BT 1 0 0 1 0 48 Tm /F1 12 Tf 20 TL (Medication at Discharge: Insulin glargine 10 units at bedtime, creon 25,000 with) Tj T* (main meals, omeprazole 20 mg, ondansetron 8 mg as needed, paracetamol 1 g) Tj T* (four times daily, oral nutritional supplements three times daily.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 81.37008 cm
+1 0 0 1 76.86614 183.3701 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 22 Tm /F1 10 Tf 16 TL (The patient was additionally enrolled in a structured diabetes self-management education program) Tj T* (beginning 4 weeks after discharge. Dietary counseling was initiated during the inpatient stay, and a) Tj T* ET
+BT 1 0 0 1 0 28 Tm /F1 12 Tf 20 TL -0.164793 Tw (Follow-up: Oncology day unit in 1 week for cycle 1 day 8. Palliative care in 2 weeks.) Tj T* 0 Tw (GP in 1 week. District nursing arranged for insulin support.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 153.3701 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 8 Tm /F2 12 Tf 20 TL (Goals of Care \227 Detailed Documentation:) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 83.37008 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 48 Tm /F1 12 Tf 20 TL (The palliative care consultation on day 3 was attended by Ms. Maier, her son) Tj T* (Michael, the oncology consultant, and the palliative care specialist nurse. Ms.) Tj T* (Maier's values and priorities were elicited using a structured framework. She) Tj T* ET
 Q
 Q
  
@@ -519,44 +491,51 @@ endobj
 endobj
 12 0 obj
 <<
-/Length 2557
+/Length 3456
 >>
 stream
 q
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
-1 0 0 1 76.86614 729.3701 cm
+1 0 0 1 76.86614 633.3701 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 54 Tm /F1 10 Tf 16 TL (referral to a registered dietitian was arranged for ongoing nutritional support. The patient and) Tj T* (accompanying family member were fully informed of the diagnosis, treatment rationale, expected) Tj T* (clinical trajectory, and all follow-up requirements. Written discharge instructions were provided, and) Tj T* (a direct contact number for the ward team was given in case questions or concerns arise.) Tj T* ET
+BT 1 0 0 1 0 148 Tm /F1 12 Tf 20 TL (prioritised maintaining cognitive clarity and quality of life over maximal treatment) Tj T* (intensity; wished to remain in her own home for as long as possible; valued time) Tj T* (with her son and grandchildren above all else; and wished to continue active) Tj T* (treatment with chemotherapy as long as she remained well enough. She declined) Tj T* (documentation of a DNACPR order at this admission and agreed to revisit this at) Tj T* (her next palliative care outpatient appointment. The advance care planning) Tj T* (documentation was completed, stored in the electronic record, and shared with her) Tj T* (GP.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 705.3701 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 6 Tm /F2 10 Tf 16 TL (Social and Functional Assessment:) Tj T* ET
-Q
-Q
-q
-1 0 0 1 76.86614 601.3701 cm
+1 0 0 1 76.86614 603.3701 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 86 Tm /F1 10 Tf 16 TL (Prior to this admission, the patient was living independently at home with a supportive spouse. The) Tj T* (patient was fully mobile and independent in all activities of daily living without assistive devices.) Tj T* (During the hospital stay, physiotherapy was initiated on day 2 with a focus on mobilization and) Tj T* (functional recovery. The patient demonstrated good cooperation and satisfactory progress) Tj T* (throughout. Occupational therapy was consulted and confirmed that the patient is safe to return to) Tj T* (the home environment without structural modifications.) Tj T* ET
+BT 1 0 0 1 0 8 Tm /F2 12 Tf 20 TL (Nutrition, Enzyme Replacement, and Symptom Optimisation:) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 497.3701 cm
+1 0 0 1 76.86614 393.3701 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 86 Tm /F1 10 Tf 16 TL (A comprehensive social work assessment was conducted on day 3 of the hospital stay. No) Tj T* (immediate social interventions were identified as necessary at this time. The patient confirmed) Tj T* (adequate health insurance coverage and established relationships with a primary care physician) Tj T* (and relevant outpatient specialists. Home nursing was arranged to assist with wound care and) Tj T* (medication management for a period of two weeks following discharge. Both the patient and spouse) Tj T* (expressed confidence in managing the post-discharge plan at home.) Tj T* ET
+BT 1 0 0 1 0 188 Tm /F1 12 Tf 20 TL (Ms. Maier's nutritional status was critically impaired at admission \227 BMI 20.4) Tj T* (kg/m2, 10 kg weight loss in 2 months. The combination of exocrine pancreatic) Tj T* (insufficiency, biliary stenting, new-onset pancreatic diabetes, and treatment-related) Tj T* (nausea created a complex nutritional challenge. Creon 25,000 was initiated with all) Tj T* (main meals and creon 10,000 with snacks. The dietitian reviewed fat-soluble) Tj T* (vitamin status \227 all within normal limits, routine supplementation not started.) Tj T* (High-calorie oral nutritional supplements providing an additional 900 kcal per day) Tj T* (were prescribed. Ms. Maier was taught to titrate insulin glargine based on) Tj T* (carbohydrate intake and blood glucose response, acknowledging the unpredictable) Tj T* (nature of pancreatic diabetes with its particular sensitivity to insulin.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 466.6929 cm
+1 0 0 1 76.86614 363.3701 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 8 Tm /F2 12 Tf 20 TL (Palliative Care Integration \227 Community Support:) Tj T* ET
+Q
 Q
 q
-1 0 0 1 76.86614 465.1929 cm
+1 0 0 1 76.86614 173.3701 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 168 Tm /F1 12 Tf 20 TL (The palliative care specialist nurse established a therapeutic relationship with both) Tj T* (Ms. Maier and her son over multiple conversations during the admission. Symptom) Tj T* (assessment identified moderate fatigue and intermittent nausea as the primary) Tj T* (concerns. Fatigue was attributed to the underlying malignancy, the biliary stenting) Tj T* (recovery, and the first chemotherapy cycle. Nausea management was optimised) Tj T* (with regular ondansetron and dietary guidance including small frequent meals,) Tj T* (avoidance of strong smells, and ginger-based remedies for mild nausea. Her son) Tj T* -0.163724 Tw (was provided with the contact details for the community palliative care nursing team) Tj T* 0 Tw (and the hospice telephone advice line for use at any time of day.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 146.3622 cm
+Q
+q
+1 0 0 1 76.86614 144.8622 cm
 q
 .5 w
 1 J
@@ -565,9 +544,9 @@ n 0 0 m 441.5433 0 l S
 Q
 Q
 q
-1 0 0 1 76.86614 425.1929 cm
+1 0 0 1 76.86614 98.8622 cm
 q
-BT 1 0 0 1 0 22 Tm 16 TL /F1 10 Tf 0 0 0 rg (Prof. Andrea Sommer, MD) Tj  T* /F1 9 Tf .4 .4 .4 rg (Director, Oncology) Tj T* ET
+BT 1 0 0 1 0 28 Tm 20 TL /F1 12 Tf 0 0 0 rg (Prof. Andrea Sommer, MD) Tj  T* /F1 11 Tf .4 .4 .4 rg (Director, Dept. of Oncology) Tj T* ET
 Q
 Q
  
@@ -606,13 +585,13 @@ xref
 0000000126 00000 n 
 0000000175 00000 n 
 0000000418 00000 n 
-0000006597 00000 n 
-0000006704 00000 n 
-0000006811 00000 n 
-0000006923 00000 n 
-0000007167 00000 n 
-0000012145 00000 n 
-0000012390 00000 n 
+0000005841 00000 n 
+0000005948 00000 n 
+0000006055 00000 n 
+0000006167 00000 n 
+0000006411 00000 n 
+0000009935 00000 n 
+0000010180 00000 n 
 trailer
 <<
 /Size 13
@@ -620,5 +599,5 @@ trailer
 /Info 1 0 R
 >>
 startxref
-15000
+13689
 %%EOF

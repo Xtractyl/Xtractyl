@@ -55,3 +55,27 @@ class ProjectRepositoryInterface(ABC):
 
     @abstractmethod
     def set_ls_tasks_uploaded(self, name: str) -> None: ...
+
+    @abstractmethod
+    def save_questions_and_labels(self, name: str, qal: dict) -> None: ...
+
+    @abstractmethod
+    def get_questions_and_labels(self, name: str) -> dict | None: ...
+
+
+class PrelabellingRunRepositoryInterface(ABC):
+    @abstractmethod
+    def create_run(
+        self,
+        project: str,
+        label_studio_id: int,
+        model: str,
+        system_prompt: str,
+        questions_and_labels: dict,
+    ) -> int: ...
+
+    @abstractmethod
+    def get_run(self, job_id: int): ...
+
+    @abstractmethod
+    def set_run_status(self, job_id: int, status: str, error: str | None = None) -> None: ...

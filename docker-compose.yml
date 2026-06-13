@@ -207,6 +207,7 @@ services:
       - ${DEV_LOGS_DIR:-./data/logs}:/app/data/logs
     environment:
       - SERVICE_NAME=worker_pre_label
+      - USE_DB_BACKEND=${USE_DB_BACKEND:-0}
       - LOGS_DIR=/app/logs       
       - DEV_LOGS_DIR=/app/data/logs 
       - LLM_TIMEOUT=${LLM_TIMEOUT:-20}

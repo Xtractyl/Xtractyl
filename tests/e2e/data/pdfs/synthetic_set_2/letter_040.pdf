@@ -40,7 +40,7 @@ endobj
 endobj
 5 0 obj
 <<
-/Length 4229
+/Length 4918
 >>
 stream
 q
@@ -182,30 +182,23 @@ q
 1 0 0 1 76.86614 613.1969 cm
 Q
 q
-1 0 0 1 76.86614 599.1969 cm
+1 0 0 1 76.86614 585.1969 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Mr. Franz-Josef Kremer was admitted to initiate ibrutinib therapy for chronic lymphocytic leukemia.) Tj T* ET
+BT 1 0 0 1 0 19 Tm /F1 9 Tf 14 TL (Mr. Franz-Josef Kremer, DOB 04/14/1951, was admitted on 06/09/2025 to initiate ibrutinib for relapsed CLL.) Tj T* (Initially diagnosed 2019; first-line FCR in 2022; relapsed 18 months later with bulky lymphadenopathy.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 579.1969 cm
+1 0 0 1 76.86614 565.1969 cm
 q
 BT 1 0 0 1 0 5 Tm 14 TL /F2 9 Tf 0 0 0 rg (Primary Diagnosis:) Tj /F1 9 Tf ( Chronic lymphocytic leukemia \(C91.1\) \227 Tumor staging: T3 N2 M0) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 559.1969 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Laboratory values:) Tj T* ET
-Q
+1 0 0 1 76.86614 553.5276 cm
 Q
 q
-1 0 0 1 76.86614 547.5276 cm
-Q
-q
-1 0 0 1 77.95276 493.5276 cm
+1 0 0 1 77.95276 499.5276 cm
 q
 .980392 .980392 .980392 rg
 n 0 54 439.3701 -18 re f*
@@ -273,20 +266,34 @@ Q
 Q
 Q
 q
-1 0 0 1 76.86614 487.8583 cm
+1 0 0 1 76.86614 493.8583 cm
 Q
 q
-1 0 0 1 76.86614 473.8583 cm
+1 0 0 1 76.86614 465.8583 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Discharged 06/18/2025 in stable condition.) Tj T* ET
+BT 1 0 0 1 0 19 Tm /F1 9 Tf 14 TL (Mr. Kremer has well-controlled type 2 diabetes on metformin \(HbA1c 6.5%\). Permanent atrial fibrillation on) Tj T* (apixaban 5 mg twice daily \227 bleeding risk with ibrutinib discussed in detail. Mild hypertension on ramipril 5 mg.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 450.8504 cm
+1 0 0 1 76.86614 431.8583 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 19 Tm /F1 9 Tf 14 TL (Ibrutinib 420 mg once daily initiated. Apixaban continued with counseling on bleeding risk. BP monitoring) Tj T* (started. Minor diarrhea day 3 resolved spontaneously.) Tj T* ET
+Q
 Q
 q
-1 0 0 1 76.86614 449.3504 cm
+1 0 0 1 76.86614 397.8583 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 19 Tm /F1 9 Tf 14 TL (Medication at discharge: Ibrutinib 420 mg, metformin, apixaban, ramipril, omeprazole. Follow-up: Hematology) Tj T* (in 4 weeks.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 374.8504 cm
+Q
+q
+1 0 0 1 76.86614 373.3504 cm
 q
 .5 w
 1 J
@@ -295,9 +302,9 @@ n 0 0 m 441.5433 0 l S
 Q
 Q
 q
-1 0 0 1 76.86614 415.3504 cm
+1 0 0 1 76.86614 339.3504 cm
 q
-BT 1 0 0 1 0 19 Tm 14 TL /F1 9 Tf 0 0 0 rg (Prof. Heinz Schmitt, MD) Tj  T* /F1 8 Tf .4 .4 .4 rg (Director, Hematology) Tj T* ET
+BT 1 0 0 1 0 19 Tm 14 TL /F1 9 Tf 0 0 0 rg (Prof. Heinz Schmitt, MD) Tj  T* /F1 8 Tf .4 .4 .4 rg (Director, Dept. of Hematology) Tj T* ET
 Q
 Q
  
@@ -363,9 +370,9 @@ xref
 0000000113 00000 n 
 0000000162 00000 n 
 0000000405 00000 n 
-0000004686 00000 n 
-0000004793 00000 n 
-0000004900 00000 n 
+0000005375 00000 n 
+0000005482 00000 n 
+0000005589 00000 n 
 trailer
 <<
 /Size 9
@@ -373,5 +380,5 @@ trailer
 /Info 1 0 R
 >>
 startxref
-5012
+5701
 %%EOF

@@ -40,7 +40,7 @@ endobj
 endobj
 5 0 obj
 <<
-/Length 2368
+/Length 2361
 >>
 stream
 q
@@ -91,37 +91,30 @@ n 0 0 m 441.5433 0 l S
 Q
 Q
 q
-1 0 0 1 76.86614 642.3583 cm
+1 0 0 1 76.86614 628.3583 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Dear Colleague,) Tj T* ET
+BT 1 0 0 1 0 19 Tm /F1 9 Tf 14 TL (Ms. Claudia Mayer, DOB 07/13/1962, was admitted for cytoreductive surgery for ovarian carcinoma. CA-125) Tj T* (was 1840 U/mL at presentation.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 594.3583 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 33 Tm /F1 9 Tf 14 TL (Ms. Claudia Mayer was admitted for surgical tumor reduction. Exploratory laparotomy with hysterectomy,) Tj T* (bilateral adnexectomy, and omentectomy was performed. Histology confirmed serous ovarian carcinoma,) Tj T* (classification T3c N1 M0.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 76.86614 574.3583 cm
+1 0 0 1 76.86614 608.3583 cm
 q
 BT 1 0 0 1 0 5 Tm 14 TL /F2 9 Tf 0 0 0 rg (Primary Diagnosis:) Tj /F1 9 Tf ( Ovarian carcinoma \(C56\) \227 Tumor staging: T3c N1 M0) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 554.3583 cm
+1 0 0 1 76.86614 560.3583 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Discharged 10/10/2024. Platinum-based chemotherapy recommended.) Tj T* ET
+BT 1 0 0 1 0 33 Tm /F1 9 Tf 14 TL (Total hysterectomy, bilateral salpingo-oophorectomy, omentectomy, and peritoneal debulking performed.) Tj T* (Optimal cytoreduction achieved. Histology: high-grade serous carcinoma. Discharged 10/10/2024.) Tj T* (Carboplatin/paclitaxel to commence within 6 weeks.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 531.3504 cm
+1 0 0 1 76.86614 537.3504 cm
 Q
 q
-1 0 0 1 76.86614 529.8504 cm
+1 0 0 1 76.86614 535.8504 cm
 q
 .5 w
 1 J
@@ -130,7 +123,7 @@ n 0 0 m 441.5433 0 l S
 Q
 Q
 q
-1 0 0 1 76.86614 495.8504 cm
+1 0 0 1 76.86614 501.8504 cm
 q
 BT 1 0 0 1 0 19 Tm 14 TL /F1 9 Tf 0 0 0 rg (Prof. Barbara Schuster, MD) Tj  T* /F1 8 Tf .4 .4 .4 rg (Director, Gynecological Oncology) Tj T* ET
 Q
@@ -198,9 +191,9 @@ xref
 0000000113 00000 n 
 0000000162 00000 n 
 0000000405 00000 n 
-0000002825 00000 n 
-0000002932 00000 n 
-0000003039 00000 n 
+0000002818 00000 n 
+0000002925 00000 n 
+0000003032 00000 n 
 trailer
 <<
 /Size 9
@@ -208,5 +201,5 @@ trailer
 /Info 1 0 R
 >>
 startxref
-3151
+3144
 %%EOF

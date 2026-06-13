@@ -16,7 +16,7 @@ from domain.projects import (
 )
 from domain.projects import (
     preview_qal as domain_preview_qal,
-)
+)  # renaming necessary preview_qal is the name of the flask endpoint
 from flask import jsonify, request
 from flask_pydantic_spec import Request, Response
 from infrastructure.repository.project_repository import ProjectRepository
@@ -232,7 +232,16 @@ def register(app, spec, session_factory, label_studio, storage):
     def preview_qal():
         contract = PreviewQalRequest.model_validate(dict(request.args))
         cmd = PreviewQalCommand.from_contract(project=contract.project, filename=contract.filename)
-        result = domain_preview_qal(cmd)
+        db = session_factory()
+        try:
+            repo = ProjectRepository(db)
+            result = domain_preview_qal(cmd, repo=repo)
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
         try:
             validated = PreviewQalResponse.model_validate(result)
         except ValidationError as e:

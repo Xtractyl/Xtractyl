@@ -15,7 +15,7 @@ def register_routes(app, spec, storage, queue, session_factory, label_studio):
     register_conversion(app, spec, storage=storage, queue=queue, session_factory=session_factory)
     register_evaluation(app, spec)
     register_evaluation_drift(app, spec)
-    register_jobs(app, spec)
+    register_jobs(app, spec, session_factory=session_factory)
     register_results(app, spec)
     register_projects(
         app, spec, session_factory=session_factory, label_studio=label_studio, storage=storage

@@ -40,7 +40,7 @@ endobj
 endobj
 5 0 obj
 <<
-/Length 3448
+/Length 4071
 >>
 stream
 q
@@ -94,7 +94,7 @@ q
 1 0 0 1 76.86614 628.3583 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 19 Tm /F1 9 Tf 14 TL (Mr. Rolf Schneider was admitted with ascites and hepatic encephalopathy. An HbA1c of 7.2% was found,) Tj T* (suggesting hepatogenous diabetes.) Tj T* ET
+BT 1 0 0 1 0 19 Tm /F1 9 Tf 14 TL (Mr. Rolf Schneider, DOB 08/15/1952, was admitted on 11/18/2024 with increasing abdominal distension and) Tj T* (confusion. He has known alcohol-related cirrhosis \(Child-Pugh B8\) followed by hepatology for 4 years.) Tj T* ET
 Q
 Q
 q
@@ -104,17 +104,10 @@ BT 1 0 0 1 0 5 Tm 14 TL /F2 9 Tf 0 0 0 rg (Primary Diagnosis:) Tj /F1 9 Tf ( Liv
 Q
 Q
 q
-1 0 0 1 76.86614 588.3583 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Selected laboratory results:) Tj T* ET
-Q
+1 0 0 1 76.86614 596.689 cm
 Q
 q
-1 0 0 1 76.86614 576.689 cm
-Q
-q
-1 0 0 1 77.95276 504.689 cm
+1 0 0 1 77.95276 524.689 cm
 q
 .980392 .980392 .980392 rg
 n 0 72 439.3701 -18 re f*
@@ -199,20 +192,41 @@ Q
 Q
 Q
 q
-1 0 0 1 76.86614 499.0197 cm
+1 0 0 1 76.86614 519.0197 cm
 Q
 q
-1 0 0 1 76.86614 485.0197 cm
+1 0 0 1 76.86614 505.0197 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Discharged 11/25/2024 in improved condition.) Tj T* ET
+BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (HbA1c of 7.2% found \227 hepatogenous diabetes confirmed by oral glucose tolerance test.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 76.86614 462.0118 cm
+1 0 0 1 76.86614 471.0197 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 19 Tm /F1 9 Tf 14 TL (Abdominal paracentesis removed 5.4 L of culture-negative ascites. IV albumin given. Lactulose titrated and) Tj T* (rifaximin 550 mg twice daily started for hepatic encephalopathy.) Tj T* ET
+Q
 Q
 q
-1 0 0 1 76.86614 460.5118 cm
+1 0 0 1 76.86614 451.0197 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Brief alcohol intervention given; addiction medicine referral arranged. Social work assessment initiated.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 431.0197 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Discharged 11/25/2024 in improved condition. Hepatology in 3 weeks.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 76.86614 408.0118 cm
+Q
+q
+1 0 0 1 76.86614 406.5118 cm
 q
 .5 w
 1 J
@@ -221,7 +235,7 @@ n 0 0 m 441.5433 0 l S
 Q
 Q
 q
-1 0 0 1 76.86614 426.5118 cm
+1 0 0 1 76.86614 372.5118 cm
 q
 BT 1 0 0 1 0 19 Tm 14 TL /F1 9 Tf 0 0 0 rg (Dr. Barbara Metzger, MD) Tj  T* /F1 8 Tf .4 .4 .4 rg (Senior Hepatologist) Tj T* ET
 Q
@@ -289,9 +303,9 @@ xref
 0000000113 00000 n 
 0000000162 00000 n 
 0000000405 00000 n 
-0000003905 00000 n 
-0000004012 00000 n 
-0000004119 00000 n 
+0000004528 00000 n 
+0000004635 00000 n 
+0000004742 00000 n 
 trailer
 <<
 /Size 9
@@ -299,5 +313,5 @@ trailer
 /Info 1 0 R
 >>
 startxref
-4231
+4854
 %%EOF

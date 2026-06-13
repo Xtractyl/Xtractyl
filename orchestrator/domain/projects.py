@@ -114,6 +114,7 @@ def create_project_main_from_payload(
 
     if USE_DB_BACKEND:
         repo.set_label_studio_id(title, project_id)
+        repo.save_questions_and_labels(title, {"questions": questions, "labels": labels})
 
     return {"project_id": project_id}
 
@@ -193,22 +194,17 @@ def list_qal_jsons(cmd: ListQalJsonsCommand):
         )
 
 
-def preview_qal(cmd: PreviewQalCommand):
-    """
-    Read and return the content of a QAL JSON file for a given project.
-
-    Args:
-        cmd: PreviewQalCommand with project name and filename.
-
-    Returns:
-        {"data": dict} — parsed JSON content of the file.
-
-    Raises:
-        ValidationFailed: If the project or file path is invalid (path traversal attempt).
-        NotFound: If the file does not exist.
-        InternalError: If the file contains invalid JSON or cannot be read.
-    """
+def preview_qal(cmd: PreviewQalCommand, repo: ProjectRepositoryInterface):
     try:
+        if USE_DB_BACKEND:
+            qal = repo.get_questions_and_labels(cmd.project)
+            if not qal:
+                raise NotFound(
+                    code="QAL_NOT_FOUND",
+                    message="No QAL found for this project.",
+                )
+            return {"data": qal}
+
         project = cmd.project
         filename = cmd.filename
         project_dir = _safe_join(BASE_PROJECTS_DIR, project)

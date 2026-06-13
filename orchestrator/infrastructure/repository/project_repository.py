@@ -47,3 +47,13 @@ class ProjectRepository(ProjectRepositoryInterface):
         if project:
             project.ls_tasks_uploaded = True
             self._db.flush()
+
+    def save_questions_and_labels(self, name: str, qal: dict) -> None:
+        project = self._db.query(Project).filter(Project.name == name).first()
+        if project:
+            project.questions_and_labels = qal
+            self._db.flush()
+
+    def get_questions_and_labels(self, name: str) -> dict | None:
+        project = self._db.query(Project).filter(Project.name == name).first()
+        return project.questions_and_labels if project else None

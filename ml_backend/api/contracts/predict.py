@@ -9,6 +9,7 @@ class LLMConfig(BaseModel):
     ollama_base: str
     system_prompt: str
     llm_timeout_seconds: int
+    num_ctx: int = 4096
 
 
 class LabelStudioConfig(BaseModel):

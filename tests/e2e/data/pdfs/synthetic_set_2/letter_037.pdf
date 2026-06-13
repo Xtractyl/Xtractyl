@@ -40,7 +40,7 @@ endobj
 endobj
 5 0 obj
 <<
-/Length 2298
+/Length 2576
 >>
 stream
 q
@@ -110,7 +110,7 @@ q
 1 0 0 1 91.03937 555.8504 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 19 Tm /F1 9 Tf 14 TL (Ms. Adelheid Zimmermann was admitted with palpitations and dizziness. After exclusion of structural) Tj T* (heart disease, a beta-blocker was initiated.) Tj T* ET
+BT 1 0 0 1 0 19 Tm /F1 9 Tf 14 TL (Ms. Adelheid Zimmermann, DOB 11/08/1935, was admitted with 2-day history of palpitations and) Tj T* (lightheadedness. ECG on admission: frequent unifocal PVCs with LBBB morphology, RVOT origin.) Tj T* ET
 Q
 Q
 q
@@ -120,17 +120,17 @@ BT 1 0 0 1 0 5 Tm 14 TL /F2 9 Tf 0 0 0 rg (Primary Diagnosis:) Tj /F1 9 Tf ( Car
 Q
 Q
 q
-1 0 0 1 91.03937 515.8504 cm
+1 0 0 1 91.03937 487.8504 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Discharged May 5, 2025.) Tj T* ET
+BT 1 0 0 1 0 33 Tm /F1 9 Tf 14 TL (Structural heart disease excluded by echocardiography \(EF 64%\). Thyroid function and electrolytes) Tj T* (normal. Bisoprolol 2.5 mg initiated with significant symptomatic improvement. Discharged May 5, 2025.) Tj T* (Cardiology in 6 weeks with repeat Holter.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 91.03937 492.8425 cm
+1 0 0 1 91.03937 464.8425 cm
 Q
 q
-1 0 0 1 91.03937 491.3425 cm
+1 0 0 1 91.03937 463.3425 cm
 q
 .5 w
 1 J
@@ -139,7 +139,7 @@ n 0 0 m 413.1969 0 l S
 Q
 Q
 q
-1 0 0 1 91.03937 457.3425 cm
+1 0 0 1 91.03937 429.3425 cm
 q
 BT 1 0 0 1 0 19 Tm 14 TL /F1 9 Tf 0 0 0 rg (Dr. Renate Stein, MD) Tj  T* /F1 8 Tf .4 .4 .4 rg (Specialist in Cardiology) Tj T* ET
 Q
@@ -207,9 +207,9 @@ xref
 0000000113 00000 n 
 0000000162 00000 n 
 0000000405 00000 n 
-0000002755 00000 n 
-0000002862 00000 n 
-0000002969 00000 n 
+0000003033 00000 n 
+0000003140 00000 n 
+0000003247 00000 n 
 trailer
 <<
 /Size 9
@@ -217,5 +217,5 @@ trailer
 /Info 1 0 R
 >>
 startxref
-3081
+3359
 %%EOF

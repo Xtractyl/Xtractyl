@@ -12,6 +12,7 @@ class LLMConfig:
     ollama_base: str
     system_prompt: str
     llm_timeout_seconds: int
+    num_ctx: int = 4096
 
 
 @dataclass
@@ -50,6 +51,7 @@ class PredictCommand:
                 ollama_base=contract.llm_config.ollama_base,
                 system_prompt=contract.llm_config.system_prompt,
                 llm_timeout_seconds=contract.llm_config.llm_timeout_seconds,
+                num_ctx=contract.llm_config.num_ctx,
             ),
             label_studio_config=LabelStudioConfig(
                 label_studio_url=contract.label_studio_config.label_studio_url,

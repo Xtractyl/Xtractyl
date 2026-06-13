@@ -40,7 +40,7 @@ endobj
 endobj
 5 0 obj
 <<
-/Length 3892
+/Length 3807
 >>
 stream
 q
@@ -122,37 +122,23 @@ n 0 0 m 469.8898 0 l S
 Q
 Q
 q
-1 0 0 1 62.69291 617.3661 cm
+1 0 0 1 62.69291 589.3661 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Dear Colleagues,) Tj T* ET
+BT 1 0 0 1 0 33 Tm /F1 9 Tf 14 TL (Ms. Anna Zimmermann was admitted on 03/05/2024 as an emergency following sudden onset left-sided weakness) Tj T* (and facial droop. MRI confirmed an acute ischemic infarct in the territory of the right middle cerebral artery. IV) Tj T* (thrombolysis was administered within the 4.5-hour window.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 583.3661 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 19 Tm /F1 9 Tf 14 TL (Ms. Anna Zimmermann was admitted as an emergency following sudden onset left hemisyndrome. Imaging revealed) Tj T* (an ischemic infarct in the territory of the right middle cerebral artery.) Tj T* ET
-Q
-Q
-q
-1 0 0 1 62.69291 563.3661 cm
+1 0 0 1 62.69291 569.3661 cm
 q
 BT 1 0 0 1 0 5 Tm 14 TL /F2 9 Tf 0 0 0 rg (Primary Diagnosis:) Tj /F1 9 Tf ( Stroke, not otherwise specified \(I64\)) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 543.3661 cm
-q
-0 0 0 rg
-BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Selected laboratory findings:) Tj T* ET
-Q
+1 0 0 1 62.69291 557.6969 cm
 Q
 q
-1 0 0 1 62.69291 531.6969 cm
-Q
-q
-1 0 0 1 77.95276 459.6969 cm
+1 0 0 1 77.95276 485.6969 cm
 q
 .980392 .980392 .980392 rg
 n 0 72 439.3701 -18 re f*
@@ -237,20 +223,20 @@ Q
 Q
 Q
 q
-1 0 0 1 62.69291 454.0276 cm
+1 0 0 1 62.69291 480.0276 cm
 Q
 q
-1 0 0 1 62.69291 440.0276 cm
+1 0 0 1 62.69291 466.0276 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Ms. Zimmermann was transferred to early rehabilitation on 03/12/2024.) Tj T* ET
+BT 1 0 0 1 0 5 Tm /F1 9 Tf 14 TL (Ms. Zimmermann was transferred to early rehabilitation on 03/12/2024 with mild residual left arm weakness.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 417.0197 cm
+1 0 0 1 62.69291 443.0197 cm
 Q
 q
-1 0 0 1 62.69291 415.5197 cm
+1 0 0 1 62.69291 441.5197 cm
 q
 .5 w
 1 J
@@ -259,7 +245,7 @@ n 0 0 m 469.8898 0 l S
 Q
 Q
 q
-1 0 0 1 62.69291 381.5197 cm
+1 0 0 1 62.69291 407.5197 cm
 q
 BT 1 0 0 1 0 19 Tm 14 TL /F1 9 Tf 0 0 0 rg (Dr. Julia Becker, MD) Tj  T* /F1 8 Tf .4 .4 .4 rg (Specialist in Neurology) Tj T* ET
 Q
@@ -327,9 +313,9 @@ xref
 0000000113 00000 n 
 0000000162 00000 n 
 0000000405 00000 n 
-0000004349 00000 n 
-0000004456 00000 n 
-0000004563 00000 n 
+0000004264 00000 n 
+0000004371 00000 n 
+0000004478 00000 n 
 trailer
 <<
 /Size 9
@@ -337,5 +323,5 @@ trailer
 /Info 1 0 R
 >>
 startxref
-4675
+4590
 %%EOF
