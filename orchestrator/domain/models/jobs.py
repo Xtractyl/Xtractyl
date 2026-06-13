@@ -60,3 +60,24 @@ class CancelJobCommand(BaseModel):
                 message="Invalid command payload.",
                 details=e.errors(),
             )
+
+
+class PrelabelCallbackCommand(BaseModel):
+    run_id: int
+    status: str
+    error: str | None = None
+
+    @classmethod
+    def from_contract(cls, contract):
+        try:
+            return cls(
+                run_id=contract.run_id,
+                status=contract.status,
+                error=contract.error,
+            )
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="INVALID_COMMAND",
+                message="Invalid command payload.",
+                details=e.errors(),
+            )
