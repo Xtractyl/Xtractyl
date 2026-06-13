@@ -63,7 +63,7 @@ class CancelJobCommand(BaseModel):
 
 
 class PrelabelCallbackCommand(BaseModel):
-    run_id: int
+    job_id: str
     status: str
     error: str | None = None
 
@@ -71,7 +71,7 @@ class PrelabelCallbackCommand(BaseModel):
     def from_contract(cls, contract):
         try:
             return cls(
-                run_id=contract.run_id,
+                job_id=contract.job_id,
                 status=contract.status,
                 error=contract.error,
             )
