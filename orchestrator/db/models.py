@@ -53,7 +53,7 @@ class Evaluation(Base):
 
     id = Column(Integer, primary_key=True)
     project = Column(Text, ForeignKey("projects.name"), nullable=False)
-    prelabelling_run_id = Column(Integer, ForeignKey("prelabelling_runs.id"), nullable=False)
+    job_id = Column(Integer, ForeignKey("prelabelling_runs.id"), nullable=False)
     groundtruth_project = Column(Text, nullable=False)
     comparison_project = Column(Text, nullable=False)
     run_at = Column(TIMESTAMP(timezone=True), nullable=True)
