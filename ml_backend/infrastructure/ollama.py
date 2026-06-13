@@ -1,4 +1,4 @@
-# ml_backend/infrastructure/client.py
+# ml_backend/infrastructure/ollama.py
 import requests
 
 
@@ -7,6 +7,7 @@ def ask_llm_with_timeout(
     prompt: str,
     timeout: int,
     model_name: str,
+    num_ctx: int = 4096,
 ) -> dict:
     try:
         response = requests.post(
@@ -15,6 +16,7 @@ def ask_llm_with_timeout(
                 "model": model_name,
                 "prompt": prompt,
                 "stream": False,
+                "think": False,
                 "options": {"temperature": 0, "seed": 42},
             },
             timeout=timeout,
