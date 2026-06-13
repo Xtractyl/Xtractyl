@@ -61,3 +61,21 @@ class ProjectRepositoryInterface(ABC):
 
     @abstractmethod
     def get_questions_and_labels(self, name: str) -> dict | None: ...
+
+
+class PrelabellingRunRepositoryInterface(ABC):
+    @abstractmethod
+    def create_run(
+        self,
+        project: str,
+        label_studio_id: int,
+        model: str,
+        system_prompt: str,
+        questions_and_labels: dict,
+    ) -> int: ...
+
+    @abstractmethod
+    def get_run(self, run_id: int): ...
+
+    @abstractmethod
+    def set_run_status(self, run_id: int, status: str, error: str | None = None) -> None: ...
