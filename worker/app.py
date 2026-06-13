@@ -5,6 +5,7 @@ import json
 import os
 
 import redis
+import requests
 from contracts.jobs import JobPayload
 from domain.prelabel_project import prelabel_project
 from pydantic import ValidationError
@@ -20,6 +21,12 @@ QUEUE = "prelabel_jobs"
 STATUS = "status:"
 RESULT = "result:"
 LOGS = "logs:"
+
+ORCHESTRATOR_URL = (
+    f"http://{os.getenv('ORCH_CONTAINER_NAME', 'orchestrator')}:{os.getenv('ORCH_PORT', '5001')}"
+)
+
+USE_DB_BACKEND = os.getenv("USE_DB_BACKEND", "0") == "1"
 
 
 def _status_key(job_id: str) -> str:
@@ -55,6 +62,19 @@ def _mark_cancelled(job_id: str) -> None:
     _add_log(job_id, "[INFO] Job cancelled.")
 
 
+def _send_callback(job_id: str, status: str, error: str | None = None) -> None:
+    try:
+        requests.post(
+            f"{ORCHESTRATOR_URL}/prelabel/callback",
+            json={"job_id": job_id, "status": status, "error": error},
+            timeout=10,
+        )
+    except requests.RequestException as e:
+        safe_logger.error("prelabel_callback_failed | job_id=%s", job_id)
+        if dev_logger:
+            dev_logger.exception("prelabel_callback_failed_dev | error=%s", str(e))
+
+
 def handle_job(job: JobPayload) -> None:
     job_id = job.job_id
     _set_status(job_id, state="RUNNING")
@@ -70,6 +90,8 @@ def handle_job(job: JobPayload) -> None:
 
         if _cancelled(job_id):
             _mark_cancelled(job_id)
+            if USE_DB_BACKEND:
+                _send_callback(job.job_id, "cancelled")
             return
 
         r.set(_result_key(job_id), json.dumps({"job_id": job_id, "logs_count": len(logs)}))
@@ -77,11 +99,15 @@ def handle_job(job: JobPayload) -> None:
         final_state = _get_state(job_id) or "RUNNING"
         if final_state not in ("CANCELLED", "FAILED"):
             _set_status(job_id, state="SUCCEEDED", progress="100")
+            if USE_DB_BACKEND:
+                _send_callback(job.job_id, "done")
 
         _add_log(job_id, "[INFO] Job finished.")
 
     except Exception as e:
         _set_status(job_id, state="FAILED", error=str(e))
+        if USE_DB_BACKEND:
+            _send_callback(job.job_id, "failed", error=str(e))
         safe_logger.error("job_failed | job_id=%s", job_id)
         if dev_logger:
             dev_logger.exception("job_failed_dev | job_id=%s", job_id)
