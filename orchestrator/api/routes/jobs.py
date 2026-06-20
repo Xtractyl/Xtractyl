@@ -183,4 +183,12 @@ def register(app, spec, session_factory):
             raise
         finally:
             db.close()
-        return jsonify(TaskPrelabellingMetaResponse.model_validate(result).model_dump()), 200
+        try:
+            validated = TaskPrelabellingMetaResponse.model_validate(result)
+        except ValidationError as e:
+            raise InternalError(
+                code="RESPONSE_CONTRACT_VIOLATED",
+                message="Internal response did not match expected schema.",
+                meta={"details": e.errors()},
+            )
+        return jsonify(validated.model_dump()), 200
