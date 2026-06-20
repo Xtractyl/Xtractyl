@@ -53,9 +53,9 @@ class PrelabelCallbackResponse(BaseModel):
 
 
 class TaskPrelabellingMetaRequest(BaseModel):
-    job_id: str
+    job_id: str = Field(..., min_length=1)
     task_id: int
-    filename: str
+    filename: str = Field(..., min_length=1)
     predictions: list
     raw_llm_answers: dict
     dom_match_diagnostics: list
