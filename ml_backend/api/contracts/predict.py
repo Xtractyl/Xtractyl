@@ -25,6 +25,7 @@ class QuestionsAndLabels(BaseModel):
 class PredictRequest(BaseModel):
     job_id: str
     task_id: str
+    filename: str = Field(default="")  # default="" has to be removed after removing legacy route
     html: str = Field(..., min_length=1)
     questions_and_labels: QuestionsAndLabels
     llm_config: LLMConfig
