@@ -1,6 +1,6 @@
 # orchestrator/infrastructure/repository/prelabelling_run_repository.py
 
-from db.models import PrelabellingRun
+from db.models import PrelabellingRun, TaskPrelabellingMeta
 from infrastructure.interfaces.repository import PrelabellingRunRepositoryInterface
 
 
@@ -39,3 +39,56 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
             if error:
                 run.error = error
             self._db.flush()
+
+    def get_latest_run(self, project: str):
+        return (
+            self._db.query(PrelabellingRun)
+            .filter(PrelabellingRun.project == project)
+            .order_by(PrelabellingRun.created_at.desc())
+            .first()
+        )
+
+    def get_task_prelabelling_metas(self, prelabelling_run_id: int) -> list:
+        return (
+            self._db.query(TaskPrelabellingMeta)
+            .filter(TaskPrelabellingMeta.prelabelling_run_id == prelabelling_run_id)
+            .all()
+        )
+
+    def save_task_prelabelling_meta(
+        self,
+        prelabelling_run_id: int,
+        label_studio_task_id: int,
+        filename: str,
+        predictions: list,
+        raw_llm_answers: dict,
+        dom_match_diagnostics: list,
+        dom_match_by_label: dict,
+        task_ms_total: float,
+        task_ms_llm_total: float,
+        task_ms_dom_extract: float,
+        task_ms_dom_match: float,
+        n_llm_calls: int,
+        n_timeouts: int,
+        avg_llm_call_ms: float,
+        median_llm_call_ms: float,
+    ) -> None:
+        meta = TaskPrelabellingMeta(
+            prelabelling_run_id=prelabelling_run_id,
+            label_studio_task_id=label_studio_task_id,
+            filename=filename,
+            predictions=predictions,
+            raw_llm_answers=raw_llm_answers,
+            dom_match_diagnostics=dom_match_diagnostics,
+            dom_match_by_label=dom_match_by_label,
+            task_ms_total=task_ms_total,
+            task_ms_llm_total=task_ms_llm_total,
+            task_ms_dom_extract=task_ms_dom_extract,
+            task_ms_dom_match=task_ms_dom_match,
+            n_llm_calls=n_llm_calls,
+            n_timeouts=n_timeouts,
+            avg_llm_call_ms=avg_llm_call_ms,
+            median_llm_call_ms=median_llm_call_ms,
+        )
+        self._db.add(meta)
+        self._db.flush()

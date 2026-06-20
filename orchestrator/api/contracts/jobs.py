@@ -50,3 +50,25 @@ class PrelabelCallbackRequest(BaseModel):
 
 class PrelabelCallbackResponse(BaseModel):
     status: str
+
+
+class TaskPrelabellingMetaRequest(BaseModel):
+    job_id: str = Field(..., min_length=1)
+    task_id: int
+    filename: str = Field(..., min_length=1)
+    predictions: list
+    raw_llm_answers: dict
+    dom_match_diagnostics: list
+    dom_match_by_label: dict
+    task_ms_total: float
+    task_ms_llm_total: float
+    task_ms_dom_extract: float
+    task_ms_dom_match: float
+    n_llm_calls: int
+    n_timeouts: int
+    avg_llm_call_ms: float
+    median_llm_call_ms: float
+
+
+class TaskPrelabellingMetaResponse(BaseModel):
+    status: str

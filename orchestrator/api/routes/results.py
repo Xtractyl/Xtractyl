@@ -5,6 +5,7 @@ from domain.models.results import GetResultsTableCommand
 from domain.results import build_results_table
 from flask import jsonify, request
 from flask_pydantic_spec import Request, Response
+from infrastructure.repository.prelabelling_run_repository import PrelabellingRunRepository
 from pydantic import ValidationError
 
 from api.contracts.errors import ErrorResponse
@@ -12,8 +13,7 @@ from api.contracts.results import GetResultsTableRequest, GetResultsTableRespons
 from api.utils.auth import extract_token
 
 
-def register(app, spec):
-    # New standard endpoint
+def register(app, spec, session_factory=None):
     @app.route("/results/table", methods=["POST"])
     @spec.validate(
         body=Request(GetResultsTableRequest),
@@ -28,7 +28,7 @@ def register(app, spec):
     )
     def results_table_route():
         payload = request.get_json(silent=True) or {}
-        token = extract_token(request)
+        token = extract_token(request)  # remove when removing legacy route
 
         try:
             contract = GetResultsTableRequest.model_validate(payload)
@@ -39,7 +39,9 @@ def register(app, spec):
                 meta={"details": e.errors()},
             )
 
-        if not token:
+        if (
+            not token
+        ):  # remove after removing legacy route (together with removal from contracts and command)
             raise Unauthorized(
                 code="TOKEN_REQUIRED",
                 message="Authorization token is required.",
@@ -50,7 +52,18 @@ def register(app, spec):
             token=token,
         )
 
-        result = build_results_table(cmd)
+        if session_factory:
+            db = session_factory()
+            try:
+                run_repo = PrelabellingRunRepository(db)
+                result = build_results_table(cmd, run_repo=run_repo)
+            except Exception:
+                db.rollback()
+                raise
+            finally:
+                db.close()
+        else:
+            result = build_results_table(cmd)
         try:
             validated = GetResultsTableResponse.model_validate(result)
         except ValidationError as e:

@@ -6,7 +6,7 @@ from domain.errors import ValidationFailed
 
 
 class GetResultsTableCommand(BaseModel):
-    token: str
+    token: str  # remove when removing legacy route
     project_name: str
 
     @classmethod

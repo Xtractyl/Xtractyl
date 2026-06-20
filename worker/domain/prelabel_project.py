@@ -1,6 +1,7 @@
 # worker/domain/prelabel_project.py
 from __future__ import annotations
 
+import os
 import time
 from typing import Callable, List, Optional
 
@@ -11,6 +12,10 @@ from infrastructure.label_studio import (
     wait_until_prediction_saved,
 )
 from infrastructure.ml_backend import send_predict
+from infrastructure.orchestrator import send_task_meta
+
+USE_DB_BACKEND = os.getenv("USE_DB_BACKEND", "0") == "1"
+
 
 LogCB = Optional[Callable[[str], None]]
 ProgressCB = Optional[Callable[[int], None]]
@@ -62,6 +67,7 @@ def prelabel_project(
 
         task_id = t["id"]
         html = (t.get("data") or {}).get("html")
+        filename = (t.get("data") or {}).get("name", "")
         if not html:
             _log(f"[WARN] Task {task_id} has no HTML. Skipping.")
             done += 1
@@ -69,11 +75,15 @@ def prelabel_project(
             continue
 
         start = time.time()
-        resp = send_predict(task_id=task_id, html=html, job=job)
+        resp = send_predict(task_id=task_id, html=html, filename=filename, job=job)
         if resp.status_code != 200:
             _log(f"[WARN] /predict returned {resp.status_code} for task {task_id}. Continuing.")
-        _log(f"[SEND] Task {task_id} → /predict: {resp.status_code}")
-
+        # once USE_DB_BACKEND becomes the only path: ml_backend.run_predict() no longer needs
+        # to return raw_llm_answers/dom_match_diagnostics/etc. in the response "meta" — drop them there too.
+        if resp.status_code == 200 and USE_DB_BACKEND:
+            body = resp.json()
+            meta = body.get("meta", {})
+            send_task_meta(task_id=task_id, meta=meta, job=job)
         ok = wait_until_prediction_saved(task_id, job.token)
         dt = time.time() - start
         durations.append(dt)

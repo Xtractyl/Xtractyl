@@ -10,6 +10,7 @@ from typing import Any, Dict, List
 
 from utils.orchestrator_logging import write_fixture
 
+from domain.errors import NotFound
 from domain.models.results import GetResultsTableCommand
 
 from .utils.shared.label_studio_client import (
@@ -18,6 +19,7 @@ from .utils.shared.label_studio_client import (
     resolve_project_id,
 )
 
+USE_DB_BACKEND = os.getenv("USE_DB_BACKEND", "0") == "1"
 RESULTS_DIR = Path(os.getenv("RESULTS_DIR", "/app/data/results"))
 
 
@@ -160,23 +162,55 @@ def _capture_results_table_input_fixture(project_id: int, total: int, tasks: lis
     )
 
 
-def build_results_table(cmd: GetResultsTableCommand):
-    """
-    Fetch tasks from a Label Studio project and build a flat results table.
-    Annotations are reloaded per task if the bulk response contains empty results.
-    Results are written to a timestamped CSV in the results output directory.
+def _build_results_table_from_db(cmd: GetResultsTableCommand, run_repo) -> dict:
+    run = run_repo.get_latest_run(cmd.project_name)
+    if not run:
+        raise NotFound(
+            code="RUN_NOT_FOUND",
+            message=f"No prelabelling run found for project '{cmd.project_name}'.",
+        )
+    metas = run_repo.get_task_prelabelling_metas(run.id)
+    if not metas:
+        return {
+            "columns": ["task_id", "filename"],
+            "rows": [],
+            "total": 0,
+            "results_output_path_csv": "",  # remove together with removing legacy route
+        }
 
-    Args:
-        cmd: GetResultsTableCommand with token and project_name.
+    label_columns: List[str] = []
+    for m in metas:
+        for label in (m.raw_llm_answers or {}).keys():
+            col = f"{label}__pred"
+            if col not in label_columns:
+                label_columns.append(col)
 
-    Returns:
-        GetResultsTableResponse-compatible dict with columns, rows, total,
-        and results_output_path_csv.
+    columns = ["task_id", "filename"] + label_columns
+    rows: List[Dict[str, Any]] = []
+    for m in metas:
+        flat: Dict[str, Any] = {
+            "task_id": m.label_studio_task_id,
+            "filename": m.filename,
+        }
+        for label, val in (m.raw_llm_answers or {}).items():
+            flat[f"{label}__pred"] = val.get("answer", "") if isinstance(val, dict) else ""
+        rows.append(flat)
 
-    Raises:
-        NotFound: If the project does not exist in Label Studio.
-        ExternalServiceError: If Label Studio is unreachable.
-    """
+    return {
+        "columns": columns,
+        "rows": rows,
+        "total": len(rows),
+        "results_output_path_csv": "",  # remove together with removing legacy route
+    }
+
+
+def build_results_table(cmd: GetResultsTableCommand, run_repo=None):
+    if USE_DB_BACKEND and run_repo:
+        return _build_results_table_from_db(cmd, run_repo)
+    return _build_results_table_from_label_studio(cmd)
+
+
+def _build_results_table_from_label_studio(cmd: GetResultsTableCommand):
     token = cmd.token
     project_name = cmd.project_name
     project_id = resolve_project_id(token, project_name)
