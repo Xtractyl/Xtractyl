@@ -21,7 +21,7 @@ UPLOAD_MARGIN = int(os.getenv("UPLOAD_MARGIN", "30"))
 LLM_NUM_CTX = int(os.getenv("LLM_NUM_CTX", "4096"))
 
 
-def send_predict(*, task_id: int, html: str, job: JobPayload) -> requests.Response:
+def send_predict(*, task_id: int, html: str, filename: str, job: JobPayload) -> requests.Response:
     url = f"{ML_BASE}/predict"
 
     q_count = max(1, len(job.questions_and_labels.questions))
@@ -30,6 +30,7 @@ def send_predict(*, task_id: int, html: str, job: JobPayload) -> requests.Respon
     payload = {
         "job_id": job.job_id,
         "task_id": str(task_id),
+        "filename": filename,
         "html": html,
         "questions_and_labels": job.questions_and_labels.model_dump(),
         "llm_config": {
