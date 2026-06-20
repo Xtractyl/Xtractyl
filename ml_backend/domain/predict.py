@@ -111,6 +111,8 @@ def run_predict(cmd: PredictCommand) -> dict:
             meta={"error": str(e)},
         )
 
+    perf_dict = perf.to_dict(include_events=False)["request"]
+
     return {
         "model_version": llm.ollama_model,
         "score": 1.0 if prelabels else 0.0,
@@ -120,5 +122,8 @@ def run_predict(cmd: PredictCommand) -> dict:
             "status": "timeout" if timed_out else "success",
             "task_id": cmd.task_id,
             "job_id": cmd.job_id,
+            "filename": cmd.filename,
+            "predictions": prelabels,
+            **perf_dict,
         },
     }
