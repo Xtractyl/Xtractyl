@@ -31,6 +31,7 @@ class QuestionsAndLabels:
 class PredictCommand:
     job_id: str
     task_id: str
+    filename: str
     html: str
     questions_and_labels: QuestionsAndLabels
     llm_config: LLMConfig
@@ -41,6 +42,7 @@ class PredictCommand:
         return cls(
             job_id=contract.job_id,
             task_id=contract.task_id,
+            filename=contract.filename,
             html=contract.html,
             questions_and_labels=QuestionsAndLabels(
                 questions=contract.questions_and_labels.questions,
