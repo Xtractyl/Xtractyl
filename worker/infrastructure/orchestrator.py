@@ -30,12 +30,23 @@ def send_task_meta(*, task_id: int, meta: dict, job: JobPayload) -> None:
         "avg_llm_call_ms": meta.get("avg_llm_call_ms", 0.0),
         "median_llm_call_ms": meta.get("median_llm_call_ms", 0.0),
     }
+    if dev_logger:
+        dev_logger.info("send_task_meta_payload | task_id=%s | payload=%s", task_id, payload)
     try:
-        requests.post(
+        resp = requests.post(
             f"{ORCHESTRATOR_URL}/prelabel/task-meta",
             json=payload,
             timeout=10,
         )
+        if resp.status_code != 200:
+            safe_logger.error(
+                "send_task_meta_rejected | job_id=%s | task_id=%s | status=%s",
+                job.job_id,
+                task_id,
+                resp.status_code,
+            )
+            if dev_logger:
+                dev_logger.error("send_task_meta_rejected_dev | body=%s", resp.text)
     except requests.RequestException as e:
         safe_logger.error("send_task_meta_failed | job_id=%s | task_id=%s", job.job_id, task_id)
         if dev_logger:
