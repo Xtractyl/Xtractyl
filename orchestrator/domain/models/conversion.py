@@ -53,14 +53,29 @@ class ConversionCallbackCommand(BaseModel):
     html_key: str
     success: bool
     error: Optional[str] = None
+    pdf_hash: Optional[str] = None
+    html_hash: Optional[str] = None
 
     @classmethod
     def from_contract(
-        cls, job_id: int, filename: str, html_key: str, success: bool, error: Optional[str] = None
+        cls,
+        job_id: int,
+        filename: str,
+        html_key: str,
+        success: bool,
+        error: Optional[str] = None,
+        pdf_hash: Optional[str] = None,
+        html_hash: Optional[str] = None,
     ):
         try:
             return cls(
-                job_id=job_id, filename=filename, html_key=html_key, success=success, error=error
+                job_id=job_id,
+                filename=filename,
+                html_key=html_key,
+                success=success,
+                error=error,
+                pdf_hash=pdf_hash,
+                html_hash=html_hash,
             )
         except ValidationError as e:
             raise ValidationFailed(
