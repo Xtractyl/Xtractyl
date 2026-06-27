@@ -28,11 +28,19 @@ class EvaluateProjectsCommand(BaseModel):
 
 class SaveAsGtSetCommand(BaseModel):
     source_project: str
-    gt_set_name: str
+    gt_set_name: str = ""  # not necessary in DB mode, remove when removing legacy mode
     token: str
 
     @classmethod
     def from_contract(
-        cls, source_project: str, gt_set_name: str, token: str
+        cls, source_project: str, token: str, gt_set_name: str = ""
     ) -> "SaveAsGtSetCommand":
         return cls(source_project=source_project, gt_set_name=gt_set_name, token=token)
+
+
+class CompatibleGroundtruthSetsCommand(BaseModel):
+    comparison_project: str
+
+    @classmethod
+    def from_contract(cls, comparison_project: str):
+        return cls(comparison_project=comparison_project)
