@@ -1,7 +1,8 @@
 # orchestrator/infrastructure/repository/prelabelling_run_repository.py
 
-from db.models import PrelabellingRun, TaskPrelabellingMeta
+from db.models import Evaluation, PrelabellingRun, TaskPrelabellingMeta
 from infrastructure.interfaces.repository import PrelabellingRunRepositoryInterface
+from utils.hashing import compute_labels_hash
 
 
 class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
@@ -22,6 +23,7 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
             ollama_model=model,
             system_prompt=system_prompt,
             questions_and_labels=questions_and_labels,
+            labels_hash=compute_labels_hash(questions_and_labels.get("labels", [])),
             status="pending",
         )
         self._db.add(run)
@@ -92,3 +94,50 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
         )
         self._db.add(meta)
         self._db.flush()
+
+    def save_evaluation(
+        self,
+        groundtruth_project: str,
+        comparison_prelabelling_run_id: int,
+        run_at: str,
+        metrics_micro: dict,
+        metrics_per_label: dict,
+    ) -> int:
+        evaluation = Evaluation(
+            groundtruth_project=groundtruth_project,
+            comparison_prelabelling_run_id=comparison_prelabelling_run_id,
+            run_at=run_at,
+            metrics_micro=metrics_micro,
+            metrics_per_label=metrics_per_label,
+        )
+        self._db.add(evaluation)
+        self._db.flush()
+        self._db.refresh(evaluation)
+        return evaluation.id
+
+    def build_pred_rows_for_run(self, prelabelling_run_id: int) -> list:
+        metas = self.get_task_prelabelling_metas(prelabelling_run_id)
+        rows = []
+        for m in metas:
+            labels = {
+                label: (val.get("answer", "") if isinstance(val, dict) else "")
+                for label, val in (m.raw_llm_answers or {}).items()
+            }
+            rows.append(
+                {
+                    "filename": m.filename,
+                    "labels": labels,
+                    "meta": {
+                        "raw_llm_answers": m.raw_llm_answers,
+                        "performance": {
+                            "request": {
+                                "task_ms_total": m.task_ms_total,
+                                "task_ms_llm_total": m.task_ms_llm_total,
+                                "task_ms_dom_extract": m.task_ms_dom_extract,
+                                "task_ms_dom_match": m.task_ms_dom_match,
+                            }
+                        },
+                    },
+                }
+            )
+        return rows

@@ -28,7 +28,14 @@ class ConversionRepositoryInterface(ABC):
     ) -> None: ...
 
     @abstractmethod
-    def set_file_html_key(self, project: str, filename: str, html_key: str) -> None: ...
+    def set_file_html_key(
+        self,
+        project: str,
+        filename: str,
+        html_key: str,
+        pdf_hash: str | None = None,
+        html_hash: str | None = None,
+    ) -> None: ...
 
     @abstractmethod
     def increment_converted_files(self, job_id: int) -> None: ...
@@ -40,6 +47,9 @@ class ConversionRepositoryInterface(ABC):
 class ProjectRepositoryInterface(ABC):
     @abstractmethod
     def project_exists(self, name: str) -> bool: ...
+
+    @abstractmethod
+    def get_project(self, name: str): ...
 
     @abstractmethod
     def set_label_studio_id(self, name: str, label_studio_id: int) -> None: ...
@@ -61,6 +71,24 @@ class ProjectRepositoryInterface(ABC):
 
     @abstractmethod
     def get_questions_and_labels(self, name: str) -> dict | None: ...
+
+    @abstractmethod
+    def set_groundtruth(self, name: str) -> None: ...
+
+    @abstractmethod
+    def list_groundtruth_projects(self) -> list: ...
+
+    @abstractmethod
+    def get_html_hashes_for_project(self, name: str) -> set[str]: ...
+
+    @abstractmethod
+    def get_groundtruth_annotations(self, project: str) -> list: ...
+
+    @abstractmethod
+    def is_groundtruth(self, name: str) -> bool: ...
+
+    @abstractmethod
+    def save_groundtruth_annotations(self, project: str, annotations: list[dict]) -> None: ...
 
 
 class PrelabellingRunRepositoryInterface(ABC):
@@ -105,3 +133,16 @@ class PrelabellingRunRepositoryInterface(ABC):
         avg_llm_call_ms: float,
         median_llm_call_ms: float,
     ) -> None: ...
+
+    @abstractmethod
+    def save_evaluation(
+        self,
+        groundtruth_project: str,
+        comparison_prelabelling_run_id: int,
+        run_at: str,
+        metrics_micro: dict,
+        metrics_per_label: dict,
+    ) -> int: ...
+
+    @abstractmethod
+    def build_pred_rows_for_run(self, prelabelling_run_id: int) -> list: ...
