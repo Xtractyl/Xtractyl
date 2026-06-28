@@ -61,6 +61,7 @@ class Evaluation(Base):
     run_at = Column(TIMESTAMP(timezone=True), nullable=True)
     metrics_micro = Column(JSONB, nullable=True)
     metrics_per_label = Column(JSONB, nullable=True)
+    filenames_count = Column(Integer, nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
 
 
