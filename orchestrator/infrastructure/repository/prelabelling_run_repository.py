@@ -102,6 +102,7 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
         run_at: str,
         metrics_micro: dict,
         metrics_per_label: dict,
+        filenames_count: int,
     ) -> int:
         evaluation = Evaluation(
             groundtruth_project=groundtruth_project,
@@ -109,6 +110,7 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
             run_at=run_at,
             metrics_micro=metrics_micro,
             metrics_per_label=metrics_per_label,
+            filenames_count=filenames_count,
         )
         self._db.add(evaluation)
         self._db.flush()
@@ -141,3 +143,15 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
                 }
             )
         return rows
+
+    def get_evaluations_by_groundtruth_project(self, groundtruth_project: str) -> list:
+        return (
+            self._db.query(Evaluation)
+            .filter(Evaluation.groundtruth_project == groundtruth_project)
+            .order_by(Evaluation.run_at)
+            .all()
+        )
+
+    def list_evaluation_series(self) -> list[str]:
+        rows = self._db.query(Evaluation.groundtruth_project).distinct().all()
+        return sorted([r.groundtruth_project for r in rows])
