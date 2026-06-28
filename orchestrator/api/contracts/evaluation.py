@@ -8,7 +8,9 @@ class EvaluateProjectsRequest(BaseModel):
 
 class SaveAsGtSetRequest(BaseModel):
     source_project: str = Field(min_length=1)
-    gt_set_name: str = Field(min_length=1)
+    gt_set_name: str = Field(
+        default="", description="Ignored in DB mode; kept for legacy compatibility."
+    )
 
 
 class ProjectNamesResponse(BaseModel):
@@ -32,3 +34,11 @@ class SaveAsGtSetResponse(BaseModel):
 
 class GroundtruthQalsResponse(BaseModel):
     sets: dict[str, dict]
+
+
+class CompatibleGroundtruthSetsRequest(BaseModel):
+    comparison_project: str = Field(..., min_length=1)
+
+
+class CompatibleGroundtruthSetsResponse(BaseModel):
+    names: list[str]

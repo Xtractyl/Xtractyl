@@ -140,6 +140,8 @@ def register(app, spec, storage, queue, session_factory):
             html_key=contract.html_key,
             success=contract.success,
             error=contract.error,
+            pdf_hash=contract.pdf_hash,
+            html_hash=contract.html_hash,
         )
         db = session_factory()
         try:

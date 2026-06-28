@@ -15,7 +15,9 @@ def client():
 def test_evaluation_drift_returns_200(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.evaluation_drift.get_evaluation_drift",
-        lambda cmd: {"sets": [{"series": "Evaluation_Set_Do_Not_Delete", "entries": []}]},
+        lambda cmd, run_repo=None, project_repo=None: {
+            "sets": [{"series": "Evaluation_Set_Do_Not_Delete", "entries": []}]
+        },
     )
     res = client.get("/evaluation-drift")
     assert res.status_code == 200

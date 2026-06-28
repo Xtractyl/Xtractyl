@@ -58,3 +58,5 @@ class ConversionCallbackRequest(BaseModel):
     html_key: str
     success: bool
     error: Optional[str] = None
+    pdf_hash: Optional[str] = None
+    html_hash: Optional[str] = None

@@ -28,6 +28,7 @@ class Project(Base):
     is_groundtruth = Column(Boolean, nullable=False, default=False)
     ls_tasks_uploaded = Column(Boolean, nullable=False, default=False)
     questions_and_labels = Column(JSONB, nullable=True)
+    labels_hash = Column(Text, nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
 
@@ -60,6 +61,7 @@ class Evaluation(Base):
     run_at = Column(TIMESTAMP(timezone=True), nullable=True)
     metrics_micro = Column(JSONB, nullable=True)
     metrics_per_label = Column(JSONB, nullable=True)
+    filenames_count = Column(Integer, nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
 
 
@@ -83,6 +85,7 @@ class PrelabellingRun(Base):
     project = Column(Text, ForeignKey("projects.name"), nullable=False)
     label_studio_id = Column(Integer, nullable=True)
     questions_and_labels = Column(JSONB, nullable=True)
+    labels_hash = Column(Text, nullable=True)
     ollama_model = Column(Text, nullable=True)
     system_prompt = Column(Text, nullable=True)
     llm_timeout_seconds = Column(Integer, nullable=True)

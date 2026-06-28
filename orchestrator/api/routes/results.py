@@ -52,18 +52,15 @@ def register(app, spec, session_factory=None):
             token=token,
         )
 
-        if session_factory:
-            db = session_factory()
-            try:
-                run_repo = PrelabellingRunRepository(db)
-                result = build_results_table(cmd, run_repo=run_repo)
-            except Exception:
-                db.rollback()
-                raise
-            finally:
-                db.close()
-        else:
-            result = build_results_table(cmd)
+        db = session_factory()
+        try:
+            run_repo = PrelabellingRunRepository(db)
+            result = build_results_table(cmd, run_repo=run_repo)
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
         try:
             validated = GetResultsTableResponse.model_validate(result)
         except ValidationError as e:

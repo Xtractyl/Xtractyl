@@ -69,7 +69,7 @@ def test_evaluate_ai_missing_comparison_returns_422(client):
 def test_evaluate_ai_returns_200(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.evaluation.evaluate_projects",
-        lambda cmd: {
+        lambda cmd, project_repo=None, run_repo=None: {
             "groundtruth_project": "gt",
             "groundtruth_project_id": 1,
             "comparison_project": "cmp",
@@ -91,7 +91,7 @@ def test_evaluate_ai_returns_200(client, monkeypatch):
 def test_evaluate_ai_contract_violated_returns_500(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.evaluation.evaluate_projects",
-        lambda cmd: {"wrong_field": "oops"},
+        lambda cmd, project_repo=None, run_repo=None: {"wrong_field": "oops"},
     )
     res = client.post(
         "/evaluate-ai",
@@ -109,7 +109,7 @@ def test_evaluate_ai_contract_violated_returns_500(client, monkeypatch):
 def test_save_as_gt_set_returns_200(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.evaluation.save_as_gt_set",
-        lambda cmd: {"gt_set_name": "My_GT_Set"},
+        lambda cmd, project_repo=None: {"gt_set_name": "My_GT_Set"},
     )
     res = client.post(
         "/save-as-gt-set",
@@ -140,15 +140,6 @@ def test_save_as_gt_set_missing_source_project_returns_422(client):
     assert res.status_code == 422
 
 
-def test_save_as_gt_set_missing_gt_set_name_returns_422(client):
-    res = client.post(
-        "/save-as-gt-set",
-        headers={"Authorization": "Bearer dummy"},
-        json={"source_project": "my_project"},
-    )
-    assert res.status_code == 422
-
-
 def test_save_as_gt_set_empty_source_project_returns_422(client):
     res = client.post(
         "/save-as-gt-set",
@@ -158,19 +149,10 @@ def test_save_as_gt_set_empty_source_project_returns_422(client):
     assert res.status_code == 422
 
 
-def test_save_as_gt_set_empty_gt_set_name_returns_422(client):
-    res = client.post(
-        "/save-as-gt-set",
-        headers={"Authorization": "Bearer dummy"},
-        json={"source_project": "my_project", "gt_set_name": ""},
-    )
-    assert res.status_code == 422
-
-
 def test_save_as_gt_set_already_exists_returns_409(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.evaluation.save_as_gt_set",
-        lambda cmd: (_ for _ in ()).throw(
+        lambda cmd, project_repo=None: (_ for _ in ()).throw(
             AlreadyExists(code="GT_SET_ALREADY_EXISTS", message="Already exists.")
         ),
     )
@@ -185,7 +167,7 @@ def test_save_as_gt_set_already_exists_returns_409(client, monkeypatch):
 def test_save_as_gt_set_contract_violated_returns_500(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.evaluation.save_as_gt_set",
-        lambda cmd: {"wrong_field": "oops"},
+        lambda cmd, project_repo=None: {"wrong_field": "oops"},
     )
     res = client.post(
         "/save-as-gt-set",
@@ -203,7 +185,9 @@ def test_save_as_gt_set_contract_violated_returns_500(client, monkeypatch):
 def test_groundtruth_qals_returns_200(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.evaluation.get_groundtruth_qals",
-        lambda: {"sets": {"Evaluation_Set": {"questions": ["Q1"], "labels": ["L1"]}}},
+        lambda project_repo=None: {
+            "sets": {"Evaluation_Set": {"questions": ["Q1"], "labels": ["L1"]}}
+        },
     )
     res = client.get("/groundtruth_qals")
     assert res.status_code == 200
@@ -216,7 +200,7 @@ def test_groundtruth_qals_not_found_returns_404(client, monkeypatch):
 
     monkeypatch.setattr(
         "api.routes.evaluation.get_groundtruth_qals",
-        lambda: (_ for _ in ()).throw(
+        lambda project_repo=None: (_ for _ in ()).throw(
             NotFound(
                 code="GROUNDTRUTH_QAL_NOT_FOUND",
                 message="No groundtruth sets found.",
@@ -232,7 +216,7 @@ def test_groundtruth_qals_not_found_returns_404(client, monkeypatch):
 def test_groundtruth_qals_contract_violated_returns_500(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.evaluation.get_groundtruth_qals",
-        lambda: {"wrong_field": "oops"},
+        lambda project_repo=None: {"wrong_field": "oops"},
     )
     res = client.get("/groundtruth_qals")
     assert res.status_code == 500

@@ -1,6 +1,7 @@
 # worker_conversion/app.py
 from __future__ import annotations
 
+import hashlib
 import io
 import json
 import os
@@ -48,7 +49,13 @@ def _minio_client() -> Minio:
 
 
 def _send_callback(
-    job_id: int, filename: str, html_key: str | None, success: bool, error: str | None = None
+    job_id: int,
+    filename: str,
+    html_key: str | None,
+    success: bool,
+    error: str | None = None,
+    pdf_hash: str | None = None,
+    html_hash: str | None = None,
 ) -> None:
     try:
         requests.post(
@@ -59,6 +66,8 @@ def _send_callback(
                 "html_key": html_key or "",
                 "success": success,
                 "error": error,
+                "pdf_hash": pdf_hash or "",
+                "html_hash": html_hash or "",
             },
             timeout=10,
         )
@@ -68,14 +77,21 @@ def _send_callback(
             dev_logger.exception("callback_failed_dev | error=%s", str(e))
 
 
-def convert_file(job_id: int, pdf_key: str, minio: Minio) -> tuple[bool, str | None, str | None]:
+def convert_file(job_id: int, pdf_key: str, minio: Minio):
     filename = os.path.basename(pdf_key)
     html_key = pdf_key.replace("/pdfs/", "/htmls/").replace(".pdf", ".html")
 
     try:
         pdf_url = minio.presigned_get_object(MINIO_BUCKET, pdf_key, expires=timedelta(minutes=30))
     except S3Error as e:
-        return False, None, f"Could not generate presigned URL: {e}"
+        return False, None, f"Could not generate presigned URL: {e}", None, None
+
+    try:
+        pdf_response = minio.get_object(MINIO_BUCKET, pdf_key)
+        pdf_bytes = pdf_response.read()
+        pdf_hash = hashlib.sha256(pdf_bytes).hexdigest()
+    except S3Error as e:
+        return False, None, f"Could not read PDF for hashing: {e}", None, None
 
     try:
         response = requests.post(
@@ -84,9 +100,10 @@ def convert_file(job_id: int, pdf_key: str, minio: Minio) -> tuple[bool, str | N
         response.raise_for_status()
         html_content = response.json().get("html")
         if not html_content:
-            return False, None, "Docling returned no HTML content."
+            return False, None, "Docling returned no HTML content.", None, None
     except requests.RequestException as e:
-        return False, None, f"Docling conversion failed: {e}"
+        return False, None, f"Docling conversion failed: {e}", None, None
+    html_hash = hashlib.sha256(html_content.encode("utf-8")).hexdigest()
 
     try:
         html_bytes = html_content.encode("utf-8")
@@ -98,9 +115,9 @@ def convert_file(job_id: int, pdf_key: str, minio: Minio) -> tuple[bool, str | N
             content_type="text/html",
         )
     except S3Error as e:
-        return False, None, f"Could not upload HTML to MinIO: {e}"
+        return False, None, f"Could not upload HTML to MinIO: {e}", None, None
 
-    return True, html_key, None
+    return True, html_key, None, pdf_hash, html_hash
 
 
 def handle_job(job: ConversionJobPayload) -> None:
@@ -108,9 +125,15 @@ def handle_job(job: ConversionJobPayload) -> None:
     minio = _minio_client()
     for pdf_key in job.pdf_keys:
         filename = os.path.basename(pdf_key)
-        success, html_key, error = convert_file(job.job_id, pdf_key, minio)
+        success, html_key, error, pdf_hash, html_hash = convert_file(job.job_id, pdf_key, minio)
         _send_callback(
-            job_id=job.job_id, filename=filename, html_key=html_key, success=success, error=error
+            job_id=job.job_id,
+            filename=filename,
+            html_key=html_key,
+            success=success,
+            error=error,
+            pdf_hash=pdf_hash,
+            html_hash=html_hash,
         )
         if not success:
             safe_logger.error(

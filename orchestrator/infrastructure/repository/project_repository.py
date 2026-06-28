@@ -1,7 +1,8 @@
 # orchestrator/infrastructure/repository/project_repository.py
 
-from db.models import File, Project
+from db.models import File, Project, TaskGroundtruthAnnotation
 from infrastructure.interfaces.repository import ProjectRepositoryInterface
+from utils.hashing import compute_labels_hash
 
 
 class ProjectRepository(ProjectRepositoryInterface):
@@ -10,6 +11,9 @@ class ProjectRepository(ProjectRepositoryInterface):
 
     def project_exists(self, name: str) -> bool:
         return self._db.query(Project).filter(Project.name == name).first() is not None
+
+    def get_project(self, name: str):
+        return self._db.query(Project).filter(Project.name == name).first()
 
     def set_label_studio_id(self, name: str, label_studio_id: int) -> None:
         project = self._db.query(Project).filter(Project.name == name).first()
@@ -52,8 +56,46 @@ class ProjectRepository(ProjectRepositoryInterface):
         project = self._db.query(Project).filter(Project.name == name).first()
         if project:
             project.questions_and_labels = qal
+            project.labels_hash = compute_labels_hash(qal.get("labels", []))
             self._db.flush()
 
     def get_questions_and_labels(self, name: str) -> dict | None:
         project = self._db.query(Project).filter(Project.name == name).first()
         return project.questions_and_labels if project else None
+
+    def is_groundtruth(self, name: str) -> bool:
+        project = self._db.query(Project).filter(Project.name == name).first()
+        return bool(project and project.is_groundtruth)
+
+    def set_groundtruth(self, name: str) -> None:
+        project = self._db.query(Project).filter(Project.name == name).first()
+        if project:
+            project.is_groundtruth = True
+            self._db.flush()
+
+    def save_groundtruth_annotations(self, project: str, annotations: list[dict]) -> None:
+        for row in annotations:
+            self._db.add(
+                TaskGroundtruthAnnotation(
+                    project=project,
+                    label_studio_task_id=row["task_id"],
+                    filename=row["filename"],
+                    annotations=row["labels"],
+                )
+            )
+        self._db.flush()
+
+    def list_groundtruth_projects(self) -> list:
+        return self._db.query(Project).filter(Project.is_groundtruth.is_(True)).all()
+
+    def get_html_hashes_for_project(self, name: str) -> set[str]:
+        files = self._db.query(File).filter(File.project == name).all()
+        return {f.html_hash for f in files}
+
+    def get_groundtruth_annotations(self, project: str) -> list:
+        rows = (
+            self._db.query(TaskGroundtruthAnnotation)
+            .filter(TaskGroundtruthAnnotation.project == project)
+            .all()
+        )
+        return [{"filename": r.filename, "labels": r.annotations or {}} for r in rows]

@@ -50,12 +50,23 @@ class ConversionRepository(ConversionRepositoryInterface):
                 job.error = error
             self._db.flush()
 
-    def set_file_html_key(self, project: str, filename: str, html_key: str) -> None:
+    def set_file_html_key(
+        self,
+        project: str,
+        filename: str,
+        html_key: str,
+        pdf_hash: str | None = None,
+        html_hash: str | None = None,
+    ) -> None:
         file_record = (
             self._db.query(File).filter(File.project == project, File.filename == filename).first()
         )
         if file_record:
             file_record.html_key = html_key
+            if pdf_hash:
+                file_record.pdf_hash = pdf_hash
+            if html_hash:
+                file_record.html_hash = html_hash
             self._db.flush()
 
     def increment_converted_files(self, job_id: int) -> None:

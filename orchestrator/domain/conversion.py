@@ -76,7 +76,13 @@ def handle_conversion_callback(
     if not job:
         raise NotFound(code="CONVERSION_JOB_NOT_FOUND", message="Conversion job not found.")
     if cmd.success:
-        repo.set_file_html_key(project=job.project, filename=cmd.filename, html_key=cmd.html_key)
+        repo.set_file_html_key(
+            project=job.project,
+            filename=cmd.filename,
+            html_key=cmd.html_key,
+            pdf_hash=cmd.pdf_hash,
+            html_hash=cmd.html_hash,
+        )
     repo.increment_converted_files(job.id)
     updated_job = repo.get_conversion_job(cmd.job_id)
     if updated_job.converted_files >= updated_job.total_files:
