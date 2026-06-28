@@ -142,6 +142,7 @@ class PrelabellingRunRepositoryInterface(ABC):
         run_at: str,
         metrics_micro: dict,
         metrics_per_label: dict,
+        filenames_count: int,
     ) -> int: ...
 
     @abstractmethod
