@@ -262,7 +262,7 @@ def _evaluate_projects_db(cmd: EvaluateProjectsCommand, project_repo, run_repo) 
     pred_rows = run_repo.build_pred_rows_for_run(run.id)
 
     overall = compute_metrics_from_rows(gt_rows, pred_rows)
-    run_at = run.updated_at.isoformat() if run.updated_at else run.created_at.isoformat()
+    run_at = run.updated_at if run.updated_at else run.created_at
 
     run_repo.save_evaluation(
         groundtruth_project=groundtruth_project,
@@ -270,6 +270,7 @@ def _evaluate_projects_db(cmd: EvaluateProjectsCommand, project_repo, run_repo) 
         run_at=run_at,
         metrics_micro=overall["micro"],
         metrics_per_label=overall["per_label"],
+        filenames_count=overall.get("filenames_count", 0),
     )
 
     return {
@@ -277,7 +278,7 @@ def _evaluate_projects_db(cmd: EvaluateProjectsCommand, project_repo, run_repo) 
         "groundtruth_project_id": gt_project_record.id,
         "comparison_project": comparison_project,
         "comparison_project_id": run.id,
-        "run_at_raw": run_at,
+        "run_at_raw": run_at.isoformat(),
         "metrics": overall,
         "answer_comparison": [],
         "evaluation_output_path": "",
