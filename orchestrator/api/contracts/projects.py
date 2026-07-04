@@ -22,7 +22,6 @@ class PreviewQalRequest(BaseModel):
 
 class UploadTasksRequest(BaseModel):
     project: str = Field(..., min_length=1)
-    html_folder: str = Field(..., min_length=1)
 
 
 class ProjectExistsRequest(BaseModel):
