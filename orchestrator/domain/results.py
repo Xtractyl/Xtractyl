@@ -175,7 +175,6 @@ def _build_results_table_from_db(cmd: GetResultsTableCommand, run_repo) -> dict:
             "columns": ["task_id", "filename"],
             "rows": [],
             "total": 0,
-            "results_output_path_csv": "",  # remove together with removing legacy route
         }
 
     label_columns: List[str] = []
@@ -200,7 +199,6 @@ def _build_results_table_from_db(cmd: GetResultsTableCommand, run_repo) -> dict:
         "columns": columns,
         "rows": rows,
         "total": len(rows),
-        "results_output_path_csv": "",  # remove together with removing legacy route
     }
 
 
