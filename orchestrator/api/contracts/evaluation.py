@@ -8,9 +8,6 @@ class EvaluateProjectsRequest(BaseModel):
 
 class SaveAsGtSetRequest(BaseModel):
     source_project: str = Field(min_length=1)
-    gt_set_name: str = Field(
-        default="", description="Ignored in DB mode; kept for legacy compatibility."
-    )
 
 
 class ProjectNamesResponse(BaseModel):
@@ -29,7 +26,7 @@ class EvaluateProjectsResponse(BaseModel):
 
 
 class SaveAsGtSetResponse(BaseModel):
-    gt_set_name: str
+    status: str
 
 
 class GroundtruthQalsResponse(BaseModel):
