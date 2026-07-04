@@ -17,7 +17,6 @@ class ListQalJsonsRequest(BaseModel):
 
 class PreviewQalRequest(BaseModel):
     project: str = Field(..., min_length=1)
-    filename: str = Field(..., min_length=1)
 
 
 class UploadTasksRequest(BaseModel):
