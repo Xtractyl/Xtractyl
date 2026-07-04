@@ -4,7 +4,6 @@ import { saveAsGtSet } from "../../api/EvaluateAIPage/api.js";
 
 export default function SaveAsGtSet({ apiToken, projects, gtSets, onSuccess}) {
   const [sourceProject, setSourceProject] = useState("");
-  const [gtSetName, setGtSetName] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
@@ -12,14 +11,13 @@ export default function SaveAsGtSet({ apiToken, projects, gtSets, onSuccess}) {
   const candidates = projects.filter((p) => !gtSets.includes(p));
 
   const handleSubmit = async () => {
-    if (!sourceProject || !gtSetName) return;
+    if (!sourceProject) return;
     setLoading(true);
     setErrorMsg("");
     setSuccessMsg("");
     try {
-      const result = await saveAsGtSet(apiToken, sourceProject, gtSetName);
-      setSuccessMsg(`GT set "${result.gt_set_name}" successfully created.`);
-      setGtSetName("");
+      await saveAsGtSet(apiToken, sourceProject);
+      setSuccessMsg(`"${sourceProject}" successfully saved as GT set.`);
       onSuccess?.(); 
     } catch (e) {
       setErrorMsg(e?.message || "Failed to save as GT set.");
@@ -46,15 +44,6 @@ export default function SaveAsGtSet({ apiToken, projects, gtSets, onSuccess}) {
         ))}
       </select>
 
-      <label className="block text-xs font-medium mb-1">New GT Set Name</label>
-      <input
-        type="text"
-        value={gtSetName}
-        onChange={(e) => setGtSetName(e.target.value)}
-        placeholder="Enter a name for the new GT set"
-        className="w-full border border-xtractyl-outline/30 rounded px-3 py-2 bg-xtractyl-white text-xtractyl-darktext text-sm mb-3"
-      />
-
       {errorMsg && (
         <p className="text-sm text-xtractyl-orange mb-2">{errorMsg}</p>
       )}
@@ -65,7 +54,7 @@ export default function SaveAsGtSet({ apiToken, projects, gtSets, onSuccess}) {
       <button
         type="button"
         onClick={handleSubmit}
-        disabled={!sourceProject || !gtSetName || loading}
+        disabled={!sourceProject || loading}
         className="px-4 py-2 rounded bg-xtractyl-green text-xtractyl-white text-sm font-medium shadow hover:bg-xtractyl-green/80 transition disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {loading ? "Saving…" : "Save as GT Set"}
