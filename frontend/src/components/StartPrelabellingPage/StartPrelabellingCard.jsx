@@ -4,7 +4,6 @@ import ModelDownloadInput from "./ModelDownloadInput";
 import ProjectNameInput from "../shared/ProjectNameInput";
 import ModelPicker from "./ModelPicker";
 import SystemPromptInput from "./SystemPromptInput";
-import QuestionsAndLabelsPicker from "./QuestionsAndLabelsPicker";
 import TokenLink from "../shared/TokenLink";
 import { useAppContext } from "../../context/AppContext";
 import { usePrelabelConfig } from "../../hooks/StartPrelabellingPage/usePrelabelConfig";
@@ -18,7 +17,7 @@ export default function StartPrelabellingCard() {
 
   const canStart =
     !!projectName && !!config.model && !!config.systemPrompt.trim() &&
-    !!config.qalFile && !!token && !job.preJobId;
+    !!token && !job.preJobId;
 
   const handleStart = () => {
     if (!canStart) return;
@@ -26,7 +25,6 @@ export default function StartPrelabellingCard() {
       project_name: projectName,
       model: config.model,
       system_prompt: config.systemPrompt,
-      qal_file: config.qalFile,
       token,
       questions_and_labels: config.questionsAndLabels,
     });
@@ -70,12 +68,10 @@ export default function StartPrelabellingCard() {
 
         <ModelPicker selectedModel={config.model} onChange={config.setModel} refreshKey={refreshKey} />
         <SystemPromptInput value={config.systemPrompt} onChange={config.setSystemPrompt} />
-        <QuestionsAndLabelsPicker projectName={projectName} selectedFile={config.qalFile} onChange={config.handleQalChange} />
 
         <div className="pt-2 text-sm text-xtractyl-outline/70">
           <div>Project: <span className="font-mono">{projectName || "—"}</span></div>
           <div>Model: <span className="font-mono">{config.model || "—"}</span></div>
-          <div>Q&L JSON: <span className="font-mono">{config.qalFile || "—"}</span></div>
         </div>
 
         <div className="flex gap-3 pt-2">
