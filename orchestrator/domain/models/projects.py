@@ -71,13 +71,12 @@ class ProjectExistsCommand(BaseModel):
 
 class UploadTasksCommand(BaseModel):
     project: str
-    html_folder: str
     token: str
 
     @classmethod
-    def from_contract(cls, project: str, html_folder: str, token: str):
+    def from_contract(cls, project: str, token: str):
         try:
-            return cls(project=project, html_folder=html_folder, token=token)
+            return cls(project=project, token=token)
         except ValidationError as e:
             raise ValidationFailed(
                 code="INVALID_COMMAND",
