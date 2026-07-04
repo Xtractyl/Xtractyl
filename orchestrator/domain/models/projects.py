@@ -40,12 +40,11 @@ class ListQalJsonsCommand(BaseModel):
 
 class PreviewQalCommand(BaseModel):
     project: str
-    filename: str
 
     @classmethod
-    def from_contract(cls, project: str, filename: str):
+    def from_contract(cls, project: str):
         try:
-            return cls(project=project, filename=filename)
+            return cls(project=project)
         except ValidationError as e:
             raise ValidationFailed(
                 code="INVALID_COMMAND",

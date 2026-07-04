@@ -24,7 +24,6 @@ class EnqueueJobCommand(BaseModel):
     project_name: str
     model: str
     system_prompt: str
-    qal_file: str
     questions_and_labels: dict
     token: str
 
@@ -35,7 +34,6 @@ class EnqueueJobCommand(BaseModel):
                 project_name=contract.project_name,
                 model=contract.model,
                 system_prompt=contract.system_prompt,
-                qal_file=contract.qal_file,
                 questions_and_labels=contract.questions_and_labels.model_dump(),
                 token=token,
             )
