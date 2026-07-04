@@ -492,7 +492,7 @@ def _save_as_gt_set_db(cmd: SaveAsGtSetCommand, project_repo) -> dict:
     project_repo.save_groundtruth_annotations(source_project, gt_rows)
     project_repo.set_groundtruth(source_project)
 
-    return {"gt_set_name": source_project}
+    return {"status": "ok"}
 
 
 def _save_as_gt_set_legacy(cmd: SaveAsGtSetCommand) -> dict:
