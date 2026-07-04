@@ -108,9 +108,7 @@ def register(app, spec, session_factory, label_studio, storage):
                 message="Authorization token is required.",
             )
         contract = UploadTasksRequest.model_validate(request.get_json(silent=True) or {})
-        cmd = UploadTasksCommand.from_contract(
-            project=contract.project, html_folder=contract.html_folder, token=token
-        )
+        cmd = UploadTasksCommand.from_contract(project=contract.project, token=token)
         db = session_factory()
         try:
             repo = ProjectRepository(db)
