@@ -3,14 +3,6 @@ import { request } from "../shared/request";
 const ORCH_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001";
 const r = (path, opts) => request(ORCH_BASE, path, opts);
 
- export async function checkProjectExistsAPI(project) {
-   return r(`/project_exists`, {
-     method: "POST",
-     headers: { "Content-Type": "application/json" },
-     body: JSON.stringify({ project }),
-   });
- }
-
  export async function createProjectAPI({ title, questions, labels, token }) {
    return r(`/create_project`, {
      method: "POST",
