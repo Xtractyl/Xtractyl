@@ -229,7 +229,7 @@ def register(app, spec, session_factory, label_studio, storage):
     )
     def preview_qal():
         contract = PreviewQalRequest.model_validate(dict(request.args))
-        cmd = PreviewQalCommand.from_contract(project=contract.project, filename=contract.filename)
+        cmd = PreviewQalCommand.from_contract(project=contract.project)
         db = session_factory()
         try:
             repo = ProjectRepository(db)
