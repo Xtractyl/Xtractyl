@@ -1,7 +1,6 @@
 // src/components/UploadTasks/UploadTasksCard.jsx
 import { useState } from "react";
 import ProjectNameInput from "../shared/ProjectNameInput";
-import HtmlFolderSelect from "./HTMLFolderSelect";
 import { uploadTasks } from "../../api/UploadTasksPage/api.js";
 import { useAppContext } from "../../context/AppContext";
 import TokenLink from "../shared/TokenLink";
@@ -10,13 +9,12 @@ const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080";
 
 export default function UploadTasksCard() {
   const { token, projectName, saveToken, saveProjectName } = useAppContext();
-  const [htmlFolder, setHtmlFolder] = useState("");
   const [statusMsg, setStatusMsg] = useState("");
   const [busy, setBusy] = useState(false);
 
 
   const handleUpload = async () => {
-    if (!projectName || !htmlFolder || !token) {
+    if (!projectName || !token) {
       setStatusMsg("❌ Please provide all fields.");
       return;
     }
@@ -25,11 +23,8 @@ export default function UploadTasksCard() {
       setBusy(true);
       setStatusMsg(null);
 
-      await uploadTasks({
-        projectName,
-        token,
-        htmlFolder,
-      });
+      await uploadTasks({ projectName, token });
+
       setStatusMsg("✅ Tasks uploaded successfully.");
     } catch (e) {
      setStatusMsg(`❌ ${e.message || "Upload failed."}`);
@@ -47,7 +42,6 @@ export default function UploadTasksCard() {
 
       <div className="space-y-6 bg-xtractyl-offwhite p-6 rounded shadow">
         <ProjectNameInput value={projectName} onChange={saveProjectName} />
-        <HtmlFolderSelect selected={htmlFolder} onChange={setHtmlFolder} />
 
         {/* Token helper link */}
         <div>
