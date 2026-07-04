@@ -56,16 +56,9 @@ export async function listModels() {
    return Array.isArray(data?.models) ? data.models : [];
  }
 
-/** List QAL json files for a project */
- export async function listQalJsons(projectName) {
-   const data = await orch(`/list_qal_jsons?project=${encodeURIComponent(projectName)}`);
-   return Array.isArray(data.files) ? data.files : [];
- }
-
-/** Preview a QAL file */
- export async function previewQal(projectName, fileName) {
-   return orch(`/preview_qal?project=${encodeURIComponent(projectName)}&filename=${encodeURIComponent(fileName)}`);
- }
+export async function previewQal(projectName) {
+  return orch(`/preview_qal?project=${encodeURIComponent(projectName)}`);
+}
 
 /**
  * Enqueue prelabel job (or start it, depending on backend).
