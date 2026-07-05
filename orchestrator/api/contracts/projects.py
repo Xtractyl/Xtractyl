@@ -11,10 +11,6 @@ class CreateProjectRequest(BaseModel):
     labels: list[str] = Field(..., min_length=1)
 
 
-class ListQalJsonsRequest(BaseModel):
-    project: str = Field(..., min_length=1)
-
-
 class PreviewQalRequest(BaseModel):
     project: str = Field(..., min_length=1)
 
@@ -33,10 +29,6 @@ class CreateProjectResponse(BaseModel):
 
 class ListProjectsReadyForUploadResponse(BaseModel):
     projects: list[str]
-
-
-class ListQalJsonsResponse(BaseModel):
-    files: list[str]
 
 
 class PreviewQalResponse(BaseModel):
