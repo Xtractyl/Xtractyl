@@ -33,7 +33,7 @@ def compute_metrics_from_rows(
       - FP+FN if both present but different (wrong extraction counts as both)
       - FN if GT present, pred missing
       - FP if pred present, GT missing
-      - TN if both missing
+      - TN if GT missing and pred is <<<NO_MATCH>>>
       - TIMEOUT if model timed out (does NOT count as FP/FN/TN/TP)
 
     Returns:
@@ -109,7 +109,8 @@ def compute_metrics_from_rows(
             pr_val = ((pred_by_fn.get(fnm, {}) or {}).get(labels_key) or {}).get(lab, "")
 
             gt_present = bool(gt_val)
-            pr_present = bool(pr_val)
+            pr_no_match = pr_val == "<<<NO_MATCH>>>"
+            pr_present = bool(pr_val) and not pr_no_match
 
             if timed_out:
                 status = "timeout"
