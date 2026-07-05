@@ -27,7 +27,6 @@ ORCHESTRATOR_URL = (
 )
 
 
-
 def _status_key(job_id: str) -> str:
     return f"{STATUS}{job_id}"
 
