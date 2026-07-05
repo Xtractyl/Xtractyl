@@ -23,14 +23,9 @@ docker/orchestrator/__pycache__/
 docker/frontend/node_modules/
 
 # 📂 Data-Verzeichnis (PDFs, HTML, temporäre Dateien)
-data/pdfs/
-data/fixtures/
-data/htmls/
-data/projects/
-data/evaluation/
-data/results/
+data/logs/
 data/tmp/
-data/evaluation_drift/
+
 
 # 🔍 Label Studio
 label-studio/frontend/dist/

@@ -1,35 +1,37 @@
-// api/UploadAndConversionPage/api.js
- import { request } from "../shared/request";
-const DOC_BASE = import.meta.env.VITE_DOC_BASE || "http://localhost:5004";
-const r = (path, opts) => request(DOC_BASE, path, opts);
+// api/PDFUploadAndConversionPage/api.js
+import { request } from "../shared/request";
+const ORCH_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001";
+const r = (path, opts) => request(ORCH_BASE, path, opts);
 
-/** GET /list-subfolders -> string[] */
- export async function listSubfolders() {
-   return r(`/list-subfolders`);
- }
+/** POST /conversion/prepare -> { job_id, presigned_urls: [{filename, upload_url, pdf_key}] } */
+export async function prepareConversion(projectName, filenames) {
+  return r(`/conversion/prepare`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ project: projectName, filenames }),
+  });
+}
 
-/** GET /list-files?folder=... -> string[] */
- export async function listFiles(folder) {
-   return r(`/list-files?folder=${encodeURIComponent(folder || "")}`);
- }
+/** PUT presigned URL -> upload file directly to MinIO */
+export async function uploadToMinio(uploadUrl, file) {
+  const res = await fetch(uploadUrl, {
+    method: "PUT",
+    body: file,
+    headers: { "Content-Type": "application/pdf" },
+  });
+  if (!res.ok) throw new Error(`MinIO upload failed for ${file.name}: ${res.status}`);
+}
 
-/** POST /uploadpdfs (FormData) -> { job_id, message? } | 202 */
- export async function uploadPdfs(files, folder) {
-   const fd = new FormData();
-   fd.append("folder", folder);
-   for (const f of files) fd.append("files", f);
-   return r(`/uploadpdfs`, { method: "POST", body: fd });
- }
+/** POST /conversion/convert -> { job_id, status } */
+export async function startConversion(jobId) {
+  return r(`/conversion/convert`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ job_id: jobId }),
+  });
+}
 
-/** GET /job_status/:id -> { state, progress?, message?, done?, total? } */
- export async function getJobStatus(jobId) {
-   return r(`/job_status/${encodeURIComponent(jobId)}`);
- }
-
-/** POST /cancel_job/:id -> { status: "cancel_requested" | "already_finished" | "ok", state? } */
- export async function cancelJob(jobId) {
-   return r(`/cancel_job/${encodeURIComponent(jobId)}`, { method: "POST" });
- }
-
-// Optional export, falls du die Base-URL an anderer Stelle brauchst
-export { DOC_BASE };
+/** GET /conversion/status/:job_id -> { job_id, status, total_files, converted_files, error? } */
+export async function getConversionStatus(jobId) {
+  return r(`/conversion/status/${encodeURIComponent(jobId)}`);
+}

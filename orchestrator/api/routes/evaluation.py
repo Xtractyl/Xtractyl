@@ -193,7 +193,6 @@ def register(app, spec, session_factory=None):
         contract = SaveAsGtSetRequest.model_validate(payload)
         cmd = SaveAsGtSetCommand.from_contract(
             source_project=contract.source_project,
-            gt_set_name=contract.gt_set_name,
             token=token,
         )
         db = session_factory()

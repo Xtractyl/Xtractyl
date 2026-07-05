@@ -18,10 +18,10 @@ const r = (path, opts) => request(ORCH_BASE, path, opts);
    });
  }
 
- export async function saveAsGtSet(apiToken, sourceProject, gtSetName) {
+export async function saveAsGtSet(apiToken, sourceProject) {
    return r(`/save-as-gt-set`, {
      method: "POST",
      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiToken}` },
-     body: JSON.stringify({ source_project: sourceProject, gt_set_name: gtSetName }),
+     body: JSON.stringify({ source_project: sourceProject }),
    });
  }

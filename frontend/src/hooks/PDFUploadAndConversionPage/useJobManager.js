@@ -1,18 +1,17 @@
 //src/hooks/PDFUploadAndConversionPage/useJobManager.js
 import { useState, useEffect, useCallback } from "react";
-import { uploadPdfs, getJobStatus, cancelJob } from "../../api/PDFUploadAndConversionPage/api";
+import { prepareConversion, uploadToMinio, startConversion, getConversionStatus } from "../../api/PDFUploadAndConversionPage/api";
 
-export default function useJobManager(folder, files, refreshSubfolders, refreshFilesInFolder) {
-  const [jobId, setJobId] = useState(() => localStorage.getItem("doclingJobId"));
+export default function useJobManager(projectName, files) {
+  const [jobId, setJobId] = useState(() => localStorage.getItem("conversionJobId"));
   const [submitBusy, setSubmitBusy] = useState(false);
   const [serverMsg, setServerMsg] = useState("");
   const [jobStatus, setJobStatus] = useState(null);
-  const [cancelBusy, setCancelBusy] = useState(false);
 
   // Restore jobId from localStorage
   useEffect(() => {
     if (!jobId) {
-      const saved = localStorage.getItem("doclingJobId");
+      const saved = localStorage.getItem("conversionJobId");
       if (saved) setJobId(saved);
     }
   }, [jobId]);
@@ -30,18 +29,19 @@ export default function useJobManager(folder, files, refreshSubfolders, refreshF
 
     const tick = async () => {
       try {
-        const s = await getJobStatus(jobId);
+        const s = await getConversionStatus(jobId);
         setJobStatus(s);
 
-        if (["done", "error", "cancelled"].includes(s.state)) {
-          localStorage.removeItem("doclingJobId");
+        if (["done", "error", "cancelled"].includes(s.status)) {
+          localStorage.removeItem("conversionJobId");
           setJobId(null);
+          setServerMsg(s.status === "done" ? "✅ Conversion complete." : `❌ Conversion ${s.status}.`);
           return;
         }
         schedule();
       } catch (e) {
         if (e.status === 404) {
-          localStorage.removeItem("doclingJobId");
+          localStorage.removeItem("conversionJobId");
           setJobId(null);
           setJobStatus(null);
           return;
@@ -58,80 +58,42 @@ export default function useJobManager(folder, files, refreshSubfolders, refreshF
     };
   }, [jobId]);
 
-  // Cancel a running job
-  const handleCancel = useCallback(async () => {
-    if (!jobId) return;
-    setCancelBusy(true);
-    try {
-      const data = await cancelJob(jobId);
-
-      if (data.status === "already_finished") {
-        setServerMsg(`ℹ️ Job already ${data.state}.`);
-        localStorage.removeItem("doclingJobId");
-        setJobId(null);
-        return;
-      }
-
-      if (data.status === "cancel_requested") {
-        setServerMsg("🛑 Cancel requested.");
-        setJobStatus((prev) => ({ ...(prev || {}), state: "cancelling", message: "cancel requested" }));
-        return;
-      }
-
-      setServerMsg("ℹ️ Cancel processed.");
-    } catch (e) {
-      if (e?.status === 404) {
-        localStorage.removeItem("doclingJobId");
-        setJobId(null);
-        setJobStatus(null);
-        setServerMsg("⚠️ Job not found on server.");
-      } else {
-        setServerMsg(`❌ Failed to cancel job.`);
-      }
-    } finally {
-      setCancelBusy(false);
-    }
-  }, [jobId]);
-
   // Submit PDFs
-  const handleSubmit = useCallback(async (e) => {
+    const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     setServerMsg("");
-    if (!folder || files.length === 0) return;
-
+    if (!projectName || files.length === 0) return;
     setSubmitBusy(true);
     try {
-      const data = await uploadPdfs(files, folder);
-      setJobId(data.job_id);
-      localStorage.setItem("doclingJobId", data.job_id);
-      setServerMsg(data.message || "accepted");
+      // 1. Prepare: get presigned URLs
+      const filenames = files.map((f) => f.name);
+      const { job_id, presigned_urls } = await prepareConversion(projectName, filenames);
 
-      if (refreshSubfolders) refreshSubfolders();
-      if (refreshFilesInFolder) refreshFilesInFolder(folder);
+      // 2. Upload each file directly to MinIO
+      await Promise.all(
+        presigned_urls.map(({ upload_url, filename }) => {
+          const file = files.find((f) => f.name === filename);
+          return uploadToMinio(upload_url, file);
+        })
+      );
+
+      // 3. Trigger conversion
+      await startConversion(job_id);
+
+      // 4. Start polling
+      setJobId(job_id);
+      localStorage.setItem("conversionJobId", job_id);
+      setServerMsg("✅ Upload complete, conversion started.");
     } catch (err) {
-  if (err?.status === 400) {
-    setServerMsg("❌ Invalid input.");
-  } else {
-    setServerMsg("❌ Couldn't convert PDFs.");
-  }
-}
-  }, [files, folder, refreshSubfolders, refreshFilesInFolder]);
+      if (err?.status === 400) {
+        setServerMsg("❌ Invalid input.");
+      } else {
+        setServerMsg(`❌ ${err.message || "Couldn't start conversion."}`);
+      }
+    } finally {
+      setSubmitBusy(false);
+    }
+  }, [files, projectName]);
 
-  const clearJob = useCallback(() => {
-    localStorage.removeItem("doclingJobId");
-    setJobId(null);
-    setServerMsg("");
-    setJobStatus(null);
-  }, []);
-
-  return {
-    jobId,
-    jobStatus,
-    serverMsg,
-    submitBusy,
-    cancelBusy,
-    handleSubmit,
-    handleCancel,
-    clearJob
-  };
+  return { jobId, jobStatus, serverMsg, submitBusy, handleSubmit};
 }

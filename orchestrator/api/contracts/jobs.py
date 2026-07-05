@@ -27,7 +27,6 @@ class EnqueueJobRequest(BaseModel):
     project_name: str = Field(..., min_length=1)
     model: str = Field(..., min_length=1)
     system_prompt: str = Field(..., min_length=1)
-    qal_file: str = Field(..., min_length=1)
     questions_and_labels: QuestionsAndLabels
 
 

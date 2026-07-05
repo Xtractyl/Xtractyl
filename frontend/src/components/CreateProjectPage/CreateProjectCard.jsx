@@ -7,7 +7,7 @@ import { fetchGroundtruthQuestionsAndLabels } from "../../api/CreateProjectPage/
 import { useAppContext } from "../../context/AppContext";
 
 export default function CreateProjectCard() {
-  const { checkProjectExists, createProject } = useCreateProject();
+  const { createProject } = useCreateProject();
   const [groundtruthSets, setGroundtruthSets] = useState([]);
   const [groundtruthError, setGroundtruthError] = useState("");
   const [groundtruthLoading, setGroundtruthLoading] = useState(false);
@@ -20,7 +20,6 @@ export default function CreateProjectCard() {
         setStatusMsg("❌ Please enter and save an API token first.");
         return;
       }
-      await checkProjectExists(formData.title);
 
 
       saveProjectName(formData.title);
@@ -31,12 +30,8 @@ export default function CreateProjectCard() {
       });
       setStatusMsg("✅ Project created successfully.");
     } catch (error) {
-         if (error.status === 409) {
-        setStatusMsg("❌ A project with this name already exists.");
-      } else {
-     setStatusMsg(`❌ ${error.message || "Something went wrong."}`);
+       setStatusMsg(`❌ ${error.message || "Something went wrong."}`);
      }
-    }
   };
 
     const handleLoadGroundtruth = async () => {

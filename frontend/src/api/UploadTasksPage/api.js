@@ -4,11 +4,11 @@ const ORCH_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001";
 const r = (path, opts) => request(ORCH_BASE, path, opts);
 
 /** POST /upload_tasks -> { ...result } */
- export async function uploadTasks({ projectName, token, htmlFolder }) {
+export async function uploadTasks({ projectName, token }) {
    return r(`/upload_tasks`, {
      method: "POST",
      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-     body: JSON.stringify({ project: projectName, html_folder: htmlFolder }),
+     body: JSON.stringify({ project: projectName }),
 
     });
  }

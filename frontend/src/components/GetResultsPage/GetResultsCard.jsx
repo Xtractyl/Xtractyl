@@ -82,7 +82,7 @@ export default function GetResultsCard() {
             disabled={!canSubmit || loading}
             className="px-3 py-2 bg-xtractyl-green text-xtractyl-white rounded-md cursor-pointer hover:bg-xtractyl-green/80"
           >
-            {loading ? "Loading…" : "Submit & Save as CSV"}
+            {loading ? "Loading…" : "Submit"}
           </button>
         </form>
 

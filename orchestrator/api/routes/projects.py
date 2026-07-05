@@ -2,7 +2,6 @@
 from domain.errors import InternalError, Unauthorized
 from domain.models.projects import (
     CreateProjectCommand,
-    ListQalJsonsCommand,
     PreviewQalCommand,
     ProjectExistsCommand,
     UploadTasksCommand,
@@ -11,7 +10,6 @@ from domain.projects import (
     check_project_exists,
     create_project_main_from_payload,
     list_projects_ready_for_upload,
-    list_qal_jsons,
     upload_tasks_main_from_payload,
 )
 from domain.projects import (
@@ -27,8 +25,6 @@ from api.contracts.projects import (
     CreateProjectRequest,
     CreateProjectResponse,
     ListProjectsReadyForUploadResponse,
-    ListQalJsonsRequest,
-    ListQalJsonsResponse,
     PreviewQalRequest,
     PreviewQalResponse,
     ProjectExistsRequest,
@@ -108,9 +104,7 @@ def register(app, spec, session_factory, label_studio, storage):
                 message="Authorization token is required.",
             )
         contract = UploadTasksRequest.model_validate(request.get_json(silent=True) or {})
-        cmd = UploadTasksCommand.from_contract(
-            project=contract.project, html_folder=contract.html_folder, token=token
-        )
+        cmd = UploadTasksCommand.from_contract(project=contract.project, token=token)
         db = session_factory()
         try:
             repo = ProjectRepository(db)
@@ -195,30 +189,6 @@ def register(app, spec, session_factory, label_studio, storage):
             )
         return jsonify(validated.model_dump()), 200
 
-    @app.route("/list_qal_jsons", methods=["GET"])
-    @spec.validate(
-        query=ListQalJsonsRequest,
-        resp=Response(
-            HTTP_200=ListQalJsonsResponse,
-            HTTP_400=ErrorResponse,  # invalid path
-            HTTP_500=ErrorResponse,  # unexpected global exception handler
-        ),
-        tags=["projects"],
-    )
-    def list_qal_jsons_route():
-        contract = ListQalJsonsRequest.model_validate(dict(request.args))
-        cmd = ListQalJsonsCommand.from_contract(project=contract.project)
-        result = list_qal_jsons(cmd)
-        try:
-            validated = ListQalJsonsResponse.model_validate(result)
-        except ValidationError as e:
-            raise InternalError(
-                code="RESPONSE_CONTRACT_VIOLATED",
-                message="Internal response did not match expected schema.",
-                meta={"details": e.errors()},
-            )
-        return jsonify(validated.model_dump()), 200
-
     @app.route("/preview_qal", methods=["GET"])
     @spec.validate(
         query=PreviewQalRequest,
@@ -231,7 +201,7 @@ def register(app, spec, session_factory, label_studio, storage):
     )
     def preview_qal():
         contract = PreviewQalRequest.model_validate(dict(request.args))
-        cmd = PreviewQalCommand.from_contract(project=contract.project, filename=contract.filename)
+        cmd = PreviewQalCommand.from_contract(project=contract.project)
         db = session_factory()
         try:
             repo = ProjectRepository(db)

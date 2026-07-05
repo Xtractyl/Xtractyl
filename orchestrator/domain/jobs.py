@@ -30,8 +30,6 @@ STATUS = "status:"
 RESULT = "result:"
 LOGS = "logs:"
 
-USE_DB_BACKEND = os.getenv("USE_DB_BACKEND", "0") == "1"
-
 
 def _status_key(job_id: str) -> str:
     return f"{STATUS}{job_id}"
@@ -65,31 +63,27 @@ def enqueue_prelabel_job(
     run_repo: PrelabellingRunRepositoryInterface,
     project_repo: ProjectRepositoryInterface,
 ) -> Dict[str, Any]:
-    if USE_DB_BACKEND:
-        label_studio_id = project_repo.get_label_studio_id(cmd.project_name)
-        if not label_studio_id:
-            raise NotFound(
-                code="PROJECT_NOT_FOUND",
-                message="Project not found or has no Label Studio ID.",
-            )
-        qal = project_repo.get_questions_and_labels(cmd.project_name)
-        if not qal:
-            raise NotFound(
-                code="QAL_NOT_FOUND",
-                message="No QAL found for this project.",
-            )
-        job_id = str(
-            run_repo.create_run(
-                project=cmd.project_name,
-                label_studio_id=label_studio_id,
-                model=cmd.model,
-                system_prompt=cmd.system_prompt,
-                questions_and_labels=qal,
-            )
+    label_studio_id = project_repo.get_label_studio_id(cmd.project_name)
+    if not label_studio_id:
+        raise NotFound(
+            code="PROJECT_NOT_FOUND",
+            message="Project not found or has no Label Studio ID.",
         )
-
-    else:
-        job_id = str(int(time.time() * 1000))
+    qal = project_repo.get_questions_and_labels(cmd.project_name)
+    if not qal:
+        raise NotFound(
+            code="QAL_NOT_FOUND",
+            message="No QAL found for this project.",
+        )
+    job_id = str(
+        run_repo.create_run(
+            project=cmd.project_name,
+            label_studio_id=label_studio_id,
+            model=cmd.model,
+            system_prompt=cmd.system_prompt,
+            questions_and_labels=qal,
+        )
+    )
 
     r.hset(
         _status_key(job_id),

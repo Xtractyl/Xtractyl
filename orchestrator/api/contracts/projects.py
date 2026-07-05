@@ -11,18 +11,12 @@ class CreateProjectRequest(BaseModel):
     labels: list[str] = Field(..., min_length=1)
 
 
-class ListQalJsonsRequest(BaseModel):
-    project: str = Field(..., min_length=1)
-
-
 class PreviewQalRequest(BaseModel):
     project: str = Field(..., min_length=1)
-    filename: str = Field(..., min_length=1)
 
 
 class UploadTasksRequest(BaseModel):
     project: str = Field(..., min_length=1)
-    html_folder: str = Field(..., min_length=1)
 
 
 class ProjectExistsRequest(BaseModel):
@@ -35,10 +29,6 @@ class CreateProjectResponse(BaseModel):
 
 class ListProjectsReadyForUploadResponse(BaseModel):
     projects: list[str]
-
-
-class ListQalJsonsResponse(BaseModel):
-    files: list[str]
 
 
 class PreviewQalResponse(BaseModel):

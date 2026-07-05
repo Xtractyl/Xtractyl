@@ -10,27 +10,21 @@ export function usePrelabelConfig() {
   const { projectName } = useAppContext();
   const [model, setModel] = useLocalStorage("ollamaModel", "");
   const [systemPrompt, setSystemPrompt] = useLocalStorage("xtractylSystemPrompt", "");
-  const [qalFile, setQalFile] = useLocalStorage("xtractylQALFile", "");
   const [questionsAndLabels, setQuestionsAndLabels] = useState({});
 
   useEffect(() => {
-    if (!qalFile || !projectName || loadedRef.current) return;
+    if (!projectName || loadedRef.current) return;
     loadedRef.current = true;
-    previewQal(projectName, qalFile)
+    previewQal(projectName)
       .then((json) => setQuestionsAndLabels(json?.data ?? json))
       .catch(() => {});
-  }, [qalFile, projectName]);
+  }, [projectName]);
 
-  const handleQalChange = (_project, file, json) => {
-    setQalFile(file);
-    setQuestionsAndLabels(json?.data ?? json);
-  };
+
 
   return {
     model, setModel,
     systemPrompt, setSystemPrompt,
-    qalFile,
     questionsAndLabels,
-    handleQalChange,
   };
 }

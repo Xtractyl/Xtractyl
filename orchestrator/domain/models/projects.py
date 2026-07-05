@@ -23,29 +23,13 @@ class CreateProjectCommand(BaseModel):
             )
 
 
-class ListQalJsonsCommand(BaseModel):
+class PreviewQalCommand(BaseModel):
     project: str
 
     @classmethod
     def from_contract(cls, project: str):
         try:
             return cls(project=project)
-        except ValidationError as e:
-            raise ValidationFailed(
-                code="INVALID_COMMAND",
-                message="Invalid command payload.",
-                details=e.errors(),
-            )
-
-
-class PreviewQalCommand(BaseModel):
-    project: str
-    filename: str
-
-    @classmethod
-    def from_contract(cls, project: str, filename: str):
-        try:
-            return cls(project=project, filename=filename)
         except ValidationError as e:
             raise ValidationFailed(
                 code="INVALID_COMMAND",
@@ -71,13 +55,12 @@ class ProjectExistsCommand(BaseModel):
 
 class UploadTasksCommand(BaseModel):
     project: str
-    html_folder: str
     token: str
 
     @classmethod
-    def from_contract(cls, project: str, html_folder: str, token: str):
+    def from_contract(cls, project: str, token: str):
         try:
-            return cls(project=project, html_folder=html_folder, token=token)
+            return cls(project=project, token=token)
         except ValidationError as e:
             raise ValidationFailed(
                 code="INVALID_COMMAND",

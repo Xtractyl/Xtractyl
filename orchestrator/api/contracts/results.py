@@ -11,4 +11,3 @@ class GetResultsTableResponse(BaseModel):
     columns: list[str]
     rows: list[dict]
     total: int
-    results_output_path_csv: str
