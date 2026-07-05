@@ -1,7 +1,6 @@
 # worker/domain/prelabel_project.py
 from __future__ import annotations
 
-import os
 import time
 from typing import Callable, List, Optional
 
@@ -14,7 +13,6 @@ from infrastructure.label_studio import (
 from infrastructure.ml_backend import send_predict
 from infrastructure.orchestrator import send_task_meta
 
-USE_DB_BACKEND = os.getenv("USE_DB_BACKEND", "0") == "1"
 
 
 LogCB = Optional[Callable[[str], None]]
@@ -78,9 +76,7 @@ def prelabel_project(
         resp = send_predict(task_id=task_id, html=html, filename=filename, job=job)
         if resp.status_code != 200:
             _log(f"[WARN] /predict returned {resp.status_code} for task {task_id}. Continuing.")
-        # once USE_DB_BACKEND becomes the only path: ml_backend.run_predict() no longer needs
-        # to return raw_llm_answers/dom_match_diagnostics/etc. in the response "meta" — drop them there too.
-        if resp.status_code == 200 and USE_DB_BACKEND:
+        if resp.status_code == 200:
             body = resp.json()
             meta = body.get("meta", {})
             send_task_meta(task_id=task_id, meta=meta, job=job)
