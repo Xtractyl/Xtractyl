@@ -11,8 +11,6 @@ services:
     environment:
       - ROLLUP_USE_NODE_BUILTINS=${ROLLUP_USE_NODE_BUILTINS:-true}
       - DEBUG_ARTIFACTS=${DEBUG_ARTIFACTS:-0}
-      - CAPTURE_FIXTURES=${CAPTURE_FIXTURES:-0}
-      - SYNTHETIC_DATA=${SYNTHETIC_DATA:-0}
     working_dir: /app
 
   postgres:
@@ -71,33 +69,16 @@ services:
     ports:
       - "${ORCH_PORT:-5001}:5001"
     volumes:
-      - ${PROJECTS_DIR:-./data/projects}:/app/data/projects
-      - ${PDFS_DIR:-./data/pdfs}:/app/data/pdfs
-      - ${HTMLS_DIR:-./data/htmls}:/app/data/htmls
-      - ${EVAL_DIR:-./data/evaluation}:/app/data/evaluation
-      - ${RESULTS_DIR:-./data/results}:/app/data/results
       - ${LOGS_DIR:-./logs}:/app/logs
       - ${DEV_LOGS_DIR:-./data/logs}:/app/data/logs
-      - ${FIXTURES_DIR:-./data/fixtures}:/app/data/fixtures
-      - ${DRIFT_DIR:-./data/evaluation_drift}:/app/data/evaluation_drift
       - ./orchestrator/alembic/versions:/app/alembic/versions
 
     environment:
       - SERVICE_NAME=orchestrator
-      - GROUNDTRUTH_QAL_DIR=/app/data/projects/Evaluation_Sets_Do_Not_Delete
-      - PROJECTS_DIR=/app/data/projects
-      - PDFS_DIR=/app/data/pdfs
-      - HTMLS_DIR=/app/data/htmls
-      - RESULTS_DIR=/app/data/results     
-      - EVAL_DIR=/app/data/evaluation
       - FRONTEND_PORT=${FRONTEND_PORT:-5173}
       - LOGS_DIR=/app/logs
       - DEV_LOGS_DIR=/app/data/logs
       - DEBUG_ARTIFACTS=${DEBUG_ARTIFACTS:-0}
-      - CAPTURE_FIXTURES=${CAPTURE_FIXTURES:-0}
-      - SYNTHETIC_DATA=${SYNTHETIC_DATA:-0}
-      - FIXTURES_DIR=/app/data/fixtures
-      - DRIFT_DIR=/app/data/evaluation_drift
       - DATABASE_URL=postgresql://${POSTGRES_XTRACTYL_USER:-xtractyl}:${POSTGRES_XTRACTYL_PASSWORD:-yourpassword}@${POSTGRES_XTRACTYL_CONTAINER_NAME:-postgres_xtractyl}:5432/${POSTGRES_XTRACTYL_DB:-xtractyl}
       - MINIO_CONTAINER_NAME=${MINIO_CONTAINER_NAME:-minio}
       - MINIO_API_PORT=${MINIO_API_PORT:-9000}
@@ -105,7 +86,6 @@ services:
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-yourpassword}
       - MINIO_BUCKET=${MINIO_BUCKET:-xtractyl}
       - MINIO_PRESIGN_EXPIRY_SECONDS=${MINIO_PRESIGN_EXPIRY_SECONDS:-3600}
-      - USE_DB_BACKEND=${USE_DB_BACKEND:-0}
 
   ml_backend:
     build:
@@ -128,8 +108,6 @@ services:
     - LABELSTUDIO_HOST=labelstudio        
     - LABELSTUDIO_PORT=${LABELSTUDIO_PORT:-8080}
     - DEBUG_ARTIFACTS=${DEBUG_ARTIFACTS:-0}
-    - CAPTURE_FIXTURES=${CAPTURE_FIXTURES:-0}
-    - SYNTHETIC_DATA=${SYNTHETIC_DATA:-0}
     - LOGS_DIR=/app/logs        
     - DEV_LOGS_DIR=/app/data/logs
 
@@ -155,8 +133,6 @@ services:
     ports:
       - "${DOCLING_PORT:-5004}:${DOCLING_PORT:-5004}"
     volumes:
-      - ${PDFS_DIR:-./data/pdfs}:/pdfs
-      - ${DOC_HTMLS_DIR:-./data/htmls}:/htmls
       - ${LOGS_DIR:-./logs}:/app/logs
       - ${DEV_LOGS_DIR:-./data/logs}:/app/data/logs
       - ${FONTCACHE_VOLUME:-fontcache}:/var/cache/fontconfig
@@ -171,8 +147,6 @@ services:
       - DOCLING_PORT=${DOCLING_PORT:-5004}
       - FRONTEND_PORT=${FRONTEND_PORT:-5173}
       - DEBUG_ARTIFACTS=${DEBUG_ARTIFACTS:-0}
-      - CAPTURE_FIXTURES=${CAPTURE_FIXTURES:-0}
-      - SYNTHETIC_DATA=${SYNTHETIC_DATA:-0}
     command: ["sh", "-c", "flask run --host=0.0.0.0 --port=$DOCLING_PORT"]
 
   job_queue:
@@ -201,13 +175,10 @@ services:
       ml_backend:
         condition: service_started
     volumes:
-      - ${PROJECTS_DIR:-./data/projects}:/app/data/projects
-      - ${HTMLS_DIR:-./data/htmls}:/app/data/htmls
       - ${LOGS_DIR:-./logs}:/app/logs
       - ${DEV_LOGS_DIR:-./data/logs}:/app/data/logs
     environment:
       - SERVICE_NAME=worker_pre_label
-      - USE_DB_BACKEND=${USE_DB_BACKEND:-0}
       - LOGS_DIR=/app/logs       
       - DEV_LOGS_DIR=/app/data/logs 
       - LLM_TIMEOUT=${LLM_TIMEOUT:-20}
@@ -221,8 +192,6 @@ services:
       - ML_BACKEND_HOST=ml_backend
       - ML_BACKEND_PORT=${ML_BACKEND_INTERNAL_PORT:-6789}
       - DEBUG_ARTIFACTS=${DEBUG_ARTIFACTS:-0}
-      - CAPTURE_FIXTURES=${CAPTURE_FIXTURES:-0}
-      - SYNTHETIC_DATA=${SYNTHETIC_DATA:-0}
 
 
   worker_conversion:
