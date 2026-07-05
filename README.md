@@ -665,21 +665,6 @@ VERSION
 DEBUG_ARTIFACTS=1 docker compose up
 ```
 
-3) Fixture mode 
-Saving data as files during a run for later use as test fixtures. Only with synthetic data in a pure dev environment. Endpoints are triggered via the GUI.
-	•	Enabled only when explicitly requested (via env flags).
-	•	Debug/fixture artifacts are written only to:
-	•	data/fixtures/... (mounted fixture folder)
-	•	After the run, fixtures must be copied manually from data/fixtures/ to tests/fixtures/.
-	•	This is intentionally not automated to avoid inadvertent inclusion of sensitive data.
-	•	When copying, keep the filename identical but append __SYNTHETIC_DATA (before .json; TWO underscores), e.g.
-build_results_table_minimal__tasks_page__SYNTHETIC_DATA.json
-
-
-```bash 
-DEBUG_ARTIFACTS=1 CAPTURE_FIXTURES=1 SYNTHETIC_DATA=1 docker compose up
-```
-
 ---
 
 ## 📝 Additional Documentation
