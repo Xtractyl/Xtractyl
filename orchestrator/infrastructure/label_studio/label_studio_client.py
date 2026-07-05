@@ -1,4 +1,4 @@
-# orchestrator/infrastructure/label_studio/label_studio_client.py  (neue Datei)
+# orchestrator/infrastructure/label_studio/label_studio_client.py 
 
 import os
 
