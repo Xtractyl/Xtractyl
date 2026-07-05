@@ -13,8 +13,6 @@ from infrastructure.label_studio import (
 from infrastructure.ml_backend import send_predict
 from infrastructure.orchestrator import send_task_meta
 
-
-
 LogCB = Optional[Callable[[str], None]]
 ProgressCB = Optional[Callable[[int], None]]
 CancelCB = Optional[Callable[[], bool]]
