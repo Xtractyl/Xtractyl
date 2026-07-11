@@ -75,10 +75,13 @@ Any model can produce outputs. The hard part is knowing whether those outputs ar
 Xtractyl is built around this insight. The pipeline follows a deliberate cycle:
 
 1. **Build a ground truth** — human-validated annotations on a representative subset define what correct extraction looks like
+    **Planned [not added yet]:** a faster way to deal with "no unique correct answer" — review and correct a specific run's own raw LLM predictions within Label Studio (accept correct extractions when they answer the question to a sufficient degree, fix only the incorrect ones). This ground truth is anchored to that run's predictions and therefore slightly skewed; it cannot be reused to evaluate other runs, since there is no single correct answer and reruns don't need to be worded identically to be correct. But it allows for evaluating model for tasks that can be answered correctly using different passages.
 2. **Optimize systematically** — system prompt, question formulation, and model selection are evaluated against the ground truth using precision, recall, F1, and latency metrics
 3. **Scale to the full dataset** — the optimized configuration runs on the complete document collection with human-in-the-loop review
-4. **Fine-tune a small model [not added yet]** — labeled data from the pipeline is used to train a domain-specific SLM, reducing inference cost and latency while maintaining accuracy
-5. **Evaluate and iterate** — metrics and drift monitoring ensure that performance is maintained over time and across document types
+4. **Host and monitor [not added yet]** — a validated configuration (model, system prompt, questions/labels, exact model hash) is promoted to a locked, versioned extraction endpoint with its validation results attached for provenance; automated reruns track drift over time and can withdraw a version if metrics fall below the established baseline
+5. **Few-shot learning [not added yet]** — few-shot examples are selected from the ground truth set and validated against the remaining, held-out tasks to avoid leakage between examples and validation
+6. **Fine-tune a small model [not added yet]** — labeled data from the pipeline is used to train a domain-specific SLM, reducing inference cost and latency while maintaining accuracy
+7. **Evaluate and iterate** — metrics and drift monitoring ensure that performance is maintained over time and across document types
 
 This approach is designed for environments where data privacy is non-negotiable, ground truth matters, and black-box outputs are not acceptable — healthcare, life sciences, and other regulated domains.
 
@@ -99,7 +102,9 @@ T[Frontend]
 %% ====== ROW 1 ======
 subgraph ZA[" "]
 direction LR
- A1A[Frontend - Upload & Convert Docs] --> B1A[Job Queue] --> C1A[Worker Conversion] --> D1A[Docling]
+A1A[Frontend - Upload & Convert Docs] --> B1A[Orchestrator - prepare] --> C1A[MinIO]
+A1A --> C1A[MinIO]
+A1A --> B1B[Orchestrator - convert trigger] --> D1A[Job Queue] --> E1A[Worker Conversion] --> F1A[Docling]
 end
 
 T --> ZA
@@ -195,12 +200,12 @@ style ZA8 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
 style ZA9 fill:#FCA5A5,stroke:#88a,stroke-width:1px;
   ```
 
- **Note:** Docling is intentionally addressed directly by the frontend. 
- PDF conversion has no pipeline context — Docling operates independently 
- of projects, jobs, and evaluation state. Routing file uploads through 
- the Orchestrator would add latency and complexity without architectural 
- benefit. All other services — including Ollama for model management — 
- are accessed exclusively through the Orchestrator.
+ **Note:** File upload bypasses the Orchestrator by design — PDFs go 
+ directly from the frontend to MinIO via presigned URLs, keeping large 
+ binary transfers off the API server. Conversion itself is still fully 
+ pipeline-aware: the Orchestrator creates the job record and presigned 
+ URLs, triggers the actual conversion via the job queue, and Worker 
+ Conversion (not the frontend) calls Docling and writes results back to MinIO.
 
 ---
 
@@ -221,10 +226,10 @@ style ZA9 fill:#FCA5A5,stroke:#88a,stroke-width:1px;
 ---
 
 ## 📅 Planned Features
-
-- 🦕 Create dashboards from your Xtractyl-generated database  
-- 🎛️ Fine-tune models based on your labeled data 
-- 🧠 Bootstrapping: Train SLM based on LLM generated and HITL reviewed data
+- ✅ Build a run-scoped ground truth accepting model responses that match the true answer to a sufficient degree (for the case where multiple passages answer the question and there is no single, unique correct answer), this ground truth cannot be reused, but allows for validation in more complex cases
+- 🔌 Host validated model configurations as an external extraction API, with automated reruns and rollback on metric drift
+- 🧩 Few-shot learning from your ground truth set, validated on held-out tasks
+- 🎛️ Fine-tune a small model on LLM-generated, HITL-reviewed data (bootstrapping)
 
 
 ---
@@ -244,52 +249,36 @@ The focus is on building a consistent engineering foundation before scaling feat
 **Completed**
 - Orchestrator: layered architecture, typed domain errors, Pydantic contracts, OpenAPI documentation, structured logging, unit tests with CI integration
 - Worker: layered architecture, queue contract validation, structured logging, unit tests with CI integration
+- Migration of filesystem-based state to Postgres and MinIO 
+
 
 **In progress**
-- Docling: layered architecture, structured logging, unit tests with CI integration
+- Cleanup after migration of filesystem-based state to Postgres and MinIO consistently adding unit tests, type hints and docstrings
 
 **Planned**
-- The infrastructure containers for Postgres (Xtractyl), MinIO, and pgAdmin are already running as part of the stack. Migration of filesystem-based state to Postgres and MinIO is in progress.
-- **pgAdmin** (Postgres admin UI): `http://localhost:5050` — login with credentials from `.env` server connection in pgAdmin via postgres_xtractyl credentials from `.env`
-- **MinIO Console** (object storage UI): `http://localhost:9001` — login with `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD` from `.env`
+- Docling: layered architecture, structured logging, unit tests with CI integration 
 - E2E tests: full pipeline coverage from PDF ingestion to structured export
 - TypeScript migration: frontend type safety aligned with backend contracts
 
 
-**Orchestrator (template, in progress)**
-- Layered architecture: `app.py` → `routes` → `contracts` → `domain` → `services` → `clients`
-- Centralized error handling with typed domain errors
-- Pydantic-based API contracts with OpenAPI documentation (`/apidoc`) — see `/results` and `/evaluation` endpoints as reference
-- Structured logging with safe/dev modes (no sensitive data in default mode)
-- Fixture logging for synthetic test data
-- Unit tests with CI integration
-
-**Worker (completed)**
-- Layered architecture: `app.py` → `contracts` → `domain` → `infrastructure`
-- Pydantic-based queue contract validation
-- Structured logging with safe/dev modes
-- Unit tests with CI integration
-
-**All remaining containers (planned, sequential)**
-
-The same pattern will be applied to `ml_backend` and `docling`:
-- Layered architecture mirroring the orchestrator
-- Structured logging
-- Fixture generation and unit tests integrated into CI
-- Integration tests
-- API contracts and OpenAPI documentation
-- Centralized error handling
-
 ---
 
-### Phase 3 – Finetuning & Model Hosting (planned)
+### Phase 3 – Non-Determinism Evaluation, Model Hosting & Finetuning (planned)
 
-- Local finetuning pipeline: export from Label Studio → instruction-tuning format conversion → LoRA/QLoRA training via Unsloth
-- Dedicated inference container for finetuned models with output filtering — ensures models trained on sensitive data cannot reproduce raw training content
-- Evaluation of finetuned models against ground truth using the same metrics as base models
-- Frontend integration for triggering and monitoring finetuning runs
-- Finetuned model exposed as an external API endpoint with output filtering — responses are validated against the extraction schema, ensuring that no training data can be reproduced regardless of input
+Planned as a sequence of independently releasable steps, each building on a stable version of the previous one:
 
+1. **Rerun / non-determinism diff view** — a dedicated, condensed comparison view for two identically configured evaluation runs (same model, same system prompt, same questions/labels). Shows only the differences: diverging LLM answers, sensitivity shifts per label. Establishes the baseline noise floor before any promotion or rollback decision relies on it.
+2. **Run-scoped ground truth review** — review and correct a specific run's own raw LLM predictions in Label Studio (accept correct extractions when they answer the question to a sufficient degree, fix only the incorrect ones), then save the result as ground truth for that run. Anchored to that run's predictions and therefore not reusable for other runs — there is no single correct answer, and reruns don't need to be worded identically to be correct.
+3. **Model hosting container** — a dedicated inference container that serves one specific, validated configuration (model, system prompt, questions/labels, and an exact model hash — not just a model name/tag) as an external extraction API, together with its validation results for provenance.
+4. **Promotion workflow** — a button in the Evaluate AI tab to hand a validated model configuration over to the hosting container.
+5. **Automated reruns with rollback** — hosted models are automatically re-evaluated on a recurring basis; a model is automatically withdrawn from hosting if its metrics drop below a defined threshold, calibrated against the noise floor established in step 1.
+6. **Few-shot learning with held-out validation** — few-shot examples are selected from the ground truth set and validated against the remaining set (excluding the tasks used as few-shot examples) to avoid leakage between examples and validation.
+7. **Finetuning integration** — local finetuning pipeline: export from Label Studio → instruction-tuning format conversion → LoRA/QLoRA training via Unsloth; evaluated against ground truth using the same metrics as base and few-shot configurations.
+6. **Extractive-only output constraint** — hosted models can be configured to only answer with verbatim passages from the input document, preventing reproduction of training data regardless of the query.
+
+Frontend integration for triggering and monitoring finetuning runs, and exposing finetuned/hosted models as an external API endpoint with output filtering, are part of steps 2–6 above.
+
+> **Note:** Hosting (steps 2–4) is a different trust boundary than the current single-team review pipeline — it introduces external API consumers and needs its own auth design (per-consumer API keys scoped to specific hosted model versions).
 ---
 
 ## ⚠️ Known Limitations
@@ -331,11 +320,19 @@ docker compose up --build
 
 Access the frontend via your browser at http://localhost:5173/ following the workflow shown below under Usage
 
+### 3. Admin UIs
+
+Two additional admin interfaces are available once the stack is running:
+
+- **pgAdmin** (Postgres admin UI): `http://localhost:5050` — login with credentials from `.env`, then add a server connection in pgAdmin using the `postgres_xtractyl` credentials from `.env`
+- **MinIO Console** (object storage UI): `http://localhost:9001` — login with `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD` from `.env`
+
+
 ---
 
 ## 📘 API Documentation (OpenAPI / Swagger)
 
-Automatically generated OpenAPI documentation using `flask-pydantic-spec` is currently being added. Currently available starting with the orchestrator and the ml_backend.
+Automatically generated OpenAPI documentation using `flask-pydantic-spec` is available for the orchestrator and the ml_backend. Worker and worker_conversion have no HTTP routes (queue consumers only) and therefore cannot have OpenAPI docs; docling will get them once its layering work (see Roadmap, Phase 2) is complete.
 
 When the containers are running, the documentation is available at:
 
@@ -348,7 +345,6 @@ Each backend container exposes its own OpenAPI documentation on its respective p
 
 - OpenAPI schemas are generated from Pydantic request and error contracts.
 - Only endpoints using `@spec.validate(...)` are included in the documentation.
-- Legacy endpoints remain undocumented until refactored.
 
 To document a new endpoint:
 
@@ -359,7 +355,10 @@ To document a new endpoint:
 
 The endpoint will automatically appear in Swagger.
 
-### 3. Testing
+---
+
+
+### 4. Testing
 
 #### Smoke tests (pytest)
 
@@ -414,13 +413,11 @@ Planned next.
 
 2. **Upload your docs** (PDF → HTML conversion)  
 
-   Page: **Upload & Convert Docs** (`/`)  
-   - type a folder name  for your project
-   - Select PDFs and click **Upload & Convert**  
-   - You can monitor status and cancel a running job
+   Page: **Convert Docs** (`/`)  
+   - type a project name
+   - Browse PDFs and click **Upload & Convert**  
 
 ### Upload Page
-![Upload Page](assets/upload_and_convert.png)
 
 ![Upload Page Running](assets/upload_and_convert_running.png)
 
@@ -434,6 +431,7 @@ Planned next.
    - Enter project name, questions (one per line), and labels for each question (one per line
       and in the same order as the questions)
    - Create the project via the "Create project" button
+   - To see questions and labels from projects saved as ground truth (see below) click "Show ground truth questions and labels"
 
 ### Create Project Page
 ![Create Project Page](assets/create_project.png)
@@ -442,7 +440,6 @@ Planned next.
 
    Page: **Upload Tasks** (`/tasks`)  
    - Pick the project name  (same name as in step 3)
-   - Select the HTML folder (from step 2)  
    - Click "Upload HTML Tasks"
 
 
@@ -460,8 +457,7 @@ Planned next.
    - Select a model from the dropdown list
    - Enter a system prompt to advise the model for literal extraction (you see a suggestions
       under "Show example")
-   - Select the json file with your questions and labels from the dropdown list (click the
-      the Preview button for review)
+     > ⚠️ **Caution:** The instruction `- If there is NO matching passage: respond with <<<NO_MATCH>>>.` must be included in the system prompt, otherwise true negatives are not marked correctly and evaluation metrics will be skewed.
    - Click the "Start prelabeling button"
 
 ### Start AI Page
@@ -493,7 +489,8 @@ Planned next.
    Page: **Get Results** (`/results`)  
    - Enter your project name 
    - Enter the label studio token
-   - Click "Submit & Save as CSV" to get the results (in case you did not wait till prelabelling was finished, you have to re-click to see the predictions added over time)
+   - Click "Submit" to get the results as a table (in case you did not wait till prelabelling was finished, you have to re-click to see the predictions added over time)
+
 
 
 ### Get Results 
@@ -510,7 +507,7 @@ Planned next.
    - Optional: Export a new set as ground truth, select the project and name the new ground truth project (the project to be made ground truth has to have submitted annotations in label studio)
    - Select a project with your ground truth information
    - Select a project to compare against the ground truth 
-   - Click "Run Evaluation and Save as JSON"
+   - Click "Run Evaluation"
    - Get metrics (Precision, Recall, F1, Accuracy) on an overall basis and per question/label
    - Get a per task (per PDF document) overview with ground truth answer, predicted answer and raw LLM answer
    - Get performance metrics (time per task [per PDF document], LLM time per tasks, time per question, LLM time per question etc.)
@@ -559,8 +556,12 @@ Planned next.
 
 ### ⏭️ Coming Soon
 
-10. **Fine-tune the AI** (`/finetune`) 
-   - Use your labeled data to improve model performance
+10. **Non-determinism diff view** (`/rerun`) 
+   - Compare two identically configured evaluation runs side by side, showing only the differences
+11. **Host a validated model** (`/hosting`) 
+   - Promote a validated configuration from Evaluate AI to a locked, versioned extraction endpoint
+12. **Few-shot & Fine-tune the AI** (`/finetune`) 
+   - Improve model performance using few-shot examples from your ground truth set, or fine-tune a small model on your labeled data
 
 ---
 

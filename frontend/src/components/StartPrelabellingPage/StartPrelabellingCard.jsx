@@ -52,6 +52,11 @@ export default function StartPrelabellingCard() {
           </a>
         </div>
 
+        {config.qalError && (
+          <p className="text-sm text-xtractyl-orange">{config.qalError}</p>
+        )}
+
+
         <div><TokenLink /></div>
         <div className="mt-3">
           <label className="block text-sm font-medium mb-1">Label Studio Token</label>
