@@ -609,7 +609,18 @@ To create a new migration (when you do not want to install alembic outside the c
 3. ```docker exec -it orchestrator alembic revision --autogenerate -m "Describe changes made"``` (to create a new version in alembic/versions/)
 
 4. ```docker compose up --build orchestrator``` (to copy new version into container and adopt the changes in DB; migrations run automatically on container rebuild via `alembic upgrade head`)
+
  ---
+
+ ## 📊 Data Lifecycle Reference
+
+For a detailed breakdown of what gets written to Postgres and MinIO at each 
+step of each pipeline (conversion, prelabelling, evaluation, ...), see 
+[`docs/data-lifecycle.md`](docs/data-lifecycle.md). Useful for debugging 
+stuck jobs or verifying data provenance.
+
+---
+
 
 ## Versioning (SemVer)
 
