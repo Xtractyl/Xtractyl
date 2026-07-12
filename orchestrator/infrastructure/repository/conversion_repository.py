@@ -40,6 +40,11 @@ class ConversionRepository(ConversionRepositoryInterface):
         files = self._db.query(File).filter(File.project == project).all()
         return [f.pdf_key for f in files if f.pdf_key]
 
+    def delete_project_cascade(self, project: str) -> None:
+        self._db.query(File).filter(File.project == project).delete()
+        self._db.query(ConversionJob).filter(ConversionJob.project == project).delete()
+        self._db.query(Project).filter(Project.name == project).delete()
+
     def set_conversion_job_status(
         self, job_id: int, status: str, error: Optional[str] = None
     ) -> None:
