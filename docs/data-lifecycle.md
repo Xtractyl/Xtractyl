@@ -111,7 +111,7 @@ Useful for debugging stuck jobs or verifying data provenance.
 - DB: unchanged
 
 ### 3b. Upload fails partway
-- Handled by `POST /conversion/abort`, called automatically by the frontend on failure — deletes `projects`, `files`, and `conversion_jobs` rows for this project if the job is still `"pending"`
+- Handled by `POST /conversion/discard`, called automatically by the frontend on failure — deletes `projects`, `files`, and `conversion_jobs` rows for this project if the job is still `"pending"`
 - Fallback: a scheduled cleanup job removes any `conversion_jobs` row still stuck at `"pending"` after a configurable age (`CLEANUP_STALE_AFTER_HOURS`, default 2h), for cases where the abort call itself didn't reach the backend
 - MinIO: both the abort call and the scheduled cleanup also delete any PDF bytes already uploaded under that project's prefix — no orphaned objects remain
 
