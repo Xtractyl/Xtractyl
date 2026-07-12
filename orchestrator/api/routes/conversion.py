@@ -1,6 +1,7 @@
 # orchestrator/api/routes/conversion.py
 
 from domain.conversion import (
+    discard_conversion,
     get_conversion_status,
     handle_conversion_callback,
     prepare_conversion,
@@ -11,6 +12,7 @@ from domain.models.conversion import (
     ConversionCallbackCommand,
     ConversionStatusCommand,
     ConvertCommand,
+    DiscardConversionCommand,
     PrepareConversionCommand,
 )
 from flask import jsonify, request
@@ -23,6 +25,8 @@ from api.contracts.conversion import (
     ConversionStatusResponse,
     ConvertRequest,
     ConvertResponse,
+    DiscardConversionRequest,
+    DiscardConversionResponse,
     PrepareConversionRequest,
     PrepareConversionResponse,
 )
@@ -93,6 +97,39 @@ def register(app, spec, storage, queue, session_factory):
             db.close()
         try:
             validated = ConvertResponse.model_validate(result)
+        except ValidationError as e:
+            raise InternalError(
+                code="RESPONSE_CONTRACT_VIOLATED",
+                message="Internal response did not match expected schema.",
+                meta={"details": e.errors()},
+            )
+        return jsonify(validated.model_dump()), 200
+
+    @app.route("/conversion/discard", methods=["POST"])
+    @spec.validate(
+        body=Request(DiscardConversionRequest),
+        resp=Response(
+            HTTP_200=DiscardConversionResponse,
+            HTTP_409=ErrorResponse,
+            HTTP_500=ErrorResponse,
+        ),
+        tags=["conversion"],
+    )
+    def conversion_discard():
+        contract = DiscardConversionRequest.model_validate(request.get_json(silent=True) or {})
+        cmd = DiscardConversionCommand.from_contract(job_id=contract.job_id)
+        db = session_factory()
+        try:
+            repo = ConversionRepository(db)
+            result = discard_conversion(cmd, repo=repo, storage=storage)
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
+        try:
+            validated = DiscardConversionResponse.model_validate(result)
         except ValidationError as e:
             raise InternalError(
                 code="RESPONSE_CONTRACT_VIOLATED",
