@@ -304,6 +304,31 @@ services:
       postgres_xtractyl:
         condition: service_healthy
 
+  # --- Container to cleanup DB and storage ---
+  # gets the code from /orchestrator exception to keep code DRY
+  cleanup:
+    build:
+      context: .
+      dockerfile: docker/cleanup/Dockerfile
+    container_name: ${CLEANUP_CONTAINER_NAME:-cleanup}
+    depends_on:
+      postgres_xtractyl:
+        condition: service_healthy
+    environment:
+      - CLEANUP_INTERVAL_SECONDS=${CLEANUP_INTERVAL_SECONDS:-3600}
+      - CLEANUP_STALE_AFTER_HOURS=${CLEANUP_STALE_AFTER_HOURS:-2}
+      - POSTGRES_XTRACTYL_USER=${POSTGRES_XTRACTYL_USER:-xtractyl}
+      - POSTGRES_XTRACTYL_PASSWORD=${POSTGRES_XTRACTYL_PASSWORD:-yourpassword}
+      - POSTGRES_XTRACTYL_CONTAINER_NAME=${POSTGRES_XTRACTYL_CONTAINER_NAME:-postgres_xtractyl}
+      - POSTGRES_XTRACTYL_DB=${POSTGRES_XTRACTYL_DB:-xtractyl}
+      - MINIO_CONTAINER_NAME=${MINIO_CONTAINER_NAME:-minio}
+      - MINIO_API_PORT=${MINIO_API_PORT:-9000}
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-yourpassword}
+      - MINIO_BUCKET=${MINIO_BUCKET:-xtractyl}
+    restart: unless-stopped
+
+
 volumes:
   labelstudio_data:
   pgdata:
@@ -314,3 +339,4 @@ volumes:
   xdg_cache:
   xdg_data:
   redis_data:
+
