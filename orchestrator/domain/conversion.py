@@ -10,6 +10,7 @@ from domain.models.conversion import (
     ConversionCallbackCommand,
     ConversionStatusCommand,
     ConvertCommand,
+    DiscardConversionCommand,
     PrepareConversionCommand,
 )
 
@@ -32,6 +33,24 @@ def prepare_conversion(
         presigned_urls.append({"filename": filename, "upload_url": url, "pdf_key": pdf_key})
     job_id = repo.create_conversion_job(project=cmd.project, total_files=len(cmd.filenames))
     return {"job_id": job_id, "presigned_urls": presigned_urls}
+
+
+def discard_conversion(
+    cmd: DiscardConversionCommand,
+    repo: ConversionRepositoryInterface,
+    storage: StorageInterface,
+) -> dict:
+    job = repo.get_conversion_job(cmd.job_id)
+    if not job:
+        return {"status": "already_gone"}
+    if job.status != "pending":
+        raise InvalidState(
+            code="JOB_NOT_DISCARDABLE",
+            message="Job has already started converting; cannot discard.",
+        )
+    storage.delete_prefix(job.project)
+    repo.delete_project_cascade(job.project)
+    return {"status": "discarded"}
 
 
 def start_conversion(

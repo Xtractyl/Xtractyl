@@ -4,6 +4,7 @@ from datetime import timedelta
 from domain.errors import ExternalServiceError
 from infrastructure.interfaces.storage import StorageInterface
 from minio import Minio
+from minio.deleteobjects import DeleteObject
 from minio.error import S3Error
 
 
@@ -50,4 +51,22 @@ class MinioStorage(StorageInterface):
             raise ExternalServiceError(
                 code="MINIO_GET_FAILED",
                 message=f"Could not read object {key} from MinIO.",
+            ) from e
+
+    def delete_prefix(self, prefix: str) -> None:
+        try:
+            objects = self._client.list_objects(self._bucket, prefix=f"{prefix}/", recursive=True)
+            to_delete = [DeleteObject(obj.object_name) for obj in objects]
+            if not to_delete:
+                return
+            errors = list(self._client.remove_objects(self._bucket, to_delete))
+            if errors:
+                raise ExternalServiceError(
+                    code="MINIO_DELETE_FAILED",
+                    message=f"Failed to delete some objects under {prefix}.",
+                )
+        except S3Error as e:
+            raise ExternalServiceError(
+                code="MINIO_DELETE_FAILED",
+                message=f"Could not delete objects under {prefix}.",
             ) from e

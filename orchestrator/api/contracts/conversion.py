@@ -39,6 +39,14 @@ class ConvertRequest(BaseModel):
     job_id: int
 
 
+class DiscardConversionRequest(BaseModel):
+    job_id: int
+
+
+class DiscardConversionResponse(BaseModel):
+    status: str
+
+
 class ConvertResponse(BaseModel):
     job_id: int
     status: str

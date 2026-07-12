@@ -21,6 +21,14 @@ class PrepareConversionCommand(BaseModel):
             )
 
 
+class DiscardConversionCommand(BaseModel):
+    job_id: int
+
+    @classmethod
+    def from_contract(cls, job_id: int):
+        return cls(job_id=job_id)
+
+
 class ConvertCommand(BaseModel):
     job_id: int
 

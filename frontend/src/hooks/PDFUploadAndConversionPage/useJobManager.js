@@ -1,6 +1,6 @@
 //src/hooks/PDFUploadAndConversionPage/useJobManager.js
 import { useState, useEffect, useCallback } from "react";
-import { prepareConversion, uploadToMinio, startConversion, getConversionStatus } from "../../api/PDFUploadAndConversionPage/api";
+import { prepareConversion, discardConversion, uploadToMinio, startConversion, getConversionStatus } from "../../api/PDFUploadAndConversionPage/api";
 
 export default function useJobManager(projectName, files) {
   const [jobId, setJobId] = useState(() => localStorage.getItem("conversionJobId"));
@@ -64,10 +64,13 @@ export default function useJobManager(projectName, files) {
     setServerMsg("");
     if (!projectName || files.length === 0) return;
     setSubmitBusy(true);
+    let job_id;
     try {
       // 1. Prepare: get presigned URLs
       const filenames = files.map((f) => f.name);
-      const { job_id, presigned_urls } = await prepareConversion(projectName, filenames);
+      const prep = await prepareConversion(projectName, filenames);
+      job_id = prep.job_id;
+      const presigned_urls = prep.presigned_urls;
 
       // 2. Upload each file directly to MinIO
       await Promise.all(
@@ -85,11 +88,14 @@ export default function useJobManager(projectName, files) {
       localStorage.setItem("conversionJobId", job_id);
       setServerMsg("✅ Upload complete, conversion started.");
     } catch (err) {
-      if (err?.status === 400) {
-        setServerMsg("❌ Invalid input.");
-      } else {
-        setServerMsg(`❌ ${err.message || "Couldn't start conversion."}`);
+      if (job_id) {
+        try {
+          await discardConversion(job_id);
+        } catch {
+          /* best effort, ignore */
+        }
       }
+      setServerMsg(`❌ ${err.message || "Couldn't start conversion."}`);
     } finally {
       setSubmitBusy(false);
     }

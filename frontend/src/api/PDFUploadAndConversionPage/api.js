@@ -19,8 +19,22 @@ export async function uploadToMinio(uploadUrl, file) {
     body: file,
     headers: { "Content-Type": "application/pdf" },
   });
-  if (!res.ok) throw new Error(`MinIO upload failed for ${file.name}: ${res.status}`);
+  if (!res.ok) {
+    const err = new Error(`MinIO upload failed for ${file.name}: ${res.status}`);
+    err.status = res.status;
+    throw err;
+  }
 }
+
+/** POST /conversion/discard -> { status } */
+export async function discardConversion(jobId) {
+  return r(`/conversion/discard`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ job_id: jobId }),
+  });
+}
+
 
 /** POST /conversion/convert -> { job_id, status } */
 export async function startConversion(jobId) {

@@ -23,6 +23,9 @@ class ConversionRepositoryInterface(ABC):
     def get_pdf_keys_for_project(self, project: str) -> List[str]: ...
 
     @abstractmethod
+    def delete_project_cascade(self, project: str) -> None: ...
+
+    @abstractmethod
     def set_conversion_job_status(
         self, job_id: int, status: str, error: Optional[str] = None
     ) -> None: ...
@@ -147,3 +150,9 @@ class PrelabellingRunRepositoryInterface(ABC):
 
     @abstractmethod
     def build_pred_rows_for_run(self, prelabelling_run_id: int) -> list: ...
+
+    @abstractmethod
+    def get_evaluations_by_groundtruth_project(self, groundtruth_project: str) -> list: ...
+
+    @abstractmethod
+    def list_evaluation_series(self) -> list[str]: ...
