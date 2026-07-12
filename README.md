@@ -376,7 +376,9 @@ Explicitly not included
 
 Not included because it runs forever
 	- worker (endless loop; no health endpoint; would require a special “smoke mode”)
-
+	- worker_conversion (endless loop; no health endpoint; would require a special "smoke mode")
+	- cleanup (endless loop; no health endpoint; would require a special "smoke mode")
+   
 ```bash
 make deps
 make up
