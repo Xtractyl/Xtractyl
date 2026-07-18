@@ -2,6 +2,7 @@
 from typing import List, Optional
 
 from db.models import ConversionJob, File, Project
+from domain.errors import NotFound
 from infrastructure.interfaces.repository import ConversionRepositoryInterface
 
 
@@ -49,11 +50,15 @@ class ConversionRepository(ConversionRepositoryInterface):
         self, job_id: int, status: str, error: Optional[str] = None
     ) -> None:
         job = self.get_conversion_job(job_id)
-        if job:
-            job.status = status
-            if error:
-                job.error = error
-            self._db.flush()
+        if not job:
+            raise NotFound(
+                code="CONVERSION_JOB_VANISHED",
+                message=f"Conversion job {job_id} no longer exists.",
+            )
+        job.status = status
+        if error:
+            job.error = error
+        self._db.flush()
 
     def set_file_html_key(
         self,
