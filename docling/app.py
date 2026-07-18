@@ -25,6 +25,10 @@ def convert_from_url():
     pdf_url = data.get("pdf_url")
     filename = data.get("filename", "document.pdf")
 
+    filename = os.path.basename(filename)
+    if not filename or filename in (".", ".."):
+        filename = "document.pdf"
+
     if not pdf_url:
         return jsonify({"error": "Missing pdf_url"}), 400
 
