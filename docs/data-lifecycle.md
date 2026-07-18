@@ -111,13 +111,19 @@ Useful for debugging stuck jobs or verifying data provenance.
 - DB: unchanged
 
 ### 3b. Upload fails partway
-- Handled by `POST /conversion/discard`, called automatically by the frontend on failure — deletes `projects`, `files`, and `conversion_jobs` rows for this project if the job is still `"pending"`
-- Fallback: a scheduled cleanup job removes any `conversion_jobs` row still stuck at `"pending"` after a configurable age (`CLEANUP_STALE_AFTER_HOURS`, default 2h), for cases where the abort call itself didn't reach the backend
+- Handled by `POST /conversion/discard`, called automatically by the frontend on failure — deletes `projects`, `files`, and `conversion_jobs` rows for this project if the job is still `"pending"` **or `"failed"`**
+- Fallback: a scheduled cleanup job removes any `conversion_jobs` row still stuck at `"pending"`, `"converting"`, or `"failed"` after a configurable age (`CLEANUP_STALE_AFTER_HOURS`, default 2h), for cases where the abort call itself didn't reach the backend
+  - `"pending"` is checked against `created_at` (never made it past prepare — no progress to protect)
+  - `"converting"`/`"failed"` are checked against `updated_at` instead, so a job that is still receiving per-file callbacks (see step 5) is never killed mid-flight — only genuinely stuck jobs (e.g. a crashed worker) get cleaned up
 - MinIO: both the abort call and the scheduled cleanup also delete any PDF bytes already uploaded under that project's prefix — no orphaned objects remain
 
 ### 4. `start_conversion` (`POST /conversion/convert`)
 - `conversion_jobs.status` → `"converting"`
-- Everything else unchanged
+ - On success: `files.html_key`, `files.pdf_hash`, `files.html_hash` are set
+ - On failure: `files.error` is set instead
+- `conversion_jobs.converted_files` += 1 (regardless of per-file success or failure) — done as a single atomic SQL `UPDATE ... SET converted_files = converted_files + 1` (not a Python read-modify-write), so concurrent callbacks can't lose an increment
+- `conversion_jobs.updated_at` is bumped in the same statement — this is what the cleanup fallback (step 3b) uses to tell "still making progress" apart from "stuck"
+ - MinIO: HTML file written to `html_key` (on success only)
 
 ### 5. Worker Conversion (per file)
 - On success: `files.html_key`, `files.pdf_hash`, `files.html_hash` are set
@@ -126,8 +132,10 @@ Useful for debugging stuck jobs or verifying data provenance.
 - MinIO: HTML file written to `html_key` (on success only)
 
 ### 6. Last file finishes (`handle_conversion_callback`)
-- `conversion_jobs.status` → `"done"` (all files have `html_key`) or `"failed"` (at least one file has no `html_key`)
-- `conversion_jobs.error` set to e.g. `"N file(s) failed to convert."` if any failed
+- Fail-fast: as soon as *any* file's callback reports `success=False`, the whole job is immediately set to `"failed"` — the worker is told to stop processing the remaining files for this job, since the project will be discarded anyway
+- `conversion_jobs.status` → `"done"` only if every file succeeded; `"failed"` as soon as the first one doesn't
+- `conversion_jobs.error` set to `"<filename>: <error>"` for the first file that failed
+- On `"failed"`: the frontend automatically fires `POST /conversion/discard` in the background right after showing the error (best effort, failure is swallowed client-side) — so the project name is freed up immediately instead of waiting for the 2h cleanup fallback from step 3b
 
 ---
 
