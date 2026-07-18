@@ -4,11 +4,9 @@ import tempfile
 
 import requests as req
 from flask import Flask, jsonify, request
-from flask_cors import CORS
 from utils.logging_utils import dev_logger, safe_logger
 
 app = Flask(__name__)
-CORS(app, origins=[f"http://localhost:{os.getenv('FRONTEND_PORT', '5173')}"])
 
 PORT = int(os.getenv("DOCLING_PORT", "5004"))
 
