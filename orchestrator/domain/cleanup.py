@@ -20,22 +20,29 @@ def cleanup_stale_conversion_jobs(db, storage, stale_after_hours: int = 2) -> in
 
     count = 0
     for project in stale_projects:
-        result = db.execute(
-            text("""
-            DELETE FROM conversion_jobs
-            WHERE project = :p AND status IN ('pending', 'converting', 'failed')
-            RETURNING id
-        """),
-            {"p": project},
-        )
-        if not result.fetchone():
+        try:
+            result = db.execute(
+                text("""
+                DELETE FROM conversion_jobs
+                WHERE project = :p AND status IN ('pending', 'converting', 'failed')
+                RETURNING id
+            """),
+                {"p": project},
+            )
+            if not result.fetchone():
+                db.rollback()
+                continue
+
+            db.execute(text("DELETE FROM files WHERE project = :p"), {"p": project})
+            db.execute(text("DELETE FROM projects WHERE name = :p"), {"p": project})
+            db.commit()  # DB state for this project is now safely persisted...
+
+            storage.delete_prefix(project)  # ...before we touch the irreversible MinIO side
+            count += 1
+            safe_logger.info("stale_project_cleaned | project=%s", project)
+        except Exception:
+            db.rollback()
+            safe_logger.error("stale_project_cleanup_failed | project=%s", project)
             continue
 
-        storage.delete_prefix(project)
-        db.execute(text("DELETE FROM files WHERE project = :p"), {"p": project})
-        db.execute(text("DELETE FROM projects WHERE name = :p"), {"p": project})
-        count += 1
-        safe_logger.info("stale_project_cleaned | project=%s", project)
-
-    db.commit()
     return count
