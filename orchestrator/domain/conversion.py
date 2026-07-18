@@ -43,7 +43,7 @@ def discard_conversion(
     job = repo.get_conversion_job(cmd.job_id)
     if not job:
         return {"status": "already_gone"}
-    if job.status != "pending":
+    if job.status not in ("pending", "failed"):
         raise InvalidState(
             code="JOB_NOT_DISCARDABLE",
             message="Job has already started converting; cannot discard.",
