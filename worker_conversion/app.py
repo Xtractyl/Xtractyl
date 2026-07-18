@@ -56,9 +56,9 @@ def _send_callback(
     error: str | None = None,
     pdf_hash: str | None = None,
     html_hash: str | None = None,
-) -> None:
+) -> bool:
     try:
-        requests.post(
+        resp = requests.post(
             ORCHESTRATOR_CALLBACK_URL,
             json={
                 "job_id": job_id,
@@ -71,10 +71,13 @@ def _send_callback(
             },
             timeout=10,
         )
+        resp.raise_for_status()
+        return resp.json().get("continue", True)
     except requests.RequestException as e:
         safe_logger.error("callback_failed | job_id=%s | pdf_filename=%s", job_id, filename)
         if dev_logger:
             dev_logger.exception("callback_failed_dev | error=%s", str(e))
+        return True  # prefer continuing job when backend status response fails
 
 
 def convert_file(job_id: int, pdf_key: str, minio: Minio):
@@ -126,7 +129,7 @@ def handle_job(job: ConversionJobPayload) -> None:
     for pdf_key in job.pdf_keys:
         filename = os.path.basename(pdf_key)
         success, html_key, error, pdf_hash, html_hash = convert_file(job.job_id, pdf_key, minio)
-        _send_callback(
+        should_continue = _send_callback(
             job_id=job.job_id,
             filename=filename,
             html_key=html_key,
@@ -146,6 +149,9 @@ def handle_job(job: ConversionJobPayload) -> None:
                     filename,
                     error,
                 )
+        if not should_continue:
+            safe_logger.info("conversion_job_stopped_early | job_id=%s", job.job_id)
+            break
 
     safe_logger.info("conversion_job_finished | job_id=%s", job.job_id)
 
