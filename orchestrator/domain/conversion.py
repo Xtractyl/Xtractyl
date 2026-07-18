@@ -94,19 +94,38 @@ def handle_conversion_callback(
     job = repo.get_conversion_job(cmd.job_id)
     if not job:
         raise NotFound(code="CONVERSION_JOB_NOT_FOUND", message="Conversion job not found.")
-    if cmd.success:
-        repo.set_file_html_key(
+    if not cmd.success:
+        repo.set_file_error(
             project=job.project,
             filename=cmd.filename,
-            html_key=cmd.html_key,
-            pdf_hash=cmd.pdf_hash,
-            html_hash=cmd.html_hash,
+            error=cmd.error or "Conversion failed for unknown reason.",
         )
+        repo.increment_converted_files(job.id)
+        if job.status != "failed":
+            repo.set_conversion_job_status(
+                job.id,
+                "failed",
+                error=f"{cmd.filename}: {cmd.error or 'conversion failed'}",
+            )
+        return {"status": "ok", "continue": False}
+
+    repo.set_file_html_key(
+        project=job.project,
+        filename=cmd.filename,
+        html_key=cmd.html_key,
+        pdf_hash=cmd.pdf_hash,
+        html_hash=cmd.html_hash,
+    )
     repo.increment_converted_files(job.id)
     updated_job = repo.get_conversion_job(cmd.job_id)
+    if updated_job.status == "failed":
+        # Unreachable under the current strictly sequential single-worker processing
+        # (fail-fast breaks the per-file loop immediately). Kept as a guard for a
+        # future intra-job parallelization where this race could actually occur.
+        return {"status": "ok", "continue": False}
+
     if updated_job.converted_files >= updated_job.total_files:
-        failed = repo.count_files_without_html_key(job.project)
-        status = "failed" if failed > 0 else "done"
-        error = f"{failed} file(s) failed to convert." if failed > 0 else None
-        repo.set_conversion_job_status(job.id, status, error=error)
-    return {"status": "ok"}
+        repo.set_conversion_job_status(job.id, "done")
+        return {"status": "ok", "continue": False}
+
+    return {"status": "ok", "continue": True}
