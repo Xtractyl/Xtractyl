@@ -131,7 +131,7 @@ Useful for debugging stuck jobs or verifying data provenance.
 - `conversion_jobs.converted_files` += 1 (regardless of per-file success or failure)
 - MinIO: HTML file written to `html_key` (on success only)
 
-### 6. Last file finishes (`handle_conversion_callback`)
+### 6. Job reaches a terminal state (`handle_conversion_callback`)
 - Fail-fast: as soon as *any* file's callback reports `success=False`, the whole job is immediately set to `"failed"` — the worker is told to stop processing the remaining files for this job, since the project will be discarded anyway
 - `conversion_jobs.status` → `"done"` only if every file succeeded; `"failed"` as soon as the first one doesn't
 - `conversion_jobs.error` set to `"<filename>: <error>"` for the first file that failed
