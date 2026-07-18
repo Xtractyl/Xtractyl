@@ -22,6 +22,7 @@ from pydantic import ValidationError
 
 from api.contracts.conversion import (
     ConversionCallbackRequest,
+    ConversionCallbackResponse,
     ConversionStatusResponse,
     ConvertRequest,
     ConvertResponse,
@@ -166,7 +167,9 @@ def register(app, spec, storage, queue, session_factory):
     @app.route("/conversion/callback", methods=["POST"])
     @spec.validate(
         body=Request(ConversionCallbackRequest),
-        resp=Response(HTTP_200=ErrorResponse, HTTP_404=ErrorResponse, HTTP_500=ErrorResponse),
+        resp=Response(
+            HTTP_200=ConversionCallbackResponse, HTTP_404=ErrorResponse, HTTP_500=ErrorResponse
+        ),
         tags=["conversion"],
     )
     def conversion_callback():
@@ -190,4 +193,12 @@ def register(app, spec, storage, queue, session_factory):
             raise
         finally:
             db.close()
-        return jsonify(result), 200
+        try:
+            validated = ConversionCallbackResponse.model_validate(result)
+        except ValidationError as e:
+            raise InternalError(
+                code="RESPONSE_CONTRACT_VIOLATED",
+                message="Internal response did not match expected schema.",
+                meta={"details": e.errors()},
+            )
+        return jsonify(validated.model_dump()), 200
