@@ -71,13 +71,17 @@ class ConversionRepository(ConversionRepositoryInterface):
         file_record = (
             self._db.query(File).filter(File.project == project, File.filename == filename).first()
         )
-        if file_record:
-            file_record.html_key = html_key
-            if pdf_hash:
-                file_record.pdf_hash = pdf_hash
-            if html_hash:
-                file_record.html_hash = html_hash
-            self._db.flush()
+        if not file_record:
+            raise NotFound(
+                code="FILE_NOT_FOUND",
+                message=f"File '{filename}' not found for project '{project}'.",
+            )
+        file_record.html_key = html_key
+        if pdf_hash:
+            file_record.pdf_hash = pdf_hash
+        if html_hash:
+            file_record.html_hash = html_hash
+        self._db.flush()
 
     def increment_converted_files(self, job_id: int) -> None:
         job = self.get_conversion_job(job_id)
