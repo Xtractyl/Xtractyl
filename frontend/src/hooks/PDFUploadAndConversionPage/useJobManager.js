@@ -32,10 +32,16 @@ export default function useJobManager(projectName, files) {
         const s = await getConversionStatus(jobId);
         setJobStatus(s);
 
-        if (["done", "error", "cancelled"].includes(s.status)) {
+        if (["done", "failed"].includes(s.status)) {
           localStorage.removeItem("conversionJobId");
           setJobId(null);
           setServerMsg(s.status === "done" ? "✅ Conversion complete." : `❌ Conversion ${s.status}.`);
+          if (s.status === "failed") {
+            // best effort: free project name for another try by user
+            discardConversion(jobId).catch(() => {
+              /* Cleanup-Container will remove it after 2h in case of failure here */
+            });
+          }         
           return;
         }
         schedule();
