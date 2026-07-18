@@ -145,9 +145,6 @@ def register(app, spec, session_factory, label_studio, storage):
             repo = ProjectRepository(db)
             result = check_project_exists(cmd, repo=repo)
             db.commit()
-        except Exception:
-            db.rollback()
-            raise
         finally:
             db.close()
         try:
@@ -174,9 +171,6 @@ def register(app, spec, session_factory, label_studio, storage):
             repo = ProjectRepository(db)
             result = list_projects_ready_for_upload(repo=repo)
             db.commit()
-        except Exception:
-            db.rollback()
-            raise
         finally:
             db.close()
         try:
@@ -207,9 +201,6 @@ def register(app, spec, session_factory, label_studio, storage):
             repo = ProjectRepository(db)
             result = domain_preview_qal(cmd, repo=repo)
             db.commit()
-        except Exception:
-            db.rollback()
-            raise
         finally:
             db.close()
         try:

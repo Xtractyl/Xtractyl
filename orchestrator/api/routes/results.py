@@ -56,9 +56,6 @@ def register(app, spec, session_factory=None):
         try:
             run_repo = PrelabellingRunRepository(db)
             result = build_results_table(cmd, run_repo=run_repo)
-        except Exception:
-            db.rollback()
-            raise
         finally:
             db.close()
         try:

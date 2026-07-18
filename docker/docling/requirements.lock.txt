@@ -25,7 +25,6 @@ easyocr==1.7.2
 et_xmlfile==2.0.0
 filelock==3.20.0
 filetype==1.2.0
-flask-cors==6.0.1
 fsspec==2025.10.0
 hf-xet==1.2.0
 huggingface-hub==0.36.0

@@ -39,6 +39,8 @@ def create_app() -> Flask:
         port=int(os.getenv("REDIS_PORT", "6379")),
         db=1,
         queue_name="conversion_jobs",
+        max_retries=int(os.getenv("REDIS_PUSH_MAX_RETRIES", "3")),
+        retry_delay_seconds=float(os.getenv("REDIS_PUSH_RETRY_DELAY_SECONDS", "0.5")),
     )
     engine = create_engine(os.getenv("DATABASE_URL"))
     session_factory = sessionmaker(bind=engine)

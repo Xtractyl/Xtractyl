@@ -2,7 +2,9 @@
 from typing import List, Optional
 
 from db.models import ConversionJob, File, Project
+from domain.errors import NotFound
 from infrastructure.interfaces.repository import ConversionRepositoryInterface
+from sqlalchemy import func, update
 
 
 class ConversionRepository(ConversionRepositoryInterface):
@@ -49,11 +51,15 @@ class ConversionRepository(ConversionRepositoryInterface):
         self, job_id: int, status: str, error: Optional[str] = None
     ) -> None:
         job = self.get_conversion_job(job_id)
-        if job:
-            job.status = status
-            if error:
-                job.error = error
-            self._db.flush()
+        if not job:
+            raise NotFound(
+                code="CONVERSION_JOB_VANISHED",
+                message=f"Conversion job {job_id} no longer exists.",
+            )
+        job.status = status
+        if error:
+            job.error = error
+        self._db.flush()
 
     def set_file_html_key(
         self,
@@ -66,19 +72,33 @@ class ConversionRepository(ConversionRepositoryInterface):
         file_record = (
             self._db.query(File).filter(File.project == project, File.filename == filename).first()
         )
+        if not file_record:
+            raise NotFound(
+                code="FILE_NOT_FOUND",
+                message=f"File '{filename}' not found for project '{project}'.",
+            )
+        file_record.html_key = html_key
+        if pdf_hash:
+            file_record.pdf_hash = pdf_hash
+        if html_hash:
+            file_record.html_hash = html_hash
+        self._db.flush()
+
+    def set_file_error(self, project: str, filename: str, error: str) -> None:
+        file_record = (
+            self._db.query(File).filter(File.project == project, File.filename == filename).first()
+        )
         if file_record:
-            file_record.html_key = html_key
-            if pdf_hash:
-                file_record.pdf_hash = pdf_hash
-            if html_hash:
-                file_record.html_hash = html_hash
+            file_record.error = error
             self._db.flush()
 
     def increment_converted_files(self, job_id: int) -> None:
-        job = self.get_conversion_job(job_id)
-        if job:
-            job.converted_files += 1
-            self._db.flush()
-
-    def count_files_without_html_key(self, project: str) -> int:
-        return self._db.query(File).filter(File.project == project, File.html_key.is_(None)).count()
+        self._db.execute(
+            update(ConversionJob)
+            .where(ConversionJob.id == job_id)
+            .values(
+                converted_files=ConversionJob.converted_files + 1,
+                updated_at=func.now(),
+            )
+        )
+        self._db.flush()
