@@ -85,9 +85,13 @@ class ConversionRepository(ConversionRepositoryInterface):
 
     def increment_converted_files(self, job_id: int) -> None:
         job = self.get_conversion_job(job_id)
-        if job:
-            job.converted_files += 1
-            self._db.flush()
+        if not job:
+            raise NotFound(
+                code="CONVERSION_JOB_VANISHED",
+                message=f"Conversion job {job_id} no longer exists.",
+            )
+        job.converted_files += 1
+        self._db.flush()
 
     def count_files_without_html_key(self, project: str) -> int:
         return self._db.query(File).filter(File.project == project, File.html_key.is_(None)).count()
