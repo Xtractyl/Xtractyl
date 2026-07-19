@@ -9,6 +9,7 @@ from utils.logging_utils import dev_logger, safe_logger
 app = Flask(__name__)
 
 PORT = int(os.getenv("DOCLING_PORT", "5004"))
+CONVERT_TIMEOUT_SECONDS = int(os.getenv("DOCLING_CONVERT_TIMEOUT_SECONDS", "240"))
 
 
 safe_logger.info("docling_starting")
@@ -52,12 +53,26 @@ def convert_from_url():
         # Convert via Docling CLI
         cmd = ["docling", pdf_path, "--from", "pdf", "--to", "html", "--output", html_dir]
         try:
-            subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run(
+                cmd,
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=CONVERT_TIMEOUT_SECONDS,
+            )
+        except subprocess.TimeoutExpired:
+            safe_logger.error("docling_conversion_timeout | filename=%s", filename)
+            return jsonify(
+                {
+                    "error": f"Conversion timed out after {CONVERT_TIMEOUT_SECONDS}s",
+                    "timeout": True,
+                }
+            ), 504
         except subprocess.CalledProcessError as e:
             safe_logger.error("docling_conversion_failed")
             if dev_logger:
                 dev_logger.exception("docling_conversion_failed_dev | exit=%s", str(e.returncode))
-            return jsonify({"error": "Docling conversion failed"}), 500
+            return jsonify({"error": "Docling conversion failed", "timeout": False}), 500
 
         # Read HTML output
         html_filename = os.path.splitext(filename)[0] + ".html"
