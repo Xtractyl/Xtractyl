@@ -13,11 +13,12 @@ export async function prepareConversion(projectName, filenames) {
 }
 
 /** PUT presigned URL -> upload file directly to MinIO */
-export async function uploadToMinio(uploadUrl, file) {
+export async function uploadToMinio(uploadUrl, file, signal) {
   const res = await fetch(uploadUrl, {
     method: "PUT",
     body: file,
     headers: { "Content-Type": "application/pdf" },
+    signal,
   });
   if (!res.ok) {
     const err = new Error(`MinIO upload failed for ${file.name}: ${res.status}`);

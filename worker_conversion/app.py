@@ -14,6 +14,8 @@ from minio.error import S3Error
 from pydantic import BaseModel, ValidationError
 from utils.logging_utils import dev_logger, safe_logger
 
+WORKER_DOCLING_TIMEOUT_SECONDS = int(os.getenv("WORKER_DOCLING_TIMEOUT_SECONDS", "300"))
+
 r = redis.Redis(
     host=os.getenv("REDIS_HOST", "job_queue"),
     port=int(os.getenv("REDIS_PORT", "6379")),
@@ -98,8 +100,24 @@ def convert_file(job_id: int, pdf_key: str, minio: Minio):
 
     try:
         response = requests.post(
-            f"{DOCLING_URL}/convert", json={"pdf_url": pdf_url, "filename": filename}, timeout=300
+            f"{DOCLING_URL}/convert",
+            json={"pdf_url": pdf_url, "filename": filename},
+            timeout=WORKER_DOCLING_TIMEOUT_SECONDS,
         )
+    except requests.RequestException as e:
+        return (
+            False,
+            None,
+            f"Could not reach Docling (client timeout after {WORKER_DOCLING_TIMEOUT_SECONDS}s): {e}",
+            None,
+            None,
+        )
+
+    if response.status_code == 504 and response.json().get("timeout"):
+        detail = response.json().get("error", "conversion timed out")
+        return False, None, f"Docling timeout: {detail}", None, None
+
+    try:
         response.raise_for_status()
         html_content = response.json().get("html")
         if not html_content:

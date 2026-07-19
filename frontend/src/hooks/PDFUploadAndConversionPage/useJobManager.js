@@ -30,12 +30,18 @@ export default function useJobManager(projectName, files) {
     const tick = async () => {
       try {
         const s = await getConversionStatus(jobId);
+        if (cancelled) return;
         setJobStatus(s);
 
         if (["done", "failed"].includes(s.status)) {
           localStorage.removeItem("conversionJobId");
           setJobId(null);
-          setServerMsg(s.status === "done" ? "✅ Conversion complete." : `❌ Conversion ${s.status}.`);
+          setServerMsg(
+            s.status === "done"
+              ? "✅ Conversion complete."
+              : `❌ Conversion failed.${s.error ? ` ${s.error}` : ""}`
+          );
+
           if (s.status === "failed") {
             // best effort: free project name for another try by user
             discardConversion(jobId).catch(() => {
@@ -78,20 +84,26 @@ export default function useJobManager(projectName, files) {
       job_id = prep.job_id;
       const presigned_urls = prep.presigned_urls;
 
-      // 2. Upload each file directly to MinIO
+      setJobId(job_id);
+      localStorage.setItem("conversionJobId", job_id);
+// 2. Upload each file directly to MinIO. AbortController so that a partial
+     // failure actually cancels the remaining in-flight uploads, instead of letting
+     // them keep running in the background and racing against the discard/MinIO
+     // cleanup (orphaned objects with no matching DB row).
+      const controller = new AbortController();
       await Promise.all(
         presigned_urls.map(({ upload_url, filename }) => {
           const file = files.find((f) => f.name === filename);
-          return uploadToMinio(upload_url, file);
+          return uploadToMinio(upload_url, file, controller.signal);
         })
-      );
+      ).catch((err) => {
+        controller.abort();
+        throw err;
+      });
 
       // 3. Trigger conversion
       await startConversion(job_id);
 
-      // 4. Start polling
-      setJobId(job_id);
-      localStorage.setItem("conversionJobId", job_id);
       setServerMsg("✅ Upload complete, conversion started.");
     } catch (err) {
       if (job_id) {
@@ -100,6 +112,8 @@ export default function useJobManager(projectName, files) {
         } catch {
           /* best effort, ignore */
         }
+        localStorage.removeItem("conversionJobId");
+        setJobId(null);
       }
       setServerMsg(`❌ ${err.message || "Couldn't start conversion."}`);
     } finally {
