@@ -144,6 +144,7 @@ services:
       - ${XDG_DATA_VOLUME:-xdg_data}:/root/.local/share
     environment:
       - SERVICE_NAME=docling
+      - DOCLING_CONVERT_TIMEOUT_SECONDS=${DOCLING_CONVERT_TIMEOUT_SECONDS:-240}
       - LOGS_DIR=/app/logs
       - DEV_LOGS_DIR=/app/data/logs
       - XDG_CACHE_HOME=${XDG_CACHE_HOME:-/root/.cache}
@@ -226,6 +227,7 @@ services:
       - MINIO_BUCKET=${MINIO_BUCKET:-xtractyl}
       - DOCLING_CONTAINER_NAME=${DOCLING_CONTAINER_NAME:-docling}
       - DOCLING_PORT=${DOCLING_PORT:-5004}
+      - WORKER_DOCLING_TIMEOUT_SECONDS=${WORKER_DOCLING_TIMEOUT_SECONDS:-300}
       - ORCH_CONTAINER_NAME=${ORCH_CONTAINER_NAME:-orchestrator}
       - ORCH_PORT=${ORCH_PORT:-5001}
       - DEBUG_ARTIFACTS=${DEBUG_ARTIFACTS:-0}
