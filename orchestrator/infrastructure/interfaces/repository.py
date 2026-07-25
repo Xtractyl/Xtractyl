@@ -44,6 +44,9 @@ class ConversionRepositoryInterface(ABC):
     def set_file_error(self, project: str, filename: str, error: str) -> None: ...
 
     @abstractmethod
+    def commit(self) -> None: ...
+
+    @abstractmethod
     def increment_converted_files(self, job_id: int) -> None: ...
 
 
