@@ -1,5 +1,6 @@
 # orchestrator/api/contracts/conversion.py
 
+import re
 from typing import List, Optional
 
 from pydantic import BaseModel, field_validator
@@ -11,10 +12,13 @@ class PrepareConversionRequest(BaseModel):
 
     @field_validator("project")
     @classmethod
-    def project_not_empty(cls, v: str) -> str:
-        if not v or len(v.strip()) < 3:
+    def validate_project_name(cls, v: str) -> str:
+        v = (v or "").strip()
+        if len(v) < 3:
             raise ValueError("project name must be at least 3 characters")
-        return v.strip()
+        if not re.fullmatch(r"[A-Za-z0-9_]+", v):
+            raise ValueError("project name may only contain letters, numbers, and underscores")
+        return v
 
     @field_validator("filenames")
     @classmethod
