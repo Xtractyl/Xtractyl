@@ -69,6 +69,11 @@ def list_projects_ready_for_upload(repo: ProjectRepositoryInterface):
     return {"projects": [p.name for p in projects]}
 
 
+def list_projects_without_label_studio_id(repo: ProjectRepositoryInterface):
+    projects = repo.get_projects_without_label_studio_id()
+    return {"projects": [p.name for p in projects]}
+
+
 def preview_qal(cmd: PreviewQalCommand, repo: ProjectRepositoryInterface):
     qal = repo.get_questions_and_labels(cmd.project)
     if not qal:
