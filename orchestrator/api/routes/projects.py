@@ -10,6 +10,7 @@ from domain.projects import (
     check_project_exists,
     create_project_main_from_payload,
     list_projects_ready_for_upload,
+    list_projects_without_label_studio_id,
     upload_tasks_main_from_payload,
 )
 from domain.projects import (
@@ -25,6 +26,7 @@ from api.contracts.projects import (
     CreateProjectRequest,
     CreateProjectResponse,
     ListProjectsReadyForUploadResponse,
+    ListProjectsWithoutLabelStudioIdResponse,
     PreviewQalRequest,
     PreviewQalResponse,
     ProjectExistsRequest,
@@ -149,6 +151,35 @@ def register(app, spec, session_factory, label_studio, storage):
             db.close()
         try:
             validated = ProjectExistsResponse.model_validate(result)
+        except ValidationError as e:
+            raise InternalError(
+                code="RESPONSE_CONTRACT_VIOLATED",
+                message="Internal response did not match expected schema.",
+                meta={"details": e.errors()},
+            )
+        return jsonify(validated.model_dump()), 200
+
+    @app.route("/list_projects_without_label_studio_id", methods=["GET"])
+    @spec.validate(
+        resp=Response(
+            HTTP_200=ListProjectsWithoutLabelStudioIdResponse,
+            HTTP_500=ErrorResponse,
+        ),
+        tags=["projects"],
+    )
+    def list_projects_without_label_studio_id_route():
+        db = session_factory()
+        try:
+            repo = ProjectRepository(db)
+            result = list_projects_without_label_studio_id(repo=repo)
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
+        try:
+            validated = ListProjectsWithoutLabelStudioIdResponse.model_validate(result)
         except ValidationError as e:
             raise InternalError(
                 code="RESPONSE_CONTRACT_VIOLATED",
