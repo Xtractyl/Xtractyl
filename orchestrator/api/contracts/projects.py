@@ -31,6 +31,10 @@ class ListProjectsReadyForUploadResponse(BaseModel):
     projects: list[str]
 
 
+class ListProjectsReadyForCreationResponse(BaseModel):
+    projects: list[str]
+
+
 class PreviewQalResponse(BaseModel):
     data: Any
 

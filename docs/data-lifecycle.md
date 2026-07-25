@@ -117,19 +117,23 @@ Useful for debugging stuck jobs or verifying data provenance.
   - `"converting"`/`"failed"` are checked against `updated_at` instead, so a job that is still receiving per-file callbacks (see step 5) is never killed mid-flight — only genuinely stuck jobs (e.g. a crashed worker) get cleaned up
 - MinIO: both the abort call and the scheduled cleanup also delete any PDF bytes already uploaded under that project's prefix — no orphaned objects remain
 
+### 3c. Orphaned MinIO prefixes with no matching `projects` row
+- Separate fallback, runs in the same periodic cleanup loop as 3b: lists all top-level prefixes in the MinIO bucket and compares them against `projects.name`
+- Any prefix with no matching row is deleted — this is the actual safety net for the case where `discard_conversion`'s DB deletion committed successfully but the subsequent `storage.delete_prefix` call failed (DB-first ordering means this is the only failure mode possible; the reverse — a MinIO prefix that DB rows still reference — cannot occur)
+- Per-prefix error isolation: a failure on one prefix logs and continues, does not abort the rest of the sweep
+
 ### 4. `start_conversion` (`POST /conversion/convert`)
 - `conversion_jobs.status` → `"converting"`
- - On success: `files.html_key`, `files.pdf_hash`, `files.html_hash` are set
- - On failure: `files.error` is set instead
-- `conversion_jobs.converted_files` += 1 (regardless of per-file success or failure) — done as a single atomic SQL `UPDATE ... SET converted_files = converted_files + 1` (not a Python read-modify-write), so concurrent callbacks can't lose an increment
-- `conversion_jobs.updated_at` is bumped in the same statement — this is what the cleanup fallback (step 3b) uses to tell "still making progress" apart from "stuck"
- - MinIO: HTML file written to `html_key` (on success only)
+- Everything else unchanged — no per-file writes happen here, those only start once the worker picks the job up (step 5)
+
 
 ### 5. Worker Conversion (per file)
 - On success: `files.html_key`, `files.pdf_hash`, `files.html_hash` are set
 - On failure: `files.error` is set instead
-- `conversion_jobs.converted_files` += 1 (regardless of per-file success or failure)
+- `conversion_jobs.converted_files` += 1 (regardless of per-file success or failure) — done as a single atomic SQL `UPDATE ... SET converted_files = converted_files + 1` (not a Python read-modify-write), so concurrent callbacks can't lose an increment
+- `conversion_jobs.updated_at` is bumped in the same statement — this is what the cleanup fallback (step 3b) uses to tell "still making progress" apart from "stuck"
 - MinIO: HTML file written to `html_key` (on success only)
+
 
 ### 6. Job reaches a terminal state (`handle_conversion_callback`)
 - Fail-fast: as soon as *any* file's callback reports `success=False`, the whole job is immediately set to `"failed"` — the worker is told to stop processing the remaining files for this job, since the project will be discarded anyway
@@ -141,14 +145,29 @@ Useful for debugging stuck jobs or verifying data provenance.
 
 ## Create Project Pipeline
 
-> TODO — not yet reviewed in detail. Touches `projects.label_studio_id`, `projects.questions_and_labels`, `projects.labels_hash` (via `save_questions_and_labels`/`set_label_studio_id`). Known open finding: these writes are silent no-ops if the `projects` row doesn't exist yet (see review checklist item #1/#5) — relevant if Create Project is used before Upload & Convert.
+### `create_project_main_from_payload` (`POST /create_project`)
+- Requires `conversion_jobs.status == "done"` for that project — explicitly checked and rejected with `CONVERSION_NOT_DONE` before any Label Studio call is made. This is a real backend guard (`repo.is_conversion_done`), not just a UI-level filter — calling the endpoint directly for a still-`"converting"` or `"failed"` project is rejected server-side
+- Creates a real Label Studio project + attaches the ML backend (external side effects, in this order)
+- `projects.label_studio_id` set to the returned Label Studio project ID
+- `projects.questions_and_labels` (JSONB) and `projects.labels_hash` set from the submitted questions/labels
+- No MinIO writes
+- The candidate list shown in the frontend dropdown (`ConvertedProjectSelect`, backed by `GET /list_projects_ready_for_creation`) requires both `label_studio_id IS NULL` **and** `conversion_jobs.status == "done"` — a project still `"converting"` or `"failed"`-but-not-yet-cleaned-up is excluded, so it can't be picked here while its HTML conversion is incomplete
+
+
+**Resolved finding:** previously, `set_label_studio_id`/`save_questions_and_labels` were silent no-ops if the `projects` row didn't exist — meaning a real Label Studio project (with ML backend attached) could be created while Xtractyl's own DB recorded nothing, with the API still reporting success. Fixed by the existence check above. The frontend also now only lets the project name be chosen from a dropdown of projects that actually exist and don't have a `label_studio_id` yet (`ConvertedProjectSelect`), rather than free text.
 
 ---
 
 ## Upload Tasks Pipeline
 
-> TODO — not yet reviewed in detail. Touches `projects.ls_tasks_uploaded`, reads `files.html_key`.
-
+### `upload_tasks_main_from_payload` (`POST /upload_tasks`)
+ - Reads `projects.label_studio_id` (must already be set — see Create Project Pipeline above); raises `PROJECT_NOT_FOUND` if unset
+ - Raises `TASKS_ALREADY_UPLOADED` if `projects.ls_tasks_uploaded` is already `true` — prevents duplicate task uploads to Label Studio on a repeated call
+ - Reads all `files.html_key` for the project (only files that already have a non-null `html_key`, i.e. successfully converted ones); raises `NO_HTML_FILES` if none exist
+ - Reads the HTML content for each file directly from MinIO (`storage.get_object`), builds one task per file, uploads them to Label Studio in a single batch call
+ - `projects.ls_tasks_uploaded` set to `true` on success
+ - No new MinIO writes (read-only against MinIO)
+ - Frontend project selection is now a dropdown (`UploadReadyProjectSelect`, backed by `GET /list_projects_ready_for_upload`) instead of free text — structurally limits selection to projects that already have a `label_studio_id` and haven't been uploaded yet
 ---
 
 ## Prelabelling Pipeline

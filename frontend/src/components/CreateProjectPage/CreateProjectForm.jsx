@@ -2,6 +2,7 @@
 import useFormState from "../../hooks/CreateProjectPage/useFormState.js";
 import useError from "../../hooks/CreateProjectPage/useError.js";
 import useSplitLines from "../../hooks/CreateProjectPage/useSplitLines.js";
+import ConvertedProjectSelect from "./ConvertedProjectSelect";
 
 export default function CreateProjectForm({ onSubmit }) {
   const { title, setTitle, questions, setQuestions, labels, setLabels, resetForm } = useFormState();
@@ -31,16 +32,8 @@ export default function CreateProjectForm({ onSubmit }) {
 
   return (
     <form onSubmit={handleFormSubmit} className="space-y-6 mt-10 bg-xtractyl-offwhite p-6 rounded shadow w-full">
-      <div>
-        <label className="block text-sm font-medium mb-1">Project name</label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="At least 3 characters. Use letters, numbers, underscores. Example: Oncology_June_2025"
-          className="w-full px-3 py-2 border rounded"
-        />
-      </div>
+      <ConvertedProjectSelect selected={title} onChange={setTitle} />
+
 
 {/* Numbered Questions + Labels Table */}
 {(() => {

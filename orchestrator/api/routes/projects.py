@@ -9,6 +9,7 @@ from domain.models.projects import (
 from domain.projects import (
     check_project_exists,
     create_project_main_from_payload,
+    list_projects_ready_for_creation,
     list_projects_ready_for_upload,
     upload_tasks_main_from_payload,
 )
@@ -24,6 +25,7 @@ from api.contracts.errors import ErrorResponse
 from api.contracts.projects import (
     CreateProjectRequest,
     CreateProjectResponse,
+    ListProjectsReadyForCreationResponse,
     ListProjectsReadyForUploadResponse,
     PreviewQalRequest,
     PreviewQalResponse,
@@ -145,10 +147,42 @@ def register(app, spec, session_factory, label_studio, storage):
             repo = ProjectRepository(db)
             result = check_project_exists(cmd, repo=repo)
             db.commit()
+        except Exception:
+            db.rollback()
+            raise
         finally:
             db.close()
         try:
             validated = ProjectExistsResponse.model_validate(result)
+        except ValidationError as e:
+            raise InternalError(
+                code="RESPONSE_CONTRACT_VIOLATED",
+                message="Internal response did not match expected schema.",
+                meta={"details": e.errors()},
+            )
+        return jsonify(validated.model_dump()), 200
+
+    @app.route("/list_projects_ready_for_creation", methods=["GET"])
+    @spec.validate(
+        resp=Response(
+            HTTP_200=ListProjectsReadyForCreationResponse,
+            HTTP_500=ErrorResponse,
+        ),
+        tags=["projects"],
+    )
+    def list_projects_ready_for_creation_route():
+        db = session_factory()
+        try:
+            repo = ProjectRepository(db)
+            result = list_projects_ready_for_creation(repo=repo)
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
+        try:
+            validated = ListProjectsReadyForCreationResponse.model_validate(result)
         except ValidationError as e:
             raise InternalError(
                 code="RESPONSE_CONTRACT_VIOLATED",
@@ -171,6 +205,9 @@ def register(app, spec, session_factory, label_studio, storage):
             repo = ProjectRepository(db)
             result = list_projects_ready_for_upload(repo=repo)
             db.commit()
+        except Exception:
+            db.rollback()
+            raise
         finally:
             db.close()
         try:
@@ -201,6 +238,9 @@ def register(app, spec, session_factory, label_studio, storage):
             repo = ProjectRepository(db)
             result = domain_preview_qal(cmd, repo=repo)
             db.commit()
+        except Exception:
+            db.rollback()
+            raise
         finally:
             db.close()
         try:

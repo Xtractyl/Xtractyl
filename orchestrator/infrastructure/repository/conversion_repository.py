@@ -92,6 +92,9 @@ class ConversionRepository(ConversionRepositoryInterface):
             file_record.error = error
             self._db.flush()
 
+    def commit(self) -> None:
+        self._db.commit()
+
     def increment_converted_files(self, job_id: int) -> None:
         self._db.execute(
             update(ConversionJob)

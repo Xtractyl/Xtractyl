@@ -15,3 +15,8 @@ const r = (path, opts) => request(ORCH_BASE, path, opts);
    const data = await r(`/groundtruth_qals`);
    return data.sets;
  }
+
+export async function getProjectsReadyForCreation() {
+  const data = await r(`/list_projects_ready_for_creation`);
+  return data.projects;
+}

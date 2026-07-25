@@ -34,6 +34,20 @@ def create_project_main_from_payload(
     labels = cmd.labels
     token = cmd.token
 
+    if not repo.project_exists(title):
+        raise NotFound(
+            code="PROJECT_NOT_FOUND",
+            message="No project with this name exists yet. Run PDF conversion for this project first.",
+        )
+
+    if not repo.is_conversion_done(
+        title
+    ):  # necessary check, because we will remove xtractyl project when conversion fails
+        raise InvalidState(
+            code="CONVERSION_NOT_DONE",
+            message="PDF conversion for this project must finish successfully before creating a Label Studio project.",
+        )
+
     # Label Studio label config
     label_tags = "\n    ".join([f'<Label value="{label}"/>' for label in labels])
     label_config = f"""
@@ -63,6 +77,11 @@ def list_projects_ready_for_upload(repo: ProjectRepositoryInterface):
     return {"projects": [p.name for p in projects]}
 
 
+def list_projects_ready_for_creation(repo: ProjectRepositoryInterface):
+    projects = repo.get_projects_ready_for_creation()
+    return {"projects": [p.name for p in projects]}
+
+
 def preview_qal(cmd: PreviewQalCommand, repo: ProjectRepositoryInterface):
     qal = repo.get_questions_and_labels(cmd.project)
     if not qal:
@@ -84,6 +103,11 @@ def upload_tasks_main_from_payload(
         raise NotFound(
             code="PROJECT_NOT_FOUND",
             message="Project not found or has no Label Studio ID.",
+        )
+    if repo.tasks_already_uploaded(cmd.project):
+        raise InvalidState(
+            code="TASKS_ALREADY_UPLOADED",
+            message="Tasks have already been uploaded for this project.",
         )
     html_keys = repo.get_html_keys_for_project(cmd.project)
     if not html_keys:

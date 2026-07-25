@@ -2,7 +2,7 @@
 import os
 import time
 
-from domain.cleanup import cleanup_stale_conversion_jobs
+from domain.cleanup import cleanup_stale_conversion_jobs, sweep_orphaned_storage_prefixes
 from infrastructure.storage.minio_storage import MinioStorage
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -37,6 +37,9 @@ def main():
             n = cleanup_stale_conversion_jobs(db, storage, STALE_HOURS)
             if n:
                 safe_logger.info("cleanup_run_completed | cleaned=%s", n)
+            m = sweep_orphaned_storage_prefixes(db, storage)
+            if m:
+                safe_logger.info("orphan_sweep_completed | cleaned=%s", m)
         except Exception:
             db.rollback()
             safe_logger.error("cleanup_run_failed")
