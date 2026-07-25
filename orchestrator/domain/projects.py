@@ -34,6 +34,12 @@ def create_project_main_from_payload(
     labels = cmd.labels
     token = cmd.token
 
+    if not repo.project_exists(title):
+        raise NotFound(
+            code="PROJECT_NOT_FOUND",
+            message="No project with this name exists yet. Run PDF conversion for this project first.",
+        )
+
     # Label Studio label config
     label_tags = "\n    ".join([f'<Label value="{label}"/>' for label in labels])
     label_config = f"""
