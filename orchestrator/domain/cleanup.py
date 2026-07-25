@@ -46,3 +46,22 @@ def cleanup_stale_conversion_jobs(db, storage, stale_after_hours: int = 2) -> in
             continue
 
     return count
+
+
+def sweep_orphaned_storage_prefixes(db, storage) -> int:
+    prefixes = storage.list_top_level_prefixes()
+    known_projects = {row[0] for row in db.execute(text("SELECT name FROM projects")).all()}
+
+    count = 0
+    for prefix in prefixes:
+        if prefix in known_projects:
+            continue
+        try:
+            storage.delete_prefix(prefix)
+            count += 1
+            safe_logger.info("orphaned_storage_prefix_cleaned | prefix=%s", prefix)
+        except Exception:
+            safe_logger.error("orphaned_storage_prefix_cleanup_failed | prefix=%s", prefix)
+            continue
+
+    return count
