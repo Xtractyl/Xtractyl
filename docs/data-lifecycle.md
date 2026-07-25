@@ -124,17 +124,16 @@ Useful for debugging stuck jobs or verifying data provenance.
 
 ### 4. `start_conversion` (`POST /conversion/convert`)
 - `conversion_jobs.status` → `"converting"`
- - On success: `files.html_key`, `files.pdf_hash`, `files.html_hash` are set
- - On failure: `files.error` is set instead
-- `conversion_jobs.converted_files` += 1 (regardless of per-file success or failure) — done as a single atomic SQL `UPDATE ... SET converted_files = converted_files + 1` (not a Python read-modify-write), so concurrent callbacks can't lose an increment
-- `conversion_jobs.updated_at` is bumped in the same statement — this is what the cleanup fallback (step 3b) uses to tell "still making progress" apart from "stuck"
- - MinIO: HTML file written to `html_key` (on success only)
+- Everything else unchanged — no per-file writes happen here, those only start once the worker picks the job up (step 5)
+
 
 ### 5. Worker Conversion (per file)
 - On success: `files.html_key`, `files.pdf_hash`, `files.html_hash` are set
 - On failure: `files.error` is set instead
-- `conversion_jobs.converted_files` += 1 (regardless of per-file success or failure)
+- `conversion_jobs.converted_files` += 1 (regardless of per-file success or failure) — done as a single atomic SQL `UPDATE ... SET converted_files = converted_files + 1` (not a Python read-modify-write), so concurrent callbacks can't lose an increment
+- `conversion_jobs.updated_at` is bumped in the same statement — this is what the cleanup fallback (step 3b) uses to tell "still making progress" apart from "stuck"
 - MinIO: HTML file written to `html_key` (on success only)
+
 
 ### 6. Job reaches a terminal state (`handle_conversion_callback`)
 - Fail-fast: as soon as *any* file's callback reports `success=False`, the whole job is immediately set to `"failed"` — the worker is told to stop processing the remaining files for this job, since the project will be discarded anyway
@@ -147,7 +146,7 @@ Useful for debugging stuck jobs or verifying data provenance.
 ## Create Project Pipeline
 
 ### `create_project_main_from_payload` (`POST /create_project`)
-- Requires an existing `projects` row (created earlier by `prepare_conversion`) — explicitly checked and rejected with `PROJECT_NOT_FOUND` before any Label Studio call is made
+- Requires `conversion_jobs.status == "done"` for that project — explicitly checked and rejected with `CONVERSION_NOT_DONE` before any Label Studio call is made. This is a real backend guard (`repo.is_conversion_done`), not just a UI-level filter — calling the endpoint directly for a still-`"converting"` or `"failed"` project is rejected server-side
 - Creates a real Label Studio project + attaches the ML backend (external side effects, in this order)
 - `projects.label_studio_id` set to the returned Label Studio project ID
 - `projects.questions_and_labels` (JSONB) and `projects.labels_hash` set from the submitted questions/labels
