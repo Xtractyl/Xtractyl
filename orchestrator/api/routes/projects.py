@@ -9,8 +9,8 @@ from domain.models.projects import (
 from domain.projects import (
     check_project_exists,
     create_project_main_from_payload,
-    list_projects_ready_for_upload,
     list_projects_ready_for_creation,
+    list_projects_ready_for_upload,
     upload_tasks_main_from_payload,
 )
 from domain.projects import (
@@ -25,8 +25,8 @@ from api.contracts.errors import ErrorResponse
 from api.contracts.projects import (
     CreateProjectRequest,
     CreateProjectResponse,
-    ListProjectsReadyForUploadResponse,
     ListProjectsReadyForCreationResponse,
+    ListProjectsReadyForUploadResponse,
     PreviewQalRequest,
     PreviewQalResponse,
     ProjectExistsRequest,
