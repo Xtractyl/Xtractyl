@@ -35,6 +35,9 @@ class ProjectRepository(ProjectRepositoryInterface):
             .all()
         )
 
+    def get_projects_without_label_studio_id(self) -> list:
+        return self._db.query(Project).filter(Project.label_studio_id.is_(None)).all()
+
     def get_html_keys_for_project(self, name: str) -> list[str]:
         files = (
             self._db.query(File)

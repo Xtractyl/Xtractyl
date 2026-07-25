@@ -67,6 +67,9 @@ class ProjectRepositoryInterface(ABC):
     def get_projects_ready_for_upload(self) -> list: ...
 
     @abstractmethod
+    def get_projects_without_label_studio_id(self) -> list: ...
+
+    @abstractmethod
     def get_html_keys_for_project(self, name: str) -> list[str]: ...
 
     @abstractmethod
