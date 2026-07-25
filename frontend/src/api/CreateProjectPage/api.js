@@ -15,3 +15,8 @@ const r = (path, opts) => request(ORCH_BASE, path, opts);
    const data = await r(`/groundtruth_qals`);
    return data.sets;
  }
+
+ export async function getProjectsWithoutLabelStudioId() {
+   const data = await r(`/list_projects_without_label_studio_id`);
+  return data.projects;
+}
