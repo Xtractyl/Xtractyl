@@ -1,13 +1,13 @@
 //src/components/CreateProjectPage/ConvertedProjectSelect.jsx
 import { useEffect, useState } from "react";
-import { getProjectsWithoutLabelStudioId } from "../../api/CreateProjectPage/api.js";
+import { getProjectsReadyForCreation } from "../../api/CreateProjectPage/api.js";
 
 export default function ConvertedProjectSelect({ selected, onChange }) {
   const [projects, setProjects] = useState([]);
   const [err, setErr] = useState("");
 
   useEffect(() => {
-    getProjectsWithoutLabelStudioId()
+    getProjectsReadyForCreation()
       .then(setProjects)
       .catch((e) => {
         setProjects([]);

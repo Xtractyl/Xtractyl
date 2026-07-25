@@ -16,7 +16,7 @@ const r = (path, opts) => request(ORCH_BASE, path, opts);
    return data.sets;
  }
 
- export async function getProjectsWithoutLabelStudioId() {
-   const data = await r(`/list_projects_without_label_studio_id`);
+export async function getProjectsReadyForCreation() {
+  const data = await r(`/list_projects_ready_for_creation`);
   return data.projects;
 }

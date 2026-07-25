@@ -10,7 +10,7 @@ from domain.projects import (
     check_project_exists,
     create_project_main_from_payload,
     list_projects_ready_for_upload,
-    list_projects_without_label_studio_id,
+    list_projects_ready_for_creation,
     upload_tasks_main_from_payload,
 )
 from domain.projects import (
@@ -26,7 +26,7 @@ from api.contracts.projects import (
     CreateProjectRequest,
     CreateProjectResponse,
     ListProjectsReadyForUploadResponse,
-    ListProjectsWithoutLabelStudioIdResponse,
+    ListProjectsReadyForCreationResponse,
     PreviewQalRequest,
     PreviewQalResponse,
     ProjectExistsRequest,
@@ -162,19 +162,19 @@ def register(app, spec, session_factory, label_studio, storage):
             )
         return jsonify(validated.model_dump()), 200
 
-    @app.route("/list_projects_without_label_studio_id", methods=["GET"])
+    @app.route("/list_projects_ready_for_creation", methods=["GET"])
     @spec.validate(
         resp=Response(
-            HTTP_200=ListProjectsWithoutLabelStudioIdResponse,
+            HTTP_200=ListProjectsReadyForCreationResponse,
             HTTP_500=ErrorResponse,
         ),
         tags=["projects"],
     )
-    def list_projects_without_label_studio_id_route():
+    def list_projects_ready_for_creation_route():
         db = session_factory()
         try:
             repo = ProjectRepository(db)
-            result = list_projects_without_label_studio_id(repo=repo)
+            result = list_projects_ready_for_creation(repo=repo)
             db.commit()
         except Exception:
             db.rollback()
@@ -182,7 +182,7 @@ def register(app, spec, session_factory, label_studio, storage):
         finally:
             db.close()
         try:
-            validated = ListProjectsWithoutLabelStudioIdResponse.model_validate(result)
+            validated = ListProjectsReadyForCreationResponse.model_validate(result)
         except ValidationError as e:
             raise InternalError(
                 code="RESPONSE_CONTRACT_VIOLATED",

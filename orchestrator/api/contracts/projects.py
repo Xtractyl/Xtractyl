@@ -31,7 +31,7 @@ class ListProjectsReadyForUploadResponse(BaseModel):
     projects: list[str]
 
 
-class ListProjectsWithoutLabelStudioIdResponse(BaseModel):
+class ListProjectsReadyForCreationResponse(BaseModel):
     projects: list[str]
 
 

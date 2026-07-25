@@ -1,6 +1,6 @@
 # orchestrator/infrastructure/repository/project_repository.py
 
-from db.models import File, Project, TaskGroundtruthAnnotation
+from db.models import File, Project, TaskGroundtruthAnnotation, ConversionJob
 from infrastructure.interfaces.repository import ProjectRepositoryInterface
 from utils.hashing import compute_labels_hash
 
@@ -35,8 +35,20 @@ class ProjectRepository(ProjectRepositoryInterface):
             .all()
         )
 
-    def get_projects_without_label_studio_id(self) -> list:
-        return self._db.query(Project).filter(Project.label_studio_id.is_(None)).all()
+    def tasks_already_uploaded(self, name: str) -> bool:
+        project = self._db.query(Project).filter(Project.name == name).first()
+        return bool(project and project.ls_tasks_uploaded)
+
+    def get_projects_ready_for_creation(self) -> list:
+         return (
+             self._db.query(Project)
+            .join(ConversionJob, ConversionJob.project == Project.name)
+            .filter(
+                Project.label_studio_id.is_(None),
+                ConversionJob.status == "done",
+            )
+             .all()
+         )
 
     def get_html_keys_for_project(self, name: str) -> list[str]:
         files = (
