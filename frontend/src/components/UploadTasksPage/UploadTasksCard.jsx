@@ -1,6 +1,6 @@
 // src/components/UploadTasks/UploadTasksCard.jsx
 import { useState } from "react";
-import ProjectNameInput from "../shared/ProjectNameInput";
+import UploadReadyProjectSelect from "./UploadReadyProjectSelect";
 import { uploadTasks } from "../../api/UploadTasksPage/api.js";
 import { useAppContext } from "../../context/AppContext";
 import TokenLink from "../shared/TokenLink";
@@ -41,7 +41,7 @@ export default function UploadTasksCard() {
       </p>
 
       <div className="space-y-6 bg-xtractyl-offwhite p-6 rounded shadow">
-        <ProjectNameInput value={projectName} onChange={saveProjectName} />
+        <UploadReadyProjectSelect selected={projectName} onChange={saveProjectName} />
 
         {/* Token helper link */}
         <div>
