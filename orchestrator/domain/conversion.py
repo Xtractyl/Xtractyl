@@ -48,8 +48,9 @@ def discard_conversion(
             code="JOB_NOT_DISCARDABLE",
             message="Job has already started converting; cannot discard.",
         )
-    storage.delete_prefix(job.project)
     repo.delete_project_cascade(job.project)
+    repo.commit()  # make DB state persistent before making irreversible storage change
+    storage.delete_prefix(job.project)
     return {"status": "discarded"}
 
 
