@@ -35,6 +35,10 @@ class ProjectRepository(ProjectRepositoryInterface):
             .all()
         )
 
+    def is_conversion_done(self, name: str) -> bool:
+        job = self._db.query(ConversionJob).filter(ConversionJob.project == name).first()
+        return bool(job and job.status == "done")
+
     def tasks_already_uploaded(self, name: str) -> bool:
         project = self._db.query(Project).filter(Project.name == name).first()
         return bool(project and project.ls_tasks_uploaded)

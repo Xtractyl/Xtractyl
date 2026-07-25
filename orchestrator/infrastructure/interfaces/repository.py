@@ -73,6 +73,9 @@ class ProjectRepositoryInterface(ABC):
     def tasks_already_uploaded(self, name: str) -> bool: ...
 
     @abstractmethod
+    def is_conversion_done(self, name: str) -> bool: ...
+
+    @abstractmethod
     def get_html_keys_for_project(self, name: str) -> list[str]: ...
 
     @abstractmethod

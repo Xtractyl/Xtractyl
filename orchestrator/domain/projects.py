@@ -40,6 +40,14 @@ def create_project_main_from_payload(
             message="No project with this name exists yet. Run PDF conversion for this project first.",
         )
 
+    if not repo.is_conversion_done(
+        title
+    ):  # necessary check, because we will remove xtractyl project when conversion fails
+        raise InvalidState(
+            code="CONVERSION_NOT_DONE",
+            message="PDF conversion for this project must finish successfully before creating a Label Studio project.",
+        )
+
     # Label Studio label config
     label_tags = "\n    ".join([f'<Label value="{label}"/>' for label in labels])
     label_config = f"""
