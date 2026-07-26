@@ -16,6 +16,7 @@ from domain.models.jobs import (
 )
 from flask import jsonify, request
 from flask_pydantic_spec import Request, Response
+from infrastructure.repository.model_repository import ModelRepository
 from infrastructure.repository.prelabelling_run_repository import PrelabellingRunRepository
 from infrastructure.repository.project_repository import ProjectRepository
 from pydantic import ValidationError
@@ -90,7 +91,10 @@ def register(app, spec, session_factory):
         try:
             run_repo = PrelabellingRunRepository(db)
             project_repo = ProjectRepository(db)
-            result = enqueue_prelabel_job(cmd, run_repo=run_repo, project_repo=project_repo)
+            model_repo = ModelRepository(db)
+            result = enqueue_prelabel_job(
+                cmd, run_repo=run_repo, project_repo=project_repo, model_repo=model_repo
+            )
             db.commit()
         except Exception:
             db.rollback()
