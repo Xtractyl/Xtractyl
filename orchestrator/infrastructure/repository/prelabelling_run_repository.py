@@ -13,14 +13,14 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
         self,
         project: str,
         label_studio_id: int,
-        model: str,
+        model_id: int,
         system_prompt: str,
         questions_and_labels: dict,
     ) -> int:
         run = PrelabellingRun(
             project=project,
             label_studio_id=label_studio_id,
-            ollama_model=model,
+            model_id=model_id,
             system_prompt=system_prompt,
             questions_and_labels=questions_and_labels,
             labels_hash=compute_labels_hash(questions_and_labels.get("labels", [])),
