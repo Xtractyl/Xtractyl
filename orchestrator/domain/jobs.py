@@ -8,6 +8,7 @@ from typing import Any, Dict
 
 import redis
 from infrastructure.interfaces.repository import (
+    ModelRepositoryInterface,
     PrelabellingRunRepositoryInterface,
     ProjectRepositoryInterface,
 )
@@ -62,6 +63,7 @@ def enqueue_prelabel_job(
     cmd: EnqueueJobCommand,
     run_repo: PrelabellingRunRepositoryInterface,
     project_repo: ProjectRepositoryInterface,
+    model_repo: ModelRepositoryInterface,
 ) -> Dict[str, Any]:
     label_studio_id = project_repo.get_label_studio_id(cmd.project_name)
     if not label_studio_id:
@@ -75,11 +77,15 @@ def enqueue_prelabel_job(
             code="QAL_NOT_FOUND",
             message="No QAL found for this project.",
         )
+    model = model_repo.get_by_archived_name(cmd.model)
+    if not model:
+        raise NotFound(code="MODEL_NOT_FOUND", message=f"Unknown model '{cmd.model}'.")
+
     job_id = str(
         run_repo.create_run(
             project=cmd.project_name,
             label_studio_id=label_studio_id,
-            model=cmd.model,
+            model_id=model.id,
             system_prompt=cmd.system_prompt,
             questions_and_labels=qal,
         )

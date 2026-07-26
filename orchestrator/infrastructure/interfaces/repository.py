@@ -112,7 +112,7 @@ class PrelabellingRunRepositoryInterface(ABC):
         self,
         project: str,
         label_studio_id: int,
-        model: str,
+        model_id: int,
         system_prompt: str,
         questions_and_labels: dict,
     ) -> int: ...
@@ -168,3 +168,31 @@ class PrelabellingRunRepositoryInterface(ABC):
 
     @abstractmethod
     def list_evaluation_series(self) -> list[str]: ...
+
+
+class ModelRepositoryInterface(ABC):
+    @abstractmethod
+    def get_by_digest(self, digest: str): ...
+
+    @abstractmethod
+    def get_by_id(self, model_id: int): ...
+
+    @abstractmethod
+    def get_by_archived_name(self, archived_name: str): ...
+
+    @abstractmethod
+    def touch(self, model_id: int) -> None: ...
+
+    @abstractmethod
+    def create(
+        self,
+        tag: str,
+        digest: str,
+        archived_name: str,
+        size_bytes: int | None,
+        family: str | None,
+        parameter_size: str | None,
+        quantization_level: str | None,
+        ollama_version: str | None,
+        pulled_via: str,
+    ) -> int: ...

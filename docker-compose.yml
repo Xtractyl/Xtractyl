@@ -90,7 +90,9 @@ services:
       - REDIS_PORT=${REDIS_PORT:-6379}
       - REDIS_PUSH_MAX_RETRIES=${REDIS_PUSH_MAX_RETRIES:-3}
       - REDIS_PUSH_RETRY_DELAY_SECONDS=${REDIS_PUSH_RETRY_DELAY_SECONDS:-0.5}
-
+      - OLLAMA_BASE=${OLLAMA_BASE:-http://ollama:11434}
+      - XTRACTYL_MODEL_ARCHIVE_PREFIX=${XTRACTYL_MODEL_ARCHIVE_PREFIX:-xtractyl-archive}
+ 
   ml_backend:
     build:
       context: .
