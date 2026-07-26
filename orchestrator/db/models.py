@@ -78,6 +78,28 @@ class ConversionJob(Base):
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
 
 
+class Model(Base):
+    __tablename__ = "models"
+
+    id = Column(Integer, primary_key=True)
+    tag = Column(Text, nullable=False)
+    digest = Column(Text, nullable=False)
+    archived_name = Column(Text, nullable=False, unique=True)
+    size_bytes = Column(Integer, nullable=True)
+    family = Column(Text, nullable=True)
+    parameter_size = Column(Text, nullable=True)
+    quantization_level = Column(Text, nullable=True)
+    ollama_version = Column(Text, nullable=True)
+    pulled_via = Column(Text, nullable=True)
+    status = Column(Text, nullable=False, default="downloaded")
+    first_seen_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    last_confirmed_at = Column(
+        TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    __table_args__ = (UniqueConstraint("digest", name="uq_models_digest"),)
+
+
 class PrelabellingRun(Base):
     __tablename__ = "prelabelling_runs"
 
@@ -86,7 +108,7 @@ class PrelabellingRun(Base):
     label_studio_id = Column(Integer, nullable=True)
     questions_and_labels = Column(JSONB, nullable=True)
     labels_hash = Column(Text, nullable=True)
-    ollama_model = Column(Text, nullable=True)
+    model_id = Column(Integer, ForeignKey("models.id"), nullable=False)
     system_prompt = Column(Text, nullable=True)
     llm_timeout_seconds = Column(Integer, nullable=True)
     status = Column(Text, nullable=False, default="pending")  # pending | running | done | failed
