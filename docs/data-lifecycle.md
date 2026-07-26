@@ -38,13 +38,32 @@ Useful for debugging stuck jobs or verifying data provenance.
 - `error` (nullable — job-level error)
 - `created_at`, `updated_at`
 
+**`models`**
+- `id` (PK)
+- `tag` — the mutable Ollama tag at pull time (e.g. `gemma3:12b`) — NOT a stable identifier, see `archived_name`
+- `digest` (sha256, unique constraint — the actual stable identity of a model version)
+- `archived_name` (unique — `xtractyl-archive/<name>:<digest-short>-<timestamp>`, an independent
+  Ollama model created via `/api/copy` right after pull, sharing blobs with the source but
+  surviving independently if the source tag is later deleted or re-pulled; this is the only name
+  ever sent to Ollama for inference or referenced elsewhere in the app)
+- `size_bytes`, `family`, `parameter_size`, `quantization_level` (nullable — from Ollama's `/api/tags` details)
+- `ollama_version` (nullable — currently always NULL, `/api/version` not yet wired in)
+- `pulled_via` (currently always `"user_pull"`)
+- `status` (`downloaded` | `validated` | `hosted` — only `downloaded` is currently used;
+  `validated`/`hosted` are reserved for the model-hosting phase)
+- `first_seen_at` — set at first pull of this digest
+- `last_confirmed_at` — updated on every subsequent pull of an already-known digest
+
+
 **`prelabelling_runs`**
 - `id` (PK)
 - `project` (FK → `projects.name`)
 - `label_studio_id` (nullable)
 - `questions_and_labels` (JSONB, nullable)
 - `labels_hash` (nullable)
-- `ollama_model` (nullable)
+- `model_id` (FK → `models.id`, NOT nullable — resolved from the `archived_name` string sent by
+  the frontend at enqueue time; `MODEL_NOT_FOUND` is raised if the string isn't a known
+  `archived_name`)
 - `system_prompt` (nullable)
 - `llm_timeout_seconds` (nullable)
 - `status` (`pending` | `running` | `done` | `failed`)
@@ -170,18 +189,64 @@ Useful for debugging stuck jobs or verifying data provenance.
  - Frontend project selection is now a dropdown (`UploadReadyProjectSelect`, backed by `GET /list_projects_ready_for_upload`) instead of free text — structurally limits selection to projects that already have a `label_studio_id` and haven't been uploaded yet
 ---
 
+
+## Model Pull Pipeline
+
+### 1. `pull_model` (`POST /ollama/models/pull`)
+- Streams the raw Ollama NDJSON pull progress through to the frontend, unchanged
+- No DB writes during the stream itself
+- After the stream completes (same HTTP request, same generator function): `reconcile_models()`
+  runs synchronously before the response closes
+- If reconciliation fails, the error propagates to the frontend — the user sees "download
+  succeeded, archiving failed" rather than a model that silently never appears in the picker
+
++### 2. `reconcile_models()` (called only from step 1 — no scheduled job, no separate container)
+- Calls Ollama `/api/tags`, iterates all locally present models (skips anything already under the
+  `xtractyl-archive/` prefix)
+- For each tag: looks up `models.digest`
+  - Digest already known → only `models.last_confirmed_at` is updated, no new row, no new Ollama copy
+  - Digest unknown → `models` row created (`status="downloaded"`), independent Ollama model
+    created via `/api/copy` (source: raw tag, destination: `archived_name`)
+- Known gap: a model pulled outside the app (e.g. directly against the Ollama container) is never
+  archived or documented in `models`, since nothing periodically re-checks Ollama independent of
+  this endpoint
+
+### 3. `list_models` (`GET /ollama/models`)
+- Reads directly from Ollama's `/api/tags`, filtered to names starting with `xtractyl-archive/` —
+  no DB read here, stays a pure Ollama passthrough
+- A model that failed to archive (reconciliation error, see step 1) never appears in this list —
+  there's no separate "pending" state surfaced to the picker
+
+### 4. Enqueueing a prelabelling run against an archived model
+- `enqueue_prelabel_job` resolves the `archived_name` string sent by the frontend to a `models` row
+  (`get_by_archived_name`) purely to obtain `model.id` for the `prelabelling_runs.model_id` FK
+- The Redis status hash and the job payload pushed to the worker queue both carry the
+  `archived_name` **string**, never the numeric id — Ollama and the worker/ml_backend chain only
+  ever see the archived name, matching what `/api/generate` expects
+
+---
+
 ## Prelabelling Pipeline
 
-> TODO — not yet reviewed in detail. Touches `prelabelling_runs` (create + status transitions), `task_prelabelling_metas` (per-task write via worker callback). Involves Redis queue state (`status:`, `result:`, `logs:` keys) in addition to Postgres — worth documenting both together since job status lives partly outside Postgres.
+> TODO — not yet reviewed in detail. Touches `prelabelling_runs` (create + status transitions),
+> `task_prelabelling_metas` (per-task write via worker callback). Involves Redis queue state
+> (`status:`, `result:`, `logs:` keys) in addition to Postgres — worth documenting both together
+> since job status lives partly outside Postgres. `enqueue_prelabel_job` also reads `models` (via
+> `get_by_archived_name`) to resolve `prelabelling_runs.model_id` — see Model Pull Pipeline, step 4.
+ 
 
 ---
 
 ## Evaluation Pipeline (`evaluate-ai`, `save-as-gt-set`)
 
 > TODO — not yet reviewed in detail. Touches `evaluations` (create), `task_groundtruth_annotations` (create, via Save as GT Set), reads `prelabelling_runs` + `task_prelabelling_metas` + `files`. Known open finding: `get_latest_run` has no status filter (review checklist item #7) — relevant here since it determines which run gets evaluated.
+> Ground-truth sets (`task_groundtruth_annotations`, `projects.is_groundtruth`) are read live from
+> Label Studio at "Save as GT Set" time and have no dependency on `prelabelling_runs`/`model_id`.
+ 
 
 ---
 
 ## Evaluation Drift
 
-> Read-only — no writes. Reads `evaluations` + `prelabelling_runs` across all groundtruth projects. See `07-evaluation-drift.md` for the read path.
+> Read-only — no writes. Reads `evaluations` + `prelabelling_runs` across all groundtruth projects,
+> plus `models` via `model_repo.get_by_id(run.model_id)` to resolve the display name. 
