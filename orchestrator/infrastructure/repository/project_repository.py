@@ -2,7 +2,7 @@
 
 from db.models import ConversionJob, File, Project, TaskGroundtruthAnnotation
 from infrastructure.interfaces.repository import ProjectRepositoryInterface
-from utils.hashing import compute_labels_hash
+from utils.hashing import compute_document_set_hash, compute_labels_hash, compute_questions_hash
 
 
 class ProjectRepository(ProjectRepositoryInterface):
@@ -76,7 +76,17 @@ class ProjectRepository(ProjectRepositoryInterface):
         if project:
             project.questions_and_labels = qal
             project.labels_hash = compute_labels_hash(qal.get("labels", []))
+            project.questions_hash = compute_questions_hash(qal.get("questions", []))
             self._db.flush()
+
+    def set_document_set_hash(self, name: str) -> None:
+        # Called for every project once its ConversionJob is marked 'done'
+        project = self._db.query(Project).filter(Project.name == name).first()
+        if not project:
+            return
+        html_hashes = self.get_html_hashes_for_project(name)
+        project.document_set_hash = compute_document_set_hash(html_hashes)
+        self._db.flush()
 
     def get_questions_and_labels(self, name: str) -> dict | None:
         project = self._db.query(Project).filter(Project.name == name).first()
