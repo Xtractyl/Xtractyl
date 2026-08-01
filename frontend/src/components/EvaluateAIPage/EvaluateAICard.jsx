@@ -74,7 +74,15 @@ export default function EvaluateAICard() {
       );
       setEvalResult(result);
  } catch (e) {
-   setEvalError(e.message || "Evaluation failed.");
+      if (e.data?.error === "EVALUATION_NOT_FOUND") {
+        setEvalError(
+          "No evaluation exists yet for this pairing. If the run is finished, " +
+          "this should appear automatically within moments — if it doesn't, " +
+          "that likely points to a sync issue rather than something to retry."
+        );
+      } else {
+        setEvalError(e.message || "Evaluation failed.");
+      }
     } finally {
       setEvalLoading(false);
     }
