@@ -2,7 +2,10 @@
 
 
 from infrastructure.interfaces.queue import QueueInterface
-from infrastructure.interfaces.repository import ConversionRepositoryInterface
+from infrastructure.interfaces.repository import (
+    ConversionRepositoryInterface,
+    ProjectRepositoryInterface,
+)
 from infrastructure.interfaces.storage import StorageInterface
 
 from domain.errors import AlreadyExists, InvalidState, NotFound
@@ -90,7 +93,9 @@ def get_conversion_status(
 
 
 def handle_conversion_callback(
-    cmd: ConversionCallbackCommand, repo: ConversionRepositoryInterface
+    cmd: ConversionCallbackCommand,
+    repo: ConversionRepositoryInterface,
+    project_repo: ProjectRepositoryInterface,
 ) -> dict:
     job = repo.get_conversion_job(cmd.job_id)
     if not job:
@@ -127,6 +132,13 @@ def handle_conversion_callback(
 
     if updated_job.converted_files >= updated_job.total_files:
         repo.set_conversion_job_status(job.id, "done")
+        # Set for every project, not just groundtruth ones, the moment its
+        # document set becomes final — closes the gap where a purely-manual
+        # first GT set (annotated without ever running prelabelling first)
+        # previously had no document_set_hash to be matched against at all.
+        # See domain/evaluation.py's sync_missing_evaluations for the read
+        # side of this.
+        project_repo.set_document_set_hash(job.project)
         return {"status": "ok", "continue": False}
 
     return {"status": "ok", "continue": True}
