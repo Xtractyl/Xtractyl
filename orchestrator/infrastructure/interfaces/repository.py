@@ -105,6 +105,9 @@ class ProjectRepositoryInterface(ABC):
     @abstractmethod
     def save_groundtruth_annotations(self, project: str, annotations: list[dict]) -> None: ...
 
+    @abstractmethod
+    def set_document_set_hash(self, name: str) -> None: ...
+
 
 class PrelabellingRunRepositoryInterface(ABC):
     @abstractmethod
@@ -150,6 +153,14 @@ class PrelabellingRunRepositoryInterface(ABC):
     ) -> None: ...
 
     @abstractmethod
+    def build_pred_rows_for_run(self, prelabelling_run_id: int) -> list: ...
+
+    @abstractmethod
+    def list_done_runs(self) -> list: ...
+
+
+class EvaluationRepositoryInterface(ABC):
+    @abstractmethod
     def save_evaluation(
         self,
         groundtruth_project: str,
@@ -161,13 +172,27 @@ class PrelabellingRunRepositoryInterface(ABC):
     ) -> int: ...
 
     @abstractmethod
-    def build_pred_rows_for_run(self, prelabelling_run_id: int) -> list: ...
-
-    @abstractmethod
     def get_evaluations_by_groundtruth_project(self, groundtruth_project: str) -> list: ...
 
     @abstractmethod
     def list_evaluation_series(self) -> list[str]: ...
+
+    @abstractmethod
+    def find_evaluation(self, groundtruth_project: str, run_id: int): ...
+
+    @abstractmethod
+    def find_evaluations_by_configuration(
+        self, labels_hash: str, questions_hash: str, model_digest: str, system_prompt_hash: str
+    ) -> list: ...
+
+    @abstractmethod
+    def list_configurations_for_labels(self, labels_hash: str, min_entries: int = 2) -> list: ...
+
+    @abstractmethod
+    def find_evaluation_for_run(self, run_id: int): ...
+
+    @abstractmethod
+    def list_projects_with_evaluations(self) -> list[str]: ...
 
 
 class ModelRepositoryInterface(ABC):
@@ -179,6 +204,9 @@ class ModelRepositoryInterface(ABC):
 
     @abstractmethod
     def get_by_archived_name(self, archived_name: str): ...
+
+    @abstractmethod
+    def list_archived_names(self) -> set[str]: ...
 
     @abstractmethod
     def touch(self, model_id: int) -> None: ...
