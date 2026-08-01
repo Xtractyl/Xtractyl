@@ -17,6 +17,12 @@ class ModelRepository(ModelRepositoryInterface):
     def get_by_archived_name(self, archived_name: str):
         return self._db.query(Model).filter(Model.archived_name == archived_name).first()
 
+    def list_archived_names(self) -> set[str]:
+        # the frontend asks ollama for the models, via this DB query the frontend makes sure
+        # the model is also registered in the DB
+        rows = self._db.query(Model.archived_name).all()
+        return {r[0] for r in rows}
+
     def touch(self, model_id: int) -> None:
         model = self.get_by_id(model_id)
         if model:
