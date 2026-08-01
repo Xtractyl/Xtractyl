@@ -16,6 +16,7 @@ from domain.models.jobs import (
 )
 from flask import jsonify, request
 from flask_pydantic_spec import Request, Response
+from infrastructure.repository.evaluation_repository import EvaluationRepository
 from infrastructure.repository.model_repository import ModelRepository
 from infrastructure.repository.prelabelling_run_repository import PrelabellingRunRepository
 from infrastructure.repository.project_repository import ProjectRepository
@@ -147,7 +148,11 @@ def register(app, spec, session_factory):
         db = session_factory()
         try:
             run_repo = PrelabellingRunRepository(db)
-            result = handle_prelabel_callback(cmd, run_repo=run_repo)
+            project_repo = ProjectRepository(db)
+            eval_repo = EvaluationRepository(db)
+            result = handle_prelabel_callback(
+                cmd, run_repo=run_repo, project_repo=project_repo, eval_repo=eval_repo
+            )
             db.commit()
         except Exception:
             db.rollback()

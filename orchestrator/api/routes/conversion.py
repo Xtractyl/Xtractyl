@@ -18,6 +18,7 @@ from domain.models.conversion import (
 from flask import jsonify, request
 from flask_pydantic_spec import Request, Response
 from infrastructure.repository.conversion_repository import ConversionRepository
+from infrastructure.repository.project_repository import ProjectRepository
 from pydantic import ValidationError
 
 from api.contracts.conversion import (
@@ -186,7 +187,8 @@ def register(app, spec, storage, queue, session_factory):
         db = session_factory()
         try:
             repo = ConversionRepository(db)
-            result = handle_conversion_callback(cmd, repo=repo)
+            project_repo = ProjectRepository(db)
+            result = handle_conversion_callback(cmd, repo=repo, project_repo=project_repo)
             db.commit()
         except Exception:
             db.rollback()

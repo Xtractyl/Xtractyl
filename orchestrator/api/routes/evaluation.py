@@ -1,20 +1,25 @@
 # orchestrator/api/routes/evaluation.py
 
-from domain.errors import InternalError, Unauthorized
+from domain.errors import InternalError, Unauthorized, ValidationFailed
 from domain.evaluation import (
-    evaluate_projects,
+    get_comparison_view,
     get_compatible_groundtruth_sets,
+    get_evaluation,
     get_groundtruth_qals,
+    list_evaluated_projects,
     list_project_names,
     save_as_gt_set,
 )
 from domain.models.evaluation import (
     CompatibleGroundtruthSetsCommand,
     EvaluateProjectsCommand,
+    ProjectNameCommand,
     SaveAsGtSetCommand,
 )
 from flask import jsonify, request
 from flask_pydantic_spec import Request, Response
+from infrastructure.repository.evaluation_repository import EvaluationRepository
+from infrastructure.repository.model_repository import ModelRepository
 from infrastructure.repository.prelabelling_run_repository import PrelabellingRunRepository
 from infrastructure.repository.project_repository import ProjectRepository
 from pydantic import ValidationError
@@ -25,7 +30,10 @@ from api.contracts.evaluation import (
     CompatibleGroundtruthSetsResponse,
     EvaluateProjectsRequest,
     EvaluateProjectsResponse,
+    GetComparisonViewRequest,
+    GetComparisonViewResponse,
     GroundtruthQalsResponse,
+    ListEvaluatedProjectsResponse,
     ProjectNamesResponse,
     SaveAsGtSetRequest,
     SaveAsGtSetResponse,
@@ -149,7 +157,22 @@ def register(app, spec, session_factory=None):
         try:
             project_repo = ProjectRepository(db)
             run_repo = PrelabellingRunRepository(db)
-            result = evaluate_projects(cmd, project_repo=project_repo, run_repo=run_repo)
+            eval_repo = EvaluationRepository(db)
+            model_repo = ModelRepository(db)
+            # Pure read now: sync_missing_evaluations (called internally
+            # after a run finishes or a GT set is created) is the only
+            # place evaluations get created — this endpoint no longer
+            # computes on demand. A 404 here for a 'done' run with a
+            # matching groundtruth set would indicate a sync bug, not
+            # something for the caller to trigger by asking again.
+            result = get_evaluation(
+                cmd.groundtruth_project,
+                cmd.comparison_project,
+                project_repo=project_repo,
+                run_repo=run_repo,
+                eval_repo=eval_repo,
+                model_repo=model_repo,
+            )
             db.commit()
         except Exception:
             db.rollback()
@@ -198,7 +221,11 @@ def register(app, spec, session_factory=None):
         db = session_factory()
         try:
             project_repo = ProjectRepository(db)
-            result = save_as_gt_set(cmd, project_repo=project_repo)
+            run_repo = PrelabellingRunRepository(db)
+            eval_repo = EvaluationRepository(db)
+            result = save_as_gt_set(
+                cmd, project_repo=project_repo, run_repo=run_repo, eval_repo=eval_repo
+            )
             db.commit()
         except Exception:
             db.rollback()
@@ -207,6 +234,76 @@ def register(app, spec, session_factory=None):
             db.close()
         try:
             validated = SaveAsGtSetResponse.model_validate(result)
+        except ValidationError as e:
+            raise InternalError(
+                code="RESPONSE_CONTRACT_VIOLATED",
+                message="Internal response did not match expected schema.",
+                meta={"details": e.errors()},
+            )
+        return jsonify(validated.model_dump()), 200
+
+    @app.route("/evaluations/comparison", methods=["GET"])
+    @spec.validate(
+        query=GetComparisonViewRequest,
+        resp=Response(
+            HTTP_200=GetComparisonViewResponse,
+            HTTP_500=ErrorResponse,
+        ),
+        tags=["evaluation"],
+    )
+    def evaluations_comparison():
+        try:
+            contract = GetComparisonViewRequest.model_validate(dict(request.args or {}))
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid query parameters.",
+                meta={"details": e.errors()},
+            )
+        cmd = ProjectNameCommand.from_contract(contract.project_name)
+        db = session_factory()
+        try:
+            project_repo = ProjectRepository(db)
+            run_repo = PrelabellingRunRepository(db)
+            model_repo = ModelRepository(db)
+            eval_repo = EvaluationRepository(db)
+            result = get_comparison_view(
+                cmd.project_name,
+                project_repo=project_repo,
+                run_repo=run_repo,
+                model_repo=model_repo,
+                eval_repo=eval_repo,
+            )
+        finally:
+            db.close()
+        try:
+            validated = GetComparisonViewResponse.model_validate(result)
+        except ValidationError as e:
+            raise InternalError(
+                code="RESPONSE_CONTRACT_VIOLATED",
+                message="Internal response did not match expected schema.",
+                meta={"details": e.errors()},
+            )
+        return jsonify(validated.model_dump()), 200
+
+    @app.route("/evaluations/projects", methods=["GET"])
+    @spec.validate(
+        resp=Response(HTTP_200=ListEvaluatedProjectsResponse, HTTP_500=ErrorResponse),
+        tags=["evaluation"],
+    )
+    def evaluations_projects():
+        db = session_factory()
+        try:
+            project_repo = ProjectRepository(db)
+            run_repo = PrelabellingRunRepository(db)
+            eval_repo = EvaluationRepository(db)
+            projects = list_evaluated_projects(
+                project_repo=project_repo, run_repo=run_repo, eval_repo=eval_repo
+            )
+        finally:
+            db.close()
+        try:
+            validated = ListEvaluatedProjectsResponse.model_validate({"projects": projects})
         except ValidationError as e:
             raise InternalError(
                 code="RESPONSE_CONTRACT_VIOLATED",

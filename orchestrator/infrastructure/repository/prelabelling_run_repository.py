@@ -1,8 +1,8 @@
 # orchestrator/infrastructure/repository/prelabelling_run_repository.py
 
-from db.models import Evaluation, PrelabellingRun, TaskPrelabellingMeta
+from db.models import PrelabellingRun, TaskPrelabellingMeta
 from infrastructure.interfaces.repository import PrelabellingRunRepositoryInterface
-from utils.hashing import compute_labels_hash
+from utils.hashing import compute_labels_hash, compute_questions_hash, compute_system_prompt_hash
 
 
 class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
@@ -21,9 +21,11 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
             project=project,
             label_studio_id=label_studio_id,
             model_id=model_id,
-            system_prompt=system_prompt,
+            system_prompt=system_prompt or "",
             questions_and_labels=questions_and_labels,
             labels_hash=compute_labels_hash(questions_and_labels.get("labels", [])),
+            questions_hash=compute_questions_hash(questions_and_labels.get("questions", [])),
+            system_prompt_hash=compute_system_prompt_hash(system_prompt),
             status="pending",
         )
         self._db.add(run)
@@ -95,28 +97,6 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
         self._db.add(meta)
         self._db.flush()
 
-    def save_evaluation(
-        self,
-        groundtruth_project: str,
-        comparison_prelabelling_run_id: int,
-        run_at: str,
-        metrics_micro: dict,
-        metrics_per_label: dict,
-        filenames_count: int,
-    ) -> int:
-        evaluation = Evaluation(
-            groundtruth_project=groundtruth_project,
-            comparison_prelabelling_run_id=comparison_prelabelling_run_id,
-            run_at=run_at,
-            metrics_micro=metrics_micro,
-            metrics_per_label=metrics_per_label,
-            filenames_count=filenames_count,
-        )
-        self._db.add(evaluation)
-        self._db.flush()
-        self._db.refresh(evaluation)
-        return evaluation.id
-
     def build_pred_rows_for_run(self, prelabelling_run_id: int) -> list:
         metas = self.get_task_prelabelling_metas(prelabelling_run_id)
         rows = []
@@ -144,14 +124,5 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
             )
         return rows
 
-    def get_evaluations_by_groundtruth_project(self, groundtruth_project: str) -> list:
-        return (
-            self._db.query(Evaluation)
-            .filter(Evaluation.groundtruth_project == groundtruth_project)
-            .order_by(Evaluation.run_at)
-            .all()
-        )
-
-    def list_evaluation_series(self) -> list[str]:
-        rows = self._db.query(Evaluation.groundtruth_project).distinct().all()
-        return sorted([r.groundtruth_project for r in rows])
+    def list_done_runs(self) -> list:
+        return self._db.query(PrelabellingRun).filter(PrelabellingRun.status == "done").all()

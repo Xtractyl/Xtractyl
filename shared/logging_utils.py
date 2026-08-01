@@ -36,10 +36,20 @@ def _make_logger(
     logging.setLoggerClass(logging.Logger)
     logger.setLevel(level)
     logger.propagate = False
-
     fmt = logging.Formatter(
-        fmt="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+        fmt=(
+            "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+            " | code=%(code)s error_message=%(error_message)s meta=%(meta)s"
+            " traceback=%(traceback)s request_id=%(request_id)s"
+        ),
         datefmt="%Y-%m-%dT%H:%M:%S",
+        defaults={
+            "code": "",
+            "error_message": "",
+            "meta": "",
+            "traceback": "",
+            "request_id": "",
+        },
     )
     if to_stdout:
         sh = logging.StreamHandler()

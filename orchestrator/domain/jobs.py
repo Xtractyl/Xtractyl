@@ -129,9 +129,20 @@ def cancel_prelabel_job(cmd: CancelJobCommand) -> Dict[str, Any]:
 
 
 def handle_prelabel_callback(
-    cmd: PrelabelCallbackCommand, run_repo: PrelabellingRunRepositoryInterface
+    cmd: PrelabelCallbackCommand,
+    run_repo: PrelabellingRunRepositoryInterface,
+    project_repo: ProjectRepositoryInterface,
+    eval_repo,
 ) -> dict:
     run_repo.set_run_status(int(cmd.job_id), cmd.status, cmd.error)
+    if cmd.status == "done":
+        # Trigger A: check every existing groundtruth set for a match now
+        # that this run's predictions are final. Imported here rather than
+        # at module level to avoid a jobs.py <-> evaluation.py import cycle
+        # (evaluation.py does not import from jobs.py, so this is one-way).
+        from domain.evaluation import sync_missing_evaluations
+
+        sync_missing_evaluations(project_repo=project_repo, run_repo=run_repo, eval_repo=eval_repo)
     return {"status": "ok"}
 
 
