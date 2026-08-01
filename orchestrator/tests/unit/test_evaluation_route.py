@@ -68,12 +68,18 @@ def test_evaluate_ai_missing_comparison_returns_422(client):
 
 def test_evaluate_ai_returns_200(client, monkeypatch):
     monkeypatch.setattr(
-        "api.routes.evaluation.evaluate_projects",
-        lambda cmd, project_repo=None, run_repo=None: {
+        "api.routes.evaluation.get_evaluation",
+        lambda groundtruth_project,
+        comparison_project,
+        project_repo=None,
+        run_repo=None,
+        eval_repo=None,
+        model_repo=None: {
             "groundtruth_project": "gt",
             "groundtruth_project_id": 1,
             "comparison_project": "cmp",
             "comparison_project_id": 2,
+            "model": None,
             "run_at_raw": None,
             "metrics": {},
             "answer_comparison": [],
@@ -90,8 +96,13 @@ def test_evaluate_ai_returns_200(client, monkeypatch):
 
 def test_evaluate_ai_contract_violated_returns_500(client, monkeypatch):
     monkeypatch.setattr(
-        "api.routes.evaluation.evaluate_projects",
-        lambda cmd, project_repo=None, run_repo=None: {"wrong_field": "oops"},
+        "api.routes.evaluation.get_evaluation",
+        lambda groundtruth_project,
+        comparison_project,
+        project_repo=None,
+        run_repo=None,
+        eval_repo=None,
+        model_repo=None: {"wrong_field": "oops"},
     )
     res = client.post(
         "/evaluate-ai",
@@ -109,7 +120,7 @@ def test_evaluate_ai_contract_violated_returns_500(client, monkeypatch):
 def test_save_as_gt_set_returns_200(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.evaluation.save_as_gt_set",
-        lambda cmd, project_repo=None: {"status": "ok"},
+        lambda cmd, project_repo=None, run_repo=None, eval_repo=None: {"status": "ok"},
     )
     res = client.post(
         "/save-as-gt-set",
@@ -150,7 +161,7 @@ def test_save_as_gt_set_empty_source_project_returns_422(client):
 def test_save_as_gt_set_already_exists_returns_409(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.evaluation.save_as_gt_set",
-        lambda cmd, project_repo=None: (_ for _ in ()).throw(
+        lambda cmd, project_repo=None, run_repo=None, eval_repo=None: (_ for _ in ()).throw(
             AlreadyExists(code="GT_SET_ALREADY_EXISTS", message="Already exists.")
         ),
     )
@@ -165,7 +176,7 @@ def test_save_as_gt_set_already_exists_returns_409(client, monkeypatch):
 def test_save_as_gt_set_contract_violated_returns_500(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.evaluation.save_as_gt_set",
-        lambda cmd, project_repo=None: {"wrong_field": "oops"},
+        lambda cmd, project_repo=None, run_repo=None, eval_repo=None: {"wrong_field": "oops"},
     )
     res = client.post(
         "/save-as-gt-set",
