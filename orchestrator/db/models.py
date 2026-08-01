@@ -2,14 +2,17 @@
 
 from sqlalchemy import (
     TIMESTAMP,
+    BigInteger,
     Boolean,
     Column,
     Float,
     ForeignKey,
+    Index,
     Integer,
     Text,
     UniqueConstraint,
     func,
+    text,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase
@@ -29,8 +32,27 @@ class Project(Base):
     ls_tasks_uploaded = Column(Boolean, nullable=False, default=False)
     questions_and_labels = Column(JSONB, nullable=True)
     labels_hash = Column(Text, nullable=True)
+    questions_hash = Column(Text, nullable=True)
+    document_set_hash = Column(Text, nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    __table_args__ = (
+        # Prevents two groundtruth sets that are, in substance, exact
+        # duplicates (same label set, same documents) from both being
+        # registered as active groundtruth at the same time. Deliberately
+        # excludes questions_hash: the ground truth itself (label values
+        # tied to documents) doesn't depend on how the extraction questions
+        # happen to be phrased, so two GT sets differing only in question
+        # wording over the same documents/labels are still duplicates.
+        Index(
+            "uq_groundtruth_labels_documents",
+            "labels_hash",
+            "document_set_hash",
+            unique=True,
+            postgresql_where=text("is_groundtruth IS TRUE"),
+        ),
+    )
 
 
 class File(Base):
@@ -62,7 +84,23 @@ class Evaluation(Base):
     metrics_micro = Column(JSONB, nullable=True)
     metrics_per_label = Column(JSONB, nullable=True)
     filenames_count = Column(Integer, nullable=True)
+    task_metrics = Column(JSONB, nullable=True)
+    performance = Column(JSONB, nullable=True)
+    labels = Column(JSONB, nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+
+    __table_args__ = (
+        UniqueConstraint(
+            # A given run should never be evaluated twice against the same
+            # groundtruth set — protects against the two automatic triggers
+            # (run-finished, gt-created) racing each other and both firing.
+            # runnin against different groundtruth sets will only be allowed for
+            # 1 internal groundtruth and 1 external groundtruth
+            "groundtruth_project",
+            "comparison_prelabelling_run_id",
+            name="uq_evaluations_gt_project_run",
+        ),
+    )
 
 
 class ConversionJob(Base):
@@ -85,7 +123,7 @@ class Model(Base):
     tag = Column(Text, nullable=False)
     digest = Column(Text, nullable=False)
     archived_name = Column(Text, nullable=False, unique=True)
-    size_bytes = Column(Integer, nullable=True)
+    size_bytes = Column(BigInteger, nullable=True)
     family = Column(Text, nullable=True)
     parameter_size = Column(Text, nullable=True)
     quantization_level = Column(Text, nullable=True)
@@ -108,6 +146,8 @@ class PrelabellingRun(Base):
     label_studio_id = Column(Integer, nullable=True)
     questions_and_labels = Column(JSONB, nullable=True)
     labels_hash = Column(Text, nullable=True)
+    questions_hash = Column(Text, nullable=True)
+    system_prompt_hash = Column(Text, nullable=True)
     model_id = Column(Integer, ForeignKey("models.id"), nullable=False)
     system_prompt = Column(Text, nullable=True)
     llm_timeout_seconds = Column(Integer, nullable=True)
