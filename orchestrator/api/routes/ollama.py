@@ -26,7 +26,12 @@ def register(app, spec, session_factory, ollama_client):
     )
     def list_models_route():
         cmd = ListModelsCommand.from_contract()
-        result = list_models(cmd, ollama_client)
+        db = session_factory()
+        try:
+            model_repo = ModelRepository(db)
+            result = list_models(cmd, ollama_client, model_repo)
+        finally:
+            db.close()
         try:
             validated = ListModelsResponse.model_validate(result)
         except ValidationError as e:
