@@ -69,12 +69,7 @@ def test_evaluate_ai_missing_comparison_returns_422(client):
 def test_evaluate_ai_returns_200(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.evaluation.get_evaluation",
-        lambda groundtruth_project,
-        comparison_project,
-        project_repo=None,
-        run_repo=None,
-        eval_repo=None,
-        model_repo=None: {
+        lambda groundtruth_project, comparison_project, project_repo=None, run_repo=None, eval_repo=None, model_repo=None: {
             "groundtruth_project": "gt",
             "groundtruth_project_id": 1,
             "comparison_project": "cmp",
@@ -97,12 +92,9 @@ def test_evaluate_ai_returns_200(client, monkeypatch):
 def test_evaluate_ai_contract_violated_returns_500(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.evaluation.get_evaluation",
-        lambda groundtruth_project,
-        comparison_project,
-        project_repo=None,
-        run_repo=None,
-        eval_repo=None,
-        model_repo=None: {"wrong_field": "oops"},
+        lambda groundtruth_project, comparison_project, project_repo=None, run_repo=None, eval_repo=None, model_repo=None: {
+            "wrong_field": "oops"
+        },
     )
     res = client.post(
         "/evaluate-ai",
