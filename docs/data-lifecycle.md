@@ -1002,10 +1002,6 @@ results that exist.
 > also rules out the exception-driven half of [BACKLOG #11]'s concern by construction, the same way
 > it already does for Get Results.
 
-> **[BACKLOG #4]** Planned: `EvaluationRepository.list_configurations_for_labels` and
-> `.list_evaluation_series` removed — fully implemented (including a non-trivial grouped/having
-> query) but have no caller anywhere in the codebase.
-
 > **Planned:** internal ground truth sets — a ground truth scoped to, and only ever compared against,
 > the single prelabelling run it was created for (never against other projects with the same
 > documents/labels). Not yet scoped in detail; will need its own review pass before implementation,
