@@ -400,15 +400,6 @@ insert itself.
 - `conversion_jobs.status` → `"converting"`
 - Everything else unchanged — no per-file writes happen here, those only start once the worker picks the job up (step 5/6)
 
-> **Planned fix (new, not yet in the numbered backlog):** reverse the order in `start_conversion` —
-> currently `queue.push_conversion_job(...)` runs *before* `repo.set_conversion_job_status(job.id,
-> "converting")`, meaning a fast worker could in principle begin processing the job while
-> `conversion_jobs.status` in the DB still reads `"pending"`. This breaks the DB-first ordering
-> otherwise held consistently elsewhere (see 3b/3c) — not currently causing a known bug, since the
-> worker doesn't consult this status column before acting on a queued payload, but inconsistent with
-> the pattern and worth closing for the same reason the other DB-first guarantees exist. Fix: set
-> `status = "converting"` and commit *before* pushing the job onto the queue.
-
 ### 5. Worker Conversion (per file)
 - `convert_file` builds `html_key`, computes `pdf_hash`, calls Docling, computes `html_hash`, and
   writes the resulting HTML bytes to MinIO at `html_key` — on success only
