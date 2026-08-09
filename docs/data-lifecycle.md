@@ -722,13 +722,8 @@ insert itself.
   back into the DOM (`extract_xpath_matches_from_dom`) to ground it in an actual document location —
   this grounding check is the closest thing the system has to hallucination detection
 
-> **[BACKLOG #5]** Planned: `attach_meta_to_task` removed entirely. It has no live reader
-> (`_latest_prediction_meta`/`ml_meta` exists in the code but is only reachable via
-> `_tasks_to_rows(mode="pred")`, which is never actually called — only `mode="gt"` is). Predictions
-> still get written to Label Studio (for human review); the meta does not need a second write there.
 
-- ml_backend writes to Label Studio: `save_predictions_to_labelstudio` (the actual prediction) *(and,
-  until [BACKLOG #5] lands, `attach_meta_to_task` — see above)*
+- ml_backend writes to Label Studio: `save_predictions_to_labelstudio` (the actual prediction) 
 - The worker then forwards the returned `meta` to the orchestrator (`send_task_meta` /
   `POST /prelabel/task-meta`), which is what actually persists it into `task_prelabelling_metas` —
   neither the worker nor ml_backend has any direct Postgres access anywhere in the codebase
