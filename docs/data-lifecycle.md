@@ -802,9 +802,6 @@ insert itself.
   reader anywhere — trivially derivable from `task_ms_dom_extract` + `task_ms_dom_match`, both of
   which *are* stored
 
-> **[BACKLOG #2, dead code]** Planned: `dom_ms` removed from `PerfCollector.to_dict()` — nowhere read,
-> trivially derivable from the two stored fields above.
-
 > **Clarification — `"incomplete"` is never set eagerly, mid-loop:** see the "no eager flip"
 > clarification under step 4 below for the full reasoning; the short version is that a task failing
 > here does not by itself change `prelabelling_runs.status` — only the progress callback's own
