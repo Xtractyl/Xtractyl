@@ -44,6 +44,18 @@ class EvaluationRepository(EvaluationRepositoryInterface):
             .all()
         )
 
+    def find_evaluation(self, groundtruth_project: str, run_id: int):
+        # Backs the get-or-compute path in /evaluate-ai: check whether
+        # sync_missing_evaluations already produced this evaluation.
+        return (
+            self._db.query(Evaluation)
+            .filter(
+                Evaluation.groundtruth_project == groundtruth_project,
+                Evaluation.comparison_prelabelling_run_id == run_id,
+            )
+            .first()
+        )
+
     def find_evaluations_by_configuration(
         self, labels_hash: str, questions_hash: str, model_digest: str, system_prompt_hash: str
     ) -> list:
