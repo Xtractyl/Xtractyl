@@ -19,7 +19,8 @@ def extract_xpath_matches_from_dom(dom_data, answers):
             continue
 
         normalized_answer = normalize_text_block(ans["answer"])
-
+        if not normalized_answer:
+            continue
         found_match = False
         for el in dom_sorted:
             content = el.get("content") or ""
