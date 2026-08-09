@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from bs4 import BeautifulSoup
-from infrastructure.label_studio import attach_meta_to_task, save_predictions_to_labelstudio
+from infrastructure.label_studio import save_predictions_to_labelstudio
 from infrastructure.ollama import ask_llm_with_timeout
 
 from domain.errors import ExternalServiceError, InternalError
@@ -98,12 +98,7 @@ def run_predict(cmd: PredictCommand) -> dict:
             task_id=cmd.task_id,
             prediction_result=prelabels,
         )
-        attach_meta_to_task(
-            label_studio_url=ls.label_studio_url,
-            token=ls.ls_token,
-            task_id=int(cmd.task_id),
-            meta=meta,
-        )
+
     except Exception as e:
         raise ExternalServiceError(
             code="LABEL_STUDIO_WRITE_FAILED",
