@@ -723,9 +723,6 @@ insert itself.
 > all tasks are accounted for (see `prelabelling_runs.status` in the Schema Reference).
 
 ### 3. Per task: `send_predict` → ml_backend `/predict`
-
-*(To be reviewed next — not yet updated in this pass.)*
-
 - The worker already holds the task's HTML in memory from the bulk fetch in step 2, so it's passed
   directly in the request body — no second Label Studio round-trip per task
 - ml_backend (`run_predict`): extracts the DOM via a freshly-launched headless Chromium
@@ -733,23 +730,89 @@ insert itself.
   Ollama once per question (`temperature=0, seed=42` for reproducibility), then matches each answer
   back into the DOM (`extract_xpath_matches_from_dom`) to ground it in an actual document location —
   this grounding check is the closest thing the system has to hallucination detection
-- ml_backend writes to Label Studio: `save_predictions_to_labelstudio` (the actual prediction) and
-  `attach_meta_to_task` (embeds the full meta dict into the task's own `data.ml_meta` field via a
-  GET+PATCH cycle) — see Planned Changes; the latter has no live reader anywhere in the codebase
+
+> **[BACKLOG #5]** Planned: `attach_meta_to_task` removed entirely. It has no live reader
+> (`_latest_prediction_meta`/`ml_meta` exists in the code but is only reachable via
+> `_tasks_to_rows(mode="pred")`, which is never actually called — only `mode="gt"` is). Predictions
+> still get written to Label Studio (for human review); the meta does not need a second write there.
+
+- ml_backend writes to Label Studio: `save_predictions_to_labelstudio` (the actual prediction) *(and,
+  until [BACKLOG #5] lands, `attach_meta_to_task` — see above)*
 - The worker then forwards the returned `meta` to the orchestrator (`send_task_meta` /
   `POST /prelabel/task-meta`), which is what actually persists it into `task_prelabelling_metas` —
   neither the worker nor ml_backend has any direct Postgres access anywhere in the codebase
-- After that, the worker currently also polls Label Studio again (`wait_until_prediction_saved`, up
-  to 15 minutes) to confirm the prediction landed — redundant, since ml_backend's own write is
-  already synchronous and raises on failure before ever returning a response; see Planned Changes
+
+> **[BACKLOG #3]** Planned: `wait_until_prediction_saved` removed. The worker currently also polls
+> Label Studio again (up to 15 minutes) to confirm the prediction landed — redundant, since
+> ml_backend's own write is already synchronous and raises on failure before ever returning a
+> response, and in direct tension with the principle below that Label Studio's live state is no
+> longer trusted as a source of truth once [BACKLOG #20] lands.
+
+> **[BACKLOG #2]** Planned: `task_prelabelling_metas` gains `status` (`success`/`failed`) and `error`
+> columns — the table currently has no explicit success/failure field at all, every row implicitly
+> represents a successful task today. Three outcomes: a timeout (or any other failure covered by
+> [BACKLOG #9] below) on any single question fails the whole task, nothing written to Label Studio;
+> DOM matching that runs but finds nothing is still `status="success"` (plus a `no_dom_match` flag);
+> DOM extraction/matching itself crashing is `status="failed"`. The retry/resume filter (Planned
+> Changes point 5 / Prelabelling Pipeline step 2) checks specifically for `status="success"` — a
+> `failed` row does not block a future retry of that task.
+>
+> This requires a compensating transaction: if a prediction is successfully written to Label Studio
+> but the corresponding Postgres write (the `send_task_meta`/`task-meta` call above) fails — even
+> after retry — the Label Studio prediction is deleted again, so the two never permanently disagree.
+> Needs `save_predictions_to_labelstudio` to capture the created prediction's ID (currently discarded)
+> so it can be targeted for deletion.
+
+> **[BACKLOG #9, concretized]** `ask_llm_with_timeout` (`ml_backend/infrastructure/ollama.py`) today:
+> ```python
+> except requests.exceptions.Timeout:
+>     return {"answer": None, "status": "timeout", "error": "timeout"}
+> except Exception as e:
+>     return {"answer": None, "status": "error", "error": str(e)}
+> ```
+> Two problems, not one: (a) `num_ctx` is accepted as a parameter (and already arrives correctly via
+> a worker-level env var, `LLM_NUM_CTX`) but is never actually included in the `options` dict sent to
+> Ollama — a one-line fix; (b) only `status == "timeout"` is checked downstream (`predict.py`) to
+> decide whether a task failed — a genuine code bug (e.g. a `KeyError`) is caught by the blanket
+> `except Exception`, returns `status="error"` instead of `"timeout"`, and is therefore **not**
+> treated as a failure at all: the answer for that one question silently becomes `None` and the loop
+> continues, indistinguishable from a legitimate empty response — it doesn't even increment
+> `n_timeouts` in `PerfCollector`, since that counter also only checks for `status=="timeout"`. *(This
+> corrects the original phrasing of this point, which described the risk backwards — as a bug being
+> mistaken for a timeout, rather than a bug being silently swallowed as an ignored non-failure.)*
+>
+> Fix: narrow the second except clause to `requests.exceptions.RequestException` (covers
+> `ConnectionError`, `HTTPError` from `raise_for_status()`, and other genuine external-call failures)
+> — a real code bug is then no longer caught here at all, and propagates as an actual exception into
+> the per-task retry-with-backoff logic from [BACKLOG #21]/[BACKLOG #22] instead of disappearing.
+> `JSONDecodeError` deliberately not added to this clause — Ollama has never been observed returning
+> malformed JSON on a 2xx response, and `raise_for_status()` already catches non-2xx before `.json()`
+> is ever called, so a JSON-decode branch would guard against a failure mode with no known precedent.
+> Both `Timeout` and the broadened `RequestException` branch now return `status="failed"` (not
+> `"timeout"`/`"error"` as two different strings) — `error` remains `"timeout"` for the `Timeout` case
+> specifically, `str(e)` for the rest — so the downstream check in `predict.py` becomes a single
+> `status == "failed"` condition instead of only matching the literal string `"timeout"`.
+
+> **[BACKLOG #10]** Planned: `dom_match.py` gains a guard for LLM answers that normalize to an empty
+> string — currently only the raw (pre-normalization) answer is checked for emptiness, and Python's
+> `str.find("")` always returns `0`, which combined with negative-index wraparound on the offset map
+> (`index_map[-1]`) produces a spurious, silent false match rather than a correct "not found".
+
 - `dom_ms` is computed in ml_backend's `PerfCollector` output but has no corresponding column and no
   reader anywhere — trivially derivable from `task_ms_dom_extract` + `task_ms_dom_match`, both of
   which *are* stored
 
-### 4. Job completion / cancellation (current mechanism)
+> **[BACKLOG #2, dead code]** Planned: `dom_ms` removed from `PerfCollector.to_dict()` — nowhere read,
+> trivially derivable from the two stored fields above.
 
-*(To be reviewed next — not yet updated in this pass.)*
+> **Clarification — `"incomplete"` is never set eagerly, mid-loop:** see the "no eager flip"
+> clarification under step 4 below for the full reasoning; the short version is that a task failing
+> here does not by itself change `prelabelling_runs.status` — only the progress callback's own
+> completion check (step 4) or the stale-run sweep (also step 4) does.
 
+### 4. Job completion / cancellation
+
+**Current mechanism (today):**
 - `handle_prelabel_callback` (`POST /prelabel/callback`) sets `prelabelling_runs.status` to `"done"`,
   `"failed"`, or `"cancelled"` — this is a *separate* callback from the per-task one in step 3, fired
   once after the worker's task loop ends
@@ -762,112 +825,95 @@ insert itself.
   `result:<job_id>` (just `{"logs_count": ...}`) is included in `get_job_status`'s response but the
   frontend never reads it either
 
+> **[BACKLOG #21]** Planned: job-level status/progress/cancel moves from Redis to Postgres, mirroring
+> how Conversion already works — new `processed_tasks`, `total_tasks`, `cancel_requested` columns on
+> `prelabelling_runs` (see Schema Reference for exact Set/Changed semantics). `total_tasks` is set
+> once, from the worker's own task-list length, on the *first* progress call of a given run (needed
+> because a resumed run's true task count can be smaller than the project's full document count —
+> Planned Changes point 5 / Prelabelling Pipeline step 2). The dead Redis keys (`logs:`, `result:`,
+> and the status hash itself) are dropped outright.
+
+> **[BACKLOG #22]** Planned: callback consolidation — the per-task callback from step 3
+> (`send_task_meta` / `/prelabel/task-meta`) is renamed to `send_task_progress` /
+> `/prelabel/progress`, and becomes the **only** callback that matters for the common case. It takes
+> over two responsibilities previously split across the two separate callbacks:
+> - **Completion detection:** `processed_tasks` is incremented atomically per task (regardless of
+>   that task's success/failure), and the same call checks `processed_tasks >= total_tasks` — if
+>   true, `status` transitions to its terminal value right there (`"done"` if every task succeeded,
+>   `"incomplete"` if at least one didn't — see `prelabelling_runs.status` in the Schema Reference for
+>   the full transition table), and `sync_missing_evaluations` fires on `"done"` from this same call
+> - **Stop signal:** the response includes `{"should_stop": bool}`, derived from `cancel_requested`
+>   — replacing the separate `cancel_cb` polling loop against the Redis status hash
+>
+> **Retry-with-backoff replaces run-wide abort on single-task failure:** each task's
+> `send_predict` + `send_task_progress` gets its own try/except with retry-with-backoff, instead of
+> any exception bubbling out and killing the entire run. Today's actual behavior here is already
+> inconsistent — a non-200 ml_backend response is logged and shrugged off, while a raised exception
+> (e.g. a dropped connection) kills the whole run outright; the retry-with-backoff approach replaces
+> both with one consistent, non-fatal-per-task behavior.
+>
+> **The old end-of-job callback (`handle_prelabel_callback` / `POST /prelabel/callback`) is kept, but
+> narrowed** to the one case counting can't detect: an exception before the task loop even starts
+> (project/task-list resolution itself failing, per Prelabelling Pipeline step 2) — reported via a
+> distinct payload shape without a `task_id`. This is also the only remaining path to `status="failed"`
+> — see the `"pending"` → `"failed"` transition (skipping `"running"` entirely) already described
+> under `prelabelling_runs.status` in the Schema Reference. `"cancelled"` is set via this same
+> narrowed callback when the worker's loop exits early due to `should_stop` — the loop still needs to
+> report that it stopped, even though counting alone can't distinguish "stopped due to cancellation"
+> from "stopped due to still being mid-run".
+
+> **⚠️ Insert — Stale `"running"` run sweep (new, not yet in the numbered backlog)**
+>
+> Covers the case where the worker process itself crashes mid-loop — no task ever reaches
+> `status="failed"` for the normal reason (retries exhausted, per [BACKLOG #2] in step 3), because
+> nothing is left running to exhaust them; `processed_tasks` simply stops advancing forever, and
+> neither the progress callback nor the narrowed end-of-job callback above will ever fire again to
+> make the done/incomplete/failed determination.
+>
+> The same cleanup container already covering Conversion's stale-job sweep (see the Insert after
+> `conversion_jobs` in the Schema Reference) additionally sweeps `prelabelling_runs` rows stuck at
+> `status="running"` whose `updated_at` is older than a configurable age guard — mirroring the exact
+> mechanism already used for `conversion_jobs` (`CLEANUP_STALE_AFTER_HOURS`, checked against
+> `updated_at`, which is bumped on every `processed_tasks` increment same as
+> `conversion_jobs.converted_files`). A caught run is set to `"incomplete"` directly by the sweep —
+> not `"failed"` — since the tasks that did complete before the crash are still valid, successfully
+> processed tasks, exactly like a normal `"incomplete"` run; only the *reason* differs (crash vs.
+> individual task failures), which the sweep doesn't need to distinguish for the resulting state to
+> be correct.
+>
+> **Why this can only be a sweep, not something the run itself detects:** by definition, nothing is
+> left executing to perform this check from inside the crashed run — the worker that would normally
+> reach the completion condition is the thing that's gone.
+>
+> **Clarification — no eager `"incomplete"` flip:** even once an individual task fails (per
+> [BACKLOG #2] in step 3), `status` stays `"running"` until either the progress callback's own
+> `processed_tasks >= total_tasks` check fires, or this stale-run sweep catches a crashed one — never
+> flipped the moment a single task fails. An eager flip was considered and rejected: with multiple
+> users/processes able to interact with a run, it could let a second enqueue attempt for the same
+> project slip past the [BACKLOG #23] second-run guard while the run is still genuinely in progress,
+> if `"incomplete"` were ever treated the same as a terminal state by that guard.
+
 ---
 
-### Planned Changes (Prelabelling Pipeline) — original numbered list, not yet re-reviewed point by point
+### Planned Changes (Prelabelling Pipeline) — resolution
 
-*(This numbered list is the original, pre-review version. Points 1, 2 (partially), 4, 5, 7, and 8 have
-already been superseded/incorporated above as we went through steps 1–2. Points 3, 6, 9, 10, 11, and
-the remainder of 2/4/5's detail still need a fresh pass, starting with step 3 next session.)*
+The original numbered list (points 1–11) has been fully worked through and incorporated into the
+pipeline steps above: points 1, 3, 4, 5, 6, 7, 8, 9, 10 are embedded as `[BACKLOG #X]` blockquotes at
+their correct workflow location (steps 1–4); point 2 is split across `[BACKLOG #2]` and `[BACKLOG #5]`
+in step 3. Point 11 is resolved below as dropped.
 
-> **Correction to point 2's original wording:** "Label Studio's live state is no longer consulted for
-> this at all" overstated it — Label Studio's live predictions are no longer the *primary* source for
-> "is this task done" (that's Postgres, per point 5), but they're still consulted once, pre-loop,
-> purely as a coherence check against the DB's own open/closed determination — not as an independent
-> source of truth for it. See the pre-loop validation insert under Prelabelling Pipeline, step 2, above.
-
-1. **Task-level filename check** — tasks are matched to `files.filename` before prelabelling
-   proceeds; a task without a matching filename (e.g. a manually created Label Studio task with no
-   `html`/`name` field matching anything Xtractyl uploaded) is skipped with a warning instead of being
-   processed with `filename=""` or an unverified name, as happens today.
-
-2. **`attach_meta_to_task` removed entirely.** It has no live reader (`_latest_prediction_meta`/
-   `ml_meta` exists in the code but is only reachable via `_tasks_to_rows(mode="pred")`, which is
-   never actually called — only `mode="gt"` is). Predictions still get written to Label Studio (for
-   human review); the meta does not need a second write there.
-
-   **`task_prelabelling_metas` becomes the sole source of truth for "is this task done"** — Label
-   Studio's live state (predictions present/absent) is no longer consulted for this at all, since a
-   user can delete predictions directly in Label Studio without that meaning Xtractyl should reprocess
-   the task. New `status` (`success`/`failed`) and `error` columns distinguish three outcomes:
-   a timeout on any single question fails the whole task (nothing written to Label Studio); DOM
-   matching that runs but finds nothing is still `success` (plus a `no_dom_match` flag); DOM
-   extraction/matching itself crashing is `failed`. The retry/resume filter (see point 5) checks
-   specifically for `status="success"` — a `failed` row does not block a future retry of that task.
-
-   This requires a compensating transaction: if a prediction is successfully written to Label Studio
-   but the corresponding Postgres write fails (even after retry), the Label Studio prediction is
-   deleted again, so the two never permanently disagree. This needs `save_predictions_to_labelstudio`
-   to capture the created prediction's ID (currently discarded) so it can be targeted for deletion.
-
-3. **`wait_until_prediction_saved` removed.** Redundant given ml_backend's own synchronous,
-   failure-raising write, and in direct tension with point 2's principle of never trusting Label
-   Studio's live state again.
-
-4. **Job-level status/progress/cancel move from Redis to Postgres**, mirroring how Conversion already
-   works: new `processed_tasks`, `total_tasks`, `cancel_requested` columns on `prelabelling_runs`;
-   `total_tasks` is set once, from the worker's own task-list length, on the *first* progress call of
-   a given run (needed because a resumed run's true task count can be smaller than the project's full
-   document count — see point 5); `processed_tasks` increments atomically per task, regardless of
-   that task's success/failure. The dead Redis keys (`logs:`, `result:`) are dropped outright. The
-   per-task callback from step 3 is renamed (`send_task_progress` / `/prelabel/progress`) and takes
-   over job-completion detection (`processed_tasks >= total_tasks` → `"done"` +
-   `sync_missing_evaluations`) and cancellation (`{"should_stop": bool}` in its response, derived from
-   `cancel_requested`) — the separate end-of-job callback from step 4 is kept only for the one case
-   counting can't detect: an exception before the task loop even starts (project/task-list resolution
-   itself failing), reported via a distinct payload shape without a `task_id`.
-
-   Single-task failures also stop aborting the whole run: each task's `send_predict` +
-   `send_task_progress` gets its own try/except with retry-with-backoff, instead of any exception
-   bubbling out and killing the entire run (today's actual behavior is already inconsistent here — a
-   non-200 ml_backend response is logged and shrugged off, while a raised exception, e.g. a dropped
-   connection, kills the whole run outright).
-
-5. **Resume support, plus a real server-side guard against a second run.** A project with a
-   `failed` run remains selectable for prelabelling (instead of only fresh, run-less projects)
-   specifically so the remaining, not-yet-successfully-processed tasks can be picked up. Since
-   `model` and `system_prompt` are both still fully client-controlled at submission time
-   (`system_prompt` in particular has no project-level canonical source the way
-   `questions_and_labels` does — it lives only in browser `localStorage`), a resume **reuses the
-   existing `prelabelling_runs` row** rather than creating a new one, and takes `model`/`system_prompt`
-   from that row rather than whatever the client submits — there's no coherent alternative, since
-   mixing predictions generated under two different configurations into one run would break both the
-   evaluation-configuration matching (which keys off exactly these values) and the very notion of what
-   a "run" represents. Crucially, this needs to be enforced server-side in `enqueue_prelabel_job`
-   itself — rejecting a request if a `pending`/`running`/`done` run already exists for the project
-   (the `failed` case routes into resume instead) — not just left to the dropdown (point 6) filtering
-   out the option in the normal UI flow, since a direct API call would otherwise still be able to
-   create a second, concurrent run today. This guard is also what makes the `get_latest_run`
-   ambiguity (see Evaluation Pipeline below) unreachable in practice going forward, rather than
-   merely less likely. The task-readiness check for a resumed run becomes: a task is open if
-   it has no `task_prelabelling_metas` row with `status="success"` **under this run's id** — this
-   naturally also covers the case of someone manually deleting a Label Studio prediction, since
-   Postgres (not Label Studio) is now the only thing being asked.
-
-6. **Project-selection dropdown** — see the new `GET /list_projects_ready_for_prelabelling` insert
-   under step 1 above, which already incorporates this point.
-
-7. `questions_and_labels` removed entirely from `EnqueueJobRequest`/`EnqueueJobCommand` — see
-   `[BACKLOG #23, partial]` under step 1 above.
-
-8. `label_studio_id` added to the job payload — see `[BACKLOG #8]` under step 1 above.
-
-9. `ask_llm_with_timeout`: `num_ctx` is accepted as a parameter (and already arrives correctly via a
-   worker-level env var, `LLM_NUM_CTX`) but is never actually included in the request sent to Ollama —
-   one-line fix. Separately, its blanket `except Exception` is narrowed to known external failure
-   classes, so a genuine bug in this function doesn't get silently reported as an ordinary timeout.
-
-10. `dom_match.py`: a guard is added for LLM answers that normalize to an empty string — currently
-    only the raw (pre-normalization) answer is checked for emptiness, and Python's `str.find("")`
-    always returns `0`, which combined with negative-index wraparound on the offset map
-    (`index_map[-1]`) produces a spurious, silent false match rather than a correct "not found".
-
-11. *(Lower priority, cost/benefit still to be weighed)* a completeness/traceability check before a
-    prelabelling run starts, hashing each Label Studio task's live `data.html` against
-    `files.html_hash` from conversion — not to defend against deliberate tampering, but so that a task
-    whose content was altered after upload (or a task deleted outright from Label Studio) is visible
-    rather than silently skipped or silently evaluated against different content than the provenance
-    chain records.
+> **[BACKLOG #26] — dropped, not pursued.** Originally proposed as a completeness/traceability check
+> hashing Label Studio's live `data.html` against `files.html_hash` before a prelabelling run starts.
+> Verified: Label Studio does support in-place editing of an existing task's `data` field via
+> `PATCH /api/tasks/:id/` without changing the task's id — so task-id/filename stability alone does
+> not guarantee content stability. However, this capability isn't exposed through the documented Data
+> Manager GUI (deletion, filtering, and annotation are, direct data-content editing is not) — only
+> through direct API access. Given that the threat model here is GUI-level usage, not deliberate API
+> tampering (which would have far more direct routes to cause harm, e.g. direct DB/MinIO access), this
+> check isn't pursued. Note for later: Label Studio serves its UI and REST API from the same origin
+> (no way to expose the frontend without the API) — a planned login gate in front of Label Studio
+> restricts who reaches it at all, but doesn't change what an already-authorized user could do once
+> inside, so it doesn't itself revisit this decision.
 
 Not planned, and deliberately so — documented here to avoid re-litigating: DOM extraction runs a
 fresh headless Chromium per task rather than a reused/injected browser instance. The browser launch
@@ -875,3 +921,150 @@ itself is negligible next to LLM call latency, the more expensive part (a `page.
 per DOM element) wouldn't be helped by reusing the browser anyway, and a shared Playwright instance
 would need its own concurrency-safety handling. Not worth the complexity for the current, marginal
 gain.
+
+---
+
+## Get Results Pipeline
+
+### `build_results_table` (`POST /results/table` — Get Results page)
+- Read-only, no writes to any table
+- `run_repo.get_latest_run(cmd.project_name)` — resolves the project name to a `prelabelling_runs`
+  row; raises `RUN_NOT_FOUND` if none exists
+- Reads `task_prelabelling_metas` for that run, flattens `raw_llm_answers` into one column per label
+  (`<label>__pred`), returns a table: `task_id`, `filename`, one predicted-answer column per label
+- **DB-only, not a Label Studio passthrough** — despite what the route's own OpenAPI contract and
+  auth requirement suggest (see the two stale-artifact findings below), this function never calls
+  Label Studio at all; it reads exclusively from Postgres via `PrelabellingRunRepository`. This
+  appears to be a completed migration (see README, Phase 2: "Migration of filesystem-based state to
+  Postgres and MinIO" — marked Completed) whose cleanup was left unfinished at this route
+- No filtering by `status` — every row in `task_prelabelling_metas` for the run is included. Once
+  [BACKLOG #25] restricts the selectable projects to `status="done"` runs only (see below), this
+  stops being an open question: a `"done"` run cannot contain a `status="failed"` row by definition
+  (any failed task would have made the run `"incomplete"` instead), so a table backing a `"done"` run
+  is guaranteed to contain only successful task rows — no separate filtering/flagging logic is needed
+  for this table itself.
+
+> **New, not yet in the numbered backlog — legacy artifact cleanup at this route:**
+> - The route requires a Label Studio token (`TOKEN_REQUIRED` if missing), but `cmd.token` is never
+>   passed into or used by `build_results_table` — dead requirement, left over from before the
+>   DB migration; the code itself flags this (`# remove when removing legacy route`). Planned:
+>   drop the token requirement from this endpoint entirely.
+> - The route's OpenAPI contract declares `HTTP_502` as a possible response with the comment
+>   `# label studio unreachable` — this can't actually occur, since the underlying function never
+>   calls Label Studio. Planned: remove this response code from the contract.
+
+> **Known issue (shared with Evaluation Pipeline):** `get_latest_run` has no status filter — it
+> returns whatever `prelabelling_runs` row is newest for the project, regardless of status. A project
+> with a finished, evaluated `"done"` run, followed by a second run that ends up `"failed"` or
+> `"incomplete"`, would have this resolve to the second (wrong) run instead of the one with usable
+> results. See the same issue described under Evaluation Pipeline, and [BACKLOG #24] for the planned
+> fix — the [BACKLOG #23] second-run guard is what makes this practically unreachable going forward,
+> same as for Evaluation.
+
+> **[BACKLOG #25]** Planned: free-text project entry replaced with a dropdown, filtering to projects
+> with a `prelabelling_runs` row at `status="done"` only — `"incomplete"`, `"failed"`, `"cancelled"`,
+> `"pending"`, and `"running"` runs are all excluded, not just non-terminal ones. This is stricter
+> than [BACKLOG #23]'s Prelabelling-start dropdown (which also surfaces `"failed"` runs, tagged for
+> resume) — here, the run has to actually be usable as a finished result, not merely resumable.
+> Backed by a new DB-only endpoint (no Label Studio involvement needed, per the DB-only finding
+> above) — filters `prelabelling_runs` by project and `status="done"` directly.
+
+---
+
+## Evaluation Pipeline (`evaluate-ai`, `save-as-gt-set`)
+
+**`save_as_gt_set`** (`POST /save-as-gt-set`): reads live from Label Studio (task list + chosen
+annotations), writes `task_groundtruth_annotations` and flips `projects.is_groundtruth`. No Label
+Studio writes happen here at all — only reads — so unlike Create Project/Upload Tasks there is no
+orphaned-external-resource risk to compensate for; the DB writes are already covered by the same
+commit/rollback-per-request pattern used everywhere else. Triggers `sync_missing_evaluations`
+afterward (a new GT set may now retroactively match existing done runs).
+
+**`evaluate_run`** (the only place an evaluation is actually computed/persisted): guards against
+label-set mismatch (`labels_hash`) and non-identical document sets (`html_hash` set equality,
+exact — a 40/41-identical overlap does not qualify) before computing metrics via
+`compute_metrics_from_rows` and saving to `evaluations`. Deliberately takes an explicit `run_id`
+rather than resolving "latest run" for a project, specifically to avoid the ambiguity described
+next.
+
+**`sync_missing_evaluations`**: the only two triggers are a run reaching `"done"` and a new GT set
+being saved; deliberately not exposed as its own route (see Prelabelling Pipeline). Matches purely
+on `(labels_hash, document_set_hash)` — `questions_hash`, `system_prompt`, and the model used play no
+role in *whether* an evaluation gets created, only in how Comparison/Regression/Drift later group the
+results that exist.
+
+> **[BACKLOG #24, resolved by design rather than by patching]** `get_latest_run` (the repository
+> method backing this pipeline, plus `resolve_family_for_project` and `build_results_table`) has no
+> status filter today — it returns whatever `prelabelling_runs` row is newest for a project,
+> regardless of `status`. Originally scoped as either adding a status filter or moving all three call
+> sites to an explicit `run_id`. With the `UNIQUE` constraint on `prelabelling_runs.project` (see
+> Schema Reference, under `prelabelling_runs`) in place, this ambiguity cannot arise at all — there is
+> never more than one row per project to choose between, "latest" stops being a meaningful concept,
+> and no separate status-filter fix or call-site rework is needed. The only remaining action is
+> cosmetic: rename `get_latest_run` to something that doesn't imply a choice among candidates (e.g.
+> `get_run_for_project`), and update its callers accordingly. No defense is planned against the
+> constraint itself being bypassed (e.g. a raw SQL migration circumventing it) — considered
+> out of scope, the same category of risk as someone directly corrupting the database, which nothing
+> in the application layer can meaningfully guard against.
+
+> **[BACKLOG #11]** Planned: `compute_metrics_from_rows` currently classifies a task/label pair as a
+> true negative whenever the ground truth is empty and the prediction is any falsy value — not
+> specifically the `<<<NO_MATCH>>>` sentinel the system prompt is supposed to enforce. In practice,
+> the ambiguity this could cause is expected to be rare: once [BACKLOG #9]/[BACKLOG #2] land, any
+> exception-driven empty answer fails the whole task rather than silently producing `None` for one
+> question, and a genuinely empty (non-erroring, `status="ok"`) LLM response is, per experience
+> running these models, essentially never observed in practice — models reliably produce *some* text
+> even when explicitly instructed to answer with nothing. This is a cheap, purely defensive fix for a
+> theoretical edge case that both changes above make unlikely, not a response to an actively observed
+> problem. Fix: require the literal sentinel for the TN classification.
+
+> **New, not yet in the numbered backlog — comparison run restricted to `"done"`:** both the frontend
+> selection (a new dropdown for the comparison project, mirroring [BACKLOG #25]'s Get Results
+> dropdown) and `evaluate_run` itself gain a `status == "done"` requirement for the
+> `comparison_prelabelling_run_id` being evaluated — today, `evaluate_run` checks `is_groundtruth`,
+> run existence, `labels_hash` match, and document-set equality, but nothing about the comparison
+> run's own status. A direct API call bypassing the dropdown could otherwise evaluate a `"failed"`,
+> `"incomplete"`, `"cancelled"`, `"running"`, or `"pending"` run today. Restricting to `"done"` is the
+> more structural fix for the TN ambiguity above too: a `"done"` run cannot contain a
+> `status="failed"` task row by definition (Schema Reference, `prelabelling_runs.status`), so this
+> also rules out the exception-driven half of [BACKLOG #11]'s concern by construction, the same way
+> it already does for Get Results.
+
+> **[BACKLOG #4]** Planned: `EvaluationRepository.list_configurations_for_labels` and
+> `.list_evaluation_series` removed — fully implemented (including a non-trivial grouped/having
+> query) but have no caller anywhere in the codebase.
+
+> **Planned:** internal ground truth sets — a ground truth scoped to, and only ever compared against,
+> the single prelabelling run it was created for (never against other projects with the same
+> documents/labels). Not yet scoped in detail; will need its own review pass before implementation,
+> touching at minimum: the `projects.is_groundtruth` → categorical change already noted in the Schema
+> Reference, `sync_missing_evaluations` (must not scan internal GTs the way it scans external ones),
+> and the Comparison/Regression/Drift peer-grouping logic below (must filter on scope in addition to
+> configuration, so an internal-GT project can never appear in the same comparison group as an
+> external one).
+
+---
+
+## Evaluation Drift, Regression, Comparison
+
+Read-only across all three views — no writes. All three resolve an arbitrary project name to its
+underlying `(groundtruth_project, run)` pair via the shared `resolve_family_for_project` (inherits the
+`get_latest_run` caveat above — see `[BACKLOG #24, resolved by design rather than by patching]` under
+Evaluation Pipeline: the `UNIQUE` constraint on `prelabelling_runs.project` means there is never more
+than one row to resolve to, so this inherited ambiguity resolves the same way here, no separate fix
+needed at these three call sites). Beyond that shared dependency, reviewed without further findings:
+
+- **Comparison** (`get_comparison_view`): every evaluation against one fixed groundtruth project,
+  regardless of configuration — the broadest of the three views.
+- **Regression** (`get_regression_view`): filters to the *exact same* configuration
+  (`labels_hash`, `questions_hash`, `model_digest`, `system_prompt_hash`) against the same
+  groundtruth project, ordered by time — only the model/prompt/questions staying fixed while time
+  varies counts.
+- **Drift** (`get_drift_view`): same configuration, but *different* groundtruth projects with
+  provably zero document overlap between them (exact set intersection on `html_hash`, not just a
+  different aggregate `document_set_hash` — a 40/41-identical overlap is correctly excluded). Since
+  "no overlap" isn't a transitive relation, there is no single natural grouping once more than two
+  compatible groundtruth projects exist for a configuration — `_find_best_drift_chain` finds the
+  largest overlap-free chain containing the selected project via brute-force
+  `itertools.combinations`, deliberately simple since the candidate set is already pre-filtered to
+  one configuration.
