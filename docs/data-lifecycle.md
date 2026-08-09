@@ -784,14 +784,6 @@ insert itself.
 > specifically, `str(e)` for the rest — so the downstream check in `predict.py` becomes a single
 > `status == "failed"` condition instead of only matching the literal string `"timeout"`.
 
-> **[BACKLOG #10]** Planned: `dom_match.py` gains a guard for LLM answers that normalize to an empty
-> string — currently only the raw (pre-normalization) answer is checked for emptiness, and Python's
-> `str.find("")` always returns `0`, which combined with negative-index wraparound on the offset map
-> (`index_map[-1]`) produces a spurious, silent false match rather than a correct "not found".
-
-- `dom_ms` is computed in ml_backend's `PerfCollector` output but has no corresponding column and no
-  reader anywhere — trivially derivable from `task_ms_dom_extract` + `task_ms_dom_match`, both of
-  which *are* stored
 
 > **Clarification — `"incomplete"` is never set eagerly, mid-loop:** see the "no eager flip"
 > clarification under step 4 below for the full reasoning; the short version is that a task failing
