@@ -2,7 +2,6 @@
 
 from db.models import Evaluation, Model, PrelabellingRun
 from infrastructure.interfaces.repository import EvaluationRepositoryInterface
-from sqlalchemy import func
 
 
 class EvaluationRepository(EvaluationRepositoryInterface):
@@ -45,10 +44,6 @@ class EvaluationRepository(EvaluationRepositoryInterface):
             .all()
         )
 
-    def list_evaluation_series(self) -> list[str]:
-        rows = self._db.query(Evaluation.groundtruth_project).distinct().all()
-        return sorted([r.groundtruth_project for r in rows])
-
     def find_evaluation(self, groundtruth_project: str, run_id: int):
         # Backs the get-or-compute path in /evaluate-ai: check whether
         # sync_missing_evaluations already produced this evaluation.
@@ -80,39 +75,6 @@ class EvaluationRepository(EvaluationRepositoryInterface):
             .order_by(Evaluation.run_at)
             .all()
         )
-
-    def list_configurations_for_labels(self, labels_hash: str, min_entries: int = 2) -> list:
-        rows = (
-            self._db.query(
-                PrelabellingRun.questions_hash,
-                Model.digest.label("model_digest"),
-                Model.archived_name.label("model_name"),
-                PrelabellingRun.system_prompt_hash,
-                func.count(Evaluation.id).label("entry_count"),
-            )
-            .join(Evaluation, Evaluation.comparison_prelabelling_run_id == PrelabellingRun.id)
-            .join(Model, Model.id == PrelabellingRun.model_id)
-            .filter(PrelabellingRun.labels_hash == labels_hash)
-            .group_by(
-                PrelabellingRun.questions_hash,
-                Model.digest,
-                Model.archived_name,
-                PrelabellingRun.system_prompt_hash,
-            )
-            .having(func.count(Evaluation.id) >= min_entries)
-            .all()
-        )
-        return [
-            {
-                "key": f"{r.questions_hash}:{r.model_digest}:{r.system_prompt_hash}",
-                "questions_hash": r.questions_hash,
-                "model_digest": r.model_digest,
-                "model_name": r.model_name,
-                "system_prompt_hash": r.system_prompt_hash,
-                "entry_count": r.entry_count,
-            }
-            for r in rows
-        ]
 
     def find_evaluation_for_run(self, run_id: int):
         """Given a run_id alone, find any evaluation for it. Under the

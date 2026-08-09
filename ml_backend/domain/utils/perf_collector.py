@@ -56,7 +56,6 @@ class PerfCollector:
 
         task_ms_dom_extract = sum(e.ms for e in dom if e.name == "dom.extract")
         task_ms_dom_match = sum(e.ms for e in dom if e.name == "dom.match")
-        dom_ms = task_ms_dom_extract + task_ms_dom_match
 
         task_ms_llm_total = sum(e.ms for e in llm)
         task_ms_total = sum(e.ms for e in self._events)
@@ -71,7 +70,6 @@ class PerfCollector:
             "request": {
                 "task_ms_total": task_ms_total,
                 "task_ms_llm_total": task_ms_llm_total,
-                "dom_ms": dom_ms,
                 "task_ms_dom_extract": task_ms_dom_extract,
                 "task_ms_dom_match": task_ms_dom_match,
                 "n_llm_calls": sum(1 for e in llm if e.name == "llm.call"),

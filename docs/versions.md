@@ -9,7 +9,7 @@
 ### Ollama
 - Version: 0.12.3
 - Image: ollama/ollama
-- Digest: sha256:3ca37ec2b9cb6341b62554074205c616778fe98abcf9e4fc50361b79a07407ae
+- Digest: sha256:fbaaecc6c632a73c2b4ca25ef52dbee0b68d07783fcb850f916404c004040f90
 - Pinned at: 2026-05-01
 
 ### Redis (job_queue)
