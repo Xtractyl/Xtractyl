@@ -29,5 +29,3 @@ def save_predictions_to_labelstudio(
             message="Could not save predictions to Label Studio.",
             meta={"error": str(e)},
         )
-
-
