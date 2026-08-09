@@ -946,9 +946,6 @@ gain.
 >   passed into or used by `build_results_table` — dead requirement, left over from before the
 >   DB migration; the code itself flags this (`# remove when removing legacy route`). Planned:
 >   drop the token requirement from this endpoint entirely.
-> - The route's OpenAPI contract declares `HTTP_502` as a possible response with the comment
->   `# label studio unreachable` — this can't actually occur, since the underlying function never
->   calls Label Studio. Planned: remove this response code from the contract.
 
 > **Known issue (shared with Evaluation Pipeline):** `get_latest_run` has no status filter — it
 > returns whatever `prelabelling_runs` row is newest for the project, regardless of status. A project
