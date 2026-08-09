@@ -21,7 +21,6 @@ def register(app, spec, session_factory=None):
             HTTP_200=GetResultsTableResponse,
             HTTP_401=ErrorResponse,  # missing token
             HTTP_404=ErrorResponse,  # project not found
-            HTTP_502=ErrorResponse,  # label studio unreachable
             HTTP_500=ErrorResponse,  # unexpected global exception handler
         ),
         tags=["results"],
