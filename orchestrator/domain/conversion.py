@@ -68,12 +68,12 @@ def start_conversion(
             code="JOB_NOT_PENDING", message=f"Job is already in state '{job.status}'."
         )
     pdf_keys = repo.get_pdf_keys_for_project(job.project)
+    repo.set_conversion_job_status(job.id, "converting")
     queue.push_conversion_job(
         job_id=job.id,
         project=job.project,
         pdf_keys=pdf_keys,
     )
-    repo.set_conversion_job_status(job.id, "converting")
     return {"job_id": job.id, "status": "converting"}
 
 
