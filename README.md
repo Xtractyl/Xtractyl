@@ -174,18 +174,12 @@ ZA6 --> ZA7
 %% ====== ROW 8 ======
 subgraph ZA8[" "]
 direction LR
- A8[Frontend - Evaluate Drift] --> B8A[Orchestrator] 
+ A8[Frontend - Evaluate Comparison/Regression/Drift] --> B8A[Orchestrator] 
 end
 
 ZA7 --> ZA8
 
-%% ====== ROW 9 ======
-subgraph ZA9[" "]
-direction LR
- A9[Frontend - Finetune AI] 
-end
 
-ZA8 --> ZA9
 
 
 %% ====== STYLING ======
@@ -197,7 +191,6 @@ style ZA5 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
 style ZA6 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
 style ZA7 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
 style ZA8 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
-style ZA9 fill:#FCA5A5,stroke:#88a,stroke-width:1px;
   ```
 
  **Note:** File upload bypasses the Orchestrator by design — PDFs go 
@@ -215,7 +208,7 @@ style ZA9 fill:#FCA5A5,stroke:#88a,stroke-width:1px;
 - 📄 Convert PDFs into structured HTML via Docling
 - 🤖 AI-assisted pre-labeling with local LLMs (Ollama: tested with Gemma3 12B )
 - 🧠 DOM-based XPath mapping and label matching
-- 👩‍⚕️ Human validation with Label Studio
+- 👩 Human validation with Label Studio
 - 🦕 Extract structured databases from previously unstructured data
 - 🔍 Identify specific cases across large document collections
 - 📊 Built-in evaluation of AI predictions (precision, recall, F1, accuracy)

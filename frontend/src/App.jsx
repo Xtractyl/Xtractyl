@@ -9,7 +9,6 @@ import ReviewAIPage from './pages/ReviewAI.jsx';
 import GetResultsPage from './pages/GetResults.jsx';
 import EvaluateAIPage from './pages/EvaluateAI.jsx';
 import EvaluationDriftPage from './pages/EvaluationDrift.jsx';
-import FinetuneAIPage from './pages/FinetuneAI.jsx';
 import AboutPage from './pages/AboutPage.jsx';
 import { AppProvider } from "./context/AppContext";
 
@@ -29,7 +28,6 @@ export default function App() {
             <Route path="/results" element={<GetResultsPage/>} />
             <Route path="/evaluate" element={<EvaluateAIPage />} />
             <Route path="/evaluationdrift" element={<EvaluationDriftPage />} />
-            <Route path="/finetune" element={<FinetuneAIPage />} />
           </Routes>
         </Layout>
       </Router>

@@ -11,6 +11,7 @@ export default function EvaluationDriftView() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [selectedProject, setSelectedProject] = useState("");
+  const [scope, setScope] = useState("external");
 
   useEffect(() => {
     async function run() {
@@ -43,6 +44,23 @@ export default function EvaluationDriftView() {
 
   return (
     <div className="space-y-6">
+           <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => setScope("external")}
+          className={`px-3 py-1 rounded text-sm ${scope === "external" ? "font-semibold bg-xtractyl-offwhite" : ""}`}
+        >
+          External
+        </button>
+        <button
+          type="button"
+          onClick={() => setScope("internal")}
+          className={`px-3 py-1 rounded text-sm ${scope === "internal" ? "font-semibold bg-xtractyl-offwhite" : ""}`}
+        >
+          Internal
+        </button>
+      </div>
+
       <div>
         <label className="block text-xs font-medium mb-1">Project</label>
         <select
@@ -80,9 +98,9 @@ export default function EvaluationDriftView() {
         </button>
       </div>
 
-      {activeTab === "comparison" && <ComparisonTab projectName={selectedProject} />}
-      {activeTab === "regression" && <RegressionTab projectName={selectedProject} />}
-      {activeTab === "drift" && <DriftTab projectName={selectedProject} />}
+      {activeTab === "comparison" && <ComparisonTab projectName={selectedProject} scope={scope} />}
+      {activeTab === "regression" && <RegressionTab projectName={selectedProject} scope={scope} />}
+      {activeTab === "drift" && <DriftTab projectName={selectedProject} scope={scope} />}
     </div>
   );
 }

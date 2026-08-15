@@ -4,6 +4,7 @@ from sqlalchemy import (
     TIMESTAMP,
     BigInteger,
     Boolean,
+    CheckConstraint,
     Column,
     Float,
     ForeignKey,
@@ -28,7 +29,11 @@ class Project(Base):
     id = Column(Integer, primary_key=True)
     name = Column(Text, nullable=False, unique=True)
     label_studio_id = Column(Integer, nullable=True)
-    is_groundtruth = Column(Boolean, nullable=False, default=False)
+    groundtruth = Column(
+        Text,
+        nullable=False,
+        default="none",
+    )
     ls_tasks_uploaded = Column(Boolean, nullable=False, default=False)
     questions_and_labels = Column(JSONB, nullable=True)
     labels_hash = Column(Text, nullable=True)
@@ -38,6 +43,10 @@ class Project(Base):
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
 
     __table_args__ = (
+        CheckConstraint(
+            "groundtruth IN ('none', 'internal', 'external')",
+            name="ck_projects_groundtruth_values",
+        ),
         # Prevents two groundtruth sets that are, in substance, exact
         # duplicates (same label set, same documents) from both being
         # registered as active groundtruth at the same time. Deliberately
@@ -46,12 +55,17 @@ class Project(Base):
         # happen to be phrased, so two GT sets differing only in question
         # wording over the same documents/labels are still duplicates.
         Index(
-            "uq_groundtruth_labels_documents",
+            "uq_external_groundtruth_labels_documents",
             "labels_hash",
             "document_set_hash",
             unique=True,
-            postgresql_where=text("is_groundtruth IS TRUE"),
+            postgresql_where=text("groundtruth = 'external'"),
         ),
+        # No equivalent uniqueness constraint for internal groundtruth sets:
+        # an internal GT is only ever matched against its own originating
+        # project's own run (see sync_missing_evaluations), never against
+        # other projects, so multiple internal GTs coincidentally sharing
+        # the same labels/documents combination create no ambiguity.
     )
 
 

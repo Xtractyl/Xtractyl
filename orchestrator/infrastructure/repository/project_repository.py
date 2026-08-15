@@ -94,12 +94,16 @@ class ProjectRepository(ProjectRepositoryInterface):
 
     def is_groundtruth(self, name: str) -> bool:
         project = self._db.query(Project).filter(Project.name == name).first()
-        return bool(project and project.is_groundtruth)
+        return bool(project and project.groundtruth != "none")
 
-    def set_groundtruth(self, name: str) -> None:
+    def get_groundtruth_scope(self, name: str) -> str:
+        project = self._db.query(Project).filter(Project.name == name).first()
+        return project.groundtruth if project else "none"
+
+    def set_groundtruth(self, name: str, scope: str) -> None:
         project = self._db.query(Project).filter(Project.name == name).first()
         if project:
-            project.is_groundtruth = True
+            project.groundtruth = scope
             self._db.flush()
 
     def save_groundtruth_annotations(self, project: str, annotations: list[dict]) -> None:
@@ -115,7 +119,7 @@ class ProjectRepository(ProjectRepositoryInterface):
         self._db.flush()
 
     def list_groundtruth_projects(self) -> list:
-        return self._db.query(Project).filter(Project.is_groundtruth.is_(True)).all()
+        return self._db.query(Project).filter(Project.groundtruth != "none").all()
 
     def get_html_hashes_for_project(self, name: str) -> set[str]:
         files = self._db.query(File).filter(File.project == name).all()

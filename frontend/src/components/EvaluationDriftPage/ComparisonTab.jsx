@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchComparisonView } from "../../api/EvaluationDriftPage/api.js";
 
-export default function ComparisonTab({ projectName }) {
+export default function ComparisonTab({ projectName, scope }) {
   const [entries, setEntries] = useState([]);
   const [expanded, setExpanded] = useState(null);
 
@@ -10,8 +10,8 @@ export default function ComparisonTab({ projectName }) {
       setEntries([]);
       return;
     }
-    fetchComparisonView(projectName).then((data) => setEntries(data.entries || []));
-  }, [projectName]);
+    fetchComparisonView(projectName, scope).then((data) => setEntries(data.entries || []));
+  }, [projectName, scope]);
 
   if (!projectName)
     return <p className="text-sm text-xtractyl-outline/70">Please select a project.</p>;
@@ -27,6 +27,7 @@ export default function ComparisonTab({ projectName }) {
     <table className="w-full text-sm">
       <thead>
         <tr className="text-left text-xtractyl-outline/70">
+          <th className="pr-4">Ground Truth</th>
           <th className="pr-4">Model</th>
           <th className="pr-4">Project</th>
           <th className="pr-4">Precision</th>
@@ -46,6 +47,7 @@ export default function ComparisonTab({ projectName }) {
                 className="cursor-pointer hover:bg-xtractyl-offwhite"
                 onClick={() => setExpanded(isExpanded ? null : i)}
               >
+                <td className="pr-4">{e.groundtruth_project}</td>
                 <td className="pr-4">{e.model || "—"}</td>
                 <td className="pr-4">{e.comparison_project || "—"}</td>
                 <td className="pr-4">{e.metrics?.micro?.precision?.toFixed(3) ?? "—"}</td>
@@ -54,7 +56,7 @@ export default function ComparisonTab({ projectName }) {
               </tr>
               {isExpanded && labelNames.length > 0 && (
                 <tr key={`${i}-detail`}>
-                  <td colSpan={5} className="bg-xtractyl-offwhite/50 px-4 py-2">
+                  <td colSpan={6} className="bg-xtractyl-offwhite/50 px-4 py-2">
                     <table className="w-full text-xs">
                       <thead>
                         <tr className="text-left text-xtractyl-outline/70">

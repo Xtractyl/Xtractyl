@@ -10,14 +10,14 @@ export default function SaveAsGtSet({ apiToken, projects, gtSets, onSuccess}) {
 
   const candidates = projects.filter((p) => !gtSets.includes(p));
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (scope) => {
     if (!sourceProject) return;
     setLoading(true);
     setErrorMsg("");
     setSuccessMsg("");
     try {
-      await saveAsGtSet(apiToken, sourceProject);
-      setSuccessMsg(`"${sourceProject}" successfully saved as GT set.`);
+      await saveAsGtSet(apiToken, sourceProject, scope);
+      setSuccessMsg(`"${sourceProject}" successfully saved as ${scope} GT set.`);
       onSuccess?.(); 
     } catch (e) {
       setErrorMsg(e?.message || "Failed to save as GT set.");
@@ -51,14 +51,25 @@ export default function SaveAsGtSet({ apiToken, projects, gtSets, onSuccess}) {
         <p className="text-sm text-xtractyl-green mb-2">{successMsg}</p>
       )}
 
-      <button
-        type="button"
-        onClick={handleSubmit}
-        disabled={!sourceProject || loading}
-        className="px-4 py-2 rounded bg-xtractyl-green text-xtractyl-white text-sm font-medium shadow hover:bg-xtractyl-green/80 transition disabled:opacity-60 disabled:cursor-not-allowed"
-      >
-        {loading ? "Saving…" : "Save as GT Set"}
-      </button>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => handleSubmit("external")}
+          disabled={!sourceProject || loading}
+          className="px-4 py-2 rounded bg-xtractyl-green text-xtractyl-white text-sm font-medium shadow hover:bg-xtractyl-green/80 transition disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {loading ? "Saving…" : "Save as External GT"}
+        </button>
+        <button
+          type="button"
+          onClick={() => handleSubmit("internal")}
+          disabled={!sourceProject || loading}
+          className="px-4 py-2 rounded bg-xtractyl-outline text-xtractyl-white text-sm font-medium shadow hover:bg-xtractyl-outline/80 transition disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {loading ? "Saving…" : "Save as Internal GT"}
+        </button>
+      </div>
+
     </div>
   );
 }
