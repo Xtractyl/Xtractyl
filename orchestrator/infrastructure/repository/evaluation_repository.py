@@ -1,6 +1,6 @@
 # orchestrator/infrastructure/repository/evaluation_repository.py
 
-from db.models import Evaluation, Model, PrelabellingRun
+from db.models import Evaluation, Model, PrelabellingRun, Project
 from infrastructure.interfaces.repository import EvaluationRepositoryInterface
 
 
@@ -44,6 +44,84 @@ class EvaluationRepository(EvaluationRepositoryInterface):
             .all()
         )
 
+    def find_internal_evaluations_by_labels_and_document_set(
+        self, labels_hash: str, document_set_hash: str
+    ) -> list:
+        """Every internal-groundtruth evaluation sharing this exact labels
+        + document set — potentially many, one per matching internal GT
+        project (each self-contained, no cross-project ambiguity)."""
+        return (
+            self._db.query(Evaluation)
+            .join(Project, Project.name == Evaluation.groundtruth_project)
+            .filter(
+                Project.groundtruth == "internal",
+                Project.labels_hash == labels_hash,
+                Project.document_set_hash == document_set_hash,
+            )
+            .order_by(Evaluation.run_at)
+            .all()
+        )
+
+    def find_internal_evaluations_by_configuration(
+        self, labels_hash: str, questions_hash: str, model_digest: str, system_prompt_hash: str
+    ) -> list:
+        """Same as above, but filtered to the exact configuration (used by
+        Regression and Drift) rather than just labels + document set."""
+        return (
+            self._db.query(Evaluation)
+            .join(Project, Project.name == Evaluation.groundtruth_project)
+            .join(PrelabellingRun, PrelabellingRun.id == Evaluation.comparison_prelabelling_run_id)
+            .join(Model, Model.id == PrelabellingRun.model_id)
+            .filter(
+                Project.groundtruth == "internal",
+                PrelabellingRun.labels_hash == labels_hash,
+                PrelabellingRun.questions_hash == questions_hash,
+                PrelabellingRun.system_prompt_hash == system_prompt_hash,
+                Model.digest == model_digest,
+            )
+            .order_by(Evaluation.run_at)
+            .all()
+        )
+
+    def find_external_evaluations_by_labels_and_document_set(
+        self, labels_hash: str, document_set_hash: str
+    ) -> list:
+        """External-groundtruth equivalent of the internal method above.
+        No separate groundtruth_project filter needed:
+        uq_external_groundtruth_labels_documents guarantees at most one
+        external GT can ever match this labels + document set anyway."""
+        return (
+            self._db.query(Evaluation)
+            .join(Project, Project.name == Evaluation.groundtruth_project)
+            .filter(
+                Project.groundtruth == "external",
+                Project.labels_hash == labels_hash,
+                Project.document_set_hash == document_set_hash,
+            )
+            .order_by(Evaluation.run_at)
+            .all()
+        )
+
+    def find_external_evaluations_by_configuration(
+        self, labels_hash: str, questions_hash: str, model_digest: str, system_prompt_hash: str
+    ) -> list:
+        """External equivalent of find_internal_evaluations_by_configuration."""
+        return (
+            self._db.query(Evaluation)
+            .join(Project, Project.name == Evaluation.groundtruth_project)
+            .join(PrelabellingRun, PrelabellingRun.id == Evaluation.comparison_prelabelling_run_id)
+            .join(Model, Model.id == PrelabellingRun.model_id)
+            .filter(
+                Project.groundtruth == "external",
+                PrelabellingRun.labels_hash == labels_hash,
+                PrelabellingRun.questions_hash == questions_hash,
+                PrelabellingRun.system_prompt_hash == system_prompt_hash,
+                Model.digest == model_digest,
+            )
+            .order_by(Evaluation.run_at)
+            .all()
+        )
+
     def find_evaluation(self, groundtruth_project: str, run_id: int):
         # Backs the get-or-compute path in /evaluate-ai: check whether
         # sync_missing_evaluations already produced this evaluation.
@@ -74,17 +152,6 @@ class EvaluationRepository(EvaluationRepositoryInterface):
             )
             .order_by(Evaluation.run_at)
             .all()
-        )
-
-    def find_evaluation_for_run(self, run_id: int):
-        """Given a run_id alone, find any evaluation for it. Under the
-        uq_groundtruth_labels_documents constraint, a run can match at most
-        one external groundtruth project, so "any" is, in practice, "the
-        one". Backs resolve_family_for_project in domain/evaluation.py."""
-        return (
-            self._db.query(Evaluation)
-            .filter(Evaluation.comparison_prelabelling_run_id == run_id)
-            .first()
         )
 
     def list_projects_with_evaluations(self) -> list[str]:
