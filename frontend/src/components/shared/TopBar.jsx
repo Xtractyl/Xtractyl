@@ -106,16 +106,6 @@ export default function TopBar() {
             Evaluation Comparison, Drift & Regression
           </NavLink>
 
-          <ChevronRight className="text-xtractyl-outline/40 w-5 h-5" />
-
-          <NavLink
-            to="/finetune"
-            className={({ isActive }) =>
-              `text-lg px-6 py-3 rounded-xl font-medium transition
-            ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40'}`}
-          >
-            Finetune AI
-          </NavLink>
         </nav>
       </div>
     </header>
