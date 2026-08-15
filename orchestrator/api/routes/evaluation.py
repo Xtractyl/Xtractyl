@@ -13,7 +13,6 @@ from domain.evaluation import (
 from domain.models.evaluation import (
     CompatibleGroundtruthSetsCommand,
     EvaluateProjectsCommand,
-    ProjectNameCommand,
     SaveAsGtSetCommand,
 )
 from flask import jsonify, request
@@ -217,6 +216,7 @@ def register(app, spec, session_factory=None):
         cmd = SaveAsGtSetCommand.from_contract(
             source_project=contract.source_project,
             token=token,
+            scope=contract.scope,
         )
         db = session_factory()
         try:
@@ -260,7 +260,6 @@ def register(app, spec, session_factory=None):
                 message="Invalid query parameters.",
                 meta={"details": e.errors()},
             )
-        cmd = ProjectNameCommand.from_contract(contract.project_name)
         db = session_factory()
         try:
             project_repo = ProjectRepository(db)
@@ -268,11 +267,12 @@ def register(app, spec, session_factory=None):
             model_repo = ModelRepository(db)
             eval_repo = EvaluationRepository(db)
             result = get_comparison_view(
-                cmd.project_name,
+                contract.project_name,
                 project_repo=project_repo,
                 run_repo=run_repo,
                 model_repo=model_repo,
                 eval_repo=eval_repo,
+                scope=contract.scope,
             )
         finally:
             db.close()
