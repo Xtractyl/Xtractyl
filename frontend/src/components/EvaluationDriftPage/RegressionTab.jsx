@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { fetchRegressionView } from "../../api/EvaluationDriftPage/api.js";
 
-export default function RegressionTab({ projectName }) {
+export default function RegressionTab({ projectName, scope }) {
   const [entries, setEntries] = useState([]);
-  const [groundtruthProject, setGroundtruthProject] = useState(null);
   const [expanded, setExpanded] = useState(null);
 
   useEffect(() => {
@@ -11,11 +10,10 @@ export default function RegressionTab({ projectName }) {
       setEntries([]);
       return;
     }
-    fetchRegressionView(projectName).then((data) => {
+    fetchRegressionView(projectName, scope).then((data) => {
       setEntries(data.entries || []);
-      setGroundtruthProject(data.groundtruth_project || null);
     });
-  }, [projectName]);
+  }, [projectName, scope]);
 
   if (!projectName)
     return <p className="text-sm text-xtractyl-outline/70">Please select a project.</p>;
@@ -30,14 +28,10 @@ export default function RegressionTab({ projectName }) {
 
   return (
     <div>
-      {groundtruthProject && (
-        <h4 className="text-sm font-medium mb-2">
-          Regression against ground truth set: {groundtruthProject}
-        </h4>
-      )}
       <table className="w-full text-sm">
         <thead>
           <tr className="text-left text-xtractyl-outline/70">
+            <th className="pr-4">Ground Truth</th>
             <th className="pr-4">Time</th>
             <th className="pr-4">Project</th>
             <th className="pr-4">Model</th>
@@ -58,6 +52,7 @@ export default function RegressionTab({ projectName }) {
                   className="cursor-pointer hover:bg-xtractyl-offwhite"
                   onClick={() => setExpanded(isExpanded ? null : i)}
                 >
+                  <td className="pr-4">{e.groundtruth_project}</td>
                   <td className="pr-4">
                     {e.run_at_raw ? new Date(e.run_at_raw).toLocaleString() : "—"}
                   </td>
@@ -69,7 +64,7 @@ export default function RegressionTab({ projectName }) {
                 </tr>
                 {isExpanded && labelNames.length > 0 && (
                   <tr key={`${i}-detail`}>
-                    <td colSpan={6} className="bg-xtractyl-offwhite/50 px-4 py-2">
+                    <td colSpan={7} className="bg-xtractyl-offwhite/50 px-4 py-2">
                       <table className="w-full text-xs">
                         <thead>
                           <tr className="text-left text-xtractyl-outline/70">
