@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchDriftView } from "../../api/EvaluationDriftPage/api.js";
 
-export default function DriftTab({ projectName }) {
+export default function DriftTab({ projectName, scope }) {
   const [entries, setEntries] = useState([]);
   const [expanded, setExpanded] = useState(null);
 
@@ -10,8 +10,8 @@ export default function DriftTab({ projectName }) {
       setEntries([]);
       return;
     }
-    fetchDriftView(projectName).then((data) => setEntries(data.entries || []));
-  }, [projectName]);
+    fetchDriftView(projectName, scope).then((data) => setEntries(data.entries || []));
+  }, [projectName, scope]);
 
   if (!projectName)
     return <p className="text-sm text-xtractyl-outline/70">Please select a project.</p>;
@@ -20,7 +20,8 @@ export default function DriftTab({ projectName }) {
     return (
       <p className="text-sm text-xtractyl-outline/70">
         No drift chain yet (at least 2 non-overlapping document sets with
-        the identical configuration) for this project.
+        the identical configuration) for this project, in the selected
+        scope.
       </p>
     );
 
