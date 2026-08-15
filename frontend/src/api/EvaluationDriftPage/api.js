@@ -8,17 +8,20 @@ export async function fetchEvaluatedProjects() {
   return data.projects || [];
 }
 
-export async function fetchComparisonView(projectName) {
+export async function fetchComparisonView(projectName, scope) {
   const params = new URLSearchParams({ project_name: projectName });
+  if (scope) params.set("scope", scope);
   return await r(`/evaluations/comparison?${params}`);
 }
 
-export async function fetchRegressionView(projectName) {
+export async function fetchRegressionView(projectName, scope) {
   const params = new URLSearchParams({ project_name: projectName });
+  if (scope) params.set("scope", scope);
   return await r(`/evaluations/regression?${params}`);
 }
 
-export async function fetchDriftView(projectName) {
+export async function fetchDriftView(projectName, scope) {
   const params = new URLSearchParams({ project_name: projectName });
+  if (scope) params.set("scope", scope);
   return await r(`/evaluations/drift?${params}`);
 }
