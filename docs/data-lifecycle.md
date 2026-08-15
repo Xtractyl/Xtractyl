@@ -10,9 +10,13 @@
 - `label_studio_id` (nullable)
   - **Set:** `NULL` at creation (step 2) — actually populated in Create Project Pipeline, step 1 (`create_project_main_from_payload`), with the ID returned by Label Studio
   - **Changed:** never afterward (see Open Findings — a second `/create_project` call currently overwrites it unguarded; a planned guard will prevent this)
-- `is_groundtruth` (bool, default false) — **planned:** becomes categorical (`no`/`internal`/`external`) once internal ground truth sets ship; naming not yet decided
-  - **Set:** `false` at creation (step 2)
-  - **Changed:** to `true` in Evaluation Pipeline, `save_as_gt_set` (`POST /save-as-gt-set`)
+- `groundtruth` (Text, `CHECK` constraint on `('none', 'internal', 'external')`, default `'none'`) —
+  replaces the old boolean `is_groundtruth`
+  - **Set:** `'none'` at creation (step 2)
+  - **Changed:** to `'internal'` or `'external'` in Evaluation Pipeline, `save_as_gt_set`
+    (`POST /save-as-gt-set`), depending on the caller-supplied `scope` — both scopes share the exact
+    same write path and mechanism; they differ only in later matching *breadth*, not in how this
+    field itself gets set (see Evaluation Pipeline for the full design)
 - `ls_tasks_uploaded` (bool, default false)
   - **Set:** `false` at creation (step 2)
   - **Changed:** to `true` in Upload Tasks Pipeline, `upload_tasks_main_from_payload`, on success
@@ -297,11 +301,11 @@ Create Project Pipeline has run). Two mechanisms can trigger this:
 - unique constraint on `(project, label_studio_task_id)`
 
 **Guarded against re-running:** `save_as_gt_set` raises `GT_SET_ALREADY_EXISTS` up front if
-`projects.is_groundtruth` is already `true` for that project — so this insert can only ever happen
-once per project; there is no path that adds or updates rows here a second time. A second, unrelated
-guard (`GT_SET_CONTENT_ALREADY_EXISTS`) also rejects the call if another project with the same
-`labels_hash` + `document_set_hash` is already a groundtruth set, independent of the row-level
-insert itself.
+`projects.groundtruth` is already something other than `'none'` for that project — so this insert
+can only ever happen once per project; there is no path that adds or updates rows here a second
+time. A second, unrelated guard (`GT_SET_CONTENT_ALREADY_EXISTS`) also rejects the call if another
+project with the same `labels_hash` + `document_set_hash` is already a groundtruth set, independent
+of the row-level insert itself.
 
 **`evaluations`**
 
@@ -335,10 +339,13 @@ insert itself.
   - **Set:** at insert — Evaluation Pipeline, `evaluate_run`, from `compute_metrics_from_rows(...)["labels"]`
 - `created_at`
   - **Set:** automatically by Postgres at insert
-- unique constraint on `(groundtruth_project, comparison_prelabelling_run_id)` — the constraint's own
-  in-code comment already anticipates internal ground truth: *"running against different groundtruth
-  sets will only be allowed for 1 internal groundtruth and 1 external groundtruth"* — this is
-  schema-level groundwork laid before the feature itself was scoped
+- unique constraint on `(groundtruth_project, comparison_prelabelling_run_id)` — with internal
+  ground truth now implemented, this comment's original prediction holds structurally without any
+  extra guard: `uq_external_groundtruth_labels_documents` allows at most one external GT per
+  `(labels_hash, document_set_hash)`, and internal GTs are inherently 1:1 with their own project's
+  own run (enforced by `prelabelling_runs`'s own `UNIQUE` constraint on `project`) — so a given run
+  can have at most one evaluation of each kind, "1 internal + 1 external", automatically, with no
+  additional code needed to enforce it
 
 ---
 
@@ -354,8 +361,7 @@ insert itself.
   - `created_at`, `updated_at` — set automatically by Postgres (`now()`)
   - `name` — set explicitly to `cmd.project`
   - `label_studio_id`, `questions_and_labels`, `labels_hash` — stay `NULL`
-  - `is_groundtruth`, `ls_tasks_uploaded` — stay at their default `false`
-  - (all of the above except `name` are filled in later by other pipelines, not conversion)
+  - `groundtruth` — stays at its default `'none'`; `ls_tasks_uploaded` — stays at its default `false`  - (all of the above except `name` are filled in later by other pipelines, not conversion)
 - One `files` row per uploaded filename — only `project`, `filename`, `pdf_key` set; `html_key`, `pdf_hash`, `html_hash`, `error` all null
 - `conversion_jobs` row created — `status="pending"`, `total_files=<count>`, `converted_files=0`, `error=null`
 - MinIO: nothing written — only presigned upload URLs are generated including a signature and the path for each file according to the pdf_key
@@ -946,11 +952,49 @@ gain.
 ## Evaluation Pipeline (`evaluate-ai`, `save-as-gt-set`)
 
 **`save_as_gt_set`** (`POST /save-as-gt-set`): reads live from Label Studio (task list + chosen
-annotations), writes `task_groundtruth_annotations` and flips `projects.is_groundtruth`. No Label
-Studio writes happen here at all — only reads — so unlike Create Project/Upload Tasks there is no
-orphaned-external-resource risk to compensate for; the DB writes are already covered by the same
-commit/rollback-per-request pattern used everywhere else. Triggers `sync_missing_evaluations`
-afterward (a new GT set may now retroactively match existing done runs).
+annotations), writes `task_groundtruth_annotations` and sets `projects.groundtruth` to the caller's
+`scope` (`"internal"` or `"external"`). No Label Studio writes happen here at all — only reads — so
+unlike Create Project/Upload Tasks there is no orphaned-external-resource risk to compensate for;
+the DB writes are already covered by the same commit/rollback-per-request pattern used everywhere
+else. Triggers `sync_missing_evaluations` afterward (a new GT set may now retroactively match
+existing done runs).
+
+**Internal and external ground truth share the exact same creation mechanism** — `save_as_gt_set`
+doesn't branch on `scope` for anything except the final `set_groundtruth` call and one extra guard
+(below). Both read the same project's live, chosen Label Studio annotations; neither ever creates a
+second project. They differ only in matching *breadth* afterward, in `sync_missing_evaluations` and
+in Comparison/Regression/Drift (see below) — never in how the GT itself gets created.
+
+**New guard, `scope="internal"` only:** the project's own run must exist and be `status="done"`
+(`RUN_NOT_DONE` otherwise) — there must be finished predictions to review before they can become
+ground truth. No equivalent guard exists for external, which is typically annotated from scratch
+and often has no run of its own at all.
+
+> **New, not yet in the numbered backlog — hard block on incomplete annotations:** `save_as_gt_set`
+> today writes a ground truth row for *every* task in the project, even tasks with no submitted
+> Label Studio annotation at all — `_chosen_annotation_bucket` returns `{}` for such a task, which
+> is then written to `task_groundtruth_annotations.annotations` exactly as if a reviewer had
+> deliberately marked every label as no-match, indistinguishable from a genuine review outcome. The
+> only existing guard (`NO_TASKS_FOUND`) only checks that the project has *any* tasks at all, not
+> that every task has been reviewed. Planned fix (decided, not yet implemented): hard-block —
+> `save_as_gt_set` raises a new error (e.g. `INCOMPLETE_ANNOTATIONS`) if even one task in the
+> project has no submitted annotation, rather than silently substituting an empty ground truth for
+> it. Applies to both scopes equally, since the underlying mechanism (`_tasks_to_rows(mode="gt")`)
+> is shared.
+
+> **New, not yet in the numbered backlog — "Save as GT" source-project list is also pure Label
+> Studio passthrough:** `SaveAsGtSet.jsx`'s `source_project` selector receives the same
+> `projects` state as the comparison-project dropdown (`fetchEvaluationProjects` → raw Label Studio
+> project titles), filtered only client-side against `gtSets` (`projects.filter(p =>
+> !gtSets.includes(p))`) — "not already GT," nothing else. A project can be picked here even without
+> completed conversion (`document_set_hash` unset — caught late, by `PROJECT_NOT_CONVERTED`, only
+> after the Label Studio read already happened) or without any uploaded tasks at all. Unlike the
+> comparison-project dropdown, `gtSets` itself is already correctly DB-sourced
+> (`get_groundtruth_qals` → `project_repo.list_groundtruth_projects()`) — only the `projects`/
+> candidates side of this picker has the gap. Planned fix (decided, not yet implemented): a
+> dedicated DB-backed endpoint for `source_project` candidates, filtering to
+> `document_set_hash IS NOT NULL AND groundtruth = 'none'` at minimum — closing the same class of
+> gap as the comparison-project fix above, for the save-side picker instead.
 
 **`evaluate_run`** (the only place an evaluation is actually computed/persisted): guards against
 label-set mismatch (`labels_hash`) and non-identical document sets (`html_hash` set equality,
@@ -965,8 +1009,15 @@ on `(labels_hash, document_set_hash)` — `questions_hash`, `system_prompt`, and
 role in *whether* an evaluation gets created, only in how Comparison/Regression/Drift later group the
 results that exist.
 
+> **Internal-scope exclusion in the matching loop:** one added condition —
+> `if gt.groundtruth == "internal" and gt.name != run.project: continue` — inside the existing
+> double loop (done runs × GT projects sharing a `(labels_hash, document_set_hash)` key). External
+> matching is completely unaffected (the condition is always `False` for it). Internal GTs are
+> restricted to matching only their own originating project's own run — never scanned broadly like
+> external. This is the *only* code change `sync_missing_evaluations` needed for the whole feature.
+
 > **[BACKLOG #24, resolved by design rather than by patching]** `get_latest_run` (the repository
-> method backing this pipeline, plus `resolve_family_for_project` and `build_results_table`) has no
+> method backing this pipeline, plus `build_results_table`) has no
 > status filter today — it returns whatever `prelabelling_runs` row is newest for a project,
 > regardless of `status`. Originally scoped as either adding a status filter or moving all three call
 > sites to an explicit `run_id`. With the `UNIQUE` constraint on `prelabelling_runs.project` (see
@@ -990,49 +1041,115 @@ results that exist.
 > theoretical edge case that both changes above make unlikely, not a response to an actively observed
 > problem. Fix: require the literal sentinel for the TN classification.
 
-> **New, not yet in the numbered backlog — comparison run restricted to `"done"`:** both the frontend
-> selection (a new dropdown for the comparison project, mirroring [BACKLOG #25]'s Get Results
-> dropdown) and `evaluate_run` itself gain a `status == "done"` requirement for the
-> `comparison_prelabelling_run_id` being evaluated — today, `evaluate_run` checks `is_groundtruth`,
-> run existence, `labels_hash` match, and document-set equality, but nothing about the comparison
-> run's own status. A direct API call bypassing the dropdown could otherwise evaluate a `"failed"`,
-> `"incomplete"`, `"cancelled"`, `"running"`, or `"pending"` run today. Restricting to `"done"` is the
-> more structural fix for the TN ambiguity above too: a `"done"` run cannot contain a
-> `status="failed"` task row by definition (Schema Reference, `prelabelling_runs.status`), so this
-> also rules out the exception-driven half of [BACKLOG #11]'s concern by construction, the same way
-> it already does for Get Results.
+> **New, not yet in the numbered backlog — comparison project list is currently pure Label Studio
+> passthrough, not filtered by Xtractyl runs at all:** `list_project_names` (backing
+> `GET /evaluate-ai/projects`, consumed by `EvaluateAICard.jsx`'s comparison-project dropdown) calls
+> `list_projects(token)` — a live Label Studio API call — and returns every Label Studio project
+> title verbatim. This is more fundamental than the "restricted to done" gap below: a project can be
+> selected here even if it has **no Xtractyl `prelabelling_runs` row at all**, not just one with the
+> wrong status. Planned fix (decided, not yet implemented): both problems collapse into the same
+> fix — the dropdown gains a dedicated DB-backed endpoint filtering to projects with a
+> `prelabelling_runs` row at `status="done"` specifically (mirroring [BACKLOG #25]'s Get Results
+> dropdown), and `evaluate_run` itself gains a matching `status == "done"` guard server-side (not
+> just left to the dropdown) — today `evaluate_run` checks `is_groundtruth`, run existence,
+> `labels_hash` match, and document-set equality, but nothing about the comparison run's own
+> existence or status at all. Restricting to `"done"` is also the more structural fix for the TN
+> ambiguity above: a `"done"` run cannot contain a `status="failed"` task row by definition (Schema
+> Reference, `prelabelling_runs.status`), so this also rules out the exception-driven half of
+> [BACKLOG #11]'s concern by construction, the same way it already does for Get Results.
 
-> **Planned:** internal ground truth sets — a ground truth scoped to, and only ever compared against,
-> the single prelabelling run it was created for (never against other projects with the same
-> documents/labels). Not yet scoped in detail; will need its own review pass before implementation,
-> touching at minimum: the `projects.is_groundtruth` → categorical change already noted in the Schema
-> Reference, `sync_missing_evaluations` (must not scan internal GTs the way it scans external ones),
-> and the Comparison/Regression/Drift peer-grouping logic below (must filter on scope in addition to
-> configuration, so an internal-GT project can never appear in the same comparison group as an
-> external one).
+> **[BACKLOG #4]** Planned: `EvaluationRepository.list_configurations_for_labels` and
+> `.list_evaluation_series` removed — fully implemented (including a non-trivial grouped/having
+> query) but have no caller anywhere in the codebase.
+
+**Internal ground truth sets — implemented.** See the guard, matching-loop exclusion above for the
+Evaluation Pipeline's own share of the work; see Evaluation Drift, Regression, Comparison below for
+how the three views consume both scopes.
 
 ---
 
 ## Evaluation Drift, Regression, Comparison
 
-Read-only across all three views — no writes. All three resolve an arbitrary project name to its
-underlying `(groundtruth_project, run)` pair via the shared `resolve_family_for_project` (inherits the
-`get_latest_run` caveat above — see `[BACKLOG #24, resolved by design rather than by patching]` under
-Evaluation Pipeline: the `UNIQUE` constraint on `prelabelling_runs.project` means there is never more
-than one row to resolve to, so this inherited ambiguity resolves the same way here, no separate fix
-needed at these three call sites). Beyond that shared dependency, reviewed without further findings:
+Read-only across all three views — no writes. All accept an optional `scope` (`"internal"` |
+`"external"`, default `"external"`) — driven by one shared, page-level toggle in the frontend
+(`EvaluationDriftView.jsx`), not a per-tab control. Internal and external are essentially never
+wanted simultaneously in practice (internal exists specifically *because* no external standard was
+available), so the three views show one scope at a time rather than merging both into one table.
 
-- **Comparison** (`get_comparison_view`): every evaluation against one fixed groundtruth project,
-  regardless of configuration — the broadest of the three views.
-- **Regression** (`get_regression_view`): filters to the *exact same* configuration
-  (`labels_hash`, `questions_hash`, `model_digest`, `system_prompt_hash`) against the same
-  groundtruth project, ordered by time — only the model/prompt/questions staying fixed while time
-  varies counts.
-- **Drift** (`get_drift_view`): same configuration, but *different* groundtruth projects with
-  provably zero document overlap between them (exact set intersection on `html_hash`, not just a
-  different aggregate `document_set_hash` — a 40/41-identical overlap is correctly excluded). Since
-  "no overlap" isn't a transitive relation, there is no single natural grouping once more than two
-  compatible groundtruth projects exist for a configuration — `_find_best_drift_chain` finds the
-  largest overlap-free chain containing the selected project via brute-force
-  `itertools.combinations`, deliberately simple since the candidate set is already pre-filtered to
-  one configuration.
+**All three views are now fully project-attribute-driven — `resolve_family_for_project` and
+`EvaluationRepository.find_evaluation_for_run` have no remaining callers and are dead code,
+candidates for removal.** The old model (pick a project → resolve to *one* canonical GT → show its
+evaluations) only ever worked because external guaranteed at most one GT per
+`(labels_hash, document_set_hash)` — there was never a choice to make. Internal breaks that
+assumption: many different projects can coincidentally share a labels/document combination, each
+with its own valid, independent internal GT. All three views derive their filter criteria directly
+from the *picked project's own* attributes instead, regardless of whether that project is itself a
+GT or an ordinary evaluated project:
+
+- **Comparison** (`get_comparison_view`): reads the picked project's own `labels_hash` and
+  `document_set_hash` directly (no run lookup needed — both live on `projects` itself), then calls
+  `find_internal_evaluations_by_labels_and_document_set` or
+  `find_external_evaluations_by_labels_and_document_set` depending on `scope`. External needs no
+  separate GT-name filter at all — `uq_external_groundtruth_labels_documents` already guarantees at
+  most one external GT can ever match, so the query naturally returns the right (single) GT's
+  evaluations without resolving which one it is first.
+- **Regression** (`get_regression_view`): reads the picked project's own *run's* full configuration
+  (`labels_hash`, `questions_hash`, `model_digest`, `system_prompt_hash` — via
+  `run_repo.get_latest_run(project_name)`), then calls `find_internal_evaluations_by_configuration`
+  or `find_external_evaluations_by_configuration`. Those two methods filter only on
+  labels/questions/model/prompt, not document set (Drift, the other caller, deliberately needs
+  matches across *different* document sets) — so `get_regression_view` applies its own post-filter
+  restricting results to the picked project's own `document_set_hash`, restoring "same documents,
+  only time varies" for both scopes uniformly. Requires ≥2 matching evaluations to show anything.
+  For `scope="internal"`, this means multiple different internal-GT projects can legitimately
+  appear together — but only when they happen to share genuinely identical documents, not merely
+  the same configuration; a coincidence, not the common case. The response carries no single
+  top-level `groundtruth_project` field (no longer meaningful once multiple different internal GTs
+  could in principle appear) — each entry carries its own `groundtruth_project`, same as it always
+  did per-row.
+- **Drift** (`get_drift_view`): same configuration, but *different* document sets with provably zero
+  overlap between them (exact set intersection on `html_hash`, not just a different aggregate
+  `document_set_hash` — a 40/41-identical overlap is correctly excluded).
+  1. Reads the picked project's own run configuration (same as Regression) and pulls all matching
+     evaluations via the same `find_internal_evaluations_by_configuration` /
+     `find_external_evaluations_by_configuration` pair, scoped by `scope`.
+  2. **Dedups by `document_set_hash`, keeping the newest evaluation per unique document set** — a
+     deliberate choice, not an accident: `matching` is ordered ascending by `run_at`, and the loop
+     uses a plain `by_docset[gt.document_set_hash] = e` assignment (not `setdefault`), so each later
+     (newer) evaluation for an already-seen document set overwrites the earlier one, leaving the
+     most recent evaluation as the representative once the loop finishes. The document set's own
+     hash is looked up via `e.groundtruth_project`, not via the comparison run's own project — not
+     because the two would differ (`evaluate_run`'s `HTML_HASH_MISMATCH` guard, see Evaluation
+     Pipeline, guarantees the GT's document set and the evaluated run's own project's document set
+     are always identical whenever an Evaluation exists at all), but because it's the cheaper
+     lookup path: one `project_repo.get_project()` call, versus a
+     `run_repo.get_run()` → `project_repo.get_project()` detour via the comparison run if looked up
+     the other way.
+  3. Checks the picked project's own `document_set_hash` is among the deduplicated candidates, and
+     that there are at least 2 unique document sets total — otherwise returns empty; no point
+     starting the expensive pairwise overlap check otherwise.
+  4. Only the deduplicated, unique document sets go through the pairwise overlap check
+     (`get_html_hashes_for_project` per candidate). Since "no overlap" isn't a transitive relation,
+     there is no single natural grouping once more than two compatible document sets exist for a
+     configuration — `_find_best_drift_chain` finds the largest overlap-free chain containing the
+     picked project's own document set via brute-force `itertools.combinations`, deliberately
+     simple since the candidate set is already pre-filtered to one configuration, one scope, and
+     already deduplicated by document set.
+
+**Four repository methods** back Comparison and Regression above:
+`find_internal_evaluations_by_labels_and_document_set`,
+`find_internal_evaluations_by_configuration`,
+`find_external_evaluations_by_labels_and_document_set`,
+`find_external_evaluations_by_configuration`. Drift reuses the `*_by_configuration` pair (shared
+with Regression) rather than needing its own — the internal/external split already happens at that
+level; Drift's only additional step beyond Regression is the document-set dedup and overlap-chain
+search described above.
+
+**Deliberately left out of this pass, to be added as a smaller follow-up:** the Evaluate AI
+comparison-project dropdown (`gtSets` in `ComparisonSelection.jsx`) still lists internal and
+external GT projects without visual distinction — unlike Drift/Comparison/Regression, there is no
+scope filter here yet, so a user could technically pick a project's own internal GT against an
+unrelated comparison run (not blocked server-side either). Revisit once the dropdown is reworked to
+only show comparison-projects actually compatible with the selected GT (and vice versa) — at that
+point, `project_repo.get_groundtruth_scope(...)` should be the source of truth for filtering, not a
+name-equality heuristic.
