@@ -48,10 +48,11 @@ class EvaluateProjectsCommand(BaseModel):
 class SaveAsGtSetCommand(BaseModel):
     source_project: str
     token: str
+    scope: str
 
     @classmethod
-    def from_contract(cls, source_project: str, token: str) -> "SaveAsGtSetCommand":
-        return cls(source_project=source_project, token=token)
+    def from_contract(cls, source_project: str, token: str, scope: str) -> "SaveAsGtSetCommand":
+        return cls(source_project=source_project, token=token, scope=scope)
 
 
 class CompatibleGroundtruthSetsCommand(BaseModel):
