@@ -117,7 +117,7 @@ def test_save_as_gt_set_returns_200(client, monkeypatch):
     res = client.post(
         "/save-as-gt-set",
         headers={"Authorization": "Bearer dummy"},
-        json={"source_project": "my_project"},
+        json={"source_project": "my_project", "scope": "external"},
     )
     assert res.status_code == 200
 
@@ -125,7 +125,7 @@ def test_save_as_gt_set_returns_200(client, monkeypatch):
 def test_save_as_gt_set_missing_token_returns_401(client):
     res = client.post(
         "/save-as-gt-set",
-        json={"source_project": "my_project"},
+        json={"source_project": "my_project", "scope": "external"},
     )
     assert res.status_code == 401
     data = res.get_json()
@@ -160,7 +160,7 @@ def test_save_as_gt_set_already_exists_returns_409(client, monkeypatch):
     res = client.post(
         "/save-as-gt-set",
         headers={"Authorization": "Bearer dummy"},
-        json={"source_project": "my_project"},
+        json={"source_project": "my_project", "scope": "external"},
     )
     assert res.status_code == 409
 
@@ -173,7 +173,7 @@ def test_save_as_gt_set_contract_violated_returns_500(client, monkeypatch):
     res = client.post(
         "/save-as-gt-set",
         headers={"Authorization": "Bearer dummy"},
-        json={"source_project": "my_project"},
+        json={"source_project": "my_project", "scope": "external"},
     )
     assert res.status_code == 500
     data = res.get_json()
