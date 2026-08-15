@@ -290,6 +290,10 @@ def sync_missing_evaluations(project_repo, run_repo, eval_repo) -> None:
             continue
         key = (run.labels_hash, run_project.document_set_hash)
         for gt in gt_by_key.get(key, []):
+            if gt.groundtruth == "internal" and gt.name != run.project:
+                # Internal GT sets only ever pair with their own originating
+                # project's own run — never matched broadly like external.
+                continue
             if eval_repo.find_evaluation(gt.name, run.id):
                 continue
             evaluate_run(run.id, gt.name, project_repo, run_repo, eval_repo)
@@ -332,12 +336,24 @@ def get_compatible_groundtruth_sets(comparison_project: str, project_repo, run_r
 def save_as_gt_set(cmd: SaveAsGtSetCommand, project_repo, run_repo, eval_repo) -> dict:
     source_project = cmd.source_project
     token = cmd.token
+    scope = cmd.scope
 
     if project_repo.is_groundtruth(source_project):
         raise AlreadyExists(
             code="GT_SET_ALREADY_EXISTS",
             message=f"Project '{source_project}' is already a ground truth set.",
         )
+    if scope == "internal":
+        run = run_repo.get_latest_run(source_project)
+        if not run or run.status != "done":
+            raise InvalidState(
+                code="RUN_NOT_DONE",
+                message=(
+                    f"Project '{source_project}' has no finished prelabelling run — "
+                    f"an internal groundtruth set requires reviewing that run's own "
+                    f"predictions first."
+                ),
+            )
 
     project_id = resolve_project_id(token, source_project)
     gt_rows = _tasks_to_rows(token, project_id, mode="gt")
@@ -361,7 +377,7 @@ def save_as_gt_set(cmd: SaveAsGtSetCommand, project_repo, run_repo, eval_repo) -
         )
 
     try:
-        project_repo.set_groundtruth(source_project)
+        project_repo.set_groundtruth(source_project, scope)
     except IntegrityError as e:
         raise AlreadyExists(
             code="GT_SET_CONTENT_ALREADY_EXISTS",
@@ -374,27 +390,6 @@ def save_as_gt_set(cmd: SaveAsGtSetCommand, project_repo, run_repo, eval_repo) -
     sync_missing_evaluations(project_repo, run_repo, eval_repo)
 
     return {"status": "ok"}
-
-
-def resolve_family_for_project(project_name: str, project_repo, run_repo, eval_repo):
-    """Given ANY project name the user might pick, resolve the underlying
-    (groundtruth_project, run) pair it belongs to. Shared by Comparison
-    (here) and Regression/Drift (evaluation_views.py)."""
-    project = project_repo.get_project(project_name)
-    if not project:
-        return None, None
-
-    run = run_repo.get_latest_run(project_name)
-
-    if project.is_groundtruth:
-        return project_name, run
-
-    if not run:
-        return None, None
-    evaluation = eval_repo.find_evaluation_for_run(run.id)
-    if not evaluation:
-        return None, None
-    return evaluation.groundtruth_project, run
 
 
 def list_evaluated_projects(project_repo, run_repo, eval_repo) -> list[str]:
@@ -418,17 +413,29 @@ def _entry_to_dict(evaluation, model_name: str | None, run_project: str | None) 
     }
 
 
-def get_comparison_view(project_name: str, project_repo, run_repo, model_repo, eval_repo) -> dict:
+def get_comparison_view(
+    project_name: str, project_repo, run_repo, model_repo, eval_repo, scope: str = "external"
+) -> dict:
     """Same documents, same labels, model/prompt/questions may vary — a
-    ranking of configurations against one fixed groundtruth set. Accepts
-    ANY project name (resolved via resolve_family_for_project)."""
-    groundtruth_project, _run = resolve_family_for_project(
-        project_name, project_repo, run_repo, eval_repo
-    )
-    if not groundtruth_project:
+    ranking of configurations sharing the picked project's own labels and
+    document set. Driven entirely by the picked project's own attributes,
+    not by resolving one canonical groundtruth project first: at most one
+    external groundtruth can ever match (uq_external_groundtruth_labels_documents),
+    while multiple internal groundtruth sets can coincidentally share the
+    same labels/documents, each self-contained — so external and internal
+    genuinely need different queries here, not just a post-filter."""
+    project = project_repo.get_project(project_name)
+    if not project or not project.labels_hash or not project.document_set_hash:
         return {"entries": []}
-
-    evaluations = eval_repo.get_evaluations_by_groundtruth_project(groundtruth_project)
+    evaluations = (
+        eval_repo.find_internal_evaluations_by_labels_and_document_set(
+            project.labels_hash, project.document_set_hash
+        )
+        if scope == "internal"
+        else eval_repo.find_external_evaluations_by_labels_and_document_set(
+            project.labels_hash, project.document_set_hash
+        )
+    )
     entries = []
     for e in evaluations:
         run = run_repo.get_run(e.comparison_prelabelling_run_id)
