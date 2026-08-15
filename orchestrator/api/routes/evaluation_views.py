@@ -2,7 +2,6 @@
 
 from domain.errors import InternalError, ValidationFailed
 from domain.evaluation_views import get_drift_view, get_regression_view
-from domain.models.evaluation import ProjectNameCommand
 from flask import jsonify, request
 from flask_pydantic_spec import Response
 from infrastructure.repository.evaluation_repository import EvaluationRepository
@@ -13,21 +12,31 @@ from pydantic import ValidationError
 
 from api.contracts.errors import ErrorResponse
 from api.contracts.evaluation_views import (
+    DriftViewRequest,
     GetDriftViewResponse,
     GetRegressionViewResponse,
-    ProjectNameRequest,
+    RegressionViewRequest,
 )
 
 
 def register(app, spec, session_factory=None):
     @app.route("/evaluations/regression", methods=["GET"])
     @spec.validate(
-        query=ProjectNameRequest,
+        query=RegressionViewRequest,
         resp=Response(HTTP_200=GetRegressionViewResponse, HTTP_500=ErrorResponse),
         tags=["evaluation-views"],
     )
     def evaluations_regression():
-        cmd = _project_name_command_from_request()
+
+        try:
+            contract = RegressionViewRequest.model_validate(dict(request.args or {}))
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid query parameters.",
+                meta={"details": e.errors()},
+            )
+
         db = session_factory()
         try:
             project_repo = ProjectRepository(db)
@@ -35,11 +44,12 @@ def register(app, spec, session_factory=None):
             model_repo = ModelRepository(db)
             eval_repo = EvaluationRepository(db)
             result = get_regression_view(
-                cmd.project_name,
+                contract.project_name,
                 project_repo=project_repo,
                 run_repo=run_repo,
                 model_repo=model_repo,
                 eval_repo=eval_repo,
+                scope=contract.scope,
             )
         finally:
             db.close()
@@ -55,12 +65,19 @@ def register(app, spec, session_factory=None):
 
     @app.route("/evaluations/drift", methods=["GET"])
     @spec.validate(
-        query=ProjectNameRequest,
+        query=DriftViewRequest,
         resp=Response(HTTP_200=GetDriftViewResponse, HTTP_500=ErrorResponse),
         tags=["evaluation-views"],
     )
     def evaluations_drift():
-        cmd = _project_name_command_from_request()
+        try:
+            contract = DriftViewRequest.model_validate(dict(request.args or {}))
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid query parameters.",
+                meta={"details": e.errors()},
+            )
         db = session_factory()
         try:
             project_repo = ProjectRepository(db)
@@ -68,11 +85,12 @@ def register(app, spec, session_factory=None):
             model_repo = ModelRepository(db)
             eval_repo = EvaluationRepository(db)
             result = get_drift_view(
-                cmd.project_name,
+                contract.project_name,
                 project_repo=project_repo,
                 run_repo=run_repo,
                 model_repo=model_repo,
                 eval_repo=eval_repo,
+                scope=contract.scope,
             )
         finally:
             db.close()
@@ -85,14 +103,3 @@ def register(app, spec, session_factory=None):
                 meta={"details": e.errors()},
             )
         return jsonify(validated.model_dump()), 200
-
-    def _project_name_command_from_request() -> ProjectNameCommand:
-        try:
-            contract = ProjectNameRequest.model_validate(dict(request.args or {}))
-        except ValidationError as e:
-            raise ValidationFailed(
-                code="VALIDATION_FAILED",
-                message="Invalid query parameters.",
-                meta={"details": e.errors()},
-            )
-        return ProjectNameCommand.from_contract(contract.project_name)
