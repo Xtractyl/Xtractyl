@@ -75,11 +75,27 @@ def _send_callback(
         )
         resp.raise_for_status()
         return resp.json().get("continue", True)
+    except requests.HTTPError as e:
+        # The orchestrator actively responded with an error status — most likely the job/file
+        # row is already gone (cancelled-and-discarded while this file was still converting).
+        # Unlike a connection failure, this isn't "unknown, might be transient" — a definitive
+        # error response means the job's state has already moved past this file, so continuing
+        # to grind through the rest of pdf_keys would be pointless. Stop.
+        status = e.response.status_code if e.response is not None else "unknown"
+        safe_logger.error(
+            "callback_error_response | job_id=%s | pdf_filename=%s | status=%s",
+            job_id,
+            filename,
+            status,
+        )
+        if dev_logger:
+            dev_logger.exception("callback_error_response_dev | error=%s", str(e))
+        return False
     except requests.RequestException as e:
         safe_logger.error("callback_failed | job_id=%s | pdf_filename=%s", job_id, filename)
         if dev_logger:
             dev_logger.exception("callback_failed_dev | error=%s", str(e))
-        return True  # prefer continuing job when backend status response fails
+        return True  # prefer continuing job
 
 
 def convert_file(job_id: int, pdf_key: str, minio: Minio):
