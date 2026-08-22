@@ -32,3 +32,6 @@ unit-worker_prelabel:
 
 unit-ml_backend:
 	docker compose run --rm ml_backend python -m pytest -q tests/unit
+
+unit-frontend:
+	docker compose run --rm frontend sh -c "npm install && npm run test"
