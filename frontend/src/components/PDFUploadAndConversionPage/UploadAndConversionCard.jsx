@@ -8,8 +8,7 @@ export default function UploadAndConversionCard() {
 
   const { projectName, saveProjectName } = useAppContext();
 
-  const { jobId, jobStatus, serverMsg, submitBusy, handleSubmit} = useJobManager(projectName, files);
-
+  const { jobId, jobStatus, serverMsg, submitBusy, handleSubmit, handleCancel } = useJobManager(projectName, files);
 
   const handleFileChange = (e) => setFiles([...e.target.files]);
 
@@ -86,6 +85,15 @@ export default function UploadAndConversionCard() {
           <div className="text-sm break-all">Job ID: {jobId}</div>
 
           <div className="mt-3 flex gap-3">
+            {jobStatus?.status === "converting" && (
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="bg-xtractyl-outline text-xtractyl-white px-4 py-2 rounded hover:bg-xtractyl-outline/80 transition"
+              >
+                Cancel and Delete Project
+              </button>
+            )}
           </div>
         </div>
       )}
