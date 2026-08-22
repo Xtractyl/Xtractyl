@@ -82,7 +82,9 @@
 - `project` (FK → `projects.name`)
   - **Set:** during `prepare_conversion`
   - **Changed:** never
-- `status` (`pending` | `converting` | `done` | `failed` | `cancelled`)
+- `status` (Text, `CHECK` constraint on `('pending', 'converting', 'done', 'failed', 'cancelled')` —
+  `ck_conversion_jobs_status_values`; previously enforced only by an inline comment, no DB-level
+  constraint)
   - **Set:** `"pending"` during `prepare_conversion`
   - **Changed:** to `"converting"` when `start_conversion` (`POST /conversion/convert`) triggers Worker Conversion; to `"done"` in `handle_conversion_callback` (step 6) once every file has succeeded; to `"failed"` in `handle_conversion_callback` as soon as the first file's callback reports failure (fail-fast — remaining files are told to stop); to `"cancelled"` via the new cancel endpoint (see Cancel insert after step 6), while `status == "converting"`
 - `total_files`
@@ -106,11 +108,12 @@ Create Project Pipeline has run). Two mechanisms can trigger this:
 
 **`discard_conversion` (`POST /conversion/discard`)**
 - Called automatically by the frontend on upload failure (step 3b), and also fired automatically
-  by the frontend in the background when `conversion_jobs.status` transitions to `"failed"`
-  (Conversion Pipeline, step 6) — best effort, failure swallowed client-side
+  by the frontend in the background when `conversion_jobs.status` transitions to `"failed"` or
+  `"cancelled"` (Conversion Pipeline, step 6, and the Cancel insert below) — best effort, failure
+  swallowed client-side
 - Deletes the `projects`, `files`, and `conversion_jobs` rows for that project, but only if
-  `conversion_jobs.status` is still `"pending"` or `"failed"` — a job that is `"converting"` or
-  already `"done"` is not touched by this endpoint
+  `conversion_jobs.status` is still `"pending"`, `"failed"`, or `"cancelled"` — a job that is
+  `"converting"` or already `"done"` is not touched by this endpoint
 - Also deletes any PDF bytes already uploaded to MinIO under that project's prefix — no orphaned
   objects remain
 
@@ -437,10 +440,15 @@ of the row-level insert itself.
 - On success (`cmd.success=True`):
   - `files.html_key`, `files.pdf_hash`, `files.html_hash` are persisted here (`repo.set_file_html_key`)
   - `conversion_jobs.converted_files` incremented
-  - Guard: if the job's status is already `"failed"` by this point, returns `continue: False` without
-    further action — unreachable under the current strictly sequential, single-worker processing
-    (fail-fast already breaks the per-file loop immediately elsewhere), kept as a guard for a future
-    intra-job parallelization where this race could actually occur
+  - Guard: if the job's status is already `"failed"` or `"cancelled"` by this point, returns
+    `continue: False` without further action. For `"failed"`, this stays unreachable under the
+    current strictly sequential, single-worker processing (fail-fast already breaks the per-file
+    loop immediately elsewhere) — kept for a future intra-job parallelization where this race could
+    actually occur. For `"cancelled"`, the race is real today: cancellation arrives via an
+    independent endpoint call (see the Cancel insert below) while a file's conversion may already be
+    in flight, so that file's callback can land after the status flip. Its result is still written
+    to `files` in that case (`set_file_html_key` runs before this guard) — harmless, since
+    `discard_conversion` deletes the row moments later regardless
   - If `converted_files >= total_files`: `conversion_jobs.status` → `"done"`,
     `project_repo.set_document_set_hash(job.project)` is also called (see `projects.document_set_hash`
     in the Schema Reference for what this feeds into), `continue: False`
@@ -448,35 +456,49 @@ of the row-level insert itself.
 - `conversion_jobs.updated_at` is bumped in the same statement as the `converted_files` increment —
   this is what the cleanup fallback (step 3b) uses to tell "still making progress" apart from "stuck"
 
-> **⚠️ Insert — Cancel mechanism for `"converting"` jobs [BACKLOG #17, revised]**
+> **✅ Implemented — Cancel mechanism for `"converting"` jobs [BACKLOG #17, revised]**
 >
-> A separate, active-interruption mechanism — deliberately not folded into `discard_conversion`, which
-> only ever handles `pending`/`failed`: a reactive cleanup of jobs that never got going or already
-> failed on their own, not a user-initiated interruption of one currently running.
+> A separate, active-interruption mechanism — cancellation is a user-initiated interruption of a job
+> currently running, unlike `discard_conversion`'s original `pending`/`failed` cases, which are a
+> reactive cleanup of jobs that never got going or already failed on their own. The two share the
+> same underlying deletion path, though (see point 2 below) — cancel doesn't get its own deletion
+> mechanism, it reuses `discard_conversion`'s.
 >
-> **1. `POST /conversion/cancel/:job_id` (new endpoint)**
-> - Only valid while `conversion_jobs.status == "converting"`
+> **1. `POST /conversion/cancel` (new endpoint, `job_id` in the request body — matching the
+> `convert`/`discard` convention, not a URL path parameter)**
+> - Only valid while `conversion_jobs.status == "converting"`; otherwise raises `JOB_NOT_CANCELLABLE`
+>   (409)
 > - Sets `status = "cancelled"`, commits, returns immediately — deletes nothing itself
 >
-> **2. The next per-file callback (`handle_conversion_callback`, step 6) is the actual deletion trigger**
-> - Checks `status == "cancelled"` before processing the incoming per-file result
-> - If cancelled: the just-reported file's result is discarded (not written to `files`), `continue:
->   False` is returned to the worker, and this same callback invocation performs the deletion
->   (`repo.delete_project_cascade` + `storage.delete_prefix`) — same as `discard_conversion` does for
->   `pending`/`failed`
-> - This two-step design (signal now, delete only on the worker's own next callback) is what avoids a
->   race between deletion and an in-flight write — the same reason `discard_conversion` already
->   refuses to touch a `"converting"` job today. The worker never performs the deletion itself; the
->   orchestrator does, triggered by the callback the worker was always going to send anyway
+> **2. `discard_conversion` performs the actual deletion — extended to accept `"cancelled"`, not a
+> new callback-driven trigger**
+> - `discard_conversion`'s allowed-status check widens from `("pending", "failed")` to `("pending",
+>   "failed", "cancelled")` — everything else about it (delete `projects`/`files`/`conversion_jobs`
+>   rows, then the MinIO prefix, DB-first) is unchanged and shared with the existing `"failed"` path
+> - Deletion is triggered the same way it already is for `"failed"`: the frontend's status-polling
+>   loop (`useJobManager`) calls `discardConversion` automatically, best-effort, once it observes
+>   `status == "cancelled"` — not by the cancel endpoint itself, and not by the next worker callback
+> - `handle_conversion_callback`'s existing guard (step 6) is widened from `status == "failed"` to
+>   `status in ("failed", "cancelled")` — this only tells the worker to stop (`continue: False`); it
+>   performs no deletion itself, cancelled or not. This makes that branch newly *reachable* in the
+>   `"cancelled"` case specifically (unlike `"failed"`, which stays unreachable under today's
+>   strictly sequential worker) — see step 6 above for the detail
 >
-> **Frontend naming:** button labeled "Cancel and Delete Project", endpoint named to match (e.g.
-> `cancel_and_delete_conversion`) — this is always one-way; a cancelled job cannot be revived
+> **Frontend naming:** button labeled "Cancel and Delete Project", shown only while
+> `jobStatus.status === "converting"`; calls the new `cancelConversion` API function. This is always
+> one-way — a cancelled job cannot be revived
 >
 > **Cleanup container:** `"cancelled"` added to the stale-sweep's status filter alongside `"failed"`,
 > checked against `updated_at` with the same `CLEANUP_STALE_AFTER_HOURS` threshold — fallback for the
-> case where the worker never sends that triggering callback at all (e.g. it crashed before noticing
-> the cancellation). Same rationale as the `"failed"` case at step 3b: the wait avoids the sweep racing
-> ahead of the callback-driven deletion.
+> case where the frontend's automatic discard call never reaches the backend at all (tab closed,
+> network drop). Same rationale as the `"failed"` case at step 3b: the wait avoids the sweep racing
+> ahead of that call.
+>
+> **DB-level constraint added alongside this:** `conversion_jobs.status` previously had no `CHECK`
+> constraint at all (just an inline comment listing the intended values) — now enforced via
+> `ck_conversion_jobs_status_values`, `IN ('pending', 'converting', 'done', 'failed', 'cancelled')`,
+> consistent with the existing pattern already used for `projects.groundtruth`
+> (`ck_projects_groundtruth_values`).
 
 ---
 
