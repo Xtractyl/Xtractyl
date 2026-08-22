@@ -9,7 +9,7 @@ def cleanup_stale_conversion_jobs(db, storage, stale_after_hours: int = 2) -> in
         SELECT project FROM conversion_jobs
         WHERE (status = 'pending'
                 AND created_at < now() - make_interval(hours => :h))
-           OR (status IN ('converting', 'failed')
+           OR (status IN ('converting', 'failed', 'cancelled')
                 AND updated_at < now() - make_interval(hours => :h))
     """),
             {"h": stale_after_hours},
@@ -24,7 +24,7 @@ def cleanup_stale_conversion_jobs(db, storage, stale_after_hours: int = 2) -> in
             result = db.execute(
                 text("""
                 DELETE FROM conversion_jobs
-                WHERE project = :p AND status IN ('pending', 'converting', 'failed')
+                WHERE project = :p AND status IN ('pending', 'converting', 'failed', 'cancelled')
                 RETURNING id
             """),
                 {"p": project},
