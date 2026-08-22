@@ -122,12 +122,19 @@ class ConversionJob(Base):
 
     id = Column(Integer, primary_key=True)
     project = Column(Text, ForeignKey("projects.name"), nullable=False)
-    status = Column(Text, nullable=False, default="pending")  # pending | converting | done | failed
+    status = Column(Text, nullable=False, default="pending")
     total_files = Column(Integer, nullable=False)
     converted_files = Column(Integer, nullable=False, default=0)
     error = Column(Text, nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('pending', 'converting', 'done', 'failed', 'cancelled')",
+            name="ck_conversion_jobs_status_values",
+        ),
+    )
 
 
 class Model(Base):
