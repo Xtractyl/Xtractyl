@@ -422,6 +422,14 @@ of the row-level insert itself.
 > holds the full bytes in memory for hashing, it's planned to hand them to Docling directly instead
 > of a second, separate download.
 
+> **✅ Implemented.** `docling`'s `/convert` endpoint now accepts the PDF as a direct
+> `multipart/form-data` file upload (field `file`, plus a `filename` form field) instead of a
+> `pdf_url` JSON body — it no longer downloads anything itself. The worker
+> (`worker_conversion/app.py`) now performs exactly one `minio.get_object` read, uses those same
+> bytes both for `pdf_hash` and as the multipart body sent to Docling; the `presigned_get_object`
+> call and the `timedelta`-based expiry are gone entirely, since no presigned URL is generated
+> anymore (that method has no other caller anywhere in the codebase).
+
 ### 6. `handle_conversion_callback` (`POST /conversion/callback`) — runs once per file
 
 > **Clarification:** despite living under "Conversion Pipeline, step 6", this is not a single
@@ -534,13 +542,19 @@ of the row-level insert itself.
 > list against `projects.label_studio_id`, deleting anything unmatched and older than a configurable
 > age guard (to avoid racing a project that was created moments ago and hasn't been persisted yet).
 
-> **[BACKLOG #9]** Planned: guard against a second `/create_project` call when `label_studio_id` is
-> already set (`PROJECT_ALREADY_HAS_LABEL_STUDIO_ID`) — today, `create_project_main_from_payload`
-> never checks this before proceeding; calling the endpoint a second time for the same project
-> (bypassing the frontend dropdown) silently creates a *second* Label Studio project and overwrites
+> **✅ Implemented — [BACKLOG #9].** Guard added against a second `/create_project` call when `label_studio_id` is
+> already set (`PROJECT_ALREADY_HAS_LABEL_STUDIO_ID`) — `create_project_main_from_payload`
+> previously never checked this before proceeding; calling the endpoint a second time for the same project
+> (bypassing the frontend dropdown) silently created a *second* Label Studio project and overwrote
 > the stored `label_studio_id`, orphaning the first one in a way the [BACKLOG #13] sweep wouldn't
-> catch either (the row *does* have a `label_studio_id`, just the wrong one).
+> catch either 
 
+> `create_project_main_from_payload` now checks `repo.get_label_studio_id(title)` right after the
+> existing `is_conversion_done` check and before any Label Studio side effects; a project that
+> already has one raises `InvalidState("PROJECT_ALREADY_HAS_LABEL_STUDIO_ID")`, mapped to `409` like
+> the other `InvalidState` errors on this route (`CONVERSION_NOT_DONE`). The route's response spec
+> gained the missing `HTTP_409` entry, which — pre-existing gap, unrelated to this fix — wasn't
+> declared even though `CONVERSION_NOT_DONE` already used it.
 ---
 
 ## Upload Tasks Pipeline
@@ -591,13 +605,23 @@ of the row-level insert itself.
   - Digest unknown → `models` row created (`status="downloaded"`), independent Ollama model
     created via `/api/copy` (source: raw tag, destination: `archived_name`)
 
-> **[BACKLOG #16]** Planned: reverse the order in `reconcile_models` — currently, if
-> `ollama_client.copy()` fails after `repo.create()` has already committed, an orphaned `models` row
-> exists with no matching archived Ollama model behind it. Fix: `repo.create()` becomes a flush only
-> (no commit) before `ollama_client.copy()` runs — a copy failure then lets the existing rollback
-> machinery discard the never-committed DB row automatically. Separately: commit per tag rather than
-> once for the whole batch — today, one tag failing late in a multi-tag reconciliation run would
-> otherwise take down the already-successful earlier tags in the same batch too.
+> **✅ Implemented — [BACKLOG #16], with the order-reversal half already in place.** Two problems,
+> one already fixed before this pass, one fixed now:
+> - **Order/commit (already correct):** `repo.create()` was found to already be flush-only (no
+>   commit), called *after* `ollama_client.copy()` — the exact target state the original wording
+>   described as "planned." A copy failure therefore already cannot leave an orphaned, committed
+>   `models` row with no backing archived model. No code change was needed for this half.
+> - **Batch-wide commit (fixed now):** the real remaining bug — `reconcile_models` previously relied
+>   on a single `db.commit()` in the calling route, after the whole tag loop finished. One tag
+>   failing late in a multi-tag run rolled back every earlier tag's already-flushed row in the same
+>   batch too. Fixed by committing per tag: `ModelRepositoryInterface`/`ModelRepository` gained
+>   `commit()`/`rollback()`, and `reconcile_models` now wraps each tag's touch-or-create in its own
+>   try/except, committing immediately on success and rolling back just that tag on failure (logged
+>   via `safe_logger`, matching the existing per-item error-isolation pattern already used by the
+>   cleanup sweeps). Failures are collected and re-raised as a single aggregated error only after
+>   every tag has been attempted — preserving the documented Model Pull Pipeline behavior ("the user
+>   sees 'download succeeded, archiving failed' rather than a model that silently never appears in
+>   the picker") while no longer letting one bad tag erase already-successful ones.
 
 - **Known gap:** a model pulled outside the app (e.g. directly against the Ollama container) isn't
   archived or documented in `models` until some pull happens through the app — there's no scheduled,
@@ -633,6 +657,16 @@ of the row-level insert itself.
 - The Redis status hash and the job payload pushed to the worker queue both carry the
   `archived_name` **string**, never the numeric id — Ollama and the worker/ml_backend chain only
   ever see the archived name, matching what `/api/generate` expects
+
+> **✅ Implemented — new, not previously in the numbered backlog: a browser-native "confirm before
+> leaving" dialog on the Model Download page.** `reconcile_models()` only runs after `pull_model`'s
+> stream completes, so closing the tab mid-pull could leave a model downloaded into Ollama with no
+> `models` row yet — temporarily invisible to the picker, until the next successful pull's
+> `reconcile_models()` call reconciles it too, since it processes all of Ollama's tags, not just the
+> newly pulled one. `ModelDownloadInput.jsx` now registers a native `beforeunload` listener for the
+> duration of `pulling === true`, triggering the browser's own built-in confirmation dialog (wording
+> is fixed by the browser, e.g. Chrome's "Leave site? Changes you made may not be saved."; custom
+> text isn't possible). Removed again as soon as pulling ends, success or failure.
 
 ---
 
@@ -756,11 +790,20 @@ of the row-level insert itself.
   `POST /prelabel/task-meta`), which is what actually persists it into `task_prelabelling_metas` —
   neither the worker nor ml_backend has any direct Postgres access anywhere in the codebase
 
-> **[BACKLOG #3]** Planned: `wait_until_prediction_saved` removed. The worker currently also polls
++> **✅ Implemented — [BACKLOG #3].** `wait_until_prediction_saved` removed. The worker previously also polled
 > Label Studio again (up to 15 minutes) to confirm the prediction landed — redundant, since
 > ml_backend's own write is already synchronous and raises on failure before ever returning a
 > response, and in direct tension with the principle below that Label Studio's live state is no
 > longer trusted as a source of truth once [BACKLOG #20] lands.
+>
+> Removed alongside it: `_task_has_predictions`, `_fetch_task`, and the `POLL_INTERVAL`/
+> `POLL_TIMEOUT` env-driven constants in `worker/infrastructure/label_studio.py` (also dropped from
+> `.env.example`) — all three existed solely to support the polling loop. The per-task timing log in
+> `prelabel_project.py` now derives its `"ok"`/`"failed"` status directly from the `/predict` HTTP
+> response (`ok = resp.status_code == 200`, checked once and reused for both the send-meta branch and
+> the log line), rather than from a since-removed Label Studio poll. Note: this status is purely a
+> worker-side log label — it is never persisted; `send_task_meta` builds its own payload straight
+> from `/predict`'s response body and sends it to the orchestrator, unrelated to this variable.
 
 > **[BACKLOG #2]** Planned: `task_prelabelling_metas` gains `status` (`success`/`failed`) and `error`
 > columns — the table currently has no explicit success/failure field at all, every row implicitly
@@ -777,36 +820,15 @@ of the row-level insert itself.
 > Needs `save_predictions_to_labelstudio` to capture the created prediction's ID (currently discarded)
 > so it can be targeted for deletion.
 
-> **[BACKLOG #9, concretized]** `ask_llm_with_timeout` (`ml_backend/infrastructure/ollama.py`) today:
-> ```python
-> except requests.exceptions.Timeout:
->     return {"answer": None, "status": "timeout", "error": "timeout"}
-> except Exception as e:
->     return {"answer": None, "status": "error", "error": str(e)}
-> ```
-> Two problems, not one: (a) `num_ctx` is accepted as a parameter (and already arrives correctly via
-> a worker-level env var, `LLM_NUM_CTX`) but is never actually included in the `options` dict sent to
-> Ollama — a one-line fix; (b) only `status == "timeout"` is checked downstream (`predict.py`) to
-> decide whether a task failed — a genuine code bug (e.g. a `KeyError`) is caught by the blanket
-> `except Exception`, returns `status="error"` instead of `"timeout"`, and is therefore **not**
-> treated as a failure at all: the answer for that one question silently becomes `None` and the loop
-> continues, indistinguishable from a legitimate empty response — it doesn't even increment
-> `n_timeouts` in `PerfCollector`, since that counter also only checks for `status=="timeout"`. *(This
-> corrects the original phrasing of this point, which described the risk backwards — as a bug being
-> mistaken for a timeout, rather than a bug being silently swallowed as an ignored non-failure.)*
->
-> Fix: narrow the second except clause to `requests.exceptions.RequestException` (covers
-> `ConnectionError`, `HTTPError` from `raise_for_status()`, and other genuine external-call failures)
-> — a real code bug is then no longer caught here at all, and propagates as an actual exception into
-> the per-task retry-with-backoff logic from [BACKLOG #21]/[BACKLOG #22] instead of disappearing.
-> `JSONDecodeError` deliberately not added to this clause — Ollama has never been observed returning
-> malformed JSON on a 2xx response, and `raise_for_status()` already catches non-2xx before `.json()`
-> is ever called, so a JSON-decode branch would guard against a failure mode with no known precedent.
-> Both `Timeout` and the broadened `RequestException` branch now return `status="failed"` (not
-> `"timeout"`/`"error"` as two different strings) — `error` remains `"timeout"` for the `Timeout` case
-> specifically, `str(e)` for the rest — so the downstream check in `predict.py` becomes a single
-> `status == "failed"` condition instead of only matching the literal string `"timeout"`.
-
+> **✅ Implemented — [BACKLOG #9, concretized].** `ask_llm_with_timeout`
+> (`ml_backend/infrastructure/ollama.py`): `num_ctx` is now included in the `options` dict sent to
+> Ollama. The second except clause now narrows from a blanket `except Exception` to
+> `requests.exceptions.RequestException`, so a real code bug propagates as an exception instead of
+> being swallowed as a non-failure. Both the `Timeout` and `RequestException` branches now return
+> `status="failed"` (`error` still distinguishes `"timeout"` from other causes), so `predict.py`
+> checks a single `status == "failed"` condition. `calculate_metrics.py`'s separate `"timeout"` metric
+> bucket now checks `ans.get("error") == "timeout"` instead, to keep counting only genuine timeouts as
+> before.
 
 > **Clarification — `"incomplete"` is never set eagerly, mid-loop:** see the "no eager flip"
 > clarification under step 4 below for the full reasoning; the short version is that a task failing
@@ -947,11 +969,12 @@ gain.
   is guaranteed to contain only successful task rows — no separate filtering/flagging logic is needed
   for this table itself.
 
-> **New, not yet in the numbered backlog — legacy artifact cleanup at this route:**
-> - The route requires a Label Studio token (`TOKEN_REQUIRED` if missing), but `cmd.token` is never
->   passed into or used by `build_results_table` — dead requirement, left over from before the
->   DB migration; the code itself flags this (`# remove when removing legacy route`). Planned:
->   drop the token requirement from this endpoint entirely.
+> **✅ Implemented — legacy token requirement removed at this route.** The route no longer requires
+> a Label Studio token at all: `extract_token`, the `TOKEN_REQUIRED` check, and `token` on
+> `GetResultsTableCommand` have all been removed (`api/routes/results.py`,
+> `domain/models/results.py`), along with the corresponding `HTTP_401` response-spec entry and the
+> now-obsolete `test_results_table_missing_token_returns_401` unit test. `build_results_table`
+> never used the token anyway (see the DB-only finding above) — this was pure dead weight.
 
 > **Known issue (shared with Evaluation Pipeline):** `get_latest_run` has no status filter — it
 > returns whatever `prelabelling_runs` row is newest for the project, regardless of status. A project
@@ -1080,9 +1103,10 @@ results that exist.
 > Reference, `prelabelling_runs.status`), so this also rules out the exception-driven half of
 > [BACKLOG #11]'s concern by construction, the same way it already does for Get Results.
 
-> **[BACKLOG #4]** Planned: `EvaluationRepository.list_configurations_for_labels` and
-> `.list_evaluation_series` removed — fully implemented (including a non-trivial grouped/having
-> query) but have no caller anywhere in the codebase.
+> **✅ [BACKLOG #4] — already resolved in code, doc was stale.** `EvaluationRepository
+> .list_configurations_for_labels` and `.list_evaluation_series` do not exist anywhere in
+> `EvaluationRepository` or `EvaluationRepositoryInterface` today — verified by direct inspection.
+> No code change was needed; this entry is kept only to close out the backlog item.
 
 **Internal ground truth sets — implemented.** See the guard, matching-loop exclusion above for the
 Evaluation Pipeline's own share of the work; see Evaluation Drift, Regression, Comparison below for
