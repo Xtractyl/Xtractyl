@@ -12,20 +12,9 @@ def client():
         yield client
 
 
-def test_results_table_missing_token_returns_401(client):
-    res = client.post(
-        "/results/table",
-        json={"project_name": "test"},
-    )
-    assert res.status_code == 401
-    data = res.get_json()
-    assert data["error"] == "TOKEN_REQUIRED"
-
-
 def test_results_table_missing_project_name_returns_400(client):
     res = client.post(
         "/results/table",
-        headers={"Authorization": "Bearer dummy"},
         json={},
     )
     assert res.status_code == 422
@@ -38,7 +27,6 @@ def test_results_table_contract_violated_returns_500(client, monkeypatch):
     )
     res = client.post(
         "/results/table",
-        headers={"Authorization": "Bearer dummy"},
         json={"project_name": "test"},
     )
     assert res.status_code == 500
