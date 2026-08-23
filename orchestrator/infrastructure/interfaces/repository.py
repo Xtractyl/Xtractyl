@@ -226,6 +226,12 @@ class ModelRepositoryInterface(ABC):
     def touch(self, model_id: int) -> None: ...
 
     @abstractmethod
+    def commit(self) -> None: ...
+
+    @abstractmethod
+    def rollback(self) -> None: ...
+
+    @abstractmethod
     def create(
         self,
         tag: str,
