@@ -5,7 +5,6 @@ import hashlib
 import io
 import json
 import os
-from datetime import timedelta
 
 import redis
 import requests
@@ -103,11 +102,6 @@ def convert_file(job_id: int, pdf_key: str, minio: Minio):
     html_key = pdf_key.replace("/pdfs/", "/htmls/").replace(".pdf", ".html")
 
     try:
-        pdf_url = minio.presigned_get_object(MINIO_BUCKET, pdf_key, expires=timedelta(minutes=30))
-    except S3Error as e:
-        return False, None, f"Could not generate presigned URL: {e}", None, None
-
-    try:
         pdf_response = minio.get_object(MINIO_BUCKET, pdf_key)
         pdf_bytes = pdf_response.read()
         pdf_hash = hashlib.sha256(pdf_bytes).hexdigest()
@@ -117,7 +111,8 @@ def convert_file(job_id: int, pdf_key: str, minio: Minio):
     try:
         response = requests.post(
             f"{DOCLING_URL}/convert",
-            json={"pdf_url": pdf_url, "filename": filename},
+            files={"file": (filename, io.BytesIO(pdf_bytes), "application/pdf")},
+            data={"filename": filename},
             timeout=WORKER_DOCLING_TIMEOUT_SECONDS,
         )
     except requests.RequestException as e:
