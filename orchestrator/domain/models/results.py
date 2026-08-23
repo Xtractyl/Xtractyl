@@ -6,13 +6,12 @@ from domain.errors import ValidationFailed
 
 
 class GetResultsTableCommand(BaseModel):
-    token: str  # remove when removing legacy route
     project_name: str
 
     @classmethod
-    def from_contract(cls, project_name: str, token: str):
+    def from_contract(cls, project_name: str):
         try:
-            return cls(token=token, project_name=project_name)
+            return cls(project_name=project_name)
         except ValidationError as e:
             raise ValidationFailed(
                 code="INVALID_COMMAND",
