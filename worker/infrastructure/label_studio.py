@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import os
-import time
 from typing import Any, Dict, List, Optional
 
 import requests
@@ -14,8 +13,6 @@ LS_PORT = int(os.getenv("LS_PORT", "8080"))
 LS_BASE = os.getenv("LS_BASE", f"http://{LS_HOST}:{LS_PORT}")
 
 HTTP_TIMEOUT = float(os.getenv("HTTP_TIMEOUT", "30"))
-POLL_INTERVAL = float(os.getenv("POLL_INTERVAL", "2"))
-POLL_TIMEOUT = float(os.getenv("POLL_TIMEOUT", "900"))
 PAGE_SIZE = int(os.getenv("LS_PAGE_SIZE", "100"))
 
 
@@ -135,51 +132,3 @@ def get_tasks_without_predictions(
         page += 1
 
     return tasks
-
-
-def _task_has_predictions(task: Dict[str, Any]) -> bool:
-    return len(task.get("predictions") or []) > 0
-
-
-def _fetch_task(task_id: int, token: str) -> Dict[str, Any]:
-    url = f"{LS_BASE}/api/tasks/{task_id}"
-    headers = _ls_headers(token)
-    params = {"include": "predictions", "fields": "id,data,predictions"}
-    try:
-        resp = requests.get(url, headers=headers, params=params, timeout=HTTP_TIMEOUT)
-        resp.raise_for_status()
-        return resp.json()
-    except HTTPError as e:
-        status = getattr(e.response, "status_code", None)
-        if status in (401, 403):
-            raise ExternalServiceError(
-                code="LABEL_STUDIO_UNAUTHORIZED",
-                message="Label Studio token is invalid or unauthorized.",
-            )
-        raise ExternalServiceError(
-            code="LABEL_STUDIO_UNAVAILABLE",
-            message="Label Studio is unavailable.",
-        )
-    except requests.RequestException:
-        raise ExternalServiceError(
-            code="LABEL_STUDIO_UNAVAILABLE",
-            message="Label Studio is unavailable.",
-        )
-
-
-def wait_until_prediction_saved(
-    task_id: int,
-    token: str,
-    timeout_s: float = POLL_TIMEOUT,
-    poll_every_s: float = POLL_INTERVAL,
-) -> bool:
-    deadline = time.time() + timeout_s
-    while time.time() < deadline:
-        try:
-            t = _fetch_task(task_id, token)
-            if _task_has_predictions(t):
-                return True
-        except requests.RequestException:
-            pass
-        time.sleep(poll_every_s)
-    return False
