@@ -48,6 +48,12 @@ def create_project_main_from_payload(
             message="PDF conversion for this project must finish successfully before creating a Label Studio project.",
         )
 
+    if repo.get_label_studio_id(title):
+        raise InvalidState(
+            code="PROJECT_ALREADY_HAS_LABEL_STUDIO_ID",
+            message="A Label Studio project has already been created for this project.",
+        )
+
     # Label Studio label config
     label_tags = "\n    ".join([f'<Label value="{label}"/>' for label in labels])
     label_config = f"""
