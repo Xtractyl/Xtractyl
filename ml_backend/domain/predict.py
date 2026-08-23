@@ -44,7 +44,7 @@ def run_predict(cmd: PredictCommand) -> dict:
                 num_ctx=llm.num_ctx,
             )
             t["status"] = result.get("status")
-            if result.get("status") == "timeout":
+            if result.get("status") == "failed":
                 timed_out = True
             answers_by_label[str(lab)] = {
                 "question": q,
