@@ -27,6 +27,15 @@ export async function uploadToMinio(uploadUrl, file, signal) {
   }
 }
 
+/** POST /conversion/cancel -> { job_id, status } */
+export async function cancelConversion(jobId) {
+  return r(`/conversion/cancel`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ job_id: jobId }),
+  });
+}
+
 /** POST /conversion/discard -> { status } */
 export async function discardConversion(jobId) {
   return r(`/conversion/discard`, {

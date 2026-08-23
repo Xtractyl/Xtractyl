@@ -17,7 +17,7 @@ def ask_llm_with_timeout(
                 "prompt": prompt,
                 "stream": False,
                 "think": False,
-                "options": {"temperature": 0, "seed": 42},
+                "options": {"temperature": 0, "seed": 42, "num_ctx": num_ctx},
             },
             timeout=timeout,
         )
@@ -27,6 +27,6 @@ def ask_llm_with_timeout(
         ans = (response.json().get("response") or "").strip()
         return {"answer": ans if ans else None, "status": "ok", "error": None}
     except requests.exceptions.Timeout:
-        return {"answer": None, "status": "timeout", "error": "timeout"}
-    except Exception as e:
-        return {"answer": None, "status": "error", "error": str(e)}
+        return {"answer": None, "status": "failed", "error": "timeout"}
+    except requests.exceptions.RequestException as e:
+        return {"answer": None, "status": "failed", "error": str(e)}

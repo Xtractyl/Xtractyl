@@ -390,6 +390,30 @@ make unit-worker
 
 **Note:** Unit tests for evaluation metrics (precision, recall, F1, confusion matrix calculations) are planned but not yet implemented. Current unit tests cover API route contracts, request/response validation, error handling (orchestrator), and queue contract validation and job state management (worker).
 
+#### Frontend unit tests (Vitest)
+
+Test tooling (Vitest, React Testing Library, jsdom) is a `devDependency` in
+`frontend/package.json`, so it is installed automatically by the frontend
+container's existing `npm install` step, which runs each time the container
+starts (see `docker/frontend/Dockerfile`) — no separate setup required.
+ 
+Test files live next to the code they test (co-location), e.g.:
+
+Run via Make (mirrors CI, spins up a throwaway container so it works even
+without `docker compose up` running first):
+```bash
+make unit-frontend
+```
+
+Or directly inside an already-running frontend container:
+```bash
+ docker compose exec frontend npm run test
+```
+ 
+ Or in watch mode while developing:
+```bash
+ docker compose exec frontend npm run test:watch
+```
 
 #### Integration tests (pytest)
 Currently in implementation.

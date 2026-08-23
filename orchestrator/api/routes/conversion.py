@@ -1,6 +1,7 @@
 # orchestrator/api/routes/conversion.py
 
 from domain.conversion import (
+    cancel_conversion,
     discard_conversion,
     get_conversion_status,
     handle_conversion_callback,
@@ -9,6 +10,7 @@ from domain.conversion import (
 )
 from domain.errors import InternalError
 from domain.models.conversion import (
+    CancelConversionCommand,
     ConversionCallbackCommand,
     ConversionStatusCommand,
     ConvertCommand,
@@ -22,6 +24,8 @@ from infrastructure.repository.project_repository import ProjectRepository
 from pydantic import ValidationError
 
 from api.contracts.conversion import (
+    CancelConversionRequest,
+    CancelConversionResponse,
     ConversionCallbackRequest,
     ConversionCallbackResponse,
     ConversionStatusResponse,
@@ -99,6 +103,40 @@ def register(app, spec, storage, queue, session_factory):
             db.close()
         try:
             validated = ConvertResponse.model_validate(result)
+        except ValidationError as e:
+            raise InternalError(
+                code="RESPONSE_CONTRACT_VIOLATED",
+                message="Internal response did not match expected schema.",
+                meta={"details": e.errors()},
+            )
+        return jsonify(validated.model_dump()), 200
+
+    @app.route("/conversion/cancel", methods=["POST"])
+    @spec.validate(
+        body=Request(CancelConversionRequest),
+        resp=Response(
+            HTTP_200=CancelConversionResponse,
+            HTTP_404=ErrorResponse,
+            HTTP_409=ErrorResponse,
+            HTTP_500=ErrorResponse,
+        ),
+        tags=["conversion"],
+    )
+    def conversion_cancel():
+        contract = CancelConversionRequest.model_validate(request.get_json(silent=True) or {})
+        cmd = CancelConversionCommand.from_contract(job_id=contract.job_id)
+        db = session_factory()
+        try:
+            repo = ConversionRepository(db)
+            result = cancel_conversion(cmd, repo=repo)
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
+        try:
+            validated = CancelConversionResponse.model_validate(result)
         except ValidationError as e:
             raise InternalError(
                 code="RESPONSE_CONTRACT_VIOLATED",

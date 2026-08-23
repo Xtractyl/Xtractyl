@@ -82,7 +82,9 @@
 - `project` (FK → `projects.name`)
   - **Set:** during `prepare_conversion`
   - **Changed:** never
-- `status` (`pending` | `converting` | `done` | `failed` | `cancelled`)
+- `status` (Text, `CHECK` constraint on `('pending', 'converting', 'done', 'failed', 'cancelled')` —
+  `ck_conversion_jobs_status_values`; previously enforced only by an inline comment, no DB-level
+  constraint)
   - **Set:** `"pending"` during `prepare_conversion`
   - **Changed:** to `"converting"` when `start_conversion` (`POST /conversion/convert`) triggers Worker Conversion; to `"done"` in `handle_conversion_callback` (step 6) once every file has succeeded; to `"failed"` in `handle_conversion_callback` as soon as the first file's callback reports failure (fail-fast — remaining files are told to stop); to `"cancelled"` via the new cancel endpoint (see Cancel insert after step 6), while `status == "converting"`
 - `total_files`
@@ -106,11 +108,12 @@ Create Project Pipeline has run). Two mechanisms can trigger this:
 
 **`discard_conversion` (`POST /conversion/discard`)**
 - Called automatically by the frontend on upload failure (step 3b), and also fired automatically
-  by the frontend in the background when `conversion_jobs.status` transitions to `"failed"`
-  (Conversion Pipeline, step 6) — best effort, failure swallowed client-side
+  by the frontend in the background when `conversion_jobs.status` transitions to `"failed"` or
+  `"cancelled"` (Conversion Pipeline, step 6, and the Cancel insert below) — best effort, failure
+  swallowed client-side
 - Deletes the `projects`, `files`, and `conversion_jobs` rows for that project, but only if
-  `conversion_jobs.status` is still `"pending"` or `"failed"` — a job that is `"converting"` or
-  already `"done"` is not touched by this endpoint
+  `conversion_jobs.status` is still `"pending"`, `"failed"`, or `"cancelled"` — a job that is
+  `"converting"` or already `"done"` is not touched by this endpoint
 - Also deletes any PDF bytes already uploaded to MinIO under that project's prefix — no orphaned
   objects remain
 
@@ -419,6 +422,14 @@ of the row-level insert itself.
 > holds the full bytes in memory for hashing, it's planned to hand them to Docling directly instead
 > of a second, separate download.
 
+> **✅ Implemented.** `docling`'s `/convert` endpoint now accepts the PDF as a direct
+> `multipart/form-data` file upload (field `file`, plus a `filename` form field) instead of a
+> `pdf_url` JSON body — it no longer downloads anything itself. The worker
+> (`worker_conversion/app.py`) now performs exactly one `minio.get_object` read, uses those same
+> bytes both for `pdf_hash` and as the multipart body sent to Docling; the `presigned_get_object`
+> call and the `timedelta`-based expiry are gone entirely, since no presigned URL is generated
+> anymore (that method has no other caller anywhere in the codebase).
+
 ### 6. `handle_conversion_callback` (`POST /conversion/callback`) — runs once per file
 
 > **Clarification:** despite living under "Conversion Pipeline, step 6", this is not a single
@@ -437,10 +448,15 @@ of the row-level insert itself.
 - On success (`cmd.success=True`):
   - `files.html_key`, `files.pdf_hash`, `files.html_hash` are persisted here (`repo.set_file_html_key`)
   - `conversion_jobs.converted_files` incremented
-  - Guard: if the job's status is already `"failed"` by this point, returns `continue: False` without
-    further action — unreachable under the current strictly sequential, single-worker processing
-    (fail-fast already breaks the per-file loop immediately elsewhere), kept as a guard for a future
-    intra-job parallelization where this race could actually occur
+  - Guard: if the job's status is already `"failed"` or `"cancelled"` by this point, returns
+    `continue: False` without further action. For `"failed"`, this stays unreachable under the
+    current strictly sequential, single-worker processing (fail-fast already breaks the per-file
+    loop immediately elsewhere) — kept for a future intra-job parallelization where this race could
+    actually occur. For `"cancelled"`, the race is real today: cancellation arrives via an
+    independent endpoint call (see the Cancel insert below) while a file's conversion may already be
+    in flight, so that file's callback can land after the status flip. Its result is still written
+    to `files` in that case (`set_file_html_key` runs before this guard) — harmless, since
+    `discard_conversion` deletes the row moments later regardless
   - If `converted_files >= total_files`: `conversion_jobs.status` → `"done"`,
     `project_repo.set_document_set_hash(job.project)` is also called (see `projects.document_set_hash`
     in the Schema Reference for what this feeds into), `continue: False`
@@ -448,35 +464,49 @@ of the row-level insert itself.
 - `conversion_jobs.updated_at` is bumped in the same statement as the `converted_files` increment —
   this is what the cleanup fallback (step 3b) uses to tell "still making progress" apart from "stuck"
 
-> **⚠️ Insert — Cancel mechanism for `"converting"` jobs [BACKLOG #17, revised]**
+> **✅ Implemented — Cancel mechanism for `"converting"` jobs [BACKLOG #17, revised]**
 >
-> A separate, active-interruption mechanism — deliberately not folded into `discard_conversion`, which
-> only ever handles `pending`/`failed`: a reactive cleanup of jobs that never got going or already
-> failed on their own, not a user-initiated interruption of one currently running.
+> A separate, active-interruption mechanism — cancellation is a user-initiated interruption of a job
+> currently running, unlike `discard_conversion`'s original `pending`/`failed` cases, which are a
+> reactive cleanup of jobs that never got going or already failed on their own. The two share the
+> same underlying deletion path, though (see point 2 below) — cancel doesn't get its own deletion
+> mechanism, it reuses `discard_conversion`'s.
 >
-> **1. `POST /conversion/cancel/:job_id` (new endpoint)**
-> - Only valid while `conversion_jobs.status == "converting"`
+> **1. `POST /conversion/cancel` (new endpoint, `job_id` in the request body — matching the
+> `convert`/`discard` convention, not a URL path parameter)**
+> - Only valid while `conversion_jobs.status == "converting"`; otherwise raises `JOB_NOT_CANCELLABLE`
+>   (409)
 > - Sets `status = "cancelled"`, commits, returns immediately — deletes nothing itself
 >
-> **2. The next per-file callback (`handle_conversion_callback`, step 6) is the actual deletion trigger**
-> - Checks `status == "cancelled"` before processing the incoming per-file result
-> - If cancelled: the just-reported file's result is discarded (not written to `files`), `continue:
->   False` is returned to the worker, and this same callback invocation performs the deletion
->   (`repo.delete_project_cascade` + `storage.delete_prefix`) — same as `discard_conversion` does for
->   `pending`/`failed`
-> - This two-step design (signal now, delete only on the worker's own next callback) is what avoids a
->   race between deletion and an in-flight write — the same reason `discard_conversion` already
->   refuses to touch a `"converting"` job today. The worker never performs the deletion itself; the
->   orchestrator does, triggered by the callback the worker was always going to send anyway
+> **2. `discard_conversion` performs the actual deletion — extended to accept `"cancelled"`, not a
+> new callback-driven trigger**
+> - `discard_conversion`'s allowed-status check widens from `("pending", "failed")` to `("pending",
+>   "failed", "cancelled")` — everything else about it (delete `projects`/`files`/`conversion_jobs`
+>   rows, then the MinIO prefix, DB-first) is unchanged and shared with the existing `"failed"` path
+> - Deletion is triggered the same way it already is for `"failed"`: the frontend's status-polling
+>   loop (`useJobManager`) calls `discardConversion` automatically, best-effort, once it observes
+>   `status == "cancelled"` — not by the cancel endpoint itself, and not by the next worker callback
+> - `handle_conversion_callback`'s existing guard (step 6) is widened from `status == "failed"` to
+>   `status in ("failed", "cancelled")` — this only tells the worker to stop (`continue: False`); it
+>   performs no deletion itself, cancelled or not. This makes that branch newly *reachable* in the
+>   `"cancelled"` case specifically (unlike `"failed"`, which stays unreachable under today's
+>   strictly sequential worker) — see step 6 above for the detail
 >
-> **Frontend naming:** button labeled "Cancel and Delete Project", endpoint named to match (e.g.
-> `cancel_and_delete_conversion`) — this is always one-way; a cancelled job cannot be revived
+> **Frontend naming:** button labeled "Cancel and Delete Project", shown only while
+> `jobStatus.status === "converting"`; calls the new `cancelConversion` API function. This is always
+> one-way — a cancelled job cannot be revived
 >
 > **Cleanup container:** `"cancelled"` added to the stale-sweep's status filter alongside `"failed"`,
 > checked against `updated_at` with the same `CLEANUP_STALE_AFTER_HOURS` threshold — fallback for the
-> case where the worker never sends that triggering callback at all (e.g. it crashed before noticing
-> the cancellation). Same rationale as the `"failed"` case at step 3b: the wait avoids the sweep racing
-> ahead of the callback-driven deletion.
+> case where the frontend's automatic discard call never reaches the backend at all (tab closed,
+> network drop). Same rationale as the `"failed"` case at step 3b: the wait avoids the sweep racing
+> ahead of that call.
+>
+> **DB-level constraint added alongside this:** `conversion_jobs.status` previously had no `CHECK`
+> constraint at all (just an inline comment listing the intended values) — now enforced via
+> `ck_conversion_jobs_status_values`, `IN ('pending', 'converting', 'done', 'failed', 'cancelled')`,
+> consistent with the existing pattern already used for `projects.groundtruth`
+> (`ck_projects_groundtruth_values`).
 
 ---
 
@@ -512,13 +542,19 @@ of the row-level insert itself.
 > list against `projects.label_studio_id`, deleting anything unmatched and older than a configurable
 > age guard (to avoid racing a project that was created moments ago and hasn't been persisted yet).
 
-> **[BACKLOG #9]** Planned: guard against a second `/create_project` call when `label_studio_id` is
-> already set (`PROJECT_ALREADY_HAS_LABEL_STUDIO_ID`) — today, `create_project_main_from_payload`
-> never checks this before proceeding; calling the endpoint a second time for the same project
-> (bypassing the frontend dropdown) silently creates a *second* Label Studio project and overwrites
+> **✅ Implemented — [BACKLOG #9].** Guard added against a second `/create_project` call when `label_studio_id` is
+> already set (`PROJECT_ALREADY_HAS_LABEL_STUDIO_ID`) — `create_project_main_from_payload`
+> previously never checked this before proceeding; calling the endpoint a second time for the same project
+> (bypassing the frontend dropdown) silently created a *second* Label Studio project and overwrote
 > the stored `label_studio_id`, orphaning the first one in a way the [BACKLOG #13] sweep wouldn't
-> catch either (the row *does* have a `label_studio_id`, just the wrong one).
+> catch either 
 
+> `create_project_main_from_payload` now checks `repo.get_label_studio_id(title)` right after the
+> existing `is_conversion_done` check and before any Label Studio side effects; a project that
+> already has one raises `InvalidState("PROJECT_ALREADY_HAS_LABEL_STUDIO_ID")`, mapped to `409` like
+> the other `InvalidState` errors on this route (`CONVERSION_NOT_DONE`). The route's response spec
+> gained the missing `HTTP_409` entry, which — pre-existing gap, unrelated to this fix — wasn't
+> declared even though `CONVERSION_NOT_DONE` already used it.
 ---
 
 ## Upload Tasks Pipeline
@@ -569,13 +605,23 @@ of the row-level insert itself.
   - Digest unknown → `models` row created (`status="downloaded"`), independent Ollama model
     created via `/api/copy` (source: raw tag, destination: `archived_name`)
 
-> **[BACKLOG #16]** Planned: reverse the order in `reconcile_models` — currently, if
-> `ollama_client.copy()` fails after `repo.create()` has already committed, an orphaned `models` row
-> exists with no matching archived Ollama model behind it. Fix: `repo.create()` becomes a flush only
-> (no commit) before `ollama_client.copy()` runs — a copy failure then lets the existing rollback
-> machinery discard the never-committed DB row automatically. Separately: commit per tag rather than
-> once for the whole batch — today, one tag failing late in a multi-tag reconciliation run would
-> otherwise take down the already-successful earlier tags in the same batch too.
+> **✅ Implemented — [BACKLOG #16], with the order-reversal half already in place.** Two problems,
+> one already fixed before this pass, one fixed now:
+> - **Order/commit (already correct):** `repo.create()` was found to already be flush-only (no
+>   commit), called *after* `ollama_client.copy()` — the exact target state the original wording
+>   described as "planned." A copy failure therefore already cannot leave an orphaned, committed
+>   `models` row with no backing archived model. No code change was needed for this half.
+> - **Batch-wide commit (fixed now):** the real remaining bug — `reconcile_models` previously relied
+>   on a single `db.commit()` in the calling route, after the whole tag loop finished. One tag
+>   failing late in a multi-tag run rolled back every earlier tag's already-flushed row in the same
+>   batch too. Fixed by committing per tag: `ModelRepositoryInterface`/`ModelRepository` gained
+>   `commit()`/`rollback()`, and `reconcile_models` now wraps each tag's touch-or-create in its own
+>   try/except, committing immediately on success and rolling back just that tag on failure (logged
+>   via `safe_logger`, matching the existing per-item error-isolation pattern already used by the
+>   cleanup sweeps). Failures are collected and re-raised as a single aggregated error only after
+>   every tag has been attempted — preserving the documented Model Pull Pipeline behavior ("the user
+>   sees 'download succeeded, archiving failed' rather than a model that silently never appears in
+>   the picker") while no longer letting one bad tag erase already-successful ones.
 
 - **Known gap:** a model pulled outside the app (e.g. directly against the Ollama container) isn't
   archived or documented in `models` until some pull happens through the app — there's no scheduled,
@@ -611,6 +657,16 @@ of the row-level insert itself.
 - The Redis status hash and the job payload pushed to the worker queue both carry the
   `archived_name` **string**, never the numeric id — Ollama and the worker/ml_backend chain only
   ever see the archived name, matching what `/api/generate` expects
+
+> **✅ Implemented — new, not previously in the numbered backlog: a browser-native "confirm before
+> leaving" dialog on the Model Download page.** `reconcile_models()` only runs after `pull_model`'s
+> stream completes, so closing the tab mid-pull could leave a model downloaded into Ollama with no
+> `models` row yet — temporarily invisible to the picker, until the next successful pull's
+> `reconcile_models()` call reconciles it too, since it processes all of Ollama's tags, not just the
+> newly pulled one. `ModelDownloadInput.jsx` now registers a native `beforeunload` listener for the
+> duration of `pulling === true`, triggering the browser's own built-in confirmation dialog (wording
+> is fixed by the browser, e.g. Chrome's "Leave site? Changes you made may not be saved."; custom
+> text isn't possible). Removed again as soon as pulling ends, success or failure.
 
 ---
 
@@ -734,11 +790,20 @@ of the row-level insert itself.
   `POST /prelabel/task-meta`), which is what actually persists it into `task_prelabelling_metas` —
   neither the worker nor ml_backend has any direct Postgres access anywhere in the codebase
 
-> **[BACKLOG #3]** Planned: `wait_until_prediction_saved` removed. The worker currently also polls
++> **✅ Implemented — [BACKLOG #3].** `wait_until_prediction_saved` removed. The worker previously also polled
 > Label Studio again (up to 15 minutes) to confirm the prediction landed — redundant, since
 > ml_backend's own write is already synchronous and raises on failure before ever returning a
 > response, and in direct tension with the principle below that Label Studio's live state is no
 > longer trusted as a source of truth once [BACKLOG #20] lands.
+>
+> Removed alongside it: `_task_has_predictions`, `_fetch_task`, and the `POLL_INTERVAL`/
+> `POLL_TIMEOUT` env-driven constants in `worker/infrastructure/label_studio.py` (also dropped from
+> `.env.example`) — all three existed solely to support the polling loop. The per-task timing log in
+> `prelabel_project.py` now derives its `"ok"`/`"failed"` status directly from the `/predict` HTTP
+> response (`ok = resp.status_code == 200`, checked once and reused for both the send-meta branch and
+> the log line), rather than from a since-removed Label Studio poll. Note: this status is purely a
+> worker-side log label — it is never persisted; `send_task_meta` builds its own payload straight
+> from `/predict`'s response body and sends it to the orchestrator, unrelated to this variable.
 
 > **[BACKLOG #2]** Planned: `task_prelabelling_metas` gains `status` (`success`/`failed`) and `error`
 > columns — the table currently has no explicit success/failure field at all, every row implicitly
@@ -755,36 +820,15 @@ of the row-level insert itself.
 > Needs `save_predictions_to_labelstudio` to capture the created prediction's ID (currently discarded)
 > so it can be targeted for deletion.
 
-> **[BACKLOG #9, concretized]** `ask_llm_with_timeout` (`ml_backend/infrastructure/ollama.py`) today:
-> ```python
-> except requests.exceptions.Timeout:
->     return {"answer": None, "status": "timeout", "error": "timeout"}
-> except Exception as e:
->     return {"answer": None, "status": "error", "error": str(e)}
-> ```
-> Two problems, not one: (a) `num_ctx` is accepted as a parameter (and already arrives correctly via
-> a worker-level env var, `LLM_NUM_CTX`) but is never actually included in the `options` dict sent to
-> Ollama — a one-line fix; (b) only `status == "timeout"` is checked downstream (`predict.py`) to
-> decide whether a task failed — a genuine code bug (e.g. a `KeyError`) is caught by the blanket
-> `except Exception`, returns `status="error"` instead of `"timeout"`, and is therefore **not**
-> treated as a failure at all: the answer for that one question silently becomes `None` and the loop
-> continues, indistinguishable from a legitimate empty response — it doesn't even increment
-> `n_timeouts` in `PerfCollector`, since that counter also only checks for `status=="timeout"`. *(This
-> corrects the original phrasing of this point, which described the risk backwards — as a bug being
-> mistaken for a timeout, rather than a bug being silently swallowed as an ignored non-failure.)*
->
-> Fix: narrow the second except clause to `requests.exceptions.RequestException` (covers
-> `ConnectionError`, `HTTPError` from `raise_for_status()`, and other genuine external-call failures)
-> — a real code bug is then no longer caught here at all, and propagates as an actual exception into
-> the per-task retry-with-backoff logic from [BACKLOG #21]/[BACKLOG #22] instead of disappearing.
-> `JSONDecodeError` deliberately not added to this clause — Ollama has never been observed returning
-> malformed JSON on a 2xx response, and `raise_for_status()` already catches non-2xx before `.json()`
-> is ever called, so a JSON-decode branch would guard against a failure mode with no known precedent.
-> Both `Timeout` and the broadened `RequestException` branch now return `status="failed"` (not
-> `"timeout"`/`"error"` as two different strings) — `error` remains `"timeout"` for the `Timeout` case
-> specifically, `str(e)` for the rest — so the downstream check in `predict.py` becomes a single
-> `status == "failed"` condition instead of only matching the literal string `"timeout"`.
-
+> **✅ Implemented — [BACKLOG #9, concretized].** `ask_llm_with_timeout`
+> (`ml_backend/infrastructure/ollama.py`): `num_ctx` is now included in the `options` dict sent to
+> Ollama. The second except clause now narrows from a blanket `except Exception` to
+> `requests.exceptions.RequestException`, so a real code bug propagates as an exception instead of
+> being swallowed as a non-failure. Both the `Timeout` and `RequestException` branches now return
+> `status="failed"` (`error` still distinguishes `"timeout"` from other causes), so `predict.py`
+> checks a single `status == "failed"` condition. `calculate_metrics.py`'s separate `"timeout"` metric
+> bucket now checks `ans.get("error") == "timeout"` instead, to keep counting only genuine timeouts as
+> before.
 
 > **Clarification — `"incomplete"` is never set eagerly, mid-loop:** see the "no eager flip"
 > clarification under step 4 below for the full reasoning; the short version is that a task failing
@@ -925,11 +969,12 @@ gain.
   is guaranteed to contain only successful task rows — no separate filtering/flagging logic is needed
   for this table itself.
 
-> **New, not yet in the numbered backlog — legacy artifact cleanup at this route:**
-> - The route requires a Label Studio token (`TOKEN_REQUIRED` if missing), but `cmd.token` is never
->   passed into or used by `build_results_table` — dead requirement, left over from before the
->   DB migration; the code itself flags this (`# remove when removing legacy route`). Planned:
->   drop the token requirement from this endpoint entirely.
+> **✅ Implemented — legacy token requirement removed at this route.** The route no longer requires
+> a Label Studio token at all: `extract_token`, the `TOKEN_REQUIRED` check, and `token` on
+> `GetResultsTableCommand` have all been removed (`api/routes/results.py`,
+> `domain/models/results.py`), along with the corresponding `HTTP_401` response-spec entry and the
+> now-obsolete `test_results_table_missing_token_returns_401` unit test. `build_results_table`
+> never used the token anyway (see the DB-only finding above) — this was pure dead weight.
 
 > **Known issue (shared with Evaluation Pipeline):** `get_latest_run` has no status filter — it
 > returns whatever `prelabelling_runs` row is newest for the project, regardless of status. A project
@@ -1058,9 +1103,10 @@ results that exist.
 > Reference, `prelabelling_runs.status`), so this also rules out the exception-driven half of
 > [BACKLOG #11]'s concern by construction, the same way it already does for Get Results.
 
-> **[BACKLOG #4]** Planned: `EvaluationRepository.list_configurations_for_labels` and
-> `.list_evaluation_series` removed — fully implemented (including a non-trivial grouped/having
-> query) but have no caller anywhere in the codebase.
+> **✅ [BACKLOG #4] — already resolved in code, doc was stale.** `EvaluationRepository
+> .list_configurations_for_labels` and `.list_evaluation_series` do not exist anywhere in
+> `EvaluationRepository` or `EvaluationRepositoryInterface` today — verified by direct inspection.
+> No code change was needed; this entry is kept only to close out the backlog item.
 
 **Internal ground truth sets — implemented.** See the guard, matching-loop exclusion above for the
 Evaluation Pipeline's own share of the work; see Evaluation Drift, Regression, Comparison below for

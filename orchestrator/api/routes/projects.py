@@ -44,6 +44,7 @@ def register(app, spec, session_factory, label_studio, storage):
         resp=Response(
             HTTP_200=CreateProjectResponse,
             HTTP_401=ErrorResponse,  # missing token
+            HTTP_409=ErrorResponse,  # conversion not done / already has a Label Studio project
             HTTP_502=ErrorResponse,  # label studio or ml backend unreachable
             HTTP_500=ErrorResponse,
         ),

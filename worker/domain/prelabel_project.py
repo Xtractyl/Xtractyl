@@ -8,7 +8,6 @@ from contracts.jobs import JobPayload
 from infrastructure.label_studio import (
     get_tasks_without_predictions,
     resolve_project_id,
-    wait_until_prediction_saved,
 )
 from infrastructure.ml_backend import send_predict
 from infrastructure.orchestrator import send_task_meta
@@ -72,17 +71,17 @@ def prelabel_project(
 
         start = time.time()
         resp = send_predict(task_id=task_id, html=html, filename=filename, job=job)
-        if resp.status_code != 200:
+        ok = resp.status_code == 200
+        if not ok:
             _log(f"[WARN] /predict returned {resp.status_code} for task {task_id}. Continuing.")
-        if resp.status_code == 200:
+        else:
             body = resp.json()
             meta = body.get("meta", {})
             send_task_meta(task_id=task_id, meta=meta, job=job)
-        ok = wait_until_prediction_saved(task_id, job.token)
         dt = time.time() - start
         durations.append(dt)
         total_time += dt
-        status = "ok" if ok else "timeout"
+        status = "ok" if ok else "failed"
         _log(f"[TIME] Task {task_id} finished in {round(dt, 2)}s ({status}).")
 
         done += 1

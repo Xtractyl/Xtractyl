@@ -30,3 +30,6 @@ jobs:
 
       - name: Run unit tests for ml_backend
         run: make unit-ml_backend
+
+      - name: Run unit tests for frontend
+        run: make unit-frontend

@@ -10,6 +10,7 @@ from infrastructure.interfaces.storage import StorageInterface
 
 from domain.errors import AlreadyExists, InvalidState, NotFound
 from domain.models.conversion import (
+    CancelConversionCommand,
     ConversionCallbackCommand,
     ConversionStatusCommand,
     ConvertCommand,
@@ -38,25 +39,6 @@ def prepare_conversion(
     return {"job_id": job_id, "presigned_urls": presigned_urls}
 
 
-def discard_conversion(
-    cmd: DiscardConversionCommand,
-    repo: ConversionRepositoryInterface,
-    storage: StorageInterface,
-) -> dict:
-    job = repo.get_conversion_job(cmd.job_id)
-    if not job:
-        return {"status": "already_gone"}
-    if job.status not in ("pending", "failed"):
-        raise InvalidState(
-            code="JOB_NOT_DISCARDABLE",
-            message="Job has already started converting; cannot discard.",
-        )
-    repo.delete_project_cascade(job.project)
-    repo.commit()  # make DB state persistent before making irreversible storage change
-    storage.delete_prefix(job.project)
-    return {"status": "discarded"}
-
-
 def start_conversion(
     cmd: ConvertCommand, repo: ConversionRepositoryInterface, queue: QueueInterface
 ) -> dict:
@@ -75,6 +57,41 @@ def start_conversion(
         pdf_keys=pdf_keys,
     )
     return {"job_id": job.id, "status": "converting"}
+
+
+def discard_conversion(
+    cmd: DiscardConversionCommand,
+    repo: ConversionRepositoryInterface,
+    storage: StorageInterface,
+) -> dict:
+    job = repo.get_conversion_job(cmd.job_id)
+    if not job:
+        return {"status": "already_gone"}
+    if job.status not in ("pending", "failed", "cancelled"):
+        raise InvalidState(
+            code="JOB_NOT_DISCARDABLE",
+            message="Job has already started converting; cannot discard.",
+        )
+    repo.delete_project_cascade(job.project)
+    repo.commit()  # make DB state persistent before making irreversible storage change
+    storage.delete_prefix(job.project)
+    return {"status": "discarded"}
+
+
+def cancel_conversion(
+    cmd: CancelConversionCommand,
+    repo: ConversionRepositoryInterface,
+) -> dict:
+    job = repo.get_conversion_job(cmd.job_id)
+    if not job:
+        raise NotFound(code="CONVERSION_JOB_NOT_FOUND", message="Conversion job not found.")
+    if job.status != "converting":
+        raise InvalidState(
+            code="JOB_NOT_CANCELLABLE",
+            message=f"Job is in state '{job.status}'; only a job that is 'converting' can be cancelled.",
+        )
+    repo.set_conversion_job_status(job.id, "cancelled")
+    return {"job_id": job.id, "status": "cancelled"}
 
 
 def get_conversion_status(
@@ -100,6 +117,10 @@ def handle_conversion_callback(
     job = repo.get_conversion_job(cmd.job_id)
     if not job:
         raise NotFound(code="CONVERSION_JOB_NOT_FOUND", message="Conversion job not found.")
+    if job.status == "cancelled":
+        # avoids writing to a file/job
+        # row that's about to be deleted
+        return {"status": "ok", "continue": False}
     if not cmd.success:
         repo.set_file_error(
             project=job.project,
@@ -124,10 +145,13 @@ def handle_conversion_callback(
     )
     repo.increment_converted_files(job.id)
     updated_job = repo.get_conversion_job(cmd.job_id)
-    if updated_job.status == "failed":
-        # Unreachable under the current strictly sequential single-worker processing
-        # (fail-fast breaks the per-file loop immediately). Kept as a guard for a
-        # future intra-job parallelization where this race could actually occur.
+    if updated_job.status in ("failed", "cancelled"):
+        # "failed" is unreachable here under the current strictly sequential
+        # single-worker processing (fail-fast breaks the per-file loop immediately,
+        # see above vor the eraly return) — kept as a guard for a future intra-job parallelization where this race
+        # could actually occur. "cancelled" IS reachable today: cancel arrives via a
+        # separate endpoint call while a file conversion is already in flight, so the
+        # callback for that in-flight file can land after the status already flipped.
         return {"status": "ok", "continue": False}
 
     if updated_job.converted_files >= updated_job.total_files:

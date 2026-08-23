@@ -1,5 +1,5 @@
 // src/components/ModelDownloadInput.jsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { pullModel } from "../../api/StartPrelabellingPage/api.js";
 
 export default function ModelDownloadInput({
@@ -10,6 +10,18 @@ export default function ModelDownloadInput({
   const [progress, setProgress] = useState("");
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    if (!pulling) return;
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [pulling]);
+
+
+  
   const handlePull = async () => {
     const model = name.trim();
     if (!model) return;

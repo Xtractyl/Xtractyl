@@ -29,6 +29,12 @@ class ModelRepository(ModelRepositoryInterface):
             model.last_confirmed_at = func.now()
             self._db.flush()
 
+    def commit(self) -> None:
+        self._db.commit()
+
+    def rollback(self) -> None:
+        self._db.rollback()
+
     def create(
         self,
         tag: str,

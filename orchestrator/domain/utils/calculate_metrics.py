@@ -103,7 +103,7 @@ def compute_metrics_from_rows(
                 task_metrics_by_fn[fnm]["_perf_collected"] = True
             raw = meta.get("raw_llm_answers") or {}
             ans = raw.get(str(lab)) or raw.get(lab) or {}
-            timed_out = ans.get("status") == "timeout"
+            timed_out = ans.get("error") == "timeout"
 
             gt_val = ((gt_by_fn.get(fnm, {}) or {}).get(labels_key) or {}).get(lab, "")
             pr_val = ((pred_by_fn.get(fnm, {}) or {}).get(labels_key) or {}).get(lab, "")

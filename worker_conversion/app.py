@@ -5,7 +5,6 @@ import hashlib
 import io
 import json
 import os
-from datetime import timedelta
 
 import redis
 import requests
@@ -75,21 +74,32 @@ def _send_callback(
         )
         resp.raise_for_status()
         return resp.json().get("continue", True)
+    except requests.HTTPError as e:
+        # The orchestrator actively responded with an error status — most likely the job/file
+        # row is already gone (cancelled-and-discarded while this file was still converting).
+        # Unlike a connection failure, this isn't "unknown, might be transient" — a definitive
+        # error response means the job's state has already moved past this file, so continuing
+        # to grind through the rest of pdf_keys would be pointless. Stop.
+        status = e.response.status_code if e.response is not None else "unknown"
+        safe_logger.error(
+            "callback_error_response | job_id=%s | pdf_filename=%s | status=%s",
+            job_id,
+            filename,
+            status,
+        )
+        if dev_logger:
+            dev_logger.exception("callback_error_response_dev | error=%s", str(e))
+        return False
     except requests.RequestException as e:
         safe_logger.error("callback_failed | job_id=%s | pdf_filename=%s", job_id, filename)
         if dev_logger:
             dev_logger.exception("callback_failed_dev | error=%s", str(e))
-        return True  # prefer continuing job when backend status response fails
+        return True  # prefer continuing job
 
 
 def convert_file(job_id: int, pdf_key: str, minio: Minio):
     filename = os.path.basename(pdf_key)
     html_key = pdf_key.replace("/pdfs/", "/htmls/").replace(".pdf", ".html")
-
-    try:
-        pdf_url = minio.presigned_get_object(MINIO_BUCKET, pdf_key, expires=timedelta(minutes=30))
-    except S3Error as e:
-        return False, None, f"Could not generate presigned URL: {e}", None, None
 
     try:
         pdf_response = minio.get_object(MINIO_BUCKET, pdf_key)
@@ -101,7 +111,8 @@ def convert_file(job_id: int, pdf_key: str, minio: Minio):
     try:
         response = requests.post(
             f"{DOCLING_URL}/convert",
-            json={"pdf_url": pdf_url, "filename": filename},
+            files={"file": (filename, io.BytesIO(pdf_bytes), "application/pdf")},
+            data={"filename": filename},
             timeout=WORKER_DOCLING_TIMEOUT_SECONDS,
         )
     except requests.RequestException as e:

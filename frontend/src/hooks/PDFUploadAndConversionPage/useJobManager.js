@@ -1,6 +1,6 @@
 //src/hooks/PDFUploadAndConversionPage/useJobManager.js
 import { useState, useEffect, useCallback } from "react";
-import { prepareConversion, discardConversion, uploadToMinio, startConversion, getConversionStatus } from "../../api/PDFUploadAndConversionPage/api";
+import { prepareConversion, discardConversion, cancelConversion, uploadToMinio, startConversion, getConversionStatus } from "../../api/PDFUploadAndConversionPage/api";
 
 export default function useJobManager(projectName, files) {
   const [jobId, setJobId] = useState(() => localStorage.getItem("conversionJobId"));
@@ -33,16 +33,17 @@ export default function useJobManager(projectName, files) {
         if (cancelled) return;
         setJobStatus(s);
 
-        if (["done", "failed"].includes(s.status)) {
+        if (["done", "failed", "cancelled"].includes(s.status)) {
           localStorage.removeItem("conversionJobId");
           setJobId(null);
           setServerMsg(
             s.status === "done"
               ? "✅ Conversion complete."
-              : `❌ Conversion failed.${s.error ? ` ${s.error}` : ""}`
-          );
+              : s.status === "failed"
+              ? `❌ Conversion failed.${s.error ? ` ${s.error}` : ""}`
+              : "⏹️ Conversion cancelled."          );
 
-          if (s.status === "failed") {
+          if (s.status === "failed" || s.status === "cancelled") {
             // best effort: free project name for another try by user
             discardConversion(jobId).catch(() => {
               /* Cleanup-Container will remove it after 2h in case of failure here */
@@ -121,5 +122,16 @@ export default function useJobManager(projectName, files) {
     }
   }, [files, projectName]);
 
-  return { jobId, jobStatus, serverMsg, submitBusy, handleSubmit};
+  // Cancel the currently running job
+  const handleCancel = useCallback(async () => {
+    if (!jobId) return;
+    try {
+      await cancelConversion(jobId);
+      setServerMsg("⏹️ Cancelling…");
+    } catch (err) {
+      setServerMsg(`❌ ${err.message || "Couldn't cancel conversion."}`);
+    }
+  }, [jobId]);
+
+  return { jobId, jobStatus, serverMsg, submitBusy, handleSubmit, handleCancel };
 }

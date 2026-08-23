@@ -2,7 +2,6 @@ import os
 import subprocess
 import tempfile
 
-import requests as req
 from flask import Flask, jsonify, request
 from utils.logging_utils import dev_logger, safe_logger
 
@@ -16,39 +15,34 @@ safe_logger.info("docling_starting")
 
 
 @app.route("/convert", methods=["POST"])
-def convert_from_url():
+def convert_pdf():
     """
-    Accept a pdf_url, download it, convert to HTML via Docling CLI,
+    Accept a PDF file directly (multipart/form-data), convert to HTML via Docling CLI,
     return the HTML content as JSON.
     """
 
-    data = request.get_json(silent=True) or {}
-    pdf_url = data.get("pdf_url")
-    filename = data.get("filename", "document.pdf")
+    uploaded = request.files.get("file")
+    if uploaded is None:
+        return jsonify({"error": "Missing file"}), 400
 
+    filename = request.form.get("filename") or uploaded.filename or "document.pdf"
     filename = os.path.basename(filename)
     if not filename or filename in (".", ".."):
         filename = "document.pdf"
-
-    if not pdf_url:
-        return jsonify({"error": "Missing pdf_url"}), 400
 
     with tempfile.TemporaryDirectory() as tmpdir:
         pdf_path = os.path.join(tmpdir, filename)
         html_dir = os.path.join(tmpdir, "html_out")
         os.makedirs(html_dir, exist_ok=True)
 
-        # Download PDF
+        #  save uploaded
         try:
-            r = req.get(pdf_url, timeout=60)
-            r.raise_for_status()
-            with open(pdf_path, "wb") as f:
-                f.write(r.content)
+            uploaded.save(pdf_path)
         except Exception as e:
-            safe_logger.error("pdf_download_failed")
+            safe_logger.error("pdf_save_failed")
             if dev_logger:
-                dev_logger.exception("pdf_download_failed_dev | error=%s", str(e))
-            return jsonify({"error": "Failed to download PDF"}), 502
+                dev_logger.exception("pdf_save_failed_dev | error=%s", str(e))
+            return jsonify({"error": "Failed to read uploaded PDF"}), 400
 
         # Convert via Docling CLI
         cmd = ["docling", pdf_path, "--from", "pdf", "--to", "html", "--output", html_dir]
