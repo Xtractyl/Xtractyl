@@ -11,14 +11,24 @@ from .utils.calculate_metrics import compute_metrics_from_rows
 from .utils.shared.label_studio_client import (
     fetch_task_annotations,
     fetch_tasks_page,
-    list_projects,
     resolve_project_id,
 )
 
 
-def list_project_names(token: str) -> dict:
-    projects = list_projects(token)
-    return {"names": [p.get("title") for p in projects if p.get("title")]}
+def list_projects_ready_for_comparison(eval_repo) -> dict:
+    """Backs GET /list_projects_ready_for_comparison, the comparison
+    project dropdown on the EvaluateAIPage. Filters to projects that
+    have an Evaluation in the comparison role"""
+    return {"projects": eval_repo.list_projects_ready_for_comparison()}
+
+
+def list_projects_ready_for_groundtruth(project_repo) -> dict:
+    """Backs GET /list_projects_ready_for_groundtruth, the dropdown to SaveAsGtSet.
+    A project can become a groundtruth set without a prelabelling run of its own
+    the criterion here is "converted and not already a groundtruth set"
+    =document_set_hash IS NOT NULL AND groundtruth = 'none', not "has a
+    done run" """
+    return {"projects": project_repo.get_projects_ready_for_groundtruth()}
 
 
 def _bucket_from_results(results: list) -> dict:
@@ -318,28 +328,17 @@ def get_groundtruth_qals(project_repo) -> dict:
     return {"sets": {p.name: p.questions_and_labels for p in gt_projects}}
 
 
-def get_compatible_groundtruth_sets(comparison_project: str, project_repo, run_repo) -> dict:
+def list_groundtruth_projects_for_comparison(comparison_project: str, run_repo, eval_repo) -> dict:
+    """Backs POST /list_groundtruth_projects_for_comparison  the
+    groundtruth project dropdown on Evaluate AI. Filters to groundtruth
+    projects the comparison project has been evaluated against"""
     run = run_repo.get_run_for_project(comparison_project)
     if not run:
         raise NotFound(
             code="RUN_NOT_FOUND",
             message=f"No prelabelling run found for project '{comparison_project}'.",
         )
-
-    cmp_html_hashes = project_repo.get_html_hashes_for_project(comparison_project)
-    if not cmp_html_hashes:
-        return {"names": []}
-
-    gt_projects = project_repo.list_groundtruth_projects()
-    compatible = []
-    for gt in gt_projects:
-        if gt.labels_hash != run.labels_hash:
-            continue
-        gt_html_hashes = project_repo.get_html_hashes_for_project(gt.name)
-        if gt_html_hashes == cmp_html_hashes:
-            compatible.append(gt.name)
-
-    return {"names": compatible}
+    return {"projects": eval_repo.list_groundtruth_projects_for_comparison_run(run.id)}
 
 
 def save_as_gt_set(cmd: SaveAsGtSetCommand, project_repo, run_repo, eval_repo) -> dict:
