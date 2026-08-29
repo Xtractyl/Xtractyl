@@ -3,7 +3,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from contracts.jobs import JobPayload
-from domain.errors import ExternalServiceError, NotFound
 from pydantic import ValidationError
 
 # --- Fixtures ---
@@ -106,48 +105,3 @@ def test_handle_job_sets_cancelled_when_cancel_requested(valid_job):
 
     calls = [str(c) for c in mock_r.hset.call_args_list]
     assert any("CANCELLED" in c for c in calls)
-
-
-# --- resolve_project_id ---
-
-
-def test_resolve_project_id_401_raises_external_service_error():
-    from infrastructure.label_studio import resolve_project_id
-    from requests.exceptions import HTTPError
-
-    mock_response = MagicMock()
-    mock_response.status_code = 401
-    mock_response.raise_for_status.side_effect = HTTPError(response=mock_response)
-
-    with patch("infrastructure.label_studio.requests.get", return_value=mock_response):
-        with pytest.raises(ExternalServiceError) as exc:
-            resolve_project_id("bad_token", "my_project")
-        assert exc.value.code == "LABEL_STUDIO_UNAUTHORIZED"
-
-
-def test_resolve_project_id_not_found_raises_not_found():
-    from infrastructure.label_studio import resolve_project_id
-
-    mock_response = MagicMock()
-    mock_response.raise_for_status.return_value = None
-    mock_response.json.return_value = {"results": [], "next": None}
-
-    with patch("infrastructure.label_studio.requests.get", return_value=mock_response):
-        with pytest.raises(NotFound) as exc:
-            resolve_project_id("good_token", "nonexistent_project")
-        assert exc.value.code == "PROJECT_NOT_FOUND"
-
-
-def test_resolve_project_id_returns_id():
-    from infrastructure.label_studio import resolve_project_id
-
-    mock_response = MagicMock()
-    mock_response.raise_for_status.return_value = None
-    mock_response.json.return_value = {
-        "results": [{"title": "my_project", "id": 42}],
-        "next": None,
-    }
-
-    with patch("infrastructure.label_studio.requests.get", return_value=mock_response):
-        project_id = resolve_project_id("good_token", "my_project")
-    assert project_id == 42

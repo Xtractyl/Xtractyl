@@ -5,7 +5,7 @@ import os
 from typing import Any, Dict, List, Optional
 
 import requests
-from domain.errors import ExternalServiceError, NotFound
+from domain.errors import ExternalServiceError
 from requests.exceptions import HTTPError
 
 LS_HOST = os.getenv("LS_HOST", "labelstudio")
@@ -18,48 +18,6 @@ PAGE_SIZE = int(os.getenv("LS_PAGE_SIZE", "100"))
 
 def _ls_headers(token: str) -> Dict[str, str]:
     return {"Authorization": f"Token {token}", "Content-Type": "application/json"}
-
-
-def resolve_project_id(token: str, project_name: str) -> int:
-    url = f"{LS_BASE}/api/projects"
-    while True:
-        try:
-            r = requests.get(
-                url,
-                headers=_ls_headers(token),
-                timeout=HTTP_TIMEOUT,
-            )
-            r.raise_for_status()
-            data = r.json()
-        except HTTPError as e:
-            status = getattr(e.response, "status_code", None)
-            if status in (401, 403):
-                raise ExternalServiceError(
-                    code="LABEL_STUDIO_UNAUTHORIZED",
-                    message="Label Studio token is invalid or unauthorized.",
-                )
-            raise ExternalServiceError(
-                code="LABEL_STUDIO_UNAVAILABLE",
-                message="Label Studio is unavailable.",
-            )
-        except requests.RequestException:
-            raise ExternalServiceError(
-                code="LABEL_STUDIO_UNAVAILABLE",
-                message="Label Studio is unavailable.",
-            )
-        projects = data if isinstance(data, list) else data.get("results", [])
-        for p in projects:
-            if p.get("title") == project_name:
-                return int(p["id"])
-        next_url = data.get("next") if isinstance(data, dict) else None
-        if not next_url:
-            break
-        url = next_url
-    raise NotFound(
-        code="PROJECT_NOT_FOUND",
-        message=f'Project "{project_name}" not found.',
-        meta={"project_name": project_name},
-    )
 
 
 def get_tasks_without_predictions(
