@@ -692,12 +692,9 @@ of the row-level insert itself.
 > the larger Start Prelabelling bundle — dropdown, second-run guard, resume logic, and redundant
 > hash/QAL column removal are the rest of #23, still to be worked through.)
 
-> **New, not yet in the numbered backlog:** no check exists today for `projects.ls_tasks_uploaded`
-> being `true` before enqueueing — a prelabelling run can currently be started against a project that
-> was never uploaded to Label Studio at all. Planned: a `TASKS_NOT_UPLOADED` guard here, enforced
-> server-side (not just left to the frontend dropdown below), consistent with the pattern already
-> used elsewhere (see `project_exists`/`is_conversion_done` at Create Project) — a real backend check,
-> not merely a UI-level filter.
+> **✅ Implemented.** `enqueue_prelabel_job` now checks `project_repo.tasks_already_uploaded
+> raising `InvalidState("TASKS_NOT_UPLOADED")` if tasks were never uploaded to
+> Label Studio, real backend check, to back up the  UI-level filter
 
 - `prelabelling_runs` row created — `project`, `label_studio_id`, `questions_and_labels` (+ hashes),
   `model_id`, `system_prompt` (+ hash), `status="pending"`
@@ -725,14 +722,9 @@ of the row-level insert itself.
 > The job *payload* pushed to the queue is unaffected by this particular change and continues to
 > exist; only the separate status hash goes away.
 
-> **[BACKLOG #8]** Planned: `label_studio_id` added to the job payload — the orchestrator already
-> resolved it above (step 1), so passing it along removes the worker's redundant `resolve_project_id`
-> call in step 2.
-
-- The Redis payload does **not** include `label_studio_id`, even though the orchestrator just
-  resolved it — the worker re-resolves it independently via an extra Label Studio API call
-  (`resolve_project_id`) purely because it wasn't passed along *(current behavior; see [BACKLOG #8]
-  directly above for the planned fix)*
+> **✅ Implemented — [BACKLOG #8].** `label_studio_id` is now included in the job payload, the
+> orchestrator resolved it and now passes it via redis to the worker so that the worker does not have to repeat
+> resolving it
 
 > **New, not yet in the numbered backlog — frontend project-selection endpoint:** a new
 > `GET /list_projects_ready_for_prelabelling` (mirroring the pattern from Upload Tasks/Create Project)
@@ -744,8 +736,8 @@ of the row-level insert itself.
 
 ### 2. Worker pulls the job, validates the task list, resolves what to process
 
-> With [BACKLOG #8] implemented, `resolve_project_id` is no longer called here — `label_studio_id`
-> arrives directly in the job payload, resolved once already by the orchestrator in step 1.
+`resolve_project_id` is no longer called here, `label_studio_id` arrives directly in the job
+payload, resolved already by the orchestrator in step 1 (see [BACKLOG #8] above).
 
 - Task openness (which tasks still need processing) is determined from Postgres, not Label Studio's
   live state — a task counts as open if it has no `task_prelabelling_metas` row with
@@ -953,8 +945,9 @@ gain.
 
 ### `build_results_table` (`POST /results/table` — Get Results page)
 - Read-only, no writes to any table
-- `run_repo.get_latest_run(cmd.project_name)` — resolves the project name to a `prelabelling_runs`
-  row; raises `RUN_NOT_FOUND` if none exists
+- `run_repo.get_run_for_project(cmd.project_name)` resolves the project name to a
+  `prelabelling_runs` row; raises `RUN_NOT_FOUND` if none exists; raises `InvalidState("RUN_NOT_DONE")`
+  if the resolved run's `status` isn't `"done"` (see [BACKLOG #25] below)
 - Reads `task_prelabelling_metas` for that run, flattens `raw_llm_answers` into one column per label
   (`<label>__pred`), returns a table: `task_id`, `filename`, one predicted-answer column per label
 - **DB-only, not a Label Studio passthrough** — despite what the route's own OpenAPI contract and
@@ -962,12 +955,7 @@ gain.
   Label Studio at all; it reads exclusively from Postgres via `PrelabellingRunRepository`. This
   appears to be a completed migration (see README, Phase 2: "Migration of filesystem-based state to
   Postgres and MinIO" — marked Completed) whose cleanup was left unfinished at this route
-- No filtering by `status` — every row in `task_prelabelling_metas` for the run is included. Once
-  [BACKLOG #25] restricts the selectable projects to `status="done"` runs only (see below), this
-  stops being an open question: a `"done"` run cannot contain a `status="failed"` row by definition
-  (any failed task would have made the run `"incomplete"` instead), so a table backing a `"done"` run
-  is guaranteed to contain only successful task rows — no separate filtering/flagging logic is needed
-  for this table itself.
+- selectable projects restricted to `status="done"` runs only and a matching `RUN_NOT_DONE` guard added directly in `build_results_table` itself.
 
 > **✅ Implemented — legacy token requirement removed at this route.** The route no longer requires
 > a Label Studio token at all: `extract_token`, the `TOKEN_REQUIRED` check, and `token` on
@@ -976,21 +964,18 @@ gain.
 > now-obsolete `test_results_table_missing_token_returns_401` unit test. `build_results_table`
 > never used the token anyway (see the DB-only finding above) — this was pure dead weight.
 
-> **Known issue (shared with Evaluation Pipeline):** `get_latest_run` has no status filter — it
-> returns whatever `prelabelling_runs` row is newest for the project, regardless of status. A project
-> with a finished, evaluated `"done"` run, followed by a second run that ends up `"failed"` or
-> `"incomplete"`, would have this resolve to the second (wrong) run instead of the one with usable
-> results. See the same issue described under Evaluation Pipeline, and [BACKLOG #24] for the planned
-> fix — the [BACKLOG #23] second-run guard is what makes this practically unreachable going forward,
-> same as for Evaluation.
+> **Resolved — structurally, via [BACKLOG #24].** `get_run_for_project` (renamed from
+> `get_latest_run`) has no status filter, but this is no longer an issue: with the `UNIQUE`
+> constraint on `prelabelling_runs.project` in place, there is never more than one row per project to
+> choose between — "latest" was never a meaningful concept to begin with once that constraint exists.
+> A project with a finished, evaluated `"done"` run can no longer be superseded by a second run at
+> all (the [BACKLOG #23] second-run guard blocks a new run while one still exists), so the ambiguity
+> this note used to describe cannot arise.
 
-> **[BACKLOG #25]** Planned: free-text project entry replaced with a dropdown, filtering to projects
-> with a `prelabelling_runs` row at `status="done"` only — `"incomplete"`, `"failed"`, `"cancelled"`,
-> `"pending"`, and `"running"` runs are all excluded, not just non-terminal ones. This is stricter
-> than [BACKLOG #23]'s Prelabelling-start dropdown (which also surfaces `"failed"` runs, tagged for
-> resume) — here, the run has to actually be usable as a finished result, not merely resumable.
-> Backed by a new DB-only endpoint (no Label Studio involvement needed, per the DB-only finding
-> above) — filters `prelabelling_runs` by project and `status="done"` directly.
+> **✅ Implemented — [BACKLOG #25].** Free-text project entry replaced with a dropdown
+> (`ResultsReadyProjectSelect.jsx`), filtering to projects with a `prelabelling_runs` row at
+> `status="done"`, `"incomplete"`, `"failed"`, `"cancelled"`, `"pending"`, and `"running"` runs
+> are all excluded, proper setting of the status has to be integrated into the prelabelling workflow yet.
 
 ---
 
@@ -1015,38 +1000,23 @@ in Comparison/Regression/Drift (see below) — never in how the GT itself gets c
 ground truth. No equivalent guard exists for external, which is typically annotated from scratch
 and often has no run of its own at all.
 
-> **New, not yet in the numbered backlog — hard block on incomplete annotations:** `save_as_gt_set`
-> today writes a ground truth row for *every* task in the project, even tasks with no submitted
-> Label Studio annotation at all — `_chosen_annotation_bucket` returns `{}` for such a task, which
-> is then written to `task_groundtruth_annotations.annotations` exactly as if a reviewer had
-> deliberately marked every label as no-match, indistinguishable from a genuine review outcome. The
-> only existing guard (`NO_TASKS_FOUND`) only checks that the project has *any* tasks at all, not
-> that every task has been reviewed. Planned fix (decided, not yet implemented): hard-block —
-> `save_as_gt_set` raises a new error (e.g. `INCOMPLETE_ANNOTATIONS`) if even one task in the
-> project has no submitted annotation, rather than silently substituting an empty ground truth for
-> it. Applies to both scopes equally, since the underlying mechanism (`_tasks_to_rows(mode="gt")`)
-> is shared.
+> **✅ Implemented — hard block on incomplete annotations.** `_tasks_to_rows(mode="gt")` now tracks,
+> per task, whether it has a submitted Label Studio annotation.
+> If any task lacks a submitted annotation entirely, `save_as_gt_set` raises
+> `InvalidState("INCOMPLETE_ANNOTATIONS")`, naming the unreviewed filenames, instead of silently
+> writing an empty ground truth for it. A task with an empty annotation submitted is allowed,
+> as a task might not include answers to any question.
 
-> **New, not yet in the numbered backlog — "Save as GT" source-project list is also pure Label
-> Studio passthrough:** `SaveAsGtSet.jsx`'s `source_project` selector receives the same
-> `projects` state as the comparison-project dropdown (`fetchEvaluationProjects` → raw Label Studio
-> project titles), filtered only client-side against `gtSets` (`projects.filter(p =>
-> !gtSets.includes(p))`) — "not already GT," nothing else. A project can be picked here even without
-> completed conversion (`document_set_hash` unset — caught late, by `PROJECT_NOT_CONVERTED`, only
-> after the Label Studio read already happened) or without any uploaded tasks at all. Unlike the
-> comparison-project dropdown, `gtSets` itself is already correctly DB-sourced
-> (`get_groundtruth_qals` → `project_repo.list_groundtruth_projects()`) — only the `projects`/
-> candidates side of this picker has the gap. Planned fix (decided, not yet implemented): a
-> dedicated DB-backed endpoint for `source_project` candidates, filtering to
-> `document_set_hash IS NOT NULL AND groundtruth = 'none'` at minimum — closing the same class of
-> gap as the comparison-project fix above, for the save-side picker instead.
+> **✅ Implemented — "Save as GT" source-project list decoupled from the comparison-project
+> dropdown.** `SaveAsGtSet.jsx` now fetches its own candidate list independently via a dedicated DB-backed endpoint
+> (`GET /list_projects_ready_for_groundtruth` → `project_repo.get_projects_ready_for_groundtruth()`),
+> filtering to `document_set_hash IS NOT NULL AND groundtruth = 'none'` 
 
 **`evaluate_run`** (the only place an evaluation is actually computed/persisted): guards against
 label-set mismatch (`labels_hash`) and non-identical document sets (`html_hash` set equality,
 exact — a 40/41-identical overlap does not qualify) before computing metrics via
-`compute_metrics_from_rows` and saving to `evaluations`. Deliberately takes an explicit `run_id`
-rather than resolving "latest run" for a project, specifically to avoid the ambiguity described
-next.
+`compute_metrics_from_rows` and saving to `evaluations`. No `status == "done"` guard was added inside `evaluate_run` as
+`sync_missing_evaluations`, already exclusively iterates `run_repo.list_done_runs()`.
 
 **`sync_missing_evaluations`**: the only two triggers are a run reaching `"done"` and a new GT set
 being saved; deliberately not exposed as its own route (see Prelabelling Pipeline). Matches purely
@@ -1061,47 +1031,54 @@ results that exist.
 > restricted to matching only their own originating project's own run — never scanned broadly like
 > external. This is the *only* code change `sync_missing_evaluations` needed for the whole feature.
 
-> **[BACKLOG #24, resolved by design rather than by patching]** `get_latest_run` (the repository
-> method backing this pipeline, plus `build_results_table`) has no
-> status filter today — it returns whatever `prelabelling_runs` row is newest for a project,
-> regardless of `status`. Originally scoped as either adding a status filter or moving all three call
-> sites to an explicit `run_id`. With the `UNIQUE` constraint on `prelabelling_runs.project` (see
-> Schema Reference, under `prelabelling_runs`) in place, this ambiguity cannot arise at all — there is
-> never more than one row per project to choose between, "latest" stops being a meaningful concept,
-> and no separate status-filter fix or call-site rework is needed. The only remaining action is
-> cosmetic: rename `get_latest_run` to something that doesn't imply a choice among candidates (e.g.
-> `get_run_for_project`), and update its callers accordingly. No defense is planned against the
-> constraint itself being bypassed (e.g. a raw SQL migration circumventing it) — considered
-> out of scope, the same category of risk as someone directly corrupting the database, which nothing
-> in the application layer can meaningfully guard against.
+> **[BACKLOG #24, resolved by design rather than by patching]** `get_run_for_project` (the repository
+> method backing this pipeline, plus `build_results_table`; renamed from `get_latest_run`) has no
+> status filter — it returns whatever `prelabelling_runs` row is newest for a project, regardless of
+> `status`. Originally scoped as either adding a status filter or moving all three call sites to an
+> explicit `run_id`. With the `UNIQUE` constraint on `prelabelling_runs.project` (see Schema
+> Reference, under `prelabelling_runs`) in place, this ambiguity cannot arise at all — there is never
+> more than one row per project to choose between, "latest" stops being a meaningful concept, and no
+> separate status-filter fix or call-site rework is needed. **✅ The remaining cosmetic action is
+> done:** `get_latest_run` has been renamed to `get_run_for_project` across the repository interface,
+> implementation, and all call sites (Evaluation Pipeline, Evaluation Views, Get Results Pipeline). No
+> defense is planned against the constraint itself being bypassed (e.g. a raw SQL migration
+> circumventing it) — considered out of scope, the same category of risk as someone directly
+> corrupting the database, which nothing in the application layer can meaningfully guard against.
 
-> **[BACKLOG #11]** Planned: `compute_metrics_from_rows` currently classifies a task/label pair as a
-> true negative whenever the ground truth is empty and the prediction is any falsy value — not
-> specifically the `<<<NO_MATCH>>>` sentinel the system prompt is supposed to enforce. In practice,
-> the ambiguity this could cause is expected to be rare: once [BACKLOG #9]/[BACKLOG #2] land, any
-> exception-driven empty answer fails the whole task rather than silently producing `None` for one
-> question, and a genuinely empty (non-erroring, `status="ok"`) LLM response is, per experience
-> running these models, essentially never observed in practice — models reliably produce *some* text
-> even when explicitly instructed to answer with nothing. This is a cheap, purely defensive fix for a
-> theoretical edge case that both changes above make unlikely, not a response to an actively observed
-> problem. Fix: require the literal sentinel for the TN classification.
+> **✅ Implemented — [BACKLOG #11].** `compute_metrics_from_rows` now requires the literal
+> `<<<NO_MATCH>>>` sentinel for a TN classification — the previous catch-all `else` branch (which
+> counted *any* falsy prediction as TN whenever ground truth was empty) is narrowed to an explicit
+> `elif (not gt_present) and pr_no_match` check, even though a completely empty answer by an LLM
+> seems to be more of an academic problem. Resolution detail settled during implementation: a
+> falsy-but-not-sentinel prediction (empty string, `None`, missing key) with no matching ground truth
+> is classified as **FP**, not left unclassified or excluded — the model failed to follow the
+> required "signal no-match via the sentinel" convention, and that failure is itself a real,
+> countable error, the same way a hallucinated non-empty value already was. No new status category or
+> schema field was needed; the fix is a pure reclassification within the existing TP/FP/FN/TN scheme.
 
-> **New, not yet in the numbered backlog — comparison project list is currently pure Label Studio
-> passthrough, not filtered by Xtractyl runs at all:** `list_project_names` (backing
-> `GET /evaluate-ai/projects`, consumed by `EvaluateAICard.jsx`'s comparison-project dropdown) calls
-> `list_projects(token)` — a live Label Studio API call — and returns every Label Studio project
-> title verbatim. This is more fundamental than the "restricted to done" gap below: a project can be
-> selected here even if it has **no Xtractyl `prelabelling_runs` row at all**, not just one with the
-> wrong status. Planned fix (decided, not yet implemented): both problems collapse into the same
-> fix — the dropdown gains a dedicated DB-backed endpoint filtering to projects with a
-> `prelabelling_runs` row at `status="done"` specifically (mirroring [BACKLOG #25]'s Get Results
-> dropdown), and `evaluate_run` itself gains a matching `status == "done"` guard server-side (not
-> just left to the dropdown) — today `evaluate_run` checks `is_groundtruth`, run existence,
-> `labels_hash` match, and document-set equality, but nothing about the comparison run's own
-> existence or status at all. Restricting to `"done"` is also the more structural fix for the TN
-> ambiguity above: a `"done"` run cannot contain a `status="failed"` task row by definition (Schema
-> Reference, `prelabelling_runs.status`), so this also rules out the exception-driven half of
-> [BACKLOG #11]'s concern by construction, the same way it already does for Get Results.
+> **✅ Implemented — comparison project dropdown, and a further, separate groundtruth-for-comparison
+> dropdown added on top.** The pure Label Studio passthrough (`list_project_names` /
+> `GET /evaluate-ai/projects`, calling `list_projects(token)`) has been removed entirely, along with
+> the underlying client function — neither had any other caller left once this fix and the "Save as
+> GT" fix above both landed.
+>
+> **Comparison Project dropdown:** backed by `GET /list_projects_ready_for_comparison` →
+> `EvaluationRepository.list_projects_ready_for_comparison`, projects with at least one `Evaluation`
+> row in the comparison role. This is a tighter, more accurate
+> filter than `"done"` would have been, because a `"done"` run only gets an `Evaluation` once
+> `sync_missing_evaluations` finds a compatible groundtruth set for it, a `"done"` run with no
+> compatible groundtruth yet would pass a `status="done"` filter but still return
+> `EVALUATION_NOT_FOUND` for every possible groundtruth pairing.
+>
+> **Groundtruth Project dropdown, scoped to the selected Comparison Project (new, beyond what was
+> originally planned here):** once a Comparison Project is picked, the Groundtruth Project dropdown
+> is restricted to groundtruth projects that already have a computed `Evaluation` for that specific
+> comparison run — a direct DB lookup against the `evaluations` table. A pairing picked from these two dropdowns is
+> therefore guaranteed to actually resolve, instead of letting the user pick a combination with no
+> `Evaluation` yet that always returns `EVALUATION_NOT_FOUND`.
+>
+> **`evaluate_run` did *not* gain a `status == "done"` guard**, contrary to what was originally
+> planned here, because its only caller, `sync_missing_evaluations`, already exclusively iterates done runs.
 
 > **✅ [BACKLOG #4] — already resolved in code, doc was stale.** `EvaluationRepository
 > .list_configurations_for_labels` and `.list_evaluation_series` do not exist anywhere in
@@ -1190,12 +1167,3 @@ GT or an ordinary evaluated project:
 with Regression) rather than needing its own — the internal/external split already happens at that
 level; Drift's only additional step beyond Regression is the document-set dedup and overlap-chain
 search described above.
-
-**Deliberately left out of this pass, to be added as a smaller follow-up:** the Evaluate AI
-comparison-project dropdown (`gtSets` in `ComparisonSelection.jsx`) still lists internal and
-external GT projects without visual distinction — unlike Drift/Comparison/Regression, there is no
-scope filter here yet, so a user could technically pick a project's own internal GT against an
-unrelated comparison run (not blocked server-side either). Revisit once the dropdown is reworked to
-only show comparison-projects actually compatible with the selected GT (and vice versa) — at that
-point, `project_repo.get_groundtruth_scope(...)` should be the source of truth for filtering, not a
-name-equality heuristic.
