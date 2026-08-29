@@ -138,6 +138,7 @@ def register(app, spec, session_factory):
         body=Request(PrelabelCallbackRequest),
         resp=Response(
             HTTP_200=PrelabelCallbackResponse,
+            HTTP_409=ErrorResponse,  # label or html-hash mismatch (via sync_missing_evaluations)
             HTTP_500=ErrorResponse,
         ),
         tags=["jobs"],
