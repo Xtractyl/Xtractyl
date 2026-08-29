@@ -12,20 +12,6 @@ LABEL_STUDIO_URL = os.getenv(
 )
 
 
-def list_projects(token: str) -> list[dict]:
-    url = f"{LABEL_STUDIO_URL}/api/projects"
-    try:
-        r = requests.get(url, headers=_auth_headers(token), timeout=20)
-        r.raise_for_status()
-        data = r.json()
-    except requests.RequestException:
-        raise ExternalServiceError(
-            code="LABEL_STUDIO_UNAVAILABLE",
-            message="Label Studio is unavailable.",
-        )
-    return data.get("results", data) if isinstance(data, dict) else data
-
-
 def _auth_headers(token: str) -> dict:
     return {"Authorization": f"Token {token}"}
 
