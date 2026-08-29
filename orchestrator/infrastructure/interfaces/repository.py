@@ -91,6 +91,9 @@ class ProjectRepositoryInterface(ABC):
     def get_groundtruth_scope(self, name: str) -> str: ...
 
     @abstractmethod
+    def get_projects_ready_for_groundtruth(self) -> list[str]: ...
+
+    @abstractmethod
     def set_groundtruth(self, name: str, scope: str) -> None: ...
 
     @abstractmethod
@@ -210,6 +213,14 @@ class EvaluationRepositoryInterface(ABC):
 
     @abstractmethod
     def list_projects_with_evaluations(self) -> list[str]: ...
+
+    @abstractmethod
+    def list_projects_ready_for_comparison(self) -> list[str]: ...
+
+    @abstractmethod
+    def list_groundtruth_projects_for_comparison_run(
+        self, comparison_prelabelling_run_id: int
+    ) -> list[str]: ...
 
 
 class ModelRepositoryInterface(ABC):
