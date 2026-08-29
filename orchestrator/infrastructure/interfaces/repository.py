@@ -161,6 +161,9 @@ class PrelabellingRunRepositoryInterface(ABC):
     @abstractmethod
     def list_done_runs(self) -> list: ...
 
+    @abstractmethod
+    def get_projects_ready_for_results(self) -> list[str]: ...
+
 
 class EvaluationRepositoryInterface(ABC):
     @abstractmethod
