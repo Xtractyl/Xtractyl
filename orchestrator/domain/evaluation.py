@@ -83,6 +83,7 @@ def _latest_prediction_meta(task: dict) -> dict:
 def _tasks_to_rows(token: str, project_id: int, mode: str) -> list[dict]:
     tasks, total = fetch_tasks_page(token, project_id)
     rows = []
+    unreviewed_filenames = []
     for t in tasks:
         data = t.get("data") or {}
         filename = data.get("name", "")
@@ -90,6 +91,9 @@ def _tasks_to_rows(token: str, project_id: int, mode: str) -> list[dict]:
             anns = t.get("annotations") or []
             if not any(a and (a.get("result") or []) for a in anns):
                 t["annotations"] = fetch_task_annotations(token, t.get("id"))
+            has_annotation = any(isinstance(a, dict) for a in (t.get("annotations") or []))
+            if not has_annotation:
+                unreviewed_filenames.append(filename or f"task {t.get('id')}")
             labels = _chosen_annotation_bucket(t)
         else:
             labels = _latest_prediction_bucket(t)
@@ -112,6 +116,17 @@ def _tasks_to_rows(token: str, project_id: int, mode: str) -> list[dict]:
                 "meta": meta,
                 "run_at_raw": run_at_raw,
             }
+        )
+    if mode == "gt" and unreviewed_filenames:
+        raise InvalidState(
+            code="INCOMPLETE_ANNOTATIONS",
+            message=(
+                f"{len(unreviewed_filenames)} of {len(tasks)} task(s) have no "
+                f"submitted annotation yet — every task must be reviewed before "
+                f"this project can become a groundtruth set. Unreviewed: "
+                f"{', '.join(sorted(unreviewed_filenames))}"
+            ),
+            meta={"unreviewed_filenames": sorted(unreviewed_filenames)},
         )
     return rows
 
@@ -350,6 +365,11 @@ def save_as_gt_set(cmd: SaveAsGtSetCommand, project_repo, run_repo, eval_repo) -
             )
 
     project_id = resolve_project_id(token, source_project)
+    # _tasks_to_rows raises InvalidState("INCOMPLETE_ANNOTATIONS") itself if any
+    # task has no submitted annotation at all — see its mode="gt" branch. This
+    # must happen there, not here: an empty labels bucket in gt_rows is
+    # otherwise indistinguishable from a reviewer deliberately marking every
+    # label as no-match.
     gt_rows = _tasks_to_rows(token, project_id, mode="gt")
 
     if not gt_rows:
