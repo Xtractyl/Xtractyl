@@ -6,7 +6,7 @@ from domain.models.results import GetResultsTableCommand
 
 
 def build_results_table(cmd: GetResultsTableCommand, run_repo):
-    run = run_repo.get_latest_run(cmd.project_name)
+    run = run_repo.get_run_for_project(cmd.project_name)
     if not run:
         raise NotFound(
             code="RUN_NOT_FOUND",

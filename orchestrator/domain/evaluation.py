@@ -117,13 +117,7 @@ def _tasks_to_rows(token: str, project_id: int, mode: str) -> list[dict]:
 
 
 def evaluate_run(run_id: int, groundtruth_project: str, project_repo, run_repo, eval_repo) -> dict:
-    """The single place a new evaluation is actually computed and persisted.
-    Takes an explicit run_id rather than a project name + "latest run"
-    lookup, on purpose: sync_missing_evaluations always knows exactly which
-    run and which groundtruth project it means, and using get_latest_run()
-    here would reintroduce the ambiguity documented on that method (no
-    status filter — could silently resolve to a different, newer or failed
-    run than the one intended)."""
+    """The single place a new evaluation is actually computed and persisted."""
     if not project_repo.is_groundtruth(groundtruth_project):
         raise InvalidState(
             code="NOT_A_GROUNDTRUTH_SET",
@@ -242,7 +236,7 @@ def get_evaluation(
     that keeps sync_missing_evaluations off any directly callable route in
     the first place: a fallback that computes on demand would let a user
     route around a missing/broken sync just by asking for it."""
-    run = run_repo.get_latest_run(comparison_project)
+    run = run_repo.get_run_for_project(comparison_project)
     if not run:
         raise NotFound(
             code="RUN_NOT_FOUND",
@@ -310,7 +304,7 @@ def get_groundtruth_qals(project_repo) -> dict:
 
 
 def get_compatible_groundtruth_sets(comparison_project: str, project_repo, run_repo) -> dict:
-    run = run_repo.get_latest_run(comparison_project)
+    run = run_repo.get_run_for_project(comparison_project)
     if not run:
         raise NotFound(
             code="RUN_NOT_FOUND",
@@ -344,7 +338,7 @@ def save_as_gt_set(cmd: SaveAsGtSetCommand, project_repo, run_repo, eval_repo) -
             message=f"Project '{source_project}' is already a ground truth set.",
         )
     if scope == "internal":
-        run = run_repo.get_latest_run(source_project)
+        run = run_repo.get_run_for_project(source_project)
         if not run or run.status != "done":
             raise InvalidState(
                 code="RUN_NOT_DONE",

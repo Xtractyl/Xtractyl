@@ -44,7 +44,7 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
                 run.error = error
             self._db.flush()
 
-    def get_latest_run(self, project: str):
+    def get_run_for_project(self, project: str):
         return (
             self._db.query(PrelabellingRun)
             .filter(PrelabellingRun.project == project)
