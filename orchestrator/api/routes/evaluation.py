@@ -3,16 +3,17 @@
 from domain.errors import InternalError, Unauthorized, ValidationFailed
 from domain.evaluation import (
     get_comparison_view,
-    get_compatible_groundtruth_sets,
     get_evaluation,
     get_groundtruth_qals,
     list_evaluated_projects,
-    list_project_names,
+    list_groundtruth_projects_for_comparison,
+    list_projects_ready_for_comparison,
+    list_projects_ready_for_groundtruth,
     save_as_gt_set,
 )
 from domain.models.evaluation import (
-    CompatibleGroundtruthSetsCommand,
     EvaluateProjectsCommand,
+    ListGroundtruthProjectsForComparisonCommand,
     SaveAsGtSetCommand,
 )
 from flask import jsonify, request
@@ -25,15 +26,16 @@ from pydantic import ValidationError
 
 from api.contracts.errors import ErrorResponse
 from api.contracts.evaluation import (
-    CompatibleGroundtruthSetsRequest,
-    CompatibleGroundtruthSetsResponse,
     EvaluateProjectsRequest,
     EvaluateProjectsResponse,
     GetComparisonViewRequest,
     GetComparisonViewResponse,
     GroundtruthQalsResponse,
     ListEvaluatedProjectsResponse,
-    ProjectNamesResponse,
+    ListGroundtruthProjectsForComparisonRequest,
+    ListGroundtruthProjectsForComparisonResponse,
+    ListProjectsReadyForComparisonResponse,
+    ListProjectsReadyForGroundtruthResponse,
     SaveAsGtSetRequest,
     SaveAsGtSetResponse,
 )
@@ -41,26 +43,55 @@ from api.utils.auth import extract_token
 
 
 def register(app, spec, session_factory=None):
-    @app.route("/evaluate-ai/projects", methods=["GET"])
+    @app.route("/list_projects_ready_for_comparison", methods=["GET"])
     @spec.validate(
         resp=Response(
-            HTTP_200=ProjectNamesResponse,
-            HTTP_401=ErrorResponse,  # missing token
-            HTTP_502=ErrorResponse,  # label studio unreachable
+            HTTP_200=ListProjectsReadyForComparisonResponse,
             HTTP_500=ErrorResponse,
         ),
         tags=["evaluation"],
     )
-    def evaluate_ai_projects():
-        token = extract_token(request)
-
-        if not token:
-            raise Unauthorized(
-                code="TOKEN_REQUIRED",
-                message="Authorization token is required.",
+    def list_projects_ready_for_comparison_route():
+        db = session_factory()
+        try:
+            eval_repo = EvaluationRepository(db)
+            result = list_projects_ready_for_comparison(eval_repo=eval_repo)
+        finally:
+            db.close()
+        try:
+            validated = ListProjectsReadyForComparisonResponse.model_validate(result)
+        except ValidationError as e:
+            raise InternalError(
+                code="RESPONSE_CONTRACT_VIOLATED",
+                message="Internal response did not match expected schema.",
+                meta={"details": e.errors()},
             )
-        result = list_project_names(token)
-        return jsonify(result), 200
+        return jsonify(validated.model_dump()), 200
+
+    @app.route("/list_projects_ready_for_groundtruth", methods=["GET"])
+    @spec.validate(
+        resp=Response(
+            HTTP_200=ListProjectsReadyForGroundtruthResponse,
+            HTTP_500=ErrorResponse,
+        ),
+        tags=["evaluation"],
+    )
+    def list_projects_ready_for_groundtruth_route():
+        db = session_factory()
+        try:
+            project_repo = ProjectRepository(db)
+            result = list_projects_ready_for_groundtruth(project_repo=project_repo)
+        finally:
+            db.close()
+        try:
+            validated = ListProjectsReadyForGroundtruthResponse.model_validate(result)
+        except ValidationError as e:
+            raise InternalError(
+                code="RESPONSE_CONTRACT_VIOLATED",
+                message="Internal response did not match expected schema.",
+                meta={"details": e.errors()},
+            )
+        return jsonify(validated.model_dump()), 200
 
     @app.route("/groundtruth_qals", methods=["GET"])
     @spec.validate(
@@ -88,34 +119,34 @@ def register(app, spec, session_factory=None):
             )
         return jsonify(validated.model_dump()), 200
 
-    @app.route("/groundtruth_qals/compatible", methods=["POST"])
+    @app.route("/list_groundtruth_projects_for_comparison", methods=["POST"])
     @spec.validate(
-        body=Request(CompatibleGroundtruthSetsRequest),
+        body=Request(ListGroundtruthProjectsForComparisonRequest),
         resp=Response(
-            HTTP_200=CompatibleGroundtruthSetsResponse,
+            HTTP_200=ListGroundtruthProjectsForComparisonResponse,
             HTTP_404=ErrorResponse,
             HTTP_500=ErrorResponse,
         ),
         tags=["evaluation"],
     )
-    def compatible_groundtruth_sets():
-        contract = CompatibleGroundtruthSetsRequest.model_validate(
+    def list_groundtruth_projects_for_comparison_route():
+        contract = ListGroundtruthProjectsForComparisonRequest.model_validate(
             request.get_json(silent=True) or {}
         )
-        cmd = CompatibleGroundtruthSetsCommand.from_contract(
+        cmd = ListGroundtruthProjectsForComparisonCommand.from_contract(
             comparison_project=contract.comparison_project
         )
         db = session_factory()
         try:
-            project_repo = ProjectRepository(db)
+            eval_repo = EvaluationRepository(db)
             run_repo = PrelabellingRunRepository(db)
-            result = get_compatible_groundtruth_sets(
-                cmd.comparison_project, project_repo=project_repo, run_repo=run_repo
+            result = list_groundtruth_projects_for_comparison(
+                cmd.comparison_project, run_repo=run_repo, eval_repo=eval_repo
             )
         finally:
             db.close()
         try:
-            validated = CompatibleGroundtruthSetsResponse.model_validate(result)
+            validated = ListGroundtruthProjectsForComparisonResponse.model_validate(result)
         except ValidationError as e:
             raise InternalError(
                 code="RESPONSE_CONTRACT_VIOLATED",

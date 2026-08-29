@@ -5,10 +5,7 @@ import time
 from typing import Callable, List, Optional
 
 from contracts.jobs import JobPayload
-from infrastructure.label_studio import (
-    get_tasks_without_predictions,
-    resolve_project_id,
-)
+from infrastructure.label_studio import get_tasks_without_predictions
 from infrastructure.ml_backend import send_predict
 from infrastructure.orchestrator import send_task_meta
 
@@ -42,10 +39,9 @@ def prelabel_project(
                 pass
         _log(f"[PROGRESS] {pct}%")
 
-    project_id = resolve_project_id(job.token, job.project_name)
-    _log(f"[INFO] Using project '{job.project_name}' (id={project_id}).")
+    _log(f"[INFO] Using project '{job.project_name}' (id={job.label_studio_id}).")
 
-    tasks = get_tasks_without_predictions(project_id, job.token)
+    tasks = get_tasks_without_predictions(job.label_studio_id, job.token)
     total = len(tasks)
     _log(f"[INFO] Found {total} tasks without predictions.")
 

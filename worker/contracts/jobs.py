@@ -10,6 +10,7 @@ class QuestionsAndLabels(BaseModel):
 class JobPayload(BaseModel):
     job_id: str = Field(..., min_length=1)
     project_name: str = Field(..., min_length=1)
+    label_studio_id: int
     model: str = Field(..., min_length=1)
     system_prompt: str = Field(..., min_length=1)
     token: str = Field(..., min_length=1)

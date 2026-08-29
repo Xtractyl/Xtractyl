@@ -55,7 +55,7 @@ class SaveAsGtSetCommand(BaseModel):
         return cls(source_project=source_project, token=token, scope=scope)
 
 
-class CompatibleGroundtruthSetsCommand(BaseModel):
+class ListGroundtruthProjectsForComparisonCommand(BaseModel):
     comparison_project: str
 
     @classmethod

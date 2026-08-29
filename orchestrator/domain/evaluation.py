@@ -11,14 +11,24 @@ from .utils.calculate_metrics import compute_metrics_from_rows
 from .utils.shared.label_studio_client import (
     fetch_task_annotations,
     fetch_tasks_page,
-    list_projects,
     resolve_project_id,
 )
 
 
-def list_project_names(token: str) -> dict:
-    projects = list_projects(token)
-    return {"names": [p.get("title") for p in projects if p.get("title")]}
+def list_projects_ready_for_comparison(eval_repo) -> dict:
+    """Backs GET /list_projects_ready_for_comparison, the comparison
+    project dropdown on the EvaluateAIPage. Filters to projects that
+    have an Evaluation in the comparison role"""
+    return {"projects": eval_repo.list_projects_ready_for_comparison()}
+
+
+def list_projects_ready_for_groundtruth(project_repo) -> dict:
+    """Backs GET /list_projects_ready_for_groundtruth, the dropdown to SaveAsGtSet.
+    A project can become a groundtruth set without a prelabelling run of its own
+    the criterion here is "converted and not already a groundtruth set"
+    =document_set_hash IS NOT NULL AND groundtruth = 'none', not "has a
+    done run" """
+    return {"projects": project_repo.get_projects_ready_for_groundtruth()}
 
 
 def _bucket_from_results(results: list) -> dict:
@@ -83,6 +93,7 @@ def _latest_prediction_meta(task: dict) -> dict:
 def _tasks_to_rows(token: str, project_id: int, mode: str) -> list[dict]:
     tasks, total = fetch_tasks_page(token, project_id)
     rows = []
+    unreviewed_filenames = []
     for t in tasks:
         data = t.get("data") or {}
         filename = data.get("name", "")
@@ -90,6 +101,9 @@ def _tasks_to_rows(token: str, project_id: int, mode: str) -> list[dict]:
             anns = t.get("annotations") or []
             if not any(a and (a.get("result") or []) for a in anns):
                 t["annotations"] = fetch_task_annotations(token, t.get("id"))
+            has_annotation = any(isinstance(a, dict) for a in (t.get("annotations") or []))
+            if not has_annotation:
+                unreviewed_filenames.append(filename or f"task {t.get('id')}")
             labels = _chosen_annotation_bucket(t)
         else:
             labels = _latest_prediction_bucket(t)
@@ -113,17 +127,22 @@ def _tasks_to_rows(token: str, project_id: int, mode: str) -> list[dict]:
                 "run_at_raw": run_at_raw,
             }
         )
+    if mode == "gt" and unreviewed_filenames:
+        raise InvalidState(
+            code="INCOMPLETE_ANNOTATIONS",
+            message=(
+                f"{len(unreviewed_filenames)} of {len(tasks)} task(s) have no "
+                f"submitted annotation yet — every task must be reviewed before "
+                f"this project can become a groundtruth set. Unreviewed: "
+                f"{', '.join(sorted(unreviewed_filenames))}"
+            ),
+            meta={"unreviewed_filenames": sorted(unreviewed_filenames)},
+        )
     return rows
 
 
 def evaluate_run(run_id: int, groundtruth_project: str, project_repo, run_repo, eval_repo) -> dict:
-    """The single place a new evaluation is actually computed and persisted.
-    Takes an explicit run_id rather than a project name + "latest run"
-    lookup, on purpose: sync_missing_evaluations always knows exactly which
-    run and which groundtruth project it means, and using get_latest_run()
-    here would reintroduce the ambiguity documented on that method (no
-    status filter — could silently resolve to a different, newer or failed
-    run than the one intended)."""
+    """The single place a new evaluation is actually computed and persisted."""
     if not project_repo.is_groundtruth(groundtruth_project):
         raise InvalidState(
             code="NOT_A_GROUNDTRUTH_SET",
@@ -242,7 +261,7 @@ def get_evaluation(
     that keeps sync_missing_evaluations off any directly callable route in
     the first place: a fallback that computes on demand would let a user
     route around a missing/broken sync just by asking for it."""
-    run = run_repo.get_latest_run(comparison_project)
+    run = run_repo.get_run_for_project(comparison_project)
     if not run:
         raise NotFound(
             code="RUN_NOT_FOUND",
@@ -309,28 +328,17 @@ def get_groundtruth_qals(project_repo) -> dict:
     return {"sets": {p.name: p.questions_and_labels for p in gt_projects}}
 
 
-def get_compatible_groundtruth_sets(comparison_project: str, project_repo, run_repo) -> dict:
-    run = run_repo.get_latest_run(comparison_project)
+def list_groundtruth_projects_for_comparison(comparison_project: str, run_repo, eval_repo) -> dict:
+    """Backs POST /list_groundtruth_projects_for_comparison  the
+    groundtruth project dropdown on Evaluate AI. Filters to groundtruth
+    projects the comparison project has been evaluated against"""
+    run = run_repo.get_run_for_project(comparison_project)
     if not run:
         raise NotFound(
             code="RUN_NOT_FOUND",
             message=f"No prelabelling run found for project '{comparison_project}'.",
         )
-
-    cmp_html_hashes = project_repo.get_html_hashes_for_project(comparison_project)
-    if not cmp_html_hashes:
-        return {"names": []}
-
-    gt_projects = project_repo.list_groundtruth_projects()
-    compatible = []
-    for gt in gt_projects:
-        if gt.labels_hash != run.labels_hash:
-            continue
-        gt_html_hashes = project_repo.get_html_hashes_for_project(gt.name)
-        if gt_html_hashes == cmp_html_hashes:
-            compatible.append(gt.name)
-
-    return {"names": compatible}
+    return {"projects": eval_repo.list_groundtruth_projects_for_comparison_run(run.id)}
 
 
 def save_as_gt_set(cmd: SaveAsGtSetCommand, project_repo, run_repo, eval_repo) -> dict:
@@ -344,7 +352,7 @@ def save_as_gt_set(cmd: SaveAsGtSetCommand, project_repo, run_repo, eval_repo) -
             message=f"Project '{source_project}' is already a ground truth set.",
         )
     if scope == "internal":
-        run = run_repo.get_latest_run(source_project)
+        run = run_repo.get_run_for_project(source_project)
         if not run or run.status != "done":
             raise InvalidState(
                 code="RUN_NOT_DONE",
@@ -356,6 +364,11 @@ def save_as_gt_set(cmd: SaveAsGtSetCommand, project_repo, run_repo, eval_repo) -
             )
 
     project_id = resolve_project_id(token, source_project)
+    # _tasks_to_rows raises InvalidState("INCOMPLETE_ANNOTATIONS") itself if any
+    # task has no submitted annotation at all — see its mode="gt" branch. This
+    # must happen there, not here: an empty labels bucket in gt_rows is
+    # otherwise indistinguishable from a reviewer deliberately marking every
+    # label as no-match.
     gt_rows = _tasks_to_rows(token, project_id, mode="gt")
 
     if not gt_rows:

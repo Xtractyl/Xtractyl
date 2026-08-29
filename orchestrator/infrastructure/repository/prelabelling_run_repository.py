@@ -44,7 +44,7 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
                 run.error = error
             self._db.flush()
 
-    def get_latest_run(self, project: str):
+    def get_run_for_project(self, project: str):
         return (
             self._db.query(PrelabellingRun)
             .filter(PrelabellingRun.project == project)
@@ -126,3 +126,12 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
 
     def list_done_runs(self) -> list:
         return self._db.query(PrelabellingRun).filter(PrelabellingRun.status == "done").all()
+
+    def get_projects_ready_for_results(self) -> list[str]:
+        rows = (
+            self._db.query(PrelabellingRun.project)
+            .filter(PrelabellingRun.status == "done")
+            .order_by(PrelabellingRun.project.asc())
+            .all()
+        )
+        return [r[0] for r in rows]

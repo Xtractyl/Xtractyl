@@ -3,6 +3,10 @@
 from pydantic import BaseModel, Field
 
 
+class ListProjectsReadyForResultsResponse(BaseModel):
+    projects: list[str]
+
+
 class GetResultsTableRequest(BaseModel):
     project_name: str = Field(..., min_length=1)
 

@@ -108,6 +108,7 @@ def enqueue_prelabel_job(
     payload = {
         "job_id": job_id,
         "project_name": cmd.project_name,
+        "label_studio_id": label_studio_id,
         "model": cmd.model,
         "system_prompt": cmd.system_prompt,
         "questions_and_labels": cmd.questions_and_labels,

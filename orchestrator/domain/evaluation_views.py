@@ -17,7 +17,7 @@ def get_regression_view(
     groundtruth set over time" the way external regression traditionally
     worked, but "how this configuration performed across independent
     internal reviews over time"."""
-    run = run_repo.get_latest_run(project_name)
+    run = run_repo.get_run_for_project(project_name)
     if not run:
         return {"entries": []}
 
@@ -112,7 +112,7 @@ def get_drift_view(
     "the" group once more than two document sets share a configuration —
     this returns the one true, longest overlap-free chain containing the
     picked project's own document set."""
-    run = run_repo.get_latest_run(project_name)
+    run = run_repo.get_run_for_project(project_name)
     if not run:
         return {"entries": []}
 

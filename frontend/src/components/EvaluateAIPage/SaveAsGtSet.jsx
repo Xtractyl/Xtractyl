@@ -1,14 +1,25 @@
 // src/components/EvaluateAIPage/SaveAsGtSet.jsx
-import { useState } from "react";
-import { saveAsGtSet } from "../../api/EvaluateAIPage/api.js";
+import { useEffect, useState } from "react";
+import { saveAsGtSet, getProjectsReadyForGroundtruth } from "../../api/EvaluateAIPage/api.js";
+ 
 
-export default function SaveAsGtSet({ apiToken, projects, gtSets, onSuccess}) {
+export default function SaveAsGtSet({ apiToken, onSuccess }) {
+  const [candidates, setCandidates] = useState([]);
+  const [loadError, setLoadError] = useState("");
   const [sourceProject, setSourceProject] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
-  const candidates = projects.filter((p) => !gtSets.includes(p));
+  const loadCandidates = () => {
+    getProjectsReadyForGroundtruth()
+      .then(setCandidates)
+      .catch((e) => setLoadError(e.message || "Failed to load projects."));
+  };
+
+  useEffect(() => {
+    loadCandidates();
+  }, []);
 
   const handleSubmit = async (scope) => {
     if (!sourceProject) return;
@@ -18,7 +29,9 @@ export default function SaveAsGtSet({ apiToken, projects, gtSets, onSuccess}) {
     try {
       await saveAsGtSet(apiToken, sourceProject, scope);
       setSuccessMsg(`"${sourceProject}" successfully saved as ${scope} GT set.`);
-      onSuccess?.(); 
+      setSourceProject("");
+      loadCandidates();
+      onSuccess?.();
     } catch (e) {
       setErrorMsg(e?.message || "Failed to save as GT set.");
     } finally {
@@ -43,7 +56,9 @@ export default function SaveAsGtSet({ apiToken, projects, gtSets, onSuccess}) {
           <option key={p} value={p}>{p}</option>
         ))}
       </select>
-
+      {loadError && (
+        <p className="text-sm text-xtractyl-orange mb-2">{loadError}</p>
+      )}
       {errorMsg && (
         <p className="text-sm text-xtractyl-orange mb-2">{errorMsg}</p>
       )}

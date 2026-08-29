@@ -13,8 +13,12 @@ class SaveAsGtSetRequest(BaseModel):
     scope: Literal["internal", "external"]
 
 
-class ProjectNamesResponse(BaseModel):
-    names: list[str]
+class ListProjectsReadyForComparisonResponse(BaseModel):
+    projects: list[str]
+
+
+class ListProjectsReadyForGroundtruthResponse(BaseModel):
+    projects: list[str]
 
 
 class EvaluateProjectsResponse(BaseModel):
@@ -37,12 +41,12 @@ class GroundtruthQalsResponse(BaseModel):
     sets: dict[str, dict]
 
 
-class CompatibleGroundtruthSetsRequest(BaseModel):
+class ListGroundtruthProjectsForComparisonRequest(BaseModel):
     comparison_project: str = Field(..., min_length=1)
 
 
-class CompatibleGroundtruthSetsResponse(BaseModel):
-    names: list[str]
+class ListGroundtruthProjectsForComparisonResponse(BaseModel):
+    projects: list[str]
 
 
 class ComparisonEntry(BaseModel):
