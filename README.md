@@ -249,6 +249,7 @@ The focus is on building a consistent engineering foundation before scaling feat
 - Cleanup after migration of filesystem-based state to Postgres and MinIO consistently adding unit tests, type hints and docstrings
 
 **Planned**
+- **Local FHIR test server** (`fhir`, `fhir_generate`, `fhir_seed` in `docker-compose.yml`) — generates synthetic FHIR bundles for developing and testing a planned FHIR narrative/free-text ingestion adapter, not yet wired into the pipeline. See `docs/fhir-test-server.md`.
 - Docling: layered architecture, structured logging, unit tests with CI integration 
 - E2E tests: full pipeline coverage from PDF ingestion to structured export
 - TypeScript migration: frontend type safety aligned with backend contracts
