@@ -1,6 +1,6 @@
 // src/components/EvaluateAIPage/EvaluateAICard.jsx
 import { useEffect, useState } from "react";
-import { fetchEvaluationProjects, evaluateAI } from "../../api/EvaluateAIPage/api.js";
+import { getProjectsReadyForComparison, getGroundtruthProjectsForComparison, evaluateAI } from "../../api/EvaluateAIPage/api.js";
 import { fetchGroundtruthQuestionsAndLabels } from "../../api/CreateProjectPage/api.js";
 import SaveAsGtSet from "./SaveAsGtSet.jsx";
 import ComparisonSelection from "./ComparisonSelection.jsx";
@@ -16,6 +16,9 @@ export default function EvaluateAICard() {
   const [errorMsg, setErrorMsg] = useState("");
   const [groundtruthProject, setGroundtruthProject] = useState("");
   const [comparisonProject, setComparisonProject] = useState("");
+  const [compatibleGtSets, setCompatibleGtSets] = useState([]);
+  const [compatibleLoading, setCompatibleLoading] = useState(false);
+  const [compatibleError, setCompatibleError] = useState("");
   const [evalLoading, setEvalLoading] = useState(false);
   const [evalError, setEvalError] = useState("");
   const [evalResult, setEvalResult] = useState(null);
@@ -28,38 +31,57 @@ export default function EvaluateAICard() {
      .catch((e) => setErrorMsg(e.message || "Failed to load ground truth sets."));
   }, [gtSetVersion]);
 
-  // Load project names from Label Studio via orchestrator
+  // Load comparison-ready project names from Postgres — no Label Studio
+  // call, no token needed
   useEffect(() => {
-    if (!token) return;
-
     setLoading(true);
     setErrorMsg("");
-
-    fetchEvaluationProjects(token)
-      .then((names) => {
-        const projectList = names || [];
+    getProjectsReadyForComparison()
+      .then((projectList) => {
         setProjects(projectList);
-
-        const defaultGT = gtSets[0] || "";
-        setGroundtruthProject((prev) => prev || defaultGT);
-
         const comparisonCandidates = projectList.filter(
           (name) => !gtSets.includes(name)
         );
 
         if (comparisonCandidates.length > 0) {
-          setComparisonProject((prev) => prev || comparisonCandidates[0]);
+          setComparisonProject((prev) =>
+            comparisonCandidates.includes(prev) ? prev : comparisonCandidates[0]
+          );
         } else {
           setComparisonProject("");
         }
       })
     .catch((e) => {
-     setErrorMsg(e.message || "Failed to load Label Studio projects.");
-        setGroundtruthProject(gtSets[0] || "");
+     setErrorMsg(e.message || "Failed to load projects.");
         setComparisonProject("");
       })
       .finally(() => setLoading(false));
-  }, [token, gtSets]);
+  }, [gtSets]);
+
+ // Load groundtruth sets that already have an evaluation for the
+  // currently selected comparison project, a DB lookup against the evaluations table
+  useEffect(() => {
+    if (!comparisonProject) {
+      setCompatibleGtSets([]);
+      setGroundtruthProject("");
+      return;
+    }
+
+    setCompatibleLoading(true);
+    setCompatibleError("");
+
+    getGroundtruthProjectsForComparison(comparisonProject)
+      .then((names) => {
+        setCompatibleGtSets(names);
+        setGroundtruthProject((prev) => (names.includes(prev) ? prev : names[0] || ""));
+      })
+      .catch((e) => {
+        setCompatibleGtSets([]);
+        setGroundtruthProject("");
+        setCompatibleError(e.message || "Failed to load compatible groundtruth sets.");
+      })
+      .finally(() => setCompatibleLoading(false));
+  }, [comparisonProject]);
 
   const handleRunEvaluation = async () => {
     setEvalLoading(true);
@@ -121,29 +143,26 @@ export default function EvaluateAICard() {
       </div>
 
       {/* === SAVE AS GT SET === */}
-      {token && (
-        <SaveAsGtSet
-          apiToken={token}
-          projects={projects}
-          gtSets={gtSets}
-          onSuccess={() => setGtSetVersion(v => v + 1)}
-        />
-      )}
+      <SaveAsGtSet
+        apiToken={token}
+        onSuccess={() => setGtSetVersion(v => v + 1)}
+      />
 
       {/* === COMPARISON SELECTION === */}
-      {token && (
-        <ComparisonSelection
-          projects={projects}
-          gtSets={gtSets}
-          loading={loading}
-          errorMsg={errorMsg}
-          groundtruthProject={groundtruthProject}
-          setGroundtruthProject={setGroundtruthProject}
-          comparisonProject={comparisonProject}
-          setComparisonProject={setComparisonProject}
-          onSubmit={handleRunEvaluation}
-        />
-      )}
+      <ComparisonSelection
+        projects={projects}
+        gtSets={gtSets}
+        loading={loading}
+        errorMsg={errorMsg}
+        compatibleGtSets={compatibleGtSets}
+        compatibleLoading={compatibleLoading}
+        compatibleError={compatibleError}
+        groundtruthProject={groundtruthProject}
+        setGroundtruthProject={setGroundtruthProject}
+        comparisonProject={comparisonProject}
+        setComparisonProject={setComparisonProject}
+        onSubmit={handleRunEvaluation}
+      />
 
       {/* === EVALUATION RESULTS === */}
       {token && (

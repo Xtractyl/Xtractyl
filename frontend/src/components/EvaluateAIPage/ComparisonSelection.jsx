@@ -32,23 +32,9 @@ export default function ComparisonSelection({
 
       {!loading && !errorMsg && (gtSets.length > 0 || projects.length > 0) && (
         <>
-          {/* Groundtruth Project */}
-          <label className="block text-xs font-medium mt-3 mb-1">
-            Groundtruth Project
-          </label>
-          <select
-            className="w-full p-2 border border-xtractyl-outline/30 rounded bg-xtractyl-white text-xtractyl-darktext"
-            value={groundtruthProject}
-            onChange={(e) => setGroundtruthProject(e.target.value)}
-          >
-            {gtSets.map((name, idx) => (
-              <option key={idx} value={name}>
-                {name}
-              </option>
-            ))}
-          </select>
 
-          {/* Comparison Project */}
+
+                  {/* Comparison Project */}
           <label className="block text-xs font-medium mt-4 mb-1">
             Comparison Project
           </label>
@@ -63,6 +49,26 @@ export default function ComparisonSelection({
               </option>
             ))}
           </select>
+
+
+          {/* groundtruth project, restricted to sets that already have a
+              computed evaluation for the comparison project selected above */}
+          <label className="block text-xs font-medium mt-3 mb-1">
+            Groundtruth Project (those available for the Comparison Project selected above)
+          </label>
+          <select
+            className="w-full p-2 border border-xtractyl-outline/30 rounded bg-xtractyl-white text-xtractyl-darktext"
+            value={groundtruthProject}
+            onChange={(e) => setGroundtruthProject(e.target.value)}
+          >
+            {gtSets.map((name, idx) => (
+              <option key={idx} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+
+
 
           <p className="mt-3 text-xs text-xtractyl-outline">
             Groundtruth: <b>{groundtruthProject}</b>
