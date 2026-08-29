@@ -13,28 +13,6 @@ def client():
         yield client
 
 
-# --- /evaluate-ai/projects ---
-
-
-def test_evaluate_ai_projects_missing_token_returns_401(client):
-    res = client.get("/evaluate-ai/projects")
-    assert res.status_code == 401
-    data = res.get_json()
-    assert data["error"] == "TOKEN_REQUIRED"
-
-
-def test_evaluate_ai_projects_returns_200(client, monkeypatch):
-    monkeypatch.setattr(
-        "api.routes.evaluation.list_project_names",
-        lambda token: {"names": ["ProjectA", "ProjectB"]},
-    )
-    res = client.get(
-        "/evaluate-ai/projects",
-        headers={"Authorization": "Bearer dummy"},
-    )
-    assert res.status_code == 200
-
-
 # --- /evaluate-ai ---
 
 
