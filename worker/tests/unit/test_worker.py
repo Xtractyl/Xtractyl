@@ -13,6 +13,7 @@ def valid_payload():
     return {
         "job_id": "123",
         "project_name": "test_project",
+        "label_studio_id": 99,
         "model": "llama3.1:8b",
         "system_prompt": "You are a helpful assistant.",
         "token": "abc123token",
