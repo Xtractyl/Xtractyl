@@ -100,6 +100,18 @@ class ProjectRepository(ProjectRepositoryInterface):
         project = self._db.query(Project).filter(Project.name == name).first()
         return project.groundtruth if project else "none"
 
+    def get_projects_ready_for_groundtruth(self) -> list[str]:
+        rows = (
+            self._db.query(Project.name)
+            .filter(
+                Project.document_set_hash.isnot(None),
+                Project.groundtruth == "none",
+            )
+            .order_by(Project.name.asc())
+            .all()
+        )
+        return [r[0] for r in rows]
+
     def set_groundtruth(self, name: str, scope: str) -> None:
         project = self._db.query(Project).filter(Project.name == name).first()
         if project:

@@ -169,3 +169,31 @@ class EvaluationRepository(EvaluationRepositoryInterface):
             )
         }
         return sorted(gt_names | run_project_names)
+
+    def list_projects_ready_for_comparison(self) -> list[str]:
+        """Backs the Comparison Project dropdown on the Evaluate AI page.
+        Narrower than list_projects_with_evaluations above:
+        only projects appearing in the comparison role tha have an evaluation row,
+        not also groundtruth role projects"""
+        rows = (
+            self._db.query(PrelabellingRun.project)
+            .join(Evaluation, Evaluation.comparison_prelabelling_run_id == PrelabellingRun.id)
+            .distinct()
+            .order_by(PrelabellingRun.project.asc())
+            .all()
+        )
+        return [r[0] for r in rows]
+
+    def list_groundtruth_projects_for_comparison_run(
+        self, comparison_prelabelling_run_id: int
+    ) -> list[str]:
+        """Backs the groundtruth project dropdown for the evaluation; queries against which grountruth
+        the compparison project has been evaluated"""
+        rows = (
+            self._db.query(Evaluation.groundtruth_project)
+            .filter(Evaluation.comparison_prelabelling_run_id == comparison_prelabelling_run_id)
+            .distinct()
+            .order_by(Evaluation.groundtruth_project.asc())
+            .all()
+        )
+        return [r[0] for r in rows]
