@@ -3,7 +3,7 @@
 </p>
 
 
-# 🦕 Extract structured data from messy medical PDFs
+# Evaluate (and soon host) models for LLM-based literal data extraction
 
 ![Lint](https://github.com/Xtractyl/xtractyl/actions/workflows/lint.yml/badge.svg)
 ![Unit Tests](https://github.com/Xtractyl/xtractyl/actions/workflows/unit.yml/badge.svg)
@@ -16,15 +16,14 @@
 
 [![Xtractyl Demo](assets/thumbnail_screener.png)](https://www.youtube.com/watch?v=ZyQJqWzFoLg)
 
+**Xtractyl** is a modular, local, human-in-the-loop framework for evaluating LLM-based extractive question answering (answering questions with exact text passages from the input). It helps you find the right model, system prompt, and question formulation before serving that exact configuration in production.
 
-**Xtractyl** is a modular, local, human-in-the-loop AI pipeline that searches unstructured PDF documents for specific cases and builds a structured database from them.
 
-It converts PDFs → HTML → DOM → pre-labels them with an LLM → enables manual review via Label Studio → and 🦕 **xtracts** structured data for downstream analysis.
+It converts input documents → HTML/DOM → pre-labels them with an LLM → enables manual review via Label Studio → and evaluates the result against a human-validated ground truth (precision, recall, F1, latency). Once a configuration is validated, the next step (coming soon) is to promote it to a locked, monitored extraction endpoint.
 
-Xtractyl provides evaluation and performance metrics for the LLM used, allowing comparison of speed–accuracy trade-offs across different models, question formulations, and system prompts.  
-Planned: local fine-tuning of models on domain-specific data to further improve performance.
 
-🔍 Designed for **privacy-first**, human-validated data extraction with built-in evaluation and comparison tools.
+Designed for **privacy-first**, human-validated evaluation, with built-in comparison across models, prompts, and question formulations.
+
 
 > **Status:** Core pipeline functional. Active development — see [Current Status & Roadmap](#️-current-status--roadmap). See [Known Limitations](#️-known-limitations) for current constraints.
 
@@ -33,20 +32,14 @@ Planned: local fine-tuning of models on domain-specific data to further improve 
 ## Why this matters
 Xtractyl runs fully locally and does not rely on external APIs or cloud services.
 
-Extracting structured data from unstructured documents is a major challenge in regulated, data-intensive industries such as healthcare, life sciences, and public administration.
-Xtractyl is used to identify patterns and extract structured data to generate aggregated, group-level insights — helping researchers and developers build auditable, privacy-preserving data pipelines.
+Getting an LLM to extract answers from an input document is not the hard part, any model can produce some answer. The hard part is knowing whether that answer is correct and the model can be trusted (not only with its answers, but also when it says that the text does not include the answer). The extraction has to be compared across models/prompts/questions, and the model has to be re-evaluated to detect potential drift (e.g. due to changes in the distribution of your data). That's the evaluation problem Xtractyl is built around.
 
-Xtractyl demonstrates how to design a privacy-first, human-in-the-loop AI pipeline that is modular, auditable, and extensible.
-It aims to create structured databases from the content of unstructured PDFs, combining local AI processing with human validation and modern containerized architectures.
 
-While not a medical device, Xtractyl addresses key challenges relevant to MedTech and other compliance-driven fields:
-	•	🔒 Local, privacy-preserving data processing
-	•	🤖 AI-assisted annotation with human validation
-	•	🧩 Extensible pipeline architecture using Docker and modern ML tools
+This matters most in regulated, data-intensive industries such as healthcare, life sciences, and public administration, where ground truth matters, black-box outputs aren't acceptable, and neither is a model whose performance is unknown.
 
->⚠️ **Note:** Xtractyl is a research-only tool, not intended for clinical or  commercial use. All included test data is fully synthetic. See [Current Status & Roadmap](#-current-status--roadmap) for current constraints.
+>**Note:** Xtractyl is a research-only tool, not intended for clinical or  commercial use. All included test data is fully synthetic. See [Current Status & Roadmap](#-current-status--roadmap) for current constraints.
 
-## 📋 Regulatory & Quality Documentation
+## Regulatory & Quality Documentation
 
 Xtractyl is developed with software quality and regulatory transparency 
 in mind. A Design History File (DHF) structured according to the principles 
@@ -57,7 +50,7 @@ regulated AI systems on top of Xtractyl — for example under MDR or the
 EU AI Act — by providing auditable documentation of the training 
 infrastructure.
 
-> ⚠️ The existence of this documentation does not imply that Xtractyl 
+> The existence of this documentation does not imply that Xtractyl 
 > is a certified medical device or MDR-compliant product. Xtractyl 
 > remains a research-only tool. Organizations building regulated systems 
 > on top of Xtractyl are solely responsible for their own regulatory 
@@ -66,22 +59,20 @@ infrastructure.
 ---
 
 
-## 🎯 Why Xtractyl — Design Philosophy
+## Why Xtractyl — Design Philosophy
 
-Extracting structured data from unstructured medical documents is not primarily a technical problem — it is an evaluation problem.
+Extracting answers from unstructured (medical) documents is not primarily a technical problem — it is an evaluation problem.
 
 Any model can produce outputs. The hard part is knowing whether those outputs are correct, understanding why they fail, and systematically improving performance while maintaining full data privacy.
 
 Xtractyl is built around this insight. The pipeline follows a deliberate cycle:
 
 1. **Build a ground truth** — human-validated annotations on a representative subset define what correct extraction looks like
-    **Planned [not added yet]:** a faster way to deal with "no unique correct answer" — review and correct a specific run's own raw LLM predictions within Label Studio (accept correct extractions when they answer the question to a sufficient degree, fix only the incorrect ones). This ground truth is anchored to that run's predictions and therefore slightly skewed; it cannot be reused to evaluate other runs, since there is no single correct answer and reruns don't need to be worded identically to be correct. But it allows for evaluating model for tasks that can be answered correctly using different passages.
+     for cases with no unique correct answer within the input document: review and correct a specific run's own raw LLM predictions within Label Studio (accept correct extractions when they answer the question to a sufficient degree, fix only the incorrect ones). This ground truth is anchored to that run's predictions and therefore slightly skewed; it cannot be reused to evaluate other runs, since there is no single correct answer and reruns don't need to be worded identically to be correct. But it allows for evaluating model for tasks that can be answered correctly using different passages.
 2. **Optimize systematically** — system prompt, question formulation, and model selection are evaluated against the ground truth using precision, recall, F1, and latency metrics
-3. **Scale to the full dataset** — the optimized configuration runs on the complete document collection with human-in-the-loop review
+3. **Scale to the full dataset** — the optimized configuration runs on the complete document collection with human-in-the-loop review to evaluate performance on a broader data set
 4. **Host and monitor [not added yet]** — a validated configuration (model, system prompt, questions/labels, exact model hash) is promoted to a locked, versioned extraction endpoint with its validation results attached for provenance; automated reruns track drift over time and can withdraw a version if metrics fall below the established baseline
-5. **Few-shot learning [not added yet]** — few-shot examples are selected from the ground truth set and validated against the remaining, held-out tasks to avoid leakage between examples and validation
-6. **Fine-tune a small model [not added yet]** — labeled data from the pipeline is used to train a domain-specific SLM, reducing inference cost and latency while maintaining accuracy
-7. **Evaluate and iterate** — metrics and drift monitoring ensure that performance is maintained over time and across document types
+5. **Evaluate and iterate** — metrics and drift monitoring ensure that performance is maintained over time and across document types (can currently be done manually but will be automated in future)
 
 This approach is designed for environments where data privacy is non-negotiable, ground truth matters, and black-box outputs are not acceptable — healthcare, life sciences, and other regulated domains.
 
@@ -91,7 +82,6 @@ This approach is designed for environments where data privacy is non-negotiable,
 
 ## 🏗️ Architecture Overview
 
-Items with green background are already implemented end-to-end ✅, items with red background are under construction 🧱
 
 ```mermaid
 flowchart TD
@@ -202,32 +192,30 @@ style ZA8 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
 
 ---
 
-## 🚀 Features
+## Features
 
-- 🔒 Keeps all your data local — no cloud processing
-- 📄 Convert PDFs into structured HTML via Docling
-- 🤖 AI-assisted pre-labeling with local LLMs (Ollama: tested with Gemma3 12B )
-- 🧠 DOM-based XPath mapping and label matching
-- 👩 Human validation with Label Studio
-- 🦕 Extract structured databases from previously unstructured data
-- 🔍 Identify specific cases across large document collections
-- 📊 Built-in evaluation of AI predictions (precision, recall, F1, accuracy)
-- ⏱️ Performance metrics (end-to-end runtime, per-document and per-question latency)
-- ⚖️ Speed–accuracy comparison across models, prompts, and question formulations
-- 🐳 Modular, containerized Docker architecture
-
----
-
-## 📅 Planned Features
-- ✅ Build a run-scoped ground truth accepting model responses that match the true answer to a sufficient degree (for the case where multiple passages answer the question and there is no single, unique correct answer), this ground truth cannot be reused, but allows for validation in more complex cases
-- 🔌 Host validated model configurations as an external extraction API, with automated reruns and rollback on metric drift
-- 🧩 Few-shot learning from your ground truth set, validated on held-out tasks
-- 🎛️ Fine-tune a small model on LLM-generated, HITL-reviewed data (bootstrapping)
-
+- Keeps all your data local — no cloud processing
+- Convert PDFs into structured HTML via Docling
+- AI-assisted pre-labeling with local LLMs (Ollama: tested with Gemma3 12B )
+- DOM-based XPath mapping and label matching
+- Human validation with Label Studio
+- Extract structured databases from previously unstructured data
+- Built-in evaluation of AI predictions (precision, recall, F1, accuracy)
+- Performance metrics (end-to-end runtime, per-document and per-question latency)
+- Speed–accuracy comparison across models, prompts, and question formulations
+- Modular, containerized Docker architecture
 
 ---
 
-## 🗺️ Current Status & Roadmap
+## Planned Features
+- Broaden scope from pure PDF ingestion to FHIR ingestion
+- Host validated model configurations as an external extraction API, with automated reruns and rollback on metric drift
+
+
+
+---
+
+## Current Status & Roadmap
 
 ### Phase 1 – Proof of Concept (completed)
 
@@ -237,45 +225,21 @@ Current limitation: the pipeline has been validated on structurally simple PDFs.
 
 ### Phase 2 – Hardening (in progress)
 
-The focus is on building a consistent engineering foundation before scaling features. The orchestrator serves as the template; patterns established there will be replicated across all containers. The orchestrator is the central integration point of the pipeline and therefore the highest-leverage starting point. Hardening it first ensures that architectural decisions are validated before being replicated across the remaining containers.
+The focus is on building a consistent engineering foundation before scaling features. The orchestrator serves as the template; patterns established there will be replicated across all containers. The orchestrator is the central integration point of the pipeline and therefore the highest-leverage starting point. Hardening it first ensures that architectural decisions are validated before being replicated across the remaining containers. This phase will also include expansion of unit tests, addition of integration and E2E tests as well as Frontend TypeScript migration.
 
-**Completed**
-- Orchestrator: layered architecture, typed domain errors, Pydantic contracts, OpenAPI documentation, structured logging, unit tests with CI integration
-- Worker: layered architecture, queue contract validation, structured logging, unit tests with CI integration
-- Migration of filesystem-based state to Postgres and MinIO 
+### Phase 3 – FHIR integration (starting)
 
+While currently the pipeline supports only PDF data, in future it will be possible to import FHIR data and evaluate a model on FHIR-input extraction-based-question-answering as well. So far a FHIR container and a FHIR seed container have been added to generate synthetic FHIR data for testing. The workflow to ingest the FHIR data will be added soon, the overall workflow already established for PDFs will be adapted to serve this data likewise.
 
-**In progress**
-- Cleanup after migration of filesystem-based state to Postgres and MinIO consistently adding unit tests, type hints and docstrings
+- **Local FHIR test server** (`fhir`, `fhir_seed` in `docker-compose.yml`) — generates synthetic FHIR bundles for developing and testing a planned FHIR narrative/free-text ingestion adapter, not yet wired into the pipeline. See `docs/fhir-test-server.md`.
 
-**Planned**
-- **Local FHIR test server** (`fhir`, `fhir_generate`, `fhir_seed` in `docker-compose.yml`) — generates synthetic FHIR bundles for developing and testing a planned FHIR narrative/free-text ingestion adapter, not yet wired into the pipeline. See `docs/fhir-test-server.md`.
-- Docling: layered architecture, structured logging, unit tests with CI integration 
-- E2E tests: full pipeline coverage from PDF ingestion to structured export
-- TypeScript migration: frontend type safety aligned with backend contracts
+### Phase 4 – Model Hosting (planned)
 
+Once a configuration is validated, promote it to a locked, versioned extraction endpoint with its validation results attached, and re-evaluate it on a recurring basis to catch drift.
 
 ---
 
-### Phase 3 – Non-Determinism Evaluation, Model Hosting & Finetuning (planned)
-
-Planned as a sequence of independently releasable steps, each building on a stable version of the previous one:
-
-1. **Rerun / non-determinism diff view** — a dedicated, condensed comparison view for two identically configured evaluation runs (same model, same system prompt, same questions/labels). Shows only the differences: diverging LLM answers, sensitivity shifts per label. Establishes the baseline noise floor before any promotion or rollback decision relies on it.
-2. **Run-scoped ground truth review** — review and correct a specific run's own raw LLM predictions in Label Studio (accept correct extractions when they answer the question to a sufficient degree, fix only the incorrect ones), then save the result as ground truth for that run. Anchored to that run's predictions and therefore not reusable for other runs — there is no single correct answer, and reruns don't need to be worded identically to be correct.
-3. **Model hosting container** — a dedicated inference container that serves one specific, validated configuration (model, system prompt, questions/labels, and an exact model hash — not just a model name/tag) as an external extraction API, together with its validation results for provenance.
-4. **Promotion workflow** — a button in the Evaluate AI tab to hand a validated model configuration over to the hosting container.
-5. **Automated reruns with rollback** — hosted models are automatically re-evaluated on a recurring basis; a model is automatically withdrawn from hosting if its metrics drop below a defined threshold, calibrated against the noise floor established in step 1.
-6. **Few-shot learning with held-out validation** — few-shot examples are selected from the ground truth set and validated against the remaining set (excluding the tasks used as few-shot examples) to avoid leakage between examples and validation.
-7. **Finetuning integration** — local finetuning pipeline: export from Label Studio → instruction-tuning format conversion → LoRA/QLoRA training via Unsloth; evaluated against ground truth using the same metrics as base and few-shot configurations.
-6. **Extractive-only output constraint** — hosted models can be configured to only answer with verbatim passages from the input document, preventing reproduction of training data regardless of the query.
-
-Frontend integration for triggering and monitoring finetuning runs, and exposing finetuned/hosted models as an external API endpoint with output filtering, are part of steps 2–6 above.
-
-> **Note:** Hosting (steps 2–4) is a different trust boundary than the current single-team review pipeline — it introduces external API consumers and needs its own auth design (per-consumer API keys scoped to specific hosted model versions).
----
-
-## ⚠️ Known Limitations
+## Known Limitations
 - Complex/long PDFs not yet reliably handled — see [Current Status & Roadmap](#️-current-status--roadmap)
 - Label Studio requires a brief internet connection on startup, see github issue for a manual workaround ([upstream issue](https://github.com/HumanSignal/label-studio/issues/9086#issuecomment-3817949828))
 - Dev mode may log sensitive data — use default mode with real data
@@ -289,7 +253,7 @@ see CONTRIBUTING.md for further details on how to contribute.
 
 ---
 
-## ⚙️ Setup
+## Setup
 
 ### 1. Requirements
 Before installing Xtractyl, ensure you have the following installed on your system
@@ -307,7 +271,7 @@ Create a file named .env in root/frontend/src (the .env.example file in xtractyl
 
 For testing you can simply rename the .env.example files to .env (this will use default passwords and ports)
 
->⚠️ **Warning:** The build currently downloads *all* Docling models (several GB) to ensure full offline functionality. This can be changed to the specific use case via modification of the file docker/docling/Dockerfile at the line: RUN docling-tools models download --all -o /opt/docling-models.
+>**Warning:** The build currently downloads *all* Docling models (several GB) to ensure full offline functionality. This can be changed to the specific use case via modification of the file docker/docling/Dockerfile at the line: RUN docling-tools models download --all -o /opt/docling-models.
 
 Then start the Docker containers from the xtractyl folder with:
 docker compose up --build
@@ -324,7 +288,7 @@ Two additional admin interfaces are available once the stack is running:
 
 ---
 
-## 📘 API Documentation (OpenAPI / Swagger)
+## API Documentation (OpenAPI / Swagger)
 
 Automatically generated OpenAPI documentation using `flask-pydantic-spec` is available for the orchestrator and the ml_backend. Worker and worker_conversion have no HTTP routes (queue consumers only) and therefore cannot have OpenAPI docs; docling will get them once its layering work (see Roadmap, Phase 2) is complete.
 
@@ -417,7 +381,7 @@ Or directly inside an already-running frontend container:
 ```
 
 #### Integration tests (pytest)
-Currently in implementation.
+Planned next.
 
 #### E2E tests
 Planned next.
@@ -425,7 +389,7 @@ Planned next.
 ---
 
 
-## 📖 Usage
+## Usage
 
 1. **Open the frontend**  
 	Go to: [http://localhost:5173]
@@ -477,7 +441,7 @@ Planned next.
    - Select a model from the dropdown list
    - Enter a system prompt to advise the model for literal extraction (you see a suggestions
       under "Show example")
-     > ⚠️ **Caution:** The instruction `- If there is NO matching passage: respond with <<<NO_MATCH>>>.` must be included in the system prompt, otherwise true negatives are not marked correctly and evaluation metrics will be skewed.
+     > **Caution:** The instruction `- If there is NO matching passage: respond with <<<NO_MATCH>>>.` must be included in the system prompt, otherwise true negatives are not marked correctly and evaluation metrics will be skewed.
    - Click the "Start prelabeling button"
 
 ### Start AI Page
@@ -574,14 +538,13 @@ Planned next.
 
 
 
-### ⏭️ Coming Soon
+### Coming Soon
 
-10. **Non-determinism diff view** (`/rerun`) 
-   - Compare two identically configured evaluation runs side by side, showing only the differences
+10. **FHIR integration**
+   - see above for further explanation
 11. **Host a validated model** (`/hosting`) 
    - Promote a validated configuration from Evaluate AI to a locked, versioned extraction endpoint
-12. **Few-shot & Fine-tune the AI** (`/finetune`) 
-   - Improve model performance using few-shot examples from your ground truth set, or fine-tune a small model on your labeled data
+
 
 ---
 
@@ -632,7 +595,7 @@ To create a new migration (when you do not want to install alembic outside the c
 
  ---
 
- ## 📊 Data Lifecycle Reference
+ ## Data Lifecycle Reference
 
 For a detailed breakdown of what gets written to Postgres and MinIO at each 
 step of each pipeline (conversion, prelabelling, evaluation, ...), see 
@@ -677,7 +640,7 @@ VERSION
 
 ---
 
-## 🪵 Logging
+## Logging
 
 1) Default mode (safe logs)
 	•	enabled by default
@@ -699,24 +662,24 @@ DEBUG_ARTIFACTS=1 docker compose up
 
 ---
 
-## 📝 Additional Documentation
+## Additional Documentation
 For more details on how to use Label Studio (e.g. reviewing annotations, submitting, filtering), visit:
-👉 https://labelstud.io/guide
+https://labelstud.io/guide
 
 ---
 
-## 📜 License
+## License
 
 Xtractyl is licensed under the **Xtractyl Non-Commercial License v1.1**.  
 You are free to use, copy, modify, and distribute this software **only for non-commercial purposes**.  
 Any commercial use requires a separate commercial license from the copyright holders.
 
-🔒 **No Commercial Use Allowed Without Permission**  
+**No Commercial Use Allowed Without Permission**  
 See the [LICENSE](LICENSE) file for full terms.
 
 ---
 
-## 📝 Disclaimer / Licensing & Attribution
+## Disclaimer / Licensing & Attribution
 
 
 This project is a private, non-commercial initiative developed independently during personal time.  
