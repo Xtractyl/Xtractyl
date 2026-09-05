@@ -89,17 +89,14 @@ def enqueue_prelabel_job(
                 model_id=model.id,
                 system_prompt=cmd.system_prompt,
             )
-         )
+        )
     except IntegrityError as e:
         # due to UniqueConstraint on "project" in PrelabellingRun
-        # a DB integrity error will be thrown on a second run 
+        # a DB integrity error will be thrown on a second run
         # we translate it here from a raw error
         raise AlreadyExists(
             code="PRELABELLING_RUN_ALREADY_EXISTS",
-            message=(
-                f"A prelabelling run already exists for project "
-                f"'{cmd.project_name}'."
-            ),
+            message=(f"A prelabelling run already exists for project '{cmd.project_name}'."),
         ) from e
 
     r.hset(
