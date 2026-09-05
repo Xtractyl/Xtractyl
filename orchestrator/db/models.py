@@ -174,6 +174,8 @@ class PrelabellingRun(Base):
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
 
+    __table_args__ = (UniqueConstraint("project", name="uq_prelabelling_runs_project"),)
+
 
 class TaskPrelabellingMeta(Base):
     __tablename__ = "task_prelabelling_metas"
