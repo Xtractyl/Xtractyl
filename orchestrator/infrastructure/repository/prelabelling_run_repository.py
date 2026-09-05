@@ -2,7 +2,7 @@
 
 from db.models import PrelabellingRun, TaskPrelabellingMeta
 from infrastructure.interfaces.repository import PrelabellingRunRepositoryInterface
-from utils.hashing import compute_labels_hash, compute_questions_hash, compute_system_prompt_hash
+from utils.hashing import compute_system_prompt_hash
 
 
 class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
@@ -15,16 +15,12 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
         label_studio_id: int,
         model_id: int,
         system_prompt: str,
-        questions_and_labels: dict,
     ) -> int:
         run = PrelabellingRun(
             project=project,
             label_studio_id=label_studio_id,
             model_id=model_id,
             system_prompt=system_prompt or "",
-            questions_and_labels=questions_and_labels,
-            labels_hash=compute_labels_hash(questions_and_labels.get("labels", [])),
-            questions_hash=compute_questions_hash(questions_and_labels.get("questions", [])),
             system_prompt_hash=compute_system_prompt_hash(system_prompt),
             status="pending",
         )
