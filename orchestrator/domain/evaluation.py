@@ -162,7 +162,14 @@ def evaluate_run(run_id: int, groundtruth_project: str, project_repo, run_repo, 
             message=f"Groundtruth project '{groundtruth_project}' not found.",
         )
 
-    if gt_project_record.labels_hash != run.labels_hash:
+    run_project_record = project_repo.get_project(run.project)
+    if not run_project_record:
+        raise NotFound(
+            code="PROJECT_NOT_FOUND",
+            message=f"Comparison project '{run.project}' not found.",
+        )
+
+    if gt_project_record.labels_hash != run_project_record.labels_hash:
         raise InvalidState(
             code="LABEL_MISMATCH",
             message="Groundtruth and comparison project do not share the same label set.",
@@ -307,7 +314,7 @@ def sync_missing_evaluations(project_repo, run_repo, eval_repo) -> None:
         run_project = project_repo.get_project(run.project)
         if not run_project or not run_project.document_set_hash:
             continue
-        key = (run.labels_hash, run_project.document_set_hash)
+        key = (run_project.labels_hash, run_project.document_set_hash)
         for gt in gt_by_key.get(key, []):
             if gt.groundtruth == "internal" and gt.name != run.project:
                 # Internal GT sets only ever pair with their own originating
