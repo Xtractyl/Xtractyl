@@ -25,14 +25,18 @@ def get_regression_view(
     if not model:
         return {"entries": []}
 
+    own_project = project_repo.get_project(project_name)
+    if not own_project:
+        return {"entries": []}
+
     finder = (
         eval_repo.find_internal_evaluations_by_configuration
         if scope == "internal"
         else eval_repo.find_external_evaluations_by_configuration
     )
     matching = finder(
-        labels_hash=run.labels_hash,
-        questions_hash=run.questions_hash,
+        labels_hash=own_project.labels_hash,
+        questions_hash=own_project.questions_hash,
         model_digest=model.digest,
         system_prompt_hash=run.system_prompt_hash,
     )
@@ -44,8 +48,7 @@ def get_regression_view(
     # only counts here if its GT's document_set_hash matches the picked project's own — same rule
     # for both scopes, so multiple internal-GT projects can appear together exactly when (and only
     # when) they genuinely share identical documents, not merely the same configuration.
-    own_project = project_repo.get_project(project_name)
-    own_docset = own_project.document_set_hash if own_project else None
+    own_docset = own_project.document_set_hash
     matching = [
         e
         for e in matching
@@ -120,14 +123,18 @@ def get_drift_view(
     if not model:
         return {"entries": []}
 
+    own_project = project_repo.get_project(project_name)
+    if not own_project:
+        return {"entries": []}
+
     finder = (
         eval_repo.find_internal_evaluations_by_configuration
         if scope == "internal"
         else eval_repo.find_external_evaluations_by_configuration
     )
     matching = finder(
-        labels_hash=run.labels_hash,
-        questions_hash=run.questions_hash,
+        labels_hash=own_project.labels_hash,
+        questions_hash=own_project.questions_hash,
         model_digest=model.digest,
         system_prompt_hash=run.system_prompt_hash,
     )
@@ -147,8 +154,7 @@ def get_drift_view(
         gt = project_repo.get_project(e.groundtruth_project)
         by_docset[gt.document_set_hash] = e
 
-    own_project = project_repo.get_project(project_name)
-    own_key = own_project.document_set_hash if own_project else None
+    own_key = own_project.document_set_hash
     if own_key not in by_docset or len(by_docset) < 2:
         return {"entries": []}
 
