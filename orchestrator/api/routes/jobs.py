@@ -75,6 +75,7 @@ def register(app, spec, session_factory):
             HTTP_200=EnqueueJobResponse,
             HTTP_400=ErrorResponse,  # validation failed
             HTTP_401=ErrorResponse,  # missing token
+            HTTP_409=ErrorResponse,  # a prelabelling run already exists for this project
             HTTP_500=ErrorResponse,
         ),
         tags=["jobs"],
