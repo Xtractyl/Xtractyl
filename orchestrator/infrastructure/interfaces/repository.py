@@ -123,7 +123,6 @@ class PrelabellingRunRepositoryInterface(ABC):
         label_studio_id: int,
         model_id: int,
         system_prompt: str,
-        questions_and_labels: dict,
     ) -> int: ...
 
     @abstractmethod
@@ -185,11 +184,6 @@ class EvaluationRepositoryInterface(ABC):
 
     @abstractmethod
     def find_evaluation(self, groundtruth_project: str, run_id: int): ...
-
-    @abstractmethod
-    def find_evaluations_by_configuration(
-        self, labels_hash: str, questions_hash: str, model_digest: str, system_prompt_hash: str
-    ) -> list: ...
 
     @abstractmethod
     def find_internal_evaluations_by_labels_and_document_set(
