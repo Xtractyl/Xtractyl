@@ -8,7 +8,9 @@ from domain.errors import ValidationFailed
 class ProjectNameCommand(BaseModel):
     """Shared by Comparison, Regression and Drift — all three now accept
     ANY project with a resolvable evaluation family, not specifically the
-    groundtruth project's own name (see resolve_family_for_project)."""
+    groundtruth project's own name. Each view derives its filter criteria
+    directly from the picked project's own attributes (see
+    get_comparison_view, get_regression_view, get_drift_view)."""
 
     project_name: str = Field(..., min_length=1)
 

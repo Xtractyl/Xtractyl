@@ -397,7 +397,7 @@ Planned next.
 
 2. **Upload your docs** (PDF → HTML conversion)  
 
-   Page: **Convert Docs** (`/`)  
+   Page: **Import Docs** (`/`)  
    - type a project name
    - Browse PDFs and click **Upload & Convert**  
 

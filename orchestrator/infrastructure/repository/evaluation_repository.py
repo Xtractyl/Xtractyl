@@ -2,6 +2,7 @@
 
 from db.models import Evaluation, Model, PrelabellingRun, Project
 from infrastructure.interfaces.repository import EvaluationRepositoryInterface
+from sqlalchemy.orm import aliased
 
 
 class EvaluationRepository(EvaluationRepositoryInterface):
@@ -74,8 +75,8 @@ class EvaluationRepository(EvaluationRepositoryInterface):
             .join(Model, Model.id == PrelabellingRun.model_id)
             .filter(
                 Project.groundtruth == "internal",
-                PrelabellingRun.labels_hash == labels_hash,
-                PrelabellingRun.questions_hash == questions_hash,
+                Project.labels_hash == labels_hash,
+                Project.questions_hash == questions_hash,
                 PrelabellingRun.system_prompt_hash == system_prompt_hash,
                 Model.digest == model_digest,
             )
@@ -105,16 +106,22 @@ class EvaluationRepository(EvaluationRepositoryInterface):
     def find_external_evaluations_by_configuration(
         self, labels_hash: str, questions_hash: str, model_digest: str, system_prompt_hash: str
     ) -> list:
-        """External equivalent of find_internal_evaluations_by_configuration."""
+        """External equivalent of find_internal_evaluations_by_configuration.
+        Alias IS required here, unlike the internal variant above: an
+        external GT project and the comparison project whose run is being
+        evaluated are genuinely different projects, they are equivalent in labels
+        but can have different questions."""
+        comparison_project = aliased(Project)
         return (
             self._db.query(Evaluation)
             .join(Project, Project.name == Evaluation.groundtruth_project)
             .join(PrelabellingRun, PrelabellingRun.id == Evaluation.comparison_prelabelling_run_id)
             .join(Model, Model.id == PrelabellingRun.model_id)
+            .join(comparison_project, comparison_project.name == PrelabellingRun.project)
             .filter(
                 Project.groundtruth == "external",
-                PrelabellingRun.labels_hash == labels_hash,
-                PrelabellingRun.questions_hash == questions_hash,
+                comparison_project.labels_hash == labels_hash,
+                comparison_project.questions_hash == questions_hash,
                 PrelabellingRun.system_prompt_hash == system_prompt_hash,
                 Model.digest == model_digest,
             )
@@ -132,26 +139,6 @@ class EvaluationRepository(EvaluationRepositoryInterface):
                 Evaluation.comparison_prelabelling_run_id == run_id,
             )
             .first()
-        )
-
-    def find_evaluations_by_configuration(
-        self, labels_hash: str, questions_hash: str, model_digest: str, system_prompt_hash: str
-    ) -> list:
-        """Backs both Regression and Drift: same (labels, questions, model,
-        prompt) — they only differ in how the result is grouped afterwards.
-        Compares system_prompt_hash rather than raw system_prompt text."""
-        return (
-            self._db.query(Evaluation)
-            .join(PrelabellingRun, PrelabellingRun.id == Evaluation.comparison_prelabelling_run_id)
-            .join(Model, Model.id == PrelabellingRun.model_id)
-            .filter(
-                PrelabellingRun.labels_hash == labels_hash,
-                PrelabellingRun.questions_hash == questions_hash,
-                PrelabellingRun.system_prompt_hash == system_prompt_hash,
-                Model.digest == model_digest,
-            )
-            .order_by(Evaluation.run_at)
-            .all()
         )
 
     def list_projects_with_evaluations(self) -> list[str]:

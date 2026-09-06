@@ -51,6 +51,10 @@ services:
       - POSTGRE_PASSWORD=${POSTGRES_PASSWORD:-yourpassword}
       - POSTGRE_PORT=${POSTGRES_INTERNAL_PORT:-5432}
       - POSTGRE_HOST=${POSTGRES_SERVICE_NAME:-postgres}
+      # we preseed a user now
+      - LABEL_STUDIO_USERNAME=${LABEL_STUDIO_USERNAME:-admin@xtractyl.local}
+      - LABEL_STUDIO_PASSWORD=${LABEL_STUDIO_PASSWORD:-changeme}
+      - LABEL_STUDIO_USER_TOKEN=${LABEL_STUDIO_USER_TOKEN:-changeme-token-12345}
 
   orchestrator:
     build:
@@ -322,9 +326,24 @@ services:
     depends_on:
       postgres_xtractyl:
         condition: service_healthy
+      labelstudio:
+        condition: service_started
+    volumes:
+      - ${LOGS_DIR:-./logs}:/app/logs
+      - ${DEV_LOGS_DIR:-./data/logs}:/app/data/logs
     environment:
+      - SERVICE_NAME=cleanup
       - CLEANUP_INTERVAL_SECONDS=${CLEANUP_INTERVAL_SECONDS:-3600}
       - CLEANUP_STALE_AFTER_HOURS=${CLEANUP_STALE_AFTER_HOURS:-2}
+      - DEBUG_ARTIFACTS=${DEBUG_ARTIFACTS:-0}
+      - LOGS_DIR=/app/logs
+      - DEV_LOGS_DIR=/app/data/logs
+#Pre-seeds a fixed label studio user account 
+#we currently use it only for the cleanup container
+#and pass the current user's token from through the frontend during runtime
+      - LABEL_STUDIO_USER_TOKEN=${LABEL_STUDIO_USER_TOKEN:-}
+      - LABELSTUDIO_CONTAINER_NAME=${LABELSTUDIO_CONTAINER_NAME:-labelstudio}
+      - LABELSTUDIO_PORT=${LABELSTUDIO_PORT:-8080}
       - POSTGRES_XTRACTYL_USER=${POSTGRES_XTRACTYL_USER:-xtractyl}
       - POSTGRES_XTRACTYL_PASSWORD=${POSTGRES_XTRACTYL_PASSWORD:-yourpassword}
       - POSTGRES_XTRACTYL_CONTAINER_NAME=${POSTGRES_XTRACTYL_CONTAINER_NAME:-postgres_xtractyl}

@@ -69,3 +69,43 @@ class LabelStudioClient(LabelStudioInterface):
                     code="LABEL_STUDIO_UNAVAILABLE",
                     message=f"Task upload failed at batch {i}.",
                 )
+
+    def list_projects(self, token: str) -> list[dict]:
+        """Returns every Label Studio project visible to this token,
+        Backs the orphan sweep in domain/cleanup.py that removes
+        any project in label studio without matching projects.label_studio_id row"""
+        headers = {"Authorization": f"Token {token}"}
+        url = f"{LABEL_STUDIO_URL}/api/projects"
+        results: list[dict] = []
+        while url:
+            try:
+                response = requests.get(url, headers=headers, timeout=30)
+                response.raise_for_status()
+            except requests.RequestException:
+                raise ExternalServiceError(
+                    code="LABEL_STUDIO_UNAVAILABLE",
+                    message="Could not list Label Studio projects.",
+                )
+            data = response.json()
+            page = data if isinstance(data, list) else data.get("results", [])
+            results.extend(page)
+            url = data.get("next") if isinstance(data, dict) else None
+        return results
+
+    def delete_project(self, project_id: int, token: str) -> None:
+        headers = {"Authorization": f"Token {token}"}
+        try:
+            response = requests.delete(
+                f"{LABEL_STUDIO_URL}/api/projects/{project_id}",
+                headers=headers,
+                timeout=20,
+            )
+            if response.status_code == 404:
+                # Already gone — deleting an orphan is idempotent, not an error.
+                return
+            response.raise_for_status()
+        except requests.RequestException:
+            raise ExternalServiceError(
+                code="LABEL_STUDIO_UNAVAILABLE",
+                message=f"Could not delete Label Studio project {project_id}.",
+            )

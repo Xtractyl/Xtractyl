@@ -12,8 +12,9 @@ from infrastructure.interfaces.repository import (
     PrelabellingRunRepositoryInterface,
     ProjectRepositoryInterface,
 )
+from sqlalchemy.exc import IntegrityError
 
-from domain.errors import NotFound
+from domain.errors import AlreadyExists, NotFound
 from domain.models.jobs import (
     CancelJobCommand,
     EnqueueJobCommand,
@@ -71,8 +72,7 @@ def enqueue_prelabel_job(
             code="PROJECT_NOT_FOUND",
             message="Project not found or has no Label Studio ID.",
         )
-    qal = project_repo.get_questions_and_labels(cmd.project_name)
-    if not qal:
+    if not project_repo.get_questions_and_labels(cmd.project_name):
         raise NotFound(
             code="QAL_NOT_FOUND",
             message="No QAL found for this project.",
@@ -81,15 +81,23 @@ def enqueue_prelabel_job(
     if not model:
         raise NotFound(code="MODEL_NOT_FOUND", message=f"Unknown model '{cmd.model}'.")
 
-    job_id = str(
-        run_repo.create_run(
-            project=cmd.project_name,
-            label_studio_id=label_studio_id,
-            model_id=model.id,
-            system_prompt=cmd.system_prompt,
-            questions_and_labels=qal,
+    try:
+        job_id = str(
+            run_repo.create_run(
+                project=cmd.project_name,
+                label_studio_id=label_studio_id,
+                model_id=model.id,
+                system_prompt=cmd.system_prompt,
+            )
         )
-    )
+    except IntegrityError as e:
+        # due to UniqueConstraint on "project" in PrelabellingRun
+        # a DB integrity error will be thrown on a second run
+        # we translate it here from a raw error
+        raise AlreadyExists(
+            code="PRELABELLING_RUN_ALREADY_EXISTS",
+            message=(f"A prelabelling run already exists for project '{cmd.project_name}'."),
+        ) from e
 
     r.hset(
         _status_key(job_id),

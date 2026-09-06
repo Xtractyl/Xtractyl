@@ -33,7 +33,13 @@ def compute_metrics_from_rows(
       - FP+FN if both present but different (wrong extraction counts as both)
       - FN if GT present, pred missing
       - FP if pred present, GT missing
-      - TN if GT missing and pred is <<<NO_MATCH>>>
+      - TN if GT missing and pred is the literal <<<NO_MATCH>>> sentinel
+      - FP if GT missing and pred is falsy but NOT the sentinel (empty
+        string [seems currently impossible for an LLM to actively provide a blank answer],
+        None [seems currently impossible for an LLM to actively provide a blank answer without error],
+        missing key) — the model failed to signal no-match
+        via the required sentinel convention, which is itself a real,
+        countable error
       - TIMEOUT if model timed out (does NOT count as FP/FN/TN/TP)
 
     Returns:
@@ -139,10 +145,20 @@ def compute_metrics_from_rows(
                 status = "fp"
                 task_metrics_by_fn[fnm]["counts"]["fp"] += 1
 
-            else:
+            elif (not gt_present) and pr_no_match:
                 tn += 1
                 status = "tn"
                 task_metrics_by_fn[fnm]["counts"]["tn"] += 1
+
+            else:
+                # not gt_present, and pr_val is falsy but NOT the literal
+                # <<<NO_MATCH>>> sentinel (empty string, None, missing key).
+                # this would require an LLM to provide
+                # an empty answer or return something falsy without producing an error
+                # so it is a secuirty measure for something that seems impossible
+                fp += 1
+                status = "fp"
+                task_metrics_by_fn[fnm]["counts"]["fp"] += 1
 
             task_metrics_by_fn[fnm]["per_label"][lab] = {
                 "gt": gt_val,

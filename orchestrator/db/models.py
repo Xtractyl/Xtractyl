@@ -165,9 +165,6 @@ class PrelabellingRun(Base):
     id = Column(Integer, primary_key=True)
     project = Column(Text, ForeignKey("projects.name"), nullable=False)
     label_studio_id = Column(Integer, nullable=True)
-    questions_and_labels = Column(JSONB, nullable=True)
-    labels_hash = Column(Text, nullable=True)
-    questions_hash = Column(Text, nullable=True)
     system_prompt_hash = Column(Text, nullable=True)
     model_id = Column(Integer, ForeignKey("models.id"), nullable=False)
     system_prompt = Column(Text, nullable=True)
@@ -176,6 +173,8 @@ class PrelabellingRun(Base):
     error = Column(Text, nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    __table_args__ = (UniqueConstraint("project", name="uq_prelabelling_runs_project"),)
 
 
 class TaskPrelabellingMeta(Base):
