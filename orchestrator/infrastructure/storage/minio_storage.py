@@ -70,3 +70,13 @@ class MinioStorage(StorageInterface):
                 code="MINIO_DELETE_FAILED",
                 message=f"Could not delete objects under {prefix}.",
             ) from e
+
+    def list_top_level_prefixes(self) -> list[str]:
+        try:
+            objects = self._client.list_objects(self._bucket, recursive=False)
+            return [obj.object_name.rstrip("/") for obj in objects if obj.is_dir]
+        except S3Error as e:
+            raise ExternalServiceError(
+                code="MINIO_LIST_FAILED",
+                message="Could not list top-level prefixes in MinIO.",
+            ) from e

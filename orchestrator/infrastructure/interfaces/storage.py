@@ -14,3 +14,6 @@ class StorageInterface(ABC):
 
     @abstractmethod  # deletes remnants of failed conversion by the prefix (project name) in the pdf/html key
     def delete_prefix(self, prefix: str) -> None: ...
+
+    @abstractmethod  # every top-level prefix (project name folder) currently in the bucket
+    def list_top_level_prefixes(self) -> list[str]: ...
