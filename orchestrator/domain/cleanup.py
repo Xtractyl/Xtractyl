@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+
 from sqlalchemy import text
 from utils.logging_utils import safe_logger
 
@@ -62,6 +64,62 @@ def sweep_orphaned_storage_prefixes(db, storage) -> int:
             safe_logger.info("orphaned_storage_prefix_cleaned | prefix=%s", prefix)
         except Exception:
             safe_logger.error("orphaned_storage_prefix_cleanup_failed | prefix=%s", prefix)
+            continue
+
+    return count
+
+
+def sweep_orphaned_label_studio_projects(
+    db, label_studio, admin_token: str, min_age_hours: float = 0.5
+) -> int:
+    """compares Label Studio's own project list against projects.label_studio_id
+    and deletes anything unmatched that is older than a cutoff. A cutoff is necessary
+    because the db can not have the label studio ID before saving in label studio,
+    so any project will be an orphan for a short time and even if we could have the ID
+    beforehand we should only commit in the db after successful saving in label studio
+    as the latter is the more fragile process, the default time to delete (after 30min)
+    is orders of magnitudes larger than the time it should normally take between
+    saving in label studio and committing in db (normally miliseconds)
+    """
+    if not admin_token:
+        safe_logger.error("label_studio_orphan_sweep_skipped | reason=no_admin_token")
+        return 0
+
+    known_ids = {
+        row[0]
+        for row in db.execute(
+            text("SELECT label_studio_id FROM projects WHERE label_studio_id IS NOT NULL")
+        ).all()
+    }
+
+    try:
+        ls_projects = label_studio.list_projects(admin_token)
+    except Exception:
+        safe_logger.error("label_studio_orphan_sweep_list_failed")
+        return 0
+
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=min_age_hours)
+    count = 0
+    for p in ls_projects:
+        project_id = p.get("id")
+        if project_id is None or project_id in known_ids:
+            continue
+        created_at_raw = p.get("created_at")
+        try:
+            created_at = datetime.fromisoformat(str(created_at_raw).replace("Z", "+00:00"))
+        except (TypeError, ValueError):
+            # Unparseable timestamp — treat conservatively as "too new to touch".
+            continue
+        if created_at > cutoff:
+            continue
+        try:
+            label_studio.delete_project(project_id, admin_token)
+            count += 1
+            safe_logger.info("orphaned_label_studio_project_cleaned | project_id=%s", project_id)
+        except Exception:
+            safe_logger.error(
+                "orphaned_label_studio_project_cleanup_failed | project_id=%s", project_id
+            )
             continue
 
     return count
