@@ -11,6 +11,9 @@ COPY orchestrator/domain/cleanup.py /app/domain/cleanup.py
 COPY orchestrator/domain/errors.py /app/domain/errors.py
 COPY orchestrator/infrastructure/interfaces/storage.py /app/infrastructure/interfaces/storage.py
 COPY orchestrator/infrastructure/storage/minio_storage.py /app/infrastructure/storage/minio_storage.py
+COPY orchestrator/infrastructure/interfaces/label_studio.py /app/infrastructure/interfaces/label_studio.py
+COPY orchestrator/infrastructure/label_studio/label_studio_client.py /app/infrastructure/label_studio/label_studio_client.py
+COPY orchestrator/infrastructure/ollama/ollama_client.py /app/infrastructure/ollama/ollama_client.py
 COPY shared/logging_utils.py /app/utils/logging_utils.py
 
 CMD ["python", "cleanup_loop.py"]
