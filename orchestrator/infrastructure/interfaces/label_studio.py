@@ -12,3 +12,9 @@ class LabelStudioInterface(ABC):
 
     @abstractmethod
     def upload_tasks(self, project_id: int, tasks: list, token: str) -> None: ...
+
+    @abstractmethod
+    def list_projects(self, token: str) -> list[dict]: ...
+
+    @abstractmethod
+    def delete_project(self, project_id: int, token: str) -> None: ...
