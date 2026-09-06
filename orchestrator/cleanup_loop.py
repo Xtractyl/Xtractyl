@@ -2,14 +2,21 @@
 import os
 import time
 
-from domain.cleanup import cleanup_stale_conversion_jobs, sweep_orphaned_storage_prefixes
+from domain.cleanup import (
+    cleanup_stale_conversion_jobs,
+    sweep_orphaned_label_studio_projects,
+    sweep_orphaned_storage_prefixes,
+)
+from infrastructure.label_studio.label_studio_client import LabelStudioClient
 from infrastructure.storage.minio_storage import MinioStorage
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from utils.logging_utils import safe_logger
+from utils.logging_utils import dev_logger, safe_logger
 
 INTERVAL = int(os.getenv("CLEANUP_INTERVAL_SECONDS", "3600"))
 STALE_HOURS = int(os.getenv("CLEANUP_STALE_AFTER_HOURS", "2"))
+LABEL_STUDIO_USER_TOKEN = os.getenv("LABEL_STUDIO_USER_TOKEN", "")
+
 
 DATABASE_URL = (
     f"postgresql://{os.getenv('POSTGRES_XTRACTYL_USER', 'xtractyl')}:"
@@ -19,6 +26,9 @@ DATABASE_URL = (
 )
 engine = create_engine(DATABASE_URL)
 session_factory = sessionmaker(bind=engine)
+
+label_studio = LabelStudioClient()
+
 
 storage = MinioStorage(
     endpoint=os.getenv("MINIO_CONTAINER_NAME", "minio") + ":" + os.getenv("MINIO_API_PORT", "9000"),
@@ -40,9 +50,23 @@ def main():
             m = sweep_orphaned_storage_prefixes(db, storage)
             if m:
                 safe_logger.info("orphan_sweep_completed | cleaned=%s", m)
-        except Exception:
+
+            """we use default STALE_HOURS value of 30 min for label studio sweep
+               using another .env variable seems exaggerated for a value nobody would realistically tune
+            """
+            k = sweep_orphaned_label_studio_projects(db, label_studio, LABEL_STUDIO_USER_TOKEN)
+            if k:
+                safe_logger.info("label_studio_orphan_sweep_completed | cleaned=%s", k)
+        except Exception as e:
             db.rollback()
-            safe_logger.error("cleanup_run_failed")
+            safe_logger.error("cleanup_run_failed", extra={"error_message": str(e)})
+            if dev_logger:
+                import traceback as _traceback
+
+                dev_logger.error(
+                    "cleanup_run_failed_dev",
+                    extra={"traceback": _traceback.format_exc()},
+                )
         finally:
             db.close()
         time.sleep(INTERVAL)
