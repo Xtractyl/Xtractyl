@@ -1,17 +1,16 @@
 # orchestrator/domain/model_reconciliation.py
-import os
 import time
 
 from utils.logging_utils import safe_logger
-
-ARCHIVE_PREFIX = os.getenv("XTRACTYL_MODEL_ARCHIVE_PREFIX", "xtractyl-archive")
 
 
 def _sanitize(name: str) -> str:
     return name.replace(":", "-").replace("/", "-")
 
 
-def reconcile_models(repo, ollama_client, pulled_via: str = "user_pull") -> int:
+def reconcile_models(
+    repo, ollama_client, archive_prefix: str, pulled_via: str = "user_pull"
+) -> int:
     tags = ollama_client.list_tags()
     archived_count = 0
     errors: list[str] = []
@@ -19,7 +18,7 @@ def reconcile_models(repo, ollama_client, pulled_via: str = "user_pull") -> int:
     for entry in tags:
         name = entry.get("model") or entry.get("name")
         digest = entry.get("digest")
-        if not name or not digest or name.startswith(f"{ARCHIVE_PREFIX}/"):
+        if not name or not digest or name.startswith(f"{archive_prefix}/"):
             continue
 
         try:
@@ -31,7 +30,7 @@ def reconcile_models(repo, ollama_client, pulled_via: str = "user_pull") -> int:
             details = entry.get("details") or {}
             short_digest = digest.replace("sha256:", "")[:12]
             timestamp = time.strftime("%Y%m%d%H%M%S")
-            archived_name = f"{ARCHIVE_PREFIX}/{_sanitize(name)}:{short_digest}-{timestamp}"
+            archived_name = f"{archive_prefix}/{_sanitize(name)}:{short_digest}-{timestamp}"
 
             ollama_client.copy(source=name, destination=archived_name)
             repo.create(
