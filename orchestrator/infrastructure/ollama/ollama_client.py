@@ -49,3 +49,20 @@ class OllamaClient:
                 code="OLLAMA_UNAVAILABLE",
                 message="Could not reach Ollama.",
             )
+
+    def delete(self, name: str) -> None:
+        try:
+            res = requests.delete(
+                f"{self._base_url}/api/delete",
+                json={"name": name},
+                timeout=30,
+            )
+            if res.status_code == 404:
+                # Already gone — deleting an orphan is idempotent, not an error.
+                return
+            res.raise_for_status()
+        except requests.RequestException:
+            raise ExternalServiceError(
+                code="OLLAMA_UNAVAILABLE",
+                message=f"Could not delete model {name}.",
+            )
