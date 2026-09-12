@@ -69,6 +69,44 @@ def sweep_orphaned_storage_prefixes(db, storage) -> int:
     return count
 
 
+def sweep_unarchived_ollama_models(
+    db, ollama_client, archive_prefix: str, min_age_hours: int = 24
+) -> int:
+    known_digests = {row[0] for row in db.execute(text("SELECT digest FROM models")).all()}
+
+    try:
+        tags = ollama_client.list_tags()
+    except Exception:
+        safe_logger.error("ollama_orphan_sweep_list_failed")
+        return 0
+
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=min_age_hours)
+    count = 0
+    for entry in tags:
+        name = entry.get("model") or entry.get("name")
+        digest = entry.get("digest")
+        if not name or name.startswith(f"{archive_prefix}/"):
+            continue
+        if digest and digest in known_digests:
+            continue
+        modified_at_raw = entry.get("modified_at")
+        try:
+            modified_at = datetime.fromisoformat(str(modified_at_raw).replace("Z", "+00:00"))
+        except (TypeError, ValueError):
+            continue
+        if modified_at > cutoff:
+            continue
+        try:
+            ollama_client.delete(name)
+            count += 1
+            safe_logger.info("orphaned_ollama_model_cleaned | name=%s", name)
+        except Exception:
+            safe_logger.error("orphaned_ollama_model_cleanup_failed | name=%s", name)
+            continue
+
+    return count
+
+
 def sweep_orphaned_label_studio_projects(
     db, label_studio, admin_token: str, min_age_hours: float = 0.5
 ) -> int:
