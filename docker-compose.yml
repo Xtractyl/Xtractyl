@@ -262,7 +262,7 @@ services:
 
   # --- Object Storage ---
   minio:
-    image: minio/minio@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
+    image: pgsty/silo@sha256:b616a0cf8cb281e7e6bb3c9b1fb53875b4016a2878223925541c18f82d6c5ca3
     container_name: ${MINIO_CONTAINER_NAME:-minio}
     restart: unless-stopped
     command: server /data --console-address ":9001"
@@ -283,7 +283,7 @@ services:
   # One-shot init container: creates the bucket and sets CORS policy for presigned PUT uploads from the browser.
   # Exits after completion.
   minio_init:
-    image: minio/mc
+    image: pgsty/mc@sha256:8cece96d7942ec5a9a4e2598b2192898c7f2d4677b2c531ff1761ef9ec8e1f0d
     depends_on:
       minio:
         condition: service_healthy
@@ -328,6 +328,8 @@ services:
         condition: service_healthy
       labelstudio:
         condition: service_started
+      ollama:
+        condition: service_started
     volumes:
       - ${LOGS_DIR:-./logs}:/app/logs
       - ${DEV_LOGS_DIR:-./data/logs}:/app/data/logs
@@ -353,6 +355,8 @@ services:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-yourpassword}
       - MINIO_BUCKET=${MINIO_BUCKET:-xtractyl}
+      - OLLAMA_BASE=${OLLAMA_BASE:-http://ollama:11434}
+      - XTRACTYL_MODEL_ARCHIVE_PREFIX=${XTRACTYL_MODEL_ARCHIVE_PREFIX:-xtractyl-archive}
     restart: unless-stopped
 
 

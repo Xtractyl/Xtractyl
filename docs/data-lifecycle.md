@@ -1,4 +1,4 @@
->❗❗This lifecycle has not been updated since the last e2e review and will be perfectly aligned with the then current state only after the next e2e review (following the implementation of the remaining backlog items) ❗❗
+>❗❗This lifecycle has not been perfectly aligned with the current state since the last e2e review, but will be as part of the now (12/9/2026) started new e2e review) ❗❗
 
 
 
@@ -141,14 +141,11 @@ Create Project Pipeline has run). Two mechanisms can trigger this:
   rows still reference cannot occur). Per-prefix error isolation: a failure on one prefix logs and
   continues, does not abort the rest of the sweep
 
-> **[TODO 2]** Planned: this same cleanup container additionally sweeps orphaned Label Studio
-> projects — comparing Label Studio's own project list against `projects.label_studio_id`, deleting
-> anything unmatched and older than a configurable age guard (to avoid racing a project that was
-> created moments ago and hasn't been persisted yet). Fallback net for [TODO 1] (synchronous
-> deletion) in case that synchronous deletion itself fails. See Create Project Pipeline for the
-> synchronous half of this mechanism, and for the full description of this sweep.
-
-*(End of insert.)*
+**This same cleanup container additionally sweeps orphaned Label Studio projects**
+(`sweep_orphaned_label_studio_projects`) — comparing Label Studio's project list against
+`projects.label_studio_id` in the DB and deleting anything unmatched and older than 30 minutes (default value). This is the fallback net for the synchronous compensating deletion in the Create Project Pipeline, for cases where that synchronous
+deletion itself fails as well as a guardf against users creating rogue projects directly in label studio. The sweep authenticates against Label Studio using a dedicated,
+pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` container at first boot via `LABEL_STUDIO_USERNAME`/`LABEL_STUDIO_PASSWORD`/`LABEL_STUDIO_USER_TOKEN`) — distinct from the per-user token that end users paste into the frontend and that is used for all other Label Studio calls. In future one might switch to using the service account authentication for all frontend calls automatically as well instead of passing the token manually.
 
 **`models`**
 - `id` (PK)
@@ -184,18 +181,14 @@ Create Project Pipeline has run). Two mechanisms can trigger this:
 
 **`prelabelling_runs`**
 
-- **Missing constraint, planned:** no `UNIQUE` constraint exists today on `project` — `PrelabellingRun`
-  has no `__table_args__` at all, so nothing at the database level currently prevents multiple rows
-  per project. This is inconsistent with the intended semantics already implied by Planned Changes
-  point 5: a `pending`/`running`/`done` run blocks a new one from being created, and a `failed` run is
-  *resumed* (the existing row reused, not a new one inserted) — meaning the application's own design
-  already assumes at most one row per project, ever. The guard planned in point 5 is
-  application-level only (a check inside `enqueue_prelabel_job`); a `UNIQUE` constraint on `project`
-  would close the same gap at the database level, immune to a race between two concurrent requests
-  both passing the Python-level check before either commits. Proposed: add
-  `UniqueConstraint("project", name="uq_prelabelling_runs_project")`, with `enqueue_prelabel_job`
-  catching the resulting `IntegrityError` and translating it into the same clean API error the
-  application-level guard would have produced
+- **`UniqueConstraint("project", name="uq_prelabelling_runs_project")`** — at most one row per
+  project, enforced at the database level. `enqueue_prelabel_job` catches the resulting
+  `IntegrityError` on a second attempt and translates it into a clean `AlreadyExists` API error
+  (HTTP 409) rather than letting the raw DB error surface. This closes the gap that previously
+  existed between two concurrent requests both passing an application-level check before either
+  committed. Note: the guard currently blocks a *second* run for any existing row regardless of its
+  `status` — a `failed` run is not yet routed into resume (that part of Planned Changes point 5 is
+  still open; see below)
 
 - `id` (PK)
   - **Set:** at creation — Prelabelling Pipeline, step 1 (`enqueue_prelabel_job`, `POST /prelabel_project`); automatically by Postgres (auto-increment)
@@ -209,19 +202,8 @@ Create Project Pipeline has run). Two mechanisms can trigger this:
   - **Dead redundancy, planned for removal:** written at creation but never read again anywhere in
     the codebase — `projects.label_studio_id` is the actual source of truth, and every consumer
     (Upload Tasks, the Prelabelling worker via its own `resolve_project_id` call) either reads
-    `projects` directly or re-resolves it independently rather than reading this column. Unlike
-    `questions_and_labels`/`labels_hash`/`questions_hash` below, this isn't in Planned Changes point 7
-    today — added here as a newly identified candidate for the same cleanup
-- `questions_and_labels` (JSONB, nullable) — always taken from `projects.questions_and_labels` at enqueue time (`project_repo.get_questions_and_labels`), **never** from the client request, even though the request contract currently also carries a `questions_and_labels` field (that field is presently unused dead weight, planned for removal)
-  - **Set:** at creation — Prelabelling Pipeline, step 1, from `projects.questions_and_labels`, not from the client
-  - **Changed:** never (planned: this column removed entirely — see Planned Changes point 7; queries move to joining against `projects` instead, since the value can never diverge from it)
-- `labels_hash` (nullable)
-  - **Set:** at creation — Prelabelling Pipeline, step 1, alongside `questions_and_labels`
-  - **Changed:** never (planned: removed — see Planned Changes point 7)
-- `questions_hash` (nullable) — previously undocumented
-  - **Set:** at creation — Prelabelling Pipeline, step 1, alongside `labels_hash`
-  - **Changed:** never (planned: removed — see Planned Changes point 7)
-- `system_prompt_hash` (nullable) — previously undocumented; unlike `questions_and_labels`, `system_prompt` itself is **not** DB-sourced — it's free text held in the browser's `localStorage` and trusted as submitted, run-scoped only (no project-level canonical value exists)
+    `projects` directly or re-resolves it independently rather than reading this column
+- `system_prompt_hash` (nullable) — previously undocumented; unlike `projects.questions_and_labels`, `system_prompt` itself is **not** DB-sourced — it's free text held in the browser's `localStorage` and trusted as submitted, run-scoped only (no project-level canonical value exists)
   - **Set:** at creation — Prelabelling Pipeline, step 1, computed from the client-submitted `system_prompt`
   - **Changed:** never
 - `model_id` (FK → `models.id`, NOT nullable — resolved from the `archived_name` string sent by the frontend at enqueue time; `MODEL_NOT_FOUND` is raised if the string isn't a known `archived_name`)
@@ -476,21 +458,15 @@ of the row-level insert itself.
 
 **Resolved finding:** previously, `set_label_studio_id`/`save_questions_and_labels` were silent no-ops if the `projects` row didn't exist — meaning a real Label Studio project (with ML backend attached) could be created while Xtractyl's own DB recorded nothing, with the API still reporting success. Fixed by the `project_exists` check above (step 1 in the ordered check list) — the frontend also now only lets the project name be chosen from a dropdown of projects that actually exist and don't have a `label_studio_id` yet (`ConvertedProjectSelect`), rather than free text.
 
-**Open findings, planned fixes:**
-
-> **[TODO 1]** Planned: synchronous compensating deletion of the Label Studio project if
-> `attach_ml_backend`, `set_label_studio_id`, or `save_questions_and_labels` fails *after* the Label
-> Studio project was already created — the DB transaction rolls back (nothing was committed), but the
-> Label Studio project itself is never deleted today, leaving an orphan. Requires a new
-> `delete_project` capability in the Label Studio client, which doesn't exist yet; the user sees a
-> clear error with a retry hint.
-
-> **[TODO 2]** As a fallback net for cases where the synchronous deletion above ([TODO 1]) itself
-> fails: a periodic sweep (the same cleanup container already covering the MinIO-orphan and stale-job
-> sweeps — see the Insert after `conversion_jobs` in the Schema Reference) comparing Label Studio's own
-> project list against `projects.label_studio_id`, deleting anything unmatched and older than a
-> configurable age guard (to avoid racing a project that was created moments ago and hasn't been
-> persisted yet).
+**Synchronous compensating deletion of the Label Studio project on failure:** if
+`attach_ml_backend`, `set_label_studio_id`, or `save_questions_and_labels` fails *after* the Label
+Studio project was already created, `label_studio.delete_project(project_id, token)` is called
+before returning an `ExternalServiceError` to the user (with a retry hint) — the DB transaction
+itself rolls back on its own (nothing above was committed), but the Label Studio project needed
+this explicit compensating call since it lives outside that transaction. If the compensating
+deletion itself fails, it's swallowed (the user-facing error is unaffected either way) and the
+periodic Label Studio orphan sweep (see the Insert after `conversion_jobs` in the Schema Reference)
+is the fallback net.
 ---
 
 ## Upload Tasks Pipeline
@@ -504,22 +480,21 @@ of the row-level insert itself.
  - No new MinIO writes (read-only against MinIO)
  - Frontend project selection is now a dropdown (`UploadReadyProjectSelect`, backed by `GET /list_projects_ready_for_upload`) instead of free text — structurally limits selection to projects that already have a `label_studio_id` and haven't been uploaded yet
 
-> **[TODO 3]** Planned: on upload failure — whether a later batch in the `BATCH_SIZE=50`
-> sequence fails, or the subsequent DB commit (`ls_tasks_uploaded = true`) fails after all batches
-> already succeeded — a synchronous `delete_all_tasks(project_id, token)` call clears every task
-> already landed in the Label Studio project, rather than tracking and compensating only the specific
-> tasks from the batches that succeeded. Batching itself (`BATCH_SIZE=50`) stays as-is — the failure
-> mode being fixed is the lack of cleanup on partial failure, not the batching strategy, and
-> Label Studio's bulk-import endpoint has its own reasons (rate limits, per-call payload size) for
-> not simply switching to one task per call. The error message returned to the user explicitly points
-> to retrying the upload.
->
-> **No periodic sweep planned here** (unlike the Create Project orphan case, [TODO 2]) — a
-> failed upload is visible to the user in the moment it happens, and manual cleanup directly in Label
-> Studio remains possible as a fallback if the synchronous `delete_all_tasks` call itself fails.
-> Longer-term direction (not yet a scoped backlog item): tie Label Studio's live task state more
-> tightly to Xtractyl's own DB state in general, reducing how much of this category of problem needs
-> per-pipeline compensating deletions in the first place.
+**On upload failure** — whether a later batch in the `BATCH_SIZE=50` sequence fails, or the
+subsequent DB commit (`ls_tasks_uploaded = true`) fails after all batches already succeeded — a
+synchronous `label_studio.delete_all_tasks(project_id, token)` call clears every task already
+landed in the Label Studio project, rather than tracking and compensating only the specific tasks
+from the batches that succeeded, before an `ExternalServiceError` is raised pointing the user to
+retry the whole upload. Batching itself (`BATCH_SIZE=50`) stays as-is — this only addresses cleanup
+on partial failure, not the batching strategy; Label Studio's bulk-import endpoint has its own
+reasons (rate limits, per-call payload size) for not simply switching to one task per call.
+
+**No periodic sweep exists for this case** (unlike the Create Project orphan case above) — a
+failed upload is visible to the user in the moment it happens, and manual cleanup directly in Label
+Studio remains possible as a fallback if the synchronous `delete_all_tasks` call itself fails.
+Longer-term direction (not yet a scoped backlog item): tie Label Studio's live task state more
+tightly to Xtractyl's own DB state in general, reducing how much of this category of problem needs
+per-pipeline compensating deletions in the first place.
 
 ---
 
@@ -541,27 +516,35 @@ of the row-level insert itself.
   - Digest unknown → `models` row created (`status="downloaded"`), independent Ollama model
     created via `/api/copy` (source: raw tag, destination: `archived_name`)
 
-- **Known gap:** a model pulled outside the app (e.g. directly against the Ollama container) isn't
-  archived or documented in `models` until some pull happens through the app — there's no scheduled,
-  periodic check independent of that trigger. In practice this gap is narrower than it might sound:
-  `reconcile_models()` iterates *every* locally present model on each run, not just the one just
-  pulled — so any pull at all through the normal UI/API flow (not necessarily the same model that was
-  pulled outside the app) sweeps up and archives every previously untracked model in the same pass.
+- **Gap, narrowed by a periodic sweep:** a model pulled outside the app (e.g. directly against the
+  Ollama container) isn't archived or documented in `models` until either some pull happens through
+  the app, or the periodic cleanup sweep below catches it. `reconcile_models()` itself still only
+  runs on a pull through the app, and iterates *every* locally present model on each run, not just
+  the one just pulled — so any pull at all through the normal UI/API flow (not necessarily the same
+  model that was pulled outside the app) sweeps up and archives every previously untracked model in
+  the same pass.
 
-- **Workaround today:** trigger any pull through `POST /ollama/models/pull` — pulling the same,
+- **Workaround:** trigger any pull through `POST /ollama/models/pull` — pulling the same,
   already-current tag is cheap (Ollama's content-addressed pull mechanism fetches only the manifest,
-  not the full model again), so this is a lightweight way to force a reconciliation pass on demand.
-  *(Ollama's exact behavior here should be reconfirmed before relying on this in production — this is
-  based on Ollama's general pull semantics, not something verified against this codebase.)*
-
-> **[TODO 4]** Planned: a periodic cleanup sweep for Ollama models that are (a) not under the
-> `xtractyl-archive/` prefix, (b) whose digest is not in the `models` table, and (c) older than a
-> configurable age guard (protecting the brief window between a legitimate pull completing and
-> `reconcile_models()` archiving it) — closes the gap above, and specifically the risk of a model
-> loaded directly against Ollama, bypassing the app, being selected by curl against
-> `/prelabel_project` (though `enqueue_prelabel_job` already independently guards against this
-> specific case today by resolving strictly against the `models` table, never against Ollama directly
-> — see Prelabelling Pipeline).
+  not the full model again), so this is a lightweight way to force a reconciliation pass on demand. Adding a 
+  frontend button to trigger reconciliation makes the UI more complicated and does not add meaningful
+  functionality because: When a user misses a downloaded model she/he will try to re-download it. If it
+  was just not reconciled ollama will notice that it already has been downloaded and the backend will directly 
+  trigger reconcile_models() without the need of any additional button (and endpoint).
+  
+**A periodic cleanup sweep** (`sweep_unarchived_ollama_models`, in the same cleanup container as the
+other sweeps — see the Insert after `conversion_jobs` in the Schema Reference) catches models that
+are (a) not under the `xtractyl-archive/` prefix, (b) whose digest is not in the `models` table, and
+(c) older than 24h (a fixed margin, not `CLEANUP_STALE_AFTER_HOURS` — deliberately much larger than
+the Label Studio sweep's margin above, since `reconcile_models()` only runs when *some* pull happens
+through the app at all, an event with no fixed upper bound on how long it might not occur). This
+closes the gap above, and specifically the risk of a model loaded directly against Ollama, bypassing
+the app, being selected by curl against `/prelabel_project` (though `enqueue_prelabel_job` already
+independently guards against this specific case today by resolving strictly against the `models`
+table, never against Ollama directly — see Prelabelling Pipeline). If a user notices a model missing
+from the picker within that 24h window, simply re-pulling it triggers `reconcile_models()` again as
+a side effect and archives it — no dedicated "reconcile now" UI action exists or is planned, since
+this ordinary user reflex already covers the case.
 
 ### 3. `list_models` (`GET /ollama/models`)
 - Reads directly from Ollama's `/api/tags`, filtered to names starting with `xtractyl-archive/` —
@@ -616,8 +599,13 @@ of the row-level insert itself.
 > project whose tasks were never uploaded to Label Studio at all; the only thing stopping this in
 > practice is the frontend's own dropdown filtering, not a backend guard.
 
-- `prelabelling_runs` row created — `project`, `label_studio_id`, `questions_and_labels` (+ hashes),
-  `model_id`, `system_prompt` (+ hash), `status="pending"`
+- `prelabelling_runs` row created — `project`, `label_studio_id`,
+  `model_id`, `system_prompt` (+ hash), `status="pending"`. `questions_and_labels`/`labels_hash`/
+  `questions_hash` are checked for existence on `projects` (`QAL_NOT_FOUND` if unset) but no longer
+  stored on the run itself, they never diverge from `projects.questions_and_labels` (because only
+  one run is currently allowed), so consumers
+  join against `projects` directly instead (see the Schema Reference's `prelabelling_runs` section).
+ 
 
 > **Clarification on why `status` stays `"pending"` here, unlike `conversion_jobs.status` at the
 > equivalent point:** for Conversion, all the work that can fail (file uploads, `files` rows) already
@@ -632,9 +620,10 @@ of the row-level insert itself.
 > `"running"` → `"failed"` (which would incorrectly imply it had).
 
 - Redis: a status hash (`status:<job_id>`) is set, and the job payload — `project_name`, `model`,
-  `system_prompt`, `questions_and_labels` (the *client-submitted* value, not the `qal` just written to
-  the DB row above — see [TODO 5] above), `token` — is pushed to the `prelabel_jobs`
-  queue (Redis DB 0; separate from `conversion_jobs` in DB 1)
+  `system_prompt`, `questions_and_labels` (the *client-submitted* value, a separate, independent
+  copy from `projects.questions_and_labels`, which is only checked for existence above, never
+  compared against the client-submitted value), `token` — is pushed to the `prelabel_jobs`
+   queue (Redis DB 0; separate from `conversion_jobs` in DB 1)
 
 > **[TODO 6]** Planned: the Redis status hash (`state`/`progress`/`error` etc.) is
 > dropped entirely, replaced by `processed_tasks`/`total_tasks`/`cancel_requested` columns added to
@@ -818,15 +807,12 @@ gain.
   Postgres and MinIO" — marked Completed) whose cleanup was left unfinished at this route
 - selectable projects restricted to `status="done"` runs only and a matching `RUN_NOT_DONE` guard added directly in `build_results_table` itself.
 
-> **[TODO 11]** Add a `UNIQUE` constraint on `prelabelling_runs.project`, and resolve the resulting
-> `get_run_for_project` ambiguity. `get_run_for_project` (renamed from `get_latest_run`, and used by
-> this pipeline, the Evaluation Pipeline, and the Evaluation Views) has no status filter — it returns
-> whatever `prelabelling_runs` row is newest for a project, regardless of status. No `UniqueConstraint`
-> exists today (`PrelabellingRun` has no `__table_args__` at all; no migration adds one), and the
-> second-run guard from [TODO 5] doesn't exist either — so multiple rows per project can exist today,
-> and this is a real, currently-reachable ambiguity. Fix via either the original two-part approach
-> (status filter, or explicit `run_id` at all three call sites) or by actually adding the `UNIQUE`
-> constraint plus the second-run guard.
+**`prelabelling_runs.project` now has a `UNIQUE` constraint** (see the Schema Reference), so
+`get_run_for_project` (renamed from `get_latest_run`, used by this pipeline, the Evaluation
+Pipeline, and the Evaluation Views) is no longer ambiguous — at most one row can exist per project,
+full stop. It still has no explicit status filter and still orders by `created_at DESC` with
+`.first()`, but that ordering is now a defensive no-op rather than resolving a real ambiguity, since
+there is nothing left to disambiguate between.
 
 ---
 
@@ -870,16 +856,15 @@ results that exist.
 > restricted to matching only their own originating project's own run — never scanned broadly like
 > external. This is the *only* code change `sync_missing_evaluations` needed for the whole feature.
 
-> `get_run_for_project` (the repository method backing this pipeline, plus `build_results_table`) has
-> no status filter — see [TODO 11] under Get Results Pipeline for the full status of the fix.
+`get_run_for_project` (the repository method backing this pipeline, plus `build_results_table`) has
+no explicit status filter, but this is no longer ambiguous — see the Get Results Pipeline section
+and the `prelabelling_runs` Schema Reference entry for why.
 
-> **[TODO 12]** Fix `compute_metrics_from_rows`'s TN/FP classification. Verified directly in
-> `orchestrator/domain/utils/calculate_metrics.py`: the classification block currently ends with a
-> plain `else: tn` catch-all, covering every case where `not gt_present and not pr_present`. Add an
-> explicit check requiring the literal `<<<NO_MATCH>>>` sentinel for a TN classification; classify a
-> falsy-but-not-sentinel prediction (empty string, `None`, missing key) as FP instead — the model
-> failed to follow the required "signal no-match via the sentinel" convention, which is itself a real,
-> countable error.
+**`compute_metrics_from_rows`'s TN/FP classification requires the literal `<<<NO_MATCH>>>`
+sentinel for a TN.** A falsy-but-not-sentinel prediction (empty string, `None`, missing key) is
+classified as FP instead — the model failed to follow the required "signal no-match via the
+sentinel" convention, which is itself a real, countable error (`orchestrator/domain/utils/calculate_metrics.py`).
+ 
 
 **Internal ground truth sets — implemented.** See the guard, matching-loop exclusion above for the
 Evaluation Pipeline's own share of the work; see Evaluation Drift, Regression, Comparison below for
@@ -895,9 +880,8 @@ Read-only across all three views — no writes. All accept an optional `scope` (
 wanted simultaneously in practice (internal exists specifically *because* no external standard was
 available), so the three views show one scope at a time rather than merging both into one table.
 
-**All three views are now fully project-attribute-driven — `resolve_family_for_project` and
-`EvaluationRepository.find_evaluation_for_run` have no remaining callers and are dead code,
-candidates for removal.** The old model (pick a project → resolve to *one* canonical GT → show its
+**All three views are now fully project-attribute-driven.** `resolve_family_for_project` and
+`EvaluationRepository.find_evaluation_for_run` had no remaining callers and have been removed. The old model (pick a project → resolve to *one* canonical GT → show its
 evaluations) only ever worked because external guaranteed at most one GT per
 `(labels_hash, document_set_hash)` — there was never a choice to make. Internal breaks that
 assumption: many different projects can coincidentally share a labels/document combination, each
@@ -912,9 +896,12 @@ GT or an ordinary evaluated project:
   separate GT-name filter at all — `uq_external_groundtruth_labels_documents` already guarantees at
   most one external GT can ever match, so the query naturally returns the right (single) GT's
   evaluations without resolving which one it is first.
-- **Regression** (`get_regression_view`): reads the picked project's own *run's* full configuration
-  (`labels_hash`, `questions_hash`, `model_digest`, `system_prompt_hash` — via
-  `run_repo.get_latest_run(project_name)`), then calls `find_internal_evaluations_by_configuration`
+- **Regression** (`get_regression_view`): reads `labels_hash`/`questions_hash` from the picked
+  project itself (`projects.labels_hash`/`.questions_hash` — `prelabelling_runs` no longer stores
+  its own copy of these — see the `prelabelling_runs` entry in the Schema Reference)
+  and `model_digest`/`system_prompt_hash` from the project's own run
+  (`run_repo.get_run_for_project(project_name)`), then calls `find_internal_evaluations_by_configuration`
+  
   or `find_external_evaluations_by_configuration`. Those two methods filter only on
   labels/questions/model/prompt, not document set (Drift, the other caller, deliberately needs
   matches across *different* document sets) — so `get_regression_view` applies its own post-filter
@@ -929,9 +916,10 @@ GT or an ordinary evaluated project:
 - **Drift** (`get_drift_view`): same configuration, but *different* document sets with provably zero
   overlap between them (exact set intersection on `html_hash`, not just a different aggregate
   `document_set_hash` — a 40/41-identical overlap is correctly excluded).
-  1. Reads the picked project's own run configuration (same as Regression) and pulls all matching
-     evaluations via the same `find_internal_evaluations_by_configuration` /
-     `find_external_evaluations_by_configuration` pair, scoped by `scope`.
+  1. Reads the same configuration as Regression (project's own `labels_hash`/`questions_hash`,
+     run's own `model_digest`/`system_prompt_hash`) and pulls all matching evaluations via the same
+     `find_internal_evaluations_by_configuration` / `find_external_evaluations_by_configuration`
+     pair, scoped by `scope`.
   2. **Dedups by `document_set_hash`, keeping the newest evaluation per unique document set** — a
      deliberate choice, not an accident: `matching` is ordered ascending by `run_at`, and the loop
      uses a plain `by_docset[gt.document_set_hash] = e` assignment (not `setdefault`), so each later

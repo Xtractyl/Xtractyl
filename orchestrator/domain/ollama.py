@@ -1,14 +1,10 @@
 # orchestrator/domain/ollama.py
 
 
-import os
-
 from domain.models.ollama import ListModelsCommand, PullModelCommand
 
-ARCHIVE_PREFIX = os.getenv("XTRACTYL_MODEL_ARCHIVE_PREFIX", "xtractyl-archive")
 
-
-def list_models(cmd: ListModelsCommand, ollama_client, model_repo) -> dict:
+def list_models(cmd: ListModelsCommand, ollama_client, model_repo, archive_prefix: str) -> dict:
     """Only offers models that are BOTH physically present in Ollama's live
     tag list AND tracked in the Postgres `models` table (digest-pinned,
     provenance-recorded via reconcile_models). Matching purely by the
@@ -24,7 +20,7 @@ def list_models(cmd: ListModelsCommand, ollama_client, model_repo) -> dict:
         "models": [
             name
             for name in ((t.get("model") or t.get("name")) for t in tags)
-            if name and name.startswith(f"{ARCHIVE_PREFIX}/") and name in known_archived_names
+            if name and name.startswith(f"{archive_prefix}/") and name in known_archived_names
         ]
     }
 

@@ -14,7 +14,7 @@ from api.contracts.errors import ErrorResponse
 from api.contracts.ollama import ListModelsResponse, PullModelRequest
 
 
-def register(app, spec, session_factory, ollama_client):
+def register(app, spec, session_factory, ollama_client, archive_prefix):
     @app.route("/ollama/models", methods=["GET"])
     @spec.validate(
         resp=SpecResponse(
@@ -29,7 +29,7 @@ def register(app, spec, session_factory, ollama_client):
         db = session_factory()
         try:
             model_repo = ModelRepository(db)
-            result = list_models(cmd, ollama_client, model_repo)
+            result = list_models(cmd, ollama_client, model_repo, archive_prefix)
         finally:
             db.close()
         try:
@@ -67,7 +67,11 @@ def register(app, spec, session_factory, ollama_client):
             yield from pull_model(cmd, ollama_client)
             db = session_factory()
             try:
-                reconcile_models(repo=ModelRepository(db), ollama_client=ollama_client)
+                reconcile_models(
+                    repo=ModelRepository(db),
+                    ollama_client=ollama_client,
+                    archive_prefix=archive_prefix,
+                )
                 db.commit()
             except Exception:
                 db.rollback()
