@@ -1,51 +1,38 @@
 // src/components/ModelDownloadInput.jsx
-import { useEffect, useState } from "react";
-import { pullModel } from "../../api/StartPrelabellingPage/api.js";
+import { useState } from "react";
+import { useAppContext } from "../../context/AppContext";
 
 export default function ModelDownloadInput({
-  onDone           
+  onDone
 }) {
   const [name, setName] = useState("");
-  const [pulling, setPulling] = useState(false);
-  const [progress, setProgress] = useState("");
-  const [error, setError] = useState("");
+  const {
+    pulling,
+    pullingModel,
+    pullProgress,
+    pullError,
+    startModelPull,
+    resetPullError,
+  } = useAppContext();
 
-  useEffect(() => {
-    if (!pulling) return;
-    const handleBeforeUnload = (e) => {
-      e.preventDefault();
-      e.returnValue = "";
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [pulling]);
-
-
-  
   const handlePull = async () => {
     const model = name.trim();
     if (!model) return;
-  
-    setPulling(true);
-    setProgress("Starting…");
-    setError("");
-  
-    try {
-      await pullModel(model, setProgress);
-      setProgress("Done");
-      onDone?.(model);
-    } catch (e) {
-      setError(e.message || "Unknown error");
-    } finally {
-      setPulling(false);
-    }
+
+    resetPullError();
+    const ok = await startModelPull(model);
+    if (ok) onDone?.(model);
   };
+
+  const pullingThisModel = pulling && pullingModel === name.trim();
+  const pullingOtherModel = pulling && pullingModel !== name.trim();
 
   return (
     <div className="space-y-3">
       <label className="block font-medium">
         Download new model with official names (
-        <a
+          <a
+        
             href="https://ollama.com/library"
             target="_blank"
             rel="noopener noreferrer"
@@ -70,12 +57,22 @@ export default function ModelDownloadInput({
           disabled={!name.trim() || pulling}
           className={`px-3 py-2 rounded ${pulling ? "opacity-60 cursor-not-allowed" : "bg-xtractyl-green text-xtractyl-white hover:bg-xtractyl-green/80 transition"}`}
         >
-          {pulling ? "Pulling…" : "Download"}
+          {pullingThisModel ? "Pulling…" : "Download"}
         </button>
       </div>
 
-      {progress && <div className="text-sm text-xtractyl-outline">Progress: {progress}</div>}
-      {error && <div className="text-sm text-xtractyl-orange">❌ {error}</div>}
+      {pullingOtherModel && (
+        <div className="text-sm text-xtractyl-outline">
+          Still downloading "{pullingModel}" ({pullProgress})
+        </div>
+      )}
+      {pullingThisModel && pullProgress && (
+        <div className="text-sm text-xtractyl-outline">Progress: {pullProgress}</div>
+      )}
+      {!pulling && pullProgress === "Done" && pullingModel === name.trim() && (
+        <div className="text-sm text-xtractyl-outline">Progress: Done</div>
+      )}
+      {pullError && <div className="text-sm text-xtractyl-orange">❌ {pullError}</div>}
 
     </div>
   );
