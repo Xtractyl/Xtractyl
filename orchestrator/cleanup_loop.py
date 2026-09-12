@@ -6,8 +6,10 @@ from domain.cleanup import (
     cleanup_stale_conversion_jobs,
     sweep_orphaned_label_studio_projects,
     sweep_orphaned_storage_prefixes,
+    sweep_unarchived_ollama_models,
 )
 from infrastructure.label_studio.label_studio_client import LabelStudioClient
+from infrastructure.ollama.ollama_client import OllamaClient
 from infrastructure.storage.minio_storage import MinioStorage
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -16,6 +18,7 @@ from utils.logging_utils import dev_logger, safe_logger
 INTERVAL = int(os.getenv("CLEANUP_INTERVAL_SECONDS", "3600"))
 STALE_HOURS = int(os.getenv("CLEANUP_STALE_AFTER_HOURS", "2"))
 LABEL_STUDIO_USER_TOKEN = os.getenv("LABEL_STUDIO_USER_TOKEN", "")
+ARCHIVE_PREFIX = os.getenv("XTRACTYL_MODEL_ARCHIVE_PREFIX", "xtractyl-archive")
 
 
 DATABASE_URL = (
@@ -28,6 +31,7 @@ engine = create_engine(DATABASE_URL)
 session_factory = sessionmaker(bind=engine)
 
 label_studio = LabelStudioClient()
+ollama_client = OllamaClient(base_url=os.getenv("OLLAMA_BASE", "http://ollama:11434"))
 
 
 storage = MinioStorage(
@@ -57,6 +61,9 @@ def main():
             k = sweep_orphaned_label_studio_projects(db, label_studio, LABEL_STUDIO_USER_TOKEN)
             if k:
                 safe_logger.info("label_studio_orphan_sweep_completed | cleaned=%s", k)
+            o = sweep_unarchived_ollama_models(db, ollama_client, ARCHIVE_PREFIX)
+            if o:
+                safe_logger.info("ollama_orphan_sweep_completed | cleaned=%s", o)
         except Exception as e:
             db.rollback()
             safe_logger.error("cleanup_run_failed", extra={"error_message": str(e)})
