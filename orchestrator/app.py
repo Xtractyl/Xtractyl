@@ -47,6 +47,8 @@ def create_app() -> Flask:
     session_factory = sessionmaker(bind=engine)
     label_studio = LabelStudioClient()
     ollama_client = OllamaClient(base_url=os.getenv("OLLAMA_BASE", "http://ollama:11434"))
+    archive_prefix = os.getenv("XTRACTYL_MODEL_ARCHIVE_PREFIX", "xtractyl-archive")
+
     app = Flask(__name__)
     # CORS: keep browser frontend working (incl. Authorization header)
     CORS(app, origins=[FRONTEND_ORIGIN], allow_headers=["Content-Type", "Authorization"])
@@ -60,6 +62,7 @@ def create_app() -> Flask:
         session_factory=session_factory,
         label_studio=label_studio,
         ollama_client=ollama_client,
+        archive_prefix=archive_prefix,
     )
 
     register_error_handlers(
