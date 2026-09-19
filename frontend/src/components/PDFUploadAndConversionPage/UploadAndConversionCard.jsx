@@ -21,8 +21,9 @@ export default function UploadAndConversionCard() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block font-medium mb-1">Project name</label>
+          <label htmlFor="project-name" className="block font-medium mb-1">Project name</label>
           <input
+            id="project-name"
             type="text"
             value={projectName}
             onChange={(e) => saveProjectName(e.target.value.trim())}
@@ -34,8 +35,9 @@ export default function UploadAndConversionCard() {
 
 
         <div>
-          <label className="block font-medium mb-1">Select your PDFs</label>
+          <label htmlFor="pdf-files" className="block font-medium mb-1">Select your PDFs</label>
           <input
+            id="pdf-files"
             type="file"
             accept="application/pdf"
             multiple
