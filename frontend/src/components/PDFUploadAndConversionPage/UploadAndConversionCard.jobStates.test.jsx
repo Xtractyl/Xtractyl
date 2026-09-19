@@ -1,9 +1,9 @@
 // src/components/PDFUploadAndConversionPage/UploadAndConversionCard.jobStates.test.jsx
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { AppProvider } from "../../context/AppContext";
+import { AppProvider } from "../../context/AppContext.jsx";
 import UploadAndConversionCard from "./UploadAndConversionCard.jsx";
-import { getConversionStatus } from "../../api/PDFUploadAndConversionPage/api.js";
+import { getConversionStatus , discardConversion } from "../../api/PDFUploadAndConversionPage/api.js";
 
 vi.mock("../../api/PDFUploadAndConversionPage/api.js");
 
@@ -63,5 +63,51 @@ describe("UploadAndConversionCard with an existing job", () => {
     expect(
       screen.getByRole("button", { name: "Job running…" })
     ).toBeDisabled();
+
+  
+  });
+    it("shows the error message and discards the job when conversion fails", async () => {
+    localStorage.setItem("conversionJobId", "job-999");
+    getConversionStatus.mockResolvedValue({
+      job_id: "job-999",
+      status: "failed",
+      total_files: 3,
+      converted_files: 1,
+      error: "Docling timed out",
+    });
+    discardConversion.mockResolvedValue({ status: "discarded" });
+
+    render(
+      <AppProvider>
+        <UploadAndConversionCard />
+      </AppProvider>
+    );
+
+    expect(
+      await screen.findByText("❌ Conversion failed. Docling timed out")
+    ).toBeInTheDocument();
+    expect(discardConversion).toHaveBeenCalledWith("job-999");
+  });
+
+  it("shows the cancelled message and discards the job when cancelled", async () => {
+    localStorage.setItem("conversionJobId", "job-000");
+    getConversionStatus.mockResolvedValue({
+      job_id: "job-000",
+      status: "cancelled",
+      total_files: 3,
+      converted_files: 1,
+    });
+    discardConversion.mockResolvedValue({ status: "discarded" });
+
+    render(
+      <AppProvider>
+        <UploadAndConversionCard />
+      </AppProvider>
+    );
+
+    expect(
+      await screen.findByText("⏹️ Conversion cancelled.")
+    ).toBeInTheDocument();
+    expect(discardConversion).toHaveBeenCalledWith("job-000");
   });
 });
