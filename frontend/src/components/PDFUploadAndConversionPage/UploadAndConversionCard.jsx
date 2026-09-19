@@ -1,4 +1,4 @@
-// src/components/UploadAndConvertCard.jsx
+// src/components/PDFUploadAndConversionPage/UploadAndConvertCard.jsx
 import { useState } from "react";
 import useJobManager from "../../hooks/PDFUploadAndConversionPage/useJobManager";
 import { useAppContext } from "../../context/AppContext";
