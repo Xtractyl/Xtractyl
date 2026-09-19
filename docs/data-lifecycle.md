@@ -363,7 +363,10 @@ of the row-level insert itself.
 - DB: unchanged
 
 ### 3b. Upload fails partway
-- Handled by `POST /conversion/discard`, called automatically by the frontend on failure — deletes `projects`, `files`, and `conversion_jobs` rows for this project if the job is still `"pending"` **or `"failed"`**
+- Handled by `POST /conversion/discard`, deletes `projects`, `files`, and `conversion_jobs` rows for this project, allowed while allowed while job is `"pending"`, `"failed"`, or `"cancelled"`. The frontend calls it automatically if:
+  - `prepare`/upload/`start` fails before the job is properly under way
+  - or later from the polling loop, once the job `"failed"` or has been `"cancelled"`
+a failed discard call here is caught and ignored client-side (see the following fallback for this case)
 - Fallback: a scheduled cleanup job removes any `conversion_jobs` row still stuck at `"pending"`, `"converting"`, or `"failed"` after a configurable age (`CLEANUP_STALE_AFTER_HOURS`, default 2h), for cases where the abort call itself didn't reach the backend
   - `"pending"` is checked against `created_at` (never made it past prepare — no progress to protect)
   - `"converting"`/`"failed"` are checked against `updated_at` instead, so a job that is still receiving per-file callbacks (see step 5/6) is never killed mid-flight — only genuinely stuck jobs (e.g. a crashed worker) get cleaned up
