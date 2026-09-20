@@ -1,5 +1,5 @@
 // src/hooks/PDFUploadAndConversionPage/useJobManager.test.js
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import useJobManager from "./useJobManager.js";
 import { prepareConversion } from "../../api/PDFUploadAndConversionPage/api.js";
