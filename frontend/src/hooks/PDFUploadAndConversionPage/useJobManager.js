@@ -8,13 +8,6 @@ export default function useJobManager(projectName, files) {
   const [serverMsg, setServerMsg] = useState("");
   const [jobStatus, setJobStatus] = useState(null);
 
-  // Restore jobId from localStorage
-  useEffect(() => {
-    if (!jobId) {
-      const saved = localStorage.getItem("conversionJobId");
-      if (saved) setJobId(saved);
-    }
-  }, [jobId]);
 
   // Poll job status
   useEffect(() => {
@@ -72,8 +65,7 @@ export default function useJobManager(projectName, files) {
   }, [jobId]);
 
   // Submit PDFs
-    const handleSubmit = useCallback(async (e) => {
-    e.preventDefault();
+    const handleSubmit = useCallback(async () => {
     setServerMsg("");
     if (!projectName || files.length === 0) return;
     setSubmitBusy(true);

@@ -345,7 +345,7 @@ make down
 ```
 
 #### Unit tests (pytest)
-Currently in implementation.  Starting with the orchestrator
+Currently in implementation.  Starting with the orchestrator. Backend unit tests need prior build as opposed to frontend unit tests (e.g. via ```bash docker compose up --build orchestrator```).
 
 ```bash
 make deps
