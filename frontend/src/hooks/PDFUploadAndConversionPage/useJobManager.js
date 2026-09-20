@@ -66,7 +66,6 @@ export default function useJobManager(projectName, files) {
 
   // Submit PDFs
     const handleSubmit = useCallback(async (e) => {
-    e.preventDefault();
     setServerMsg("");
     if (!projectName || files.length === 0) return;
     setSubmitBusy(true);

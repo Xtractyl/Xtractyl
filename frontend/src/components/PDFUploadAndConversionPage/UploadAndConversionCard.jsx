@@ -19,7 +19,13 @@ export default function UploadAndConversionCard() {
         Enter a project name and select PDFs to convert.
       </p>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
+        className="space-y-6"
+      >
         <div>
           <label htmlFor="project-name" className="block font-medium mb-1">Project name</label>
           <input
