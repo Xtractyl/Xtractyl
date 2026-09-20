@@ -7,11 +7,6 @@ import { prepareConversion } from "../../api/PDFUploadAndConversionPage/api.js";
 vi.mock("../../api/PDFUploadAndConversionPage/api.js");
 
 describe("useJobManager handleSubmit guard", () => {
-  beforeEach(() => {
-    localStorage.clear();
-    vi.clearAllMocks();
-  });
-
   it("does not start a conversion when projectName is missing", async () => {
     const { result } = renderHook(() => useJobManager("", [{ name: "a.pdf" }]));
 
