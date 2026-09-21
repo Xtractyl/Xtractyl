@@ -1,7 +1,10 @@
 # orchestrator/tests/unit/fakes/conversion_fakes.py
 from db.models import ConversionJob, File, Project
 from infrastructure.interfaces.queue import QueueInterface
-from infrastructure.interfaces.repository import ConversionRepositoryInterface
+from infrastructure.interfaces.repository import (
+    ConversionRepositoryInterface,
+    ProjectRepositoryInterface,
+)
 from infrastructure.interfaces.storage import StorageInterface
 
 
@@ -99,3 +102,65 @@ class FakeQueue(QueueInterface):
 
     def push_conversion_job(self, job_id, project, pdf_keys):
         self.pushed.append({"job_id": job_id, "project": project, "pdf_keys": pdf_keys})
+
+
+class FakeProjectRepo(ProjectRepositoryInterface):
+    def __init__(self):
+        self.document_set_hashes_set = []
+
+    # --- used by conversion domain ---
+
+    def set_document_set_hash(self, name):
+        self.document_set_hashes_set.append(name)
+
+    """
+    All following methods defined for the FakeProjectRepo are unused by the conversion 
+    domain and its tests. These methods are therefore stubs only. We define the methods purely for ABC-conformity.
+    thereby avoiding the need to separately import the project infrastructure 
+    into the conversion domain tests (its fake is not written yet)
+    """
+
+    def project_exists(self, name):
+        raise NotImplementedError("not needed by conversion domain tests yet")
+
+    def get_project(self, name):
+        raise NotImplementedError("not needed by conversion domain tests yet")
+
+    def set_label_studio_id(self, name, label_studio_id):
+        raise NotImplementedError("not needed by conversion domain tests yet")
+
+    def get_label_studio_id(self, name):
+        raise NotImplementedError("not needed by conversion domain tests yet")
+
+    def get_projects_ready_for_upload(self):
+        raise NotImplementedError("not needed by conversion domain tests yet")
+
+    def get_projects_ready_for_creation(self):
+        raise NotImplementedError("not needed by conversion domain tests yet")
+
+    def tasks_already_uploaded(self, name):
+        raise NotImplementedError("not needed by conversion domain tests yet")
+
+    def is_conversion_done(self, name):
+        raise NotImplementedError("not needed by conversion domain tests yet")
+
+    def get_html_keys_for_project(self, name):
+        raise NotImplementedError("not needed by conversion domain tests yet")
+
+    def set_ls_tasks_uploaded(self, name):
+        raise NotImplementedError("not needed by conversion domain tests yet")
+
+    def save_questions_and_labels(self, name, qal):
+        raise NotImplementedError("not needed by conversion domain tests yet")
+
+    def get_questions_and_labels(self, name):
+        raise NotImplementedError("not needed by conversion domain tests yet")
+
+    def get_groundtruth_scope(self, name):
+        raise NotImplementedError("not needed by conversion domain tests yet")
+
+    def get_projects_ready_for_groundtruth(self):
+        raise NotImplementedError("not needed by conversion domain tests yet")
+
+    def set_groundtruth(self, name, scope):
+        raise NotImplementedError("not needed by conversion domain tests yet")
