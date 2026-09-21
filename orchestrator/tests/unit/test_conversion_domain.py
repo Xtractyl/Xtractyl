@@ -108,3 +108,37 @@ def test_start_conversion_rejects_job_that_is_not_pending():
     assert queue.pushed == []
     assert repo.jobs[1].status == "converting"
 
+
+def test_cancel_conversion_transitions_converting_job_to_cancelled():
+    repo = FakeConversionRepo(existing_projects={"my-project"})
+    repo.jobs[1] = ConversionJob(
+        id=1, project="my-project", status="converting", total_files=2, converted_files=1
+    )
+    cmd = CancelConversionCommand(job_id=1)
+
+    result = cancel_conversion(cmd, repo=repo)
+
+    assert repo.jobs[1].status == "cancelled"
+    assert result == {"job_id": 1, "status": "cancelled"}
+
+
+def test_cancel_conversion_raises_when_job_not_found():
+    repo = FakeConversionRepo()
+    cmd = CancelConversionCommand(job_id=999)
+
+    with pytest.raises(NotFound):
+        cancel_conversion(cmd, repo=repo)
+
+
+def test_cancel_conversion_rejects_job_that_is_not_converting():
+    repo = FakeConversionRepo(existing_projects={"my-project"})
+    repo.jobs[1] = ConversionJob(
+        id=1, project="my-project", status="pending", total_files=2, converted_files=0
+    )
+    cmd = CancelConversionCommand(job_id=1)
+
+    with pytest.raises(InvalidState):
+        cancel_conversion(cmd, repo=repo)
+
+    assert repo.jobs[1].status == "pending"
+
