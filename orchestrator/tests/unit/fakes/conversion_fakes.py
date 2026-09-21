@@ -1,5 +1,6 @@
 # orchestrator/tests/unit/fakes/conversion_fakes.py
 from db.models import ConversionJob, File, Project
+from infrastructure.interfaces.queue import QueueInterface
 from infrastructure.interfaces.repository import ConversionRepositoryInterface
 from infrastructure.interfaces.storage import StorageInterface
 
@@ -90,3 +91,11 @@ class FakeStorage(StorageInterface):
 
     def list_top_level_prefixes(self):
         raise NotImplementedError("not needed by conversion domain tests yet")
+
+
+class FakeQueue(QueueInterface):
+    def __init__(self):
+        self.pushed = []
+
+    def push_conversion_job(self, job_id, project, pdf_keys):
+        self.pushed.append({"job_id": job_id, "project": project, "pdf_keys": pdf_keys})
