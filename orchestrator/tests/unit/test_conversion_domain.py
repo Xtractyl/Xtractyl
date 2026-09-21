@@ -62,3 +62,49 @@ def test_prepare_conversion_rejects_existing_project():
 
     assert repo.files == []
     assert repo.jobs == {}
+
+
+
+def test_start_conversion_transitions_pending_job_to_converting_and_queues_it():
+    repo = FakeConversionRepo(existing_projects={"my-project"})
+    repo.files.append(File(project="my-project", filename="a.pdf", pdf_key="my-project/pdfs/a.pdf"))
+    repo.jobs[1] = ConversionJob(
+        id=1, project="my-project", status="pending", total_files=1, converted_files=0
+    )
+    queue = FakeQueue()
+    cmd = ConvertCommand(job_id=1)
+
+    result = start_conversion(cmd, repo=repo, queue=queue)
+
+    assert repo.jobs[1].status == "converting"
+    assert queue.pushed == [
+        {"job_id": 1, "project": "my-project", "pdf_keys": ["my-project/pdfs/a.pdf"]}
+    ]
+    assert result == {"job_id": 1, "status": "converting"}
+
+
+def test_start_conversion_raises_when_job_not_found():
+    repo = FakeConversionRepo()
+    queue = FakeQueue()
+    cmd = ConvertCommand(job_id=999)
+
+    with pytest.raises(NotFound):
+        start_conversion(cmd, repo=repo, queue=queue)
+
+    assert queue.pushed == []
+
+
+def test_start_conversion_rejects_job_that_is_not_pending():
+    repo = FakeConversionRepo(existing_projects={"my-project"})
+    repo.jobs[1] = ConversionJob(
+        id=1, project="my-project", status="converting", total_files=1, converted_files=0
+    )
+    queue = FakeQueue()
+    cmd = ConvertCommand(job_id=1)
+
+    with pytest.raises(InvalidState):
+        start_conversion(cmd, repo=repo, queue=queue)
+
+    assert queue.pushed == []
+    assert repo.jobs[1].status == "converting"
+
