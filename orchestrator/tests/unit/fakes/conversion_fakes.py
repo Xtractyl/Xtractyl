@@ -165,9 +165,6 @@ class FakeProjectRepo(ProjectRepositoryInterface):
     def set_groundtruth(self, name, scope):
         raise NotImplementedError("not needed by conversion domain tests yet")
 
-    def set_groundtruth(self, name, scope):
-        raise NotImplementedError("not needed by conversion domain tests yet")
-
     def list_groundtruth_projects(self):
         raise NotImplementedError("not needed by conversion domain tests yet")
 
