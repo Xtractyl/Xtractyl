@@ -164,3 +164,21 @@ class FakeProjectRepo(ProjectRepositoryInterface):
 
     def set_groundtruth(self, name, scope):
         raise NotImplementedError("not needed by conversion domain tests yet")
+
+    def set_groundtruth(self, name, scope):
+        raise NotImplementedError("not needed by conversion domain tests yet")
+
+    def list_groundtruth_projects(self):
+        raise NotImplementedError("not needed by conversion domain tests yet")
+
+    def get_html_hashes_for_project(self, name):
+        raise NotImplementedError("not needed by conversion domain tests yet")
+
+    def get_groundtruth_annotations(self, project):
+        raise NotImplementedError("not needed by conversion domain tests yet")
+
+    def is_groundtruth(self, name):
+        raise NotImplementedError("not needed by conversion domain tests yet")
+
+    def save_groundtruth_annotations(self, project, annotations):
+        raise NotImplementedError("not needed by conversion domain tests yet")
