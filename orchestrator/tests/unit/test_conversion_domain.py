@@ -1,10 +1,28 @@
 # orchestrator/tests/unit/test_conversion_domain.py
 import pytest
-from domain.conversion import prepare_conversion
-from domain.errors import AlreadyExists
-from domain.models.conversion import PrepareConversionCommand
+from db.models import ConversionJob, File
+from domain.conversion import (
+    cancel_conversion,
+    discard_conversion,
+    handle_conversion_callback,
+    prepare_conversion,
+    start_conversion,
+)
+from domain.errors import AlreadyExists, InvalidState, NotFound
+from domain.models.conversion import (
+    CancelConversionCommand,
+    ConversionCallbackCommand,
+    ConvertCommand,
+    DiscardConversionCommand,
+    PrepareConversionCommand,
+)
 
-from tests.unit.fakes.conversion_fakes import FakeConversionRepo, FakeStorage
+from tests.unit.fakes.conversion_fakes import (
+    FakeConversionRepo,
+    FakeProjectRepo,
+    FakeQueue,
+    FakeStorage,
+)
 
 
 def test_prepare_conversion_creates_project_files_and_job():
