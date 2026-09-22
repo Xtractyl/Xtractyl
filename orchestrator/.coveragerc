@@ -1,0 +1,10 @@
+[run]
+source = domain,api,infrastructure
+omit =
+    */tests/*
+    */alembic/*
+
+[report]
+show_missing = True
+# fail_under = 60
+skip_empty = True
