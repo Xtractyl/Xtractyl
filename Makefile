@@ -1,7 +1,7 @@
 .PHONY: deps up down smoke
 
 deps:
-	python -m pip install -r tests/requirements-test.txt
+	python -m pip install -r tests/requirements-test-smoke.txt
 
 up:
 	docker compose up -d \
