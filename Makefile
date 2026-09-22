@@ -28,10 +28,15 @@ unit-orchestrator:
 	docker compose run --rm orchestrator python -m pytest -q tests/unit --cov --cov-config=.coveragerc --cov-report=term-missing
 
 unit-worker_prelabel:
-	docker compose run --rm worker_prelabel python -m pytest -q tests/unit
+	docker compose run --rm worker_prelabel python -m pytest -q tests/unit  --cov --cov-report=term-missing
+
+
+unit-worker_conversion:
+	docker compose run --rm worker_conversion python -m pytest -q tests/unit --cov --cov-report=term-missing
 
 unit-ml_backend:
-	docker compose run --rm ml_backend python -m pytest -q tests/unit
+	docker compose run --rm ml_backend python -m pytest -q tests/unit --cov --cov-report=term-missing
+
 
 unit-frontend:
 	docker compose run --rm frontend sh -c "npm install && npm run test"
