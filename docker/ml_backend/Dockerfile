@@ -4,7 +4,7 @@ WORKDIR /app
 
 # install requirements
 COPY docker/ml_backend/requirements.lock.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt 
 
 # copy app code
 COPY ml_backend/ /app/
