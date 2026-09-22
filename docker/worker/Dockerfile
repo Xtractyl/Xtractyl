@@ -4,8 +4,8 @@ WORKDIR /app
 
 # Install deps
 COPY docker/worker/requirements.lock.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r /app/requirements.txt
-
+RUN pip install --no-cache-dir -r /app/requirements.txt 
+ 
 # Copy worker code
 COPY worker /app/
 
