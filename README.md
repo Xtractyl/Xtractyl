@@ -355,6 +355,52 @@ make unit-worker
 
 **Note:** Unit tests for evaluation metrics (precision, recall, F1, confusion matrix calculations) are planned but not yet implemented. Current unit tests cover API route contracts, request/response validation, error handling (orchestrator), and queue contract validation and job state management (worker).
 
+#### Managing Python dependencies (lock files)
+
+Each Python service (`orchestrator`, `worker`, `ml_backend`, `worker_conversion`)
+has a single dependency file: `docker/<service>/requirements.lock.txt`. It is
+fully pinned (runtime and test dependencies together, including transitive
+dependencies) and is the only file the Dockerfile installs from. There is no
+separate `requirements.txt` or test-requirements file anymore.
+
+**To add or update a package:**
+
+1. Add a new line for the package to `requirements.lock.txt`, without a
+   version pin (e.g. just `pytest-cov`). If you're updating an existing
+   pinned package on purpose, remove its version pin instead of editing the
+   number by hand.
+2. Re-build the container (to copy requirements.lock.txt, backend containers usually
+   currently do not have a bind mount)
+2. Re-resolve and re-freeze it in a container matching the service's base
+   image (see the `FROM` line in `docker/<service>/Dockerfile`), so
+   resolution matches the real build environment:
+   
+   ```bash
+   docker run --rm \
+     -v "$(pwd)/docker/<service>:/app" \
+     -w /app \
+     <base-image-from-Dockerfile> \
+     sh -c "pip install -r requirements.lock.txt -q && pip freeze > requirements.lock.txt"
+   ```
+
+   e.g. for ml_backend:
+
+   ```bash
+   docker run --rm \
+  -v "$(pwd)/docker/ml_backend:/app" \
+  -w /app \
+  mcr.microsoft.com/playwright/python@sha256:0ff30156b1035e3bc24d92f67fb57e86bd1fef126b544f32c699ce1ae9b3b692 \
+  sh -c "pip install -r requirements.lock.txt -q && pip freeze > requirements.lock.txt"
+   ```
+
+3. Check `git diff docker/<service>/requirements.lock.txt` before committing.
+   Only the package(s) you intentionally unpinned — plus any of their new
+   transitive dependencies — should change. If unrelated packages also show
+   version changes, something upstream moved between your last freeze and
+   now; review those changes deliberately rather than committing them
+   silently.
+
+
 #### Frontend unit tests (Vitest)
 
 Test tooling (Vitest, React Testing Library, jsdom) is a `devDependency` in
