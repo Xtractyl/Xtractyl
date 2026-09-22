@@ -1,11 +1,11 @@
-# 🌍 System- und Editor-Dateien
+# System and editor files
 .DS_Store
 *.swp
 *.swo
 *.log
 *.bak
 
-# 🛠 Python
+# Python
 __pycache__/
 *.py[cod]
 *.pyo
@@ -16,55 +16,47 @@ __pycache__/
 venv/
 pip-wheel-metadata/
 
-# 🐳 Docker
-**/screenshots/
-docker/ml_backend/__pycache__/
-docker/orchestrator/__pycache__/
-docker/frontend/node_modules/
-
-# 📂 Data-Verzeichnis (PDFs, HTML, temporäre Dateien)
+# Data directory (PDFs, HTML, temp files)
 data/logs/
 data/tmp/
 
-
-# 🔍 Label Studio
+# Label Studio
 label-studio/frontend/dist/
 label-studio/static/
 
-# 🧪 Test- und Temp-Daten
+# Test and temp data
 *.tmp
 *.temp
 *.old
 *.out
 *.test
 
-# 💻 IDEs & Tools
+# IDEs & Tools
 .vscode/
 .idea/
-*.code-workspace
 
-# 🔐 Sicherungen oder sensible Dateien
+# Secrets and sensitive files
 *.key
 *.pem
 *.crt
 
-# 📦 Node.js
+# Node.js
 node_modules/
 *.eslintcache
 .prettierignore
 .prettierrc
 stylelint.config.js
 
-# 📦 Frontend Output & Lock
+# Frontend build output
 frontend/dist/
 frontend/.vite/
 
-# 📸 Playwright (optional)
+# Playwright
 *.spec.ts
 playwright-report/
 test-results/
 
-#logs
+# Logs
 logs/
 
 #ignore workspaces
