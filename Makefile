@@ -25,7 +25,7 @@ smoke:
 
 # --- Unit tests inside the service containers ---
 unit-orchestrator:
-	docker compose run --rm orchestrator python -m pytest -q tests/unit
+	docker compose run --rm orchestrator python -m pytest -q tests/unit --cov --cov-config=.coveragerc --cov-report=term-missing
 
 unit-worker_prelabel:
 	docker compose run --rm worker_prelabel python -m pytest -q tests/unit
