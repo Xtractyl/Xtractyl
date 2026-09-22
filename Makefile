@@ -39,4 +39,4 @@ unit-ml_backend:
 
 
 unit-frontend:
-	docker compose run --rm frontend sh -c "npm install && npm run test"
+	docker compose run --rm frontend sh -c "npm install && npm run test:coverage"
