@@ -12,9 +12,9 @@ from config import (
     ORCHESTRATOR_CALLBACK_URL,
     WORKER_DOCLING_TIMEOUT_SECONDS,
 )
+from contracts import ConversionJobPayload
 from minio import Minio
 from minio.error import S3Error
-from contracts import ConversionJobPayload
 from utils.logging_utils import dev_logger, safe_logger
 
 
