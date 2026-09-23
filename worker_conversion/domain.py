@@ -14,7 +14,7 @@ from config import (
 )
 from minio import Minio
 from minio.error import S3Error
-from models import ConversionJobPayload
+from contracts import ConversionJobPayload
 from utils.logging_utils import dev_logger, safe_logger
 
 

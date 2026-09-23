@@ -6,7 +6,7 @@ import json
 from config import QUEUE
 from domain import handle_job
 from minio import Minio
-from models import ConversionJobPayload
+from contracts import ConversionJobPayload
 from pydantic import ValidationError
 from redis import Redis
 from utils.logging_utils import dev_logger, safe_logger
