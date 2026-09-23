@@ -1,9 +1,10 @@
 // src/components/PDFUploadAndConversionPage/UploadAndConversionCard.jobStates.test.jsx
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { AppProvider } from "../../context/AppContext.jsx";
 import UploadAndConversionCard from "./UploadAndConversionCard.jsx";
-import { getConversionStatus , discardConversion } from "../../api/PDFUploadAndConversionPage/api.js";
+import { getConversionStatus, discardConversion, cancelConversion } from "../../api/PDFUploadAndConversionPage/api.js";
 
 vi.mock("../../api/PDFUploadAndConversionPage/api.js");
 
@@ -110,4 +111,28 @@ describe("UploadAndConversionCard with an existing job", () => {
     ).toBeInTheDocument();
     expect(discardConversion).toHaveBeenCalledWith("job-000");
   });
+
+  it("calls cancelConversion with the job id when the cancel button is clicked", async () => {
+  localStorage.setItem("conversionJobId", "job-123");
+  getConversionStatus.mockResolvedValue({
+    job_id: "job-123",
+    status: "converting",
+    total_files: 4,
+    converted_files: 1,
+  });
+  cancelConversion.mockResolvedValue({ status: "cancelling" });
+
+  render(
+    <AppProvider>
+      <UploadAndConversionCard />
+    </AppProvider>
+  );
+
+  const cancelButton = await screen.findByRole("button", { name: "Cancel and Delete Project" });
+  await userEvent.click(cancelButton);
+
+  expect(cancelConversion).toHaveBeenCalledWith("job-123");
+  expect(await screen.findByText("⏹️ Cancelling…")).toBeInTheDocument();
+});
+
 });
