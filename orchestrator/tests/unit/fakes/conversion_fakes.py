@@ -12,7 +12,7 @@ class FakeConversionRepo(ConversionRepositoryInterface):
     def __init__(self, existing_projects=None):
         self.projects = {name: Project(name=name) for name in (existing_projects or [])}
         self.files = []
-        self.jobs = {}
+        self.conversion_jobs = {}
         self._next_job_id = 1
         self.committed = False
         self.deleted_projects = []
@@ -29,7 +29,7 @@ class FakeConversionRepo(ConversionRepositoryInterface):
     def create_conversion_job(self, project, total_files):
         job_id = self._next_job_id
         self._next_job_id += 1
-        self.jobs[job_id] = ConversionJob(
+        self.conversion_jobs[job_id] = ConversionJob(
             id=job_id,
             project=project,
             status="pending",
@@ -39,7 +39,7 @@ class FakeConversionRepo(ConversionRepositoryInterface):
         return job_id
 
     def get_conversion_job(self, job_id):
-        return self.jobs.get(job_id)
+        return self.conversion_jobs.get(job_id)
 
     def get_pdf_keys_for_project(self, project):
         return [f.pdf_key for f in self.files if f.project == project]
@@ -47,11 +47,13 @@ class FakeConversionRepo(ConversionRepositoryInterface):
     def delete_project_cascade(self, project):
         self.projects.pop(project, None)
         self.files = [f for f in self.files if f.project != project]
-        self.jobs = {jid: j for jid, j in self.jobs.items() if j.project != project}
+        self.conversion_jobs = {
+            jid: j for jid, j in self.conversion_jobs.items() if j.project != project
+        }
         self.deleted_projects.append(project)
 
     def set_conversion_job_status(self, job_id, status, error=None):
-        job = self.jobs[job_id]
+        job = self.conversion_jobs[job_id]
         job.status = status
         if error is not None:
             job.error = error
@@ -72,7 +74,7 @@ class FakeConversionRepo(ConversionRepositoryInterface):
         self.committed = True
 
     def increment_converted_files(self, job_id):
-        self.jobs[job_id].converted_files += 1
+        self.conversion_jobs[job_id].converted_files += 1
 
 
 class FakeStorage(StorageInterface):
