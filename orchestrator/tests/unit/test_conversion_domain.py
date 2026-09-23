@@ -4,6 +4,7 @@ from db.models import ConversionJob, File
 from domain.conversion import (
     cancel_conversion,
     discard_conversion,
+    get_conversion_status,
     handle_conversion_callback,
     prepare_conversion,
     start_conversion,
@@ -12,6 +13,7 @@ from domain.errors import AlreadyExists, InvalidState, NotFound
 from domain.models.conversion import (
     CancelConversionCommand,
     ConversionCallbackCommand,
+    ConversionStatusCommand,
     ConvertCommand,
     DiscardConversionCommand,
     PrepareConversionCommand,
@@ -35,8 +37,8 @@ def test_prepare_conversion_creates_project_files_and_job():
     assert set(repo.projects.keys()) == {"my-project"}
     assert storage.bucket_ensured is True
     assert [f.filename for f in repo.files] == ["a.pdf", "b.pdf"]
-    assert repo.jobs[1].project == "my-project"
-    assert repo.jobs[1].total_files == 2
+    assert repo.conversion_jobs[1].project == "my-project"
+    assert repo.conversion_jobs[1].total_files == 2
     assert result["job_id"] == 1
     assert result["presigned_urls"] == [
         {
@@ -61,13 +63,13 @@ def test_prepare_conversion_rejects_existing_project():
         prepare_conversion(cmd, storage=storage, repo=repo)
 
     assert repo.files == []
-    assert repo.jobs == {}
+    assert repo.conversion_jobs == {}
 
 
 def test_start_conversion_transitions_pending_job_to_converting_and_queues_it():
     repo = FakeConversionRepo(existing_projects={"my-project"})
     repo.files.append(File(project="my-project", filename="a.pdf", pdf_key="my-project/pdfs/a.pdf"))
-    repo.jobs[1] = ConversionJob(
+    repo.conversion_jobs[1] = ConversionJob(
         id=1, project="my-project", status="pending", total_files=1, converted_files=0
     )
     queue = FakeQueue()
@@ -75,7 +77,7 @@ def test_start_conversion_transitions_pending_job_to_converting_and_queues_it():
 
     result = start_conversion(cmd, repo=repo, queue=queue)
 
-    assert repo.jobs[1].status == "converting"
+    assert repo.conversion_jobs[1].status == "converting"
     assert queue.pushed == [
         {"job_id": 1, "project": "my-project", "pdf_keys": ["my-project/pdfs/a.pdf"]}
     ]
@@ -95,7 +97,7 @@ def test_start_conversion_raises_when_job_not_found():
 
 def test_start_conversion_rejects_job_that_is_not_pending():
     repo = FakeConversionRepo(existing_projects={"my-project"})
-    repo.jobs[1] = ConversionJob(
+    repo.conversion_jobs[1] = ConversionJob(
         id=1, project="my-project", status="converting", total_files=1, converted_files=0
     )
     queue = FakeQueue()
@@ -105,19 +107,19 @@ def test_start_conversion_rejects_job_that_is_not_pending():
         start_conversion(cmd, repo=repo, queue=queue)
 
     assert queue.pushed == []
-    assert repo.jobs[1].status == "converting"
+    assert repo.conversion_jobs[1].status == "converting"
 
 
 def test_cancel_conversion_transitions_converting_job_to_cancelled():
     repo = FakeConversionRepo(existing_projects={"my-project"})
-    repo.jobs[1] = ConversionJob(
+    repo.conversion_jobs[1] = ConversionJob(
         id=1, project="my-project", status="converting", total_files=2, converted_files=1
     )
     cmd = CancelConversionCommand(job_id=1)
 
     result = cancel_conversion(cmd, repo=repo)
 
-    assert repo.jobs[1].status == "cancelled"
+    assert repo.conversion_jobs[1].status == "cancelled"
     assert result == {"job_id": 1, "status": "cancelled"}
 
 
@@ -131,7 +133,7 @@ def test_cancel_conversion_raises_when_job_not_found():
 
 def test_cancel_conversion_rejects_job_that_is_not_converting():
     repo = FakeConversionRepo(existing_projects={"my-project"})
-    repo.jobs[1] = ConversionJob(
+    repo.conversion_jobs[1] = ConversionJob(
         id=1, project="my-project", status="pending", total_files=2, converted_files=0
     )
     cmd = CancelConversionCommand(job_id=1)
@@ -139,13 +141,13 @@ def test_cancel_conversion_rejects_job_that_is_not_converting():
     with pytest.raises(InvalidState):
         cancel_conversion(cmd, repo=repo)
 
-    assert repo.jobs[1].status == "pending"
+    assert repo.conversion_jobs[1].status == "pending"
 
 
 def test_discard_conversion_deletes_project_cascade_and_storage_prefix():
     repo = FakeConversionRepo(existing_projects={"my-project"})
     repo.files.append(File(project="my-project", filename="a.pdf", pdf_key="my-project/pdfs/a.pdf"))
-    repo.jobs[1] = ConversionJob(
+    repo.conversion_jobs[1] = ConversionJob(
         id=1, project="my-project", status="failed", total_files=1, converted_files=0
     )
     storage = FakeStorage()
@@ -155,7 +157,7 @@ def test_discard_conversion_deletes_project_cascade_and_storage_prefix():
 
     assert "my-project" not in repo.projects
     assert repo.files == []
-    assert 1 not in repo.jobs
+    assert 1 not in repo.conversion_jobs
     assert repo.committed is True
     assert storage.deleted_prefixes == ["my-project"]
     assert result == {"status": "discarded"}
@@ -174,7 +176,7 @@ def test_discard_conversion_returns_already_gone_when_job_missing():
 
 def test_discard_conversion_rejects_job_that_is_converting():
     repo = FakeConversionRepo(existing_projects={"my-project"})
-    repo.jobs[1] = ConversionJob(
+    repo.conversion_jobs[1] = ConversionJob(
         id=1, project="my-project", status="converting", total_files=1, converted_files=0
     )
     storage = FakeStorage()
@@ -199,7 +201,7 @@ def test_handle_conversion_callback_raises_when_job_not_found():
 def test_handle_conversion_callback_skips_writes_when_job_already_cancelled():
     repo = FakeConversionRepo(existing_projects={"my-project"})
     repo.files.append(File(project="my-project", filename="a.pdf", pdf_key="my-project/pdfs/a.pdf"))
-    repo.jobs[1] = ConversionJob(
+    repo.conversion_jobs[1] = ConversionJob(
         id=1, project="my-project", status="cancelled", total_files=1, converted_files=0
     )
     project_repo = FakeProjectRepo()
@@ -209,13 +211,13 @@ def test_handle_conversion_callback_skips_writes_when_job_already_cancelled():
 
     assert result == {"status": "ok", "continue": False}
     assert repo.files[0].html_key is None
-    assert repo.jobs[1].converted_files == 0
+    assert repo.conversion_jobs[1].converted_files == 0
 
 
 def test_handle_conversion_callback_records_failure_and_marks_job_failed():
     repo = FakeConversionRepo(existing_projects={"my-project"})
     repo.files.append(File(project="my-project", filename="a.pdf", pdf_key="my-project/pdfs/a.pdf"))
-    repo.jobs[1] = ConversionJob(
+    repo.conversion_jobs[1] = ConversionJob(
         id=1, project="my-project", status="converting", total_files=2, converted_files=0
     )
     project_repo = FakeProjectRepo()
@@ -226,16 +228,16 @@ def test_handle_conversion_callback_records_failure_and_marks_job_failed():
     result = handle_conversion_callback(cmd, repo=repo, project_repo=project_repo)
 
     assert repo.files[0].error == "Docling timed out"
-    assert repo.jobs[1].converted_files == 1
-    assert repo.jobs[1].status == "failed"
-    assert repo.jobs[1].error == "a.pdf: Docling timed out"
+    assert repo.conversion_jobs[1].converted_files == 1
+    assert repo.conversion_jobs[1].status == "failed"
+    assert repo.conversion_jobs[1].error == "a.pdf: Docling timed out"
     assert result == {"status": "ok", "continue": False}
 
 
 def test_handle_conversion_callback_does_not_overwrite_error_when_job_already_failed():
     repo = FakeConversionRepo(existing_projects={"my-project"})
     repo.files.append(File(project="my-project", filename="b.pdf", pdf_key="my-project/pdfs/b.pdf"))
-    repo.jobs[1] = ConversionJob(
+    repo.conversion_jobs[1] = ConversionJob(
         id=1,
         project="my-project",
         status="failed",
@@ -250,13 +252,13 @@ def test_handle_conversion_callback_does_not_overwrite_error_when_job_already_fa
 
     handle_conversion_callback(cmd, repo=repo, project_repo=project_repo)
 
-    assert repo.jobs[1].error == "a.pdf: boom"
+    assert repo.conversion_jobs[1].error == "a.pdf: boom"
 
 
 def test_handle_conversion_callback_continues_when_more_files_remain():
     repo = FakeConversionRepo(existing_projects={"my-project"})
     repo.files.append(File(project="my-project", filename="a.pdf", pdf_key="my-project/pdfs/a.pdf"))
-    repo.jobs[1] = ConversionJob(
+    repo.conversion_jobs[1] = ConversionJob(
         id=1, project="my-project", status="converting", total_files=2, converted_files=0
     )
     project_repo = FakeProjectRepo()
@@ -272,8 +274,8 @@ def test_handle_conversion_callback_continues_when_more_files_remain():
     result = handle_conversion_callback(cmd, repo=repo, project_repo=project_repo)
 
     assert repo.files[0].html_key == "html/a.html"
-    assert repo.jobs[1].converted_files == 1
-    assert repo.jobs[1].status == "converting"
+    assert repo.conversion_jobs[1].converted_files == 1
+    assert repo.conversion_jobs[1].status == "converting"
     assert project_repo.document_set_hashes_set == []
     assert result == {"status": "ok", "continue": True}
 
@@ -281,7 +283,7 @@ def test_handle_conversion_callback_continues_when_more_files_remain():
 def test_handle_conversion_callback_completes_job_and_sets_document_set_hash():
     repo = FakeConversionRepo(existing_projects={"my-project"})
     repo.files.append(File(project="my-project", filename="a.pdf", pdf_key="my-project/pdfs/a.pdf"))
-    repo.jobs[1] = ConversionJob(
+    repo.conversion_jobs[1] = ConversionJob(
         id=1, project="my-project", status="converting", total_files=1, converted_files=0
     )
     project_repo = FakeProjectRepo()
@@ -291,7 +293,7 @@ def test_handle_conversion_callback_completes_job_and_sets_document_set_hash():
 
     result = handle_conversion_callback(cmd, repo=repo, project_repo=project_repo)
 
-    assert repo.jobs[1].status == "done"
+    assert repo.conversion_jobs[1].status == "done"
     assert project_repo.document_set_hashes_set == ["my-project"]
     assert result == {"status": "ok", "continue": False}
 
@@ -299,7 +301,7 @@ def test_handle_conversion_callback_completes_job_and_sets_document_set_hash():
 def test_handle_conversion_callback_stops_when_status_flipped_to_cancelled_mid_flight():
     repo = FakeConversionRepo(existing_projects={"my-project"})
     repo.files.append(File(project="my-project", filename="a.pdf", pdf_key="my-project/pdfs/a.pdf"))
-    repo.jobs[1] = ConversionJob(
+    repo.conversion_jobs[1] = ConversionJob(
         id=1, project="my-project", status="converting", total_files=2, converted_files=0
     )
     project_repo = FakeProjectRepo()
@@ -311,7 +313,7 @@ def test_handle_conversion_callback_stops_when_status_flipped_to_cancelled_mid_f
 
     def increment_then_cancel(job_id):
         original_increment(job_id)
-        repo.jobs[job_id].status = "cancelled"
+        repo.conversion_jobs[job_id].status = "cancelled"
 
     repo.increment_converted_files = increment_then_cancel
 
@@ -319,3 +321,34 @@ def test_handle_conversion_callback_stops_when_status_flipped_to_cancelled_mid_f
 
     assert result == {"status": "ok", "continue": False}
     assert project_repo.document_set_hashes_set == []
+
+
+def test_get_conversion_status_returns_job_details():
+    repo = FakeConversionRepo(existing_projects={"my-project"})
+    repo.conversion_jobs[1] = ConversionJob(
+        id=1,
+        project="my-project",
+        status="converting",
+        total_files=3,
+        converted_files=1,
+        error=None,
+    )
+    cmd = ConversionStatusCommand(job_id=1)
+
+    result = get_conversion_status(cmd, repo=repo)
+
+    assert result == {
+        "job_id": 1,
+        "status": "converting",
+        "total_files": 3,
+        "converted_files": 1,
+        "error": None,
+    }
+
+
+def test_get_conversion_status_raises_when_job_not_found():
+    repo = FakeConversionRepo()
+    cmd = ConversionStatusCommand(job_id=999)
+
+    with pytest.raises(NotFound):
+        get_conversion_status(cmd, repo=repo)
