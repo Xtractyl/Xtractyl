@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/playwright/python@sha256:6679b332bf4d772a9bf2bb3d7715f8e35bff5808c9d06e2599c767f828f8e3f1
+FROM mcr.microsoft.com/playwright/python@sha256:47a65aee64780daa8bad02b37e0ef14902851a3aa7ad0153234f784eb12422b0
 
 WORKDIR /app
 
