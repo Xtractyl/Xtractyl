@@ -6,16 +6,30 @@ import json
 from config import QUEUE
 from contracts import ConversionJobPayload
 from domain import handle_job
-from minio import Minio
+from infrastructure.interfaces.callback import CallbackClientInterface
+from infrastructure.interfaces.docling import DoclingClientInterface
+from infrastructure.interfaces.storage import ConversionStorageInterface
 from pydantic import ValidationError
 from redis import Redis
+from redis.exceptions import RedisError
 from utils.logging_utils import dev_logger, safe_logger
 
 
-def run(redis_conn: Redis, minio_client: Minio) -> None:
+def run(
+    redis_conn: Redis,
+    storage: ConversionStorageInterface,
+    docling: DoclingClientInterface,
+    callback: CallbackClientInterface,
+) -> None:
     safe_logger.info("worker_conversion_starting")
     while True:
-        item = redis_conn.blpop(QUEUE, timeout=5)
+        try:
+            item = redis_conn.blpop(QUEUE, timeout=5)
+        except RedisError as e:
+            safe_logger.error("redis_connection_error | error=%s", str(e))
+            if dev_logger:
+                dev_logger.exception("redis_connection_error_dev | error=%s", str(e))
+            continue
         if not item:
             continue
         _, raw = item
@@ -27,7 +41,7 @@ def run(redis_conn: Redis, minio_client: Minio) -> None:
                 dev_logger.exception("invalid_conversion_payload_dev | error=%s", str(e))
             continue
         try:
-            handle_job(job, minio_client)
+            handle_job(job, storage, docling, callback)
         except Exception as e:
             safe_logger.error(
                 "conversion_job_crashed | job_id=%s", getattr(job, "job_id", "unknown")
