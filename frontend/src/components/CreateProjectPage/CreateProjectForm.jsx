@@ -45,7 +45,6 @@ export default function CreateProjectForm({ onSubmit }) {
     const lines = [...questionLines];
     lines[index] = value;
 
-    // Wenn letzte Zeile & nicht leer → neue leere Zeile anhängen
     if (index === lines.length - 1 && value.trim() !== "") {
       lines.push("");
     }
