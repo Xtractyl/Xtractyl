@@ -10,8 +10,6 @@ export default function UploadAndConversionCard() {
 
   const { jobId, jobStatus, serverMsg, submitBusy, handleSubmit, handleCancel } = useJobManager(projectName, files);
 
-  const handleFileChange = (e) => setFiles([...e.target.files]);
-
   return (
     <div className="p-6 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
       <h1 className="text-2xl font-semibold mb-4">Upload and Convert Docs</h1>
@@ -33,7 +31,7 @@ export default function UploadAndConversionCard() {
             type="text"
             value={projectName}
             onChange={(e) => saveProjectName(e.target.value.trim())}
-            placeholder="e.g. oncology-july"
+            placeholder="e.g. 2026-03-18_oncology"
             required
             className="w-full p-2 border rounded"
           />
@@ -47,7 +45,7 @@ export default function UploadAndConversionCard() {
             type="file"
             accept="application/pdf"
             multiple
-            onChange={handleFileChange}
+            onChange={(e) => setFiles([...e.target.files])}
             required
             className="w-full p-2 border rounded"
           />
