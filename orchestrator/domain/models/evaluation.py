@@ -1,6 +1,6 @@
 # orchestrator/domain/models/evaluation.py
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, ValidationError
 
 from domain.errors import ValidationFailed
 
