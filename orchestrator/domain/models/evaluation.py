@@ -5,27 +5,6 @@ from pydantic import BaseModel, Field, ValidationError
 from domain.errors import ValidationFailed
 
 
-class ProjectNameCommand(BaseModel):
-    """Shared by Comparison, Regression and Drift — all three now accept
-    ANY project with a resolvable evaluation family, not specifically the
-    groundtruth project's own name. Each view derives its filter criteria
-    directly from the picked project's own attributes (see
-    get_comparison_view, get_regression_view, get_drift_view)."""
-
-    project_name: str = Field(..., min_length=1)
-
-    @classmethod
-    def from_contract(cls, project_name: str) -> "ProjectNameCommand":
-        try:
-            return cls(project_name=project_name)
-        except ValidationError as e:
-            raise ValidationFailed(
-                code="INVALID_COMMAND",
-                message="Invalid command payload.",
-                details=e.errors(),
-            )
-
-
 class EvaluateProjectsCommand(BaseModel):
     token: str
     groundtruth_project: str
