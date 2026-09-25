@@ -8,6 +8,56 @@ export default function useJobManager(projectName, files) {
   const [serverMsg, setServerMsg] = useState("");
   const [jobStatus, setJobStatus] = useState(null);
 
+ // Submit PDFs
+    const handleSubmit = useCallback(async () => {
+    setServerMsg("");
+    if (!projectName || files.length === 0) return;
+    setSubmitBusy(true);
+    let job_id;
+    try {
+      // 1. Prepare: get presigned URLs
+      const filenames = files.map((f) => f.name);
+      const prep = await prepareConversion(projectName, filenames);
+      job_id = prep.job_id;
+      const presigned_urls = prep.presigned_urls;
+
+      setJobId(job_id);
+      localStorage.setItem("conversionJobId", job_id);
+// 2. Upload each file directly to MinIO. AbortController so that a partial
+     // failure actually cancels the remaining in-flight uploads, instead of letting
+     // them keep running in the background and racing against the discard/MinIO
+     // cleanup (orphaned objects with no matching DB row).
+      const controller = new AbortController();
+      await Promise.all(
+        presigned_urls.map(({ upload_url, filename }) => {
+          const file = files.find((f) => f.name === filename);
+          return uploadToMinio(upload_url, file, controller.signal);
+        })
+      ).catch((err) => {
+        controller.abort();
+        throw err;
+      });
+
+      // 3. Trigger conversion
+      await startConversion(job_id);
+
+      setServerMsg("✅ Upload complete, conversion started.");
+    } catch (err) {
+      if (job_id) {
+        try {
+          await discardConversion(job_id);
+        } catch {
+          /* best effort, ignore */
+        }
+        localStorage.removeItem("conversionJobId");
+        setJobId(null);
+      }
+      setServerMsg(`❌ ${err.message || "Couldn't start conversion."}`);
+    } finally {
+      setSubmitBusy(false);
+    }
+  }, [files, projectName]);
+
 
   // Poll job status
   useEffect(() => {
@@ -64,57 +114,8 @@ export default function useJobManager(projectName, files) {
     };
   }, [jobId]);
 
-  // Submit PDFs
-    const handleSubmit = useCallback(async () => {
-    setServerMsg("");
-    if (!projectName || files.length === 0) return;
-    setSubmitBusy(true);
-    let job_id;
-    try {
-      // 1. Prepare: get presigned URLs
-      const filenames = files.map((f) => f.name);
-      const prep = await prepareConversion(projectName, filenames);
-      job_id = prep.job_id;
-      const presigned_urls = prep.presigned_urls;
 
-      setJobId(job_id);
-      localStorage.setItem("conversionJobId", job_id);
-// 2. Upload each file directly to MinIO. AbortController so that a partial
-     // failure actually cancels the remaining in-flight uploads, instead of letting
-     // them keep running in the background and racing against the discard/MinIO
-     // cleanup (orphaned objects with no matching DB row).
-      const controller = new AbortController();
-      await Promise.all(
-        presigned_urls.map(({ upload_url, filename }) => {
-          const file = files.find((f) => f.name === filename);
-          return uploadToMinio(upload_url, file, controller.signal);
-        })
-      ).catch((err) => {
-        controller.abort();
-        throw err;
-      });
-
-      // 3. Trigger conversion
-      await startConversion(job_id);
-
-      setServerMsg("✅ Upload complete, conversion started.");
-    } catch (err) {
-      if (job_id) {
-        try {
-          await discardConversion(job_id);
-        } catch {
-          /* best effort, ignore */
-        }
-        localStorage.removeItem("conversionJobId");
-        setJobId(null);
-      }
-      setServerMsg(`❌ ${err.message || "Couldn't start conversion."}`);
-    } finally {
-      setSubmitBusy(false);
-    }
-  }, [files, projectName]);
-
-  // Cancel the currently running job
+   // Cancel the currently running job
   const handleCancel = useCallback(async () => {
     if (!jobId) return;
     try {
