@@ -180,9 +180,6 @@ class EvaluationRepositoryInterface(ABC):
     ) -> int: ...
 
     @abstractmethod
-    def get_evaluations_by_groundtruth_project(self, groundtruth_project: str) -> list: ...
-
-    @abstractmethod
     def find_evaluation(self, groundtruth_project: str, run_id: int): ...
 
     @abstractmethod
