@@ -12,7 +12,7 @@
     @apply bg-xtractyl-offwhite border border-xtractyl-outline rounded-2xl p-6 shadow-md;
   }
   
-  /* Überschrift im Dino-Stil */
+  /* Heading */
   .heading-dino {
     @apply font-bold text-2xl text-xtractyl-green;
   }
