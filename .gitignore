@@ -15,6 +15,8 @@ __pycache__/
 .venv/
 venv/
 pip-wheel-metadata/
+.vulture_cache
+.deptry_report.json
 
 # Data directory (PDFs, HTML, temp files)
 data/logs/

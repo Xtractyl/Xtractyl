@@ -37,14 +37,6 @@ class EvaluationRepository(EvaluationRepositoryInterface):
         self._db.refresh(evaluation)
         return evaluation.id
 
-    def get_evaluations_by_groundtruth_project(self, groundtruth_project: str) -> list:
-        return (
-            self._db.query(Evaluation)
-            .filter(Evaluation.groundtruth_project == groundtruth_project)
-            .order_by(Evaluation.run_at)
-            .all()
-        )
-
     def find_internal_evaluations_by_labels_and_document_set(
         self, labels_hash: str, document_set_hash: str
     ) -> list:

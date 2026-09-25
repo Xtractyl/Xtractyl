@@ -461,8 +461,8 @@ a failed discard call here is caught and ignored client-side (see the following 
 
 **Resolved finding:** previously, `set_label_studio_id`/`save_questions_and_labels` were silent no-ops if the `projects` row didn't exist — meaning a real Label Studio project (with ML backend attached) could be created while Xtractyl's own DB recorded nothing, with the API still reporting success. Fixed by the `project_exists` check above (step 1 in the ordered check list) — the frontend also now only lets the project name be chosen from a dropdown of projects that actually exist and don't have a `label_studio_id` yet (`ConvertedProjectSelect`), rather than free text.
 
-**Synchronous compensating deletion of the Label Studio project on failure:** if
-`attach_ml_backend`, `set_label_studio_id`, or `save_questions_and_labels` fails *after* the Label
+**Synchronous compensating deletion of the Label Studio project on failure:** if `attach_ml_backend`, 
+`set_label_studio_id`, or `save_questions_and_labels` fails *after* the Label
 Studio project was already created, `label_studio.delete_project(project_id, token)` is called
 before returning an `ExternalServiceError` to the user (with a retry hint) — the DB transaction
 itself rolls back on its own (nothing above was committed), but the Label Studio project needed
@@ -470,11 +470,13 @@ this explicit compensating call since it lives outside that transaction. If the 
 deletion itself fails, it's swallowed (the user-facing error is unaffected either way) and the
 periodic Label Studio orphan sweep (see the Insert after `conversion_jobs` in the Schema Reference)
 is the fallback net.
+
+
 ---
 
 ## Upload Tasks Pipeline
 
-### `upload_tasks_main_from_payload` (`POST /upload_tasks`)
+`upload_tasks_main_from_payload` (`POST /upload_tasks`)
  - Reads `projects.label_studio_id` (must already be set — see Create Project Pipeline above); raises `PROJECT_NOT_FOUND` if unset
  - Raises `TASKS_ALREADY_UPLOADED` if `projects.ls_tasks_uploaded` is already `true` — prevents duplicate task uploads to Label Studio on a repeated call
  - Reads all `files.html_key` for the project (only files that already have a non-null `html_key`, i.e. successfully converted ones); raises `NO_HTML_FILES` if none exist
