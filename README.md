@@ -596,8 +596,33 @@ Planned next.
 
 ## 🧹 Code quality (integrated into CI)
 
+
+### Installation
+
+1. Install NVM and Python on your system
+
+e.g. curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+
+
+2. Install Ruff for Python linting (local installation in system root outside docker)
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install ruff
+```
+
+3. Install Node for JS linting (reads frontend/.nvmrc for the correct version)
+```bash
+cd frontend
+nvm install
+nvm use
+```
+
+### Usage
+
 ### python from repository root
 ```bash
+source .venv/bin/activate
 ruff format .
 ruff check .
 ruff check . --fix
@@ -605,8 +630,11 @@ ruff check . --fix
 ### js for frontend from frontend folder
 ```bash
 cd frontend
+nvm use
 npx eslint .
 ```
+
+
 ### Tests (see also "3. Testing" above for tests integrated into CI)
 
 ## Smoke tests
