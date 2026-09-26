@@ -1,4 +1,4 @@
->❗❗This lifecycle has not been perfectly aligned with the current state since the last e2e review, but will be as part of the now (12/9/2026) started new e2e review) ❗❗
+> This lifecycle has not been perfectly aligned with the current state since the last e2e review, but will be as part of the now (12/9/2026) started new e2e review)  
 
 
 
@@ -106,7 +106,7 @@
   - **Set:** automatically by Postgres at creation
   - **Changed:** `updated_at` automatically on any change to the row — this is specifically what the stale-job cleanup fallback (Conversion Pipeline, step 3b) uses to distinguish "still making progress" (bumped alongside every `converted_files` increment) from "genuinely stuck"
 
-**⚠️ Insert — Row deletion affecting `projects`, `files`, `conversion_jobs`**
+**Insert — Row deletion affecting `projects`, `files`, `conversion_jobs`**
 
 These three tables are the only ones whose rows can be deleted outright rather than just updated —
 always together, never individually, and always before a `label_studio_id` exists (i.e. before
