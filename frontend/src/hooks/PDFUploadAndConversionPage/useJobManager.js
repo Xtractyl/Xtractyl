@@ -4,6 +4,16 @@ import { prepareConversion, discardConversion, cancelConversion, uploadToMinio, 
 
 export default function useJobManager(projectName, files) {
   const [jobId, setJobId] = useState(() => localStorage.getItem("conversionJobId"));
+
+  const persistJobId = (id) => {
+    setJobId(id);
+    if (id) {
+      localStorage.setItem("conversionJobId", id);
+    } else {
+      localStorage.removeItem("conversionJobId");
+    }
+  };
+
   const [submitBusy, setSubmitBusy] = useState(false);
   const [serverMsg, setServerMsg] = useState("");
   const [jobStatus, setJobStatus] = useState(null);
@@ -21,8 +31,7 @@ export default function useJobManager(projectName, files) {
       job_id = prep.job_id;
       const presigned_urls = prep.presigned_urls;
 
-      setJobId(job_id);
-      localStorage.setItem("conversionJobId", job_id);
+      persistJobId(job_id);
 // 2. Upload each file directly to MinIO. AbortController so that a partial
      // failure actually cancels the remaining in-flight uploads, instead of letting
      // them keep running in the background and racing against the discard/MinIO
@@ -49,8 +58,7 @@ export default function useJobManager(projectName, files) {
         } catch {
           /* best effort, ignore */
         }
-        localStorage.removeItem("conversionJobId");
-        setJobId(null);
+        persistJobId(null);
       }
       setServerMsg(`❌ ${err.message || "Couldn't start conversion."}`);
     } finally {
@@ -77,8 +85,7 @@ export default function useJobManager(projectName, files) {
         setJobStatus(s);
 
         if (["done", "failed", "cancelled"].includes(s.status)) {
-          localStorage.removeItem("conversionJobId");
-          setJobId(null);
+          persistJobId(null);
           setServerMsg(
             s.status === "done"
               ? "✅ Conversion complete."
@@ -97,8 +104,7 @@ export default function useJobManager(projectName, files) {
         schedule();
       } catch (e) {
         if (e.status === 404) {
-          localStorage.removeItem("conversionJobId");
-          setJobId(null);
+          persistJobId(null);
           setJobStatus(null);
           return;
         }
