@@ -527,7 +527,6 @@ Planned next.
 
 ### Get Results 
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-
 ![Get results](assets/results.png)
 
 
