@@ -94,11 +94,22 @@ export default function CreateProjectCard() {
               <div key={set.name} className="bg-xtractyl-white p-4 rounded max-h-96 overflow-auto">
                 <h3 className="font-semibold mb-2">{set.name}</h3>
                 <p className="text-xs text-xtractyl-outline/70 mb-2">
-                  Copy relevant questions and labels into your own project configuration.
+                  Click next to a column and drag to select all questions or all labels, then copy.
                 </p>
-                <pre className="text-xs whitespace-pre-wrap break-words">
-                  {JSON.stringify(set.qal, null, 2)}
-                </pre>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-xs font-medium mb-1 text-xtractyl-outline/70">Questions</div>
+                    <pre className="text-xs whitespace-pre-wrap break-words">
+                      {(set.qal.questions || []).join("\n")}
+                    </pre>
+                  </div>
+                  <div>
+                    <div className="text-xs font-medium mb-1 text-xtractyl-outline/70">Labels</div>
+                    <pre className="text-xs whitespace-pre-wrap break-words">
+                      {(set.qal.labels || []).join("\n")}
+                    </pre>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
