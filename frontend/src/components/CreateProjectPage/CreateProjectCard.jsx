@@ -54,11 +54,9 @@ export default function CreateProjectCard() {
       <p className="text-xtractyl-outline/70 mb-6">
         Enter API token, choose a project name, enter your questions as well as labels for them.
       </p>
-
-      {/* TokenInput sagt nur nach oben Bescheid */}
+      
       <TokenInput />
 
-      {/* Formular nur, wenn App schon einen Token kennt */}
       {token && (
         <div>
           <CreateProjectForm onSubmit={handleFormSubmit} />
