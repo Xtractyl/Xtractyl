@@ -17,10 +17,11 @@ export default function ConvertedProjectSelect({ selected, onChange }) {
 
   return (
     <div>
-      <label className="block font-medium mb-1">
+      <label htmlFor="select-project" className="block text-sm font-medium mb-2">
         Select converted project (not yet created in Label Studio)
       </label>
       <select
+        id="select-project"
         value={selected}
         onChange={(e) => onChange(e.target.value)}
         required

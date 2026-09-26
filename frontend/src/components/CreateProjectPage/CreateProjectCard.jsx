@@ -66,13 +66,6 @@ export default function CreateProjectCard() {
 
           {/* Groundtruth helper section */}
       <div className="mt-4 border rounded p-3 bg-xtractyl-offwhite">
-        <h2 className="text-xtractyl-outline/70ase font-medium mb-1 text-xtractyl-outline">
-          Use questions & labels from ground truth projects set up for time series
-        </h2>
-        <p className="text-xs  text-xtractyl-outline/60 mb-1">
-          Click the button to show the questions and labels for ground truth sets set up for time series
-        </p>
-
         <button
           type="button"
           onClick={handleLoadGroundtruth}
@@ -81,7 +74,7 @@ export default function CreateProjectCard() {
         >
           {groundtruthLoading
             ? "Loading ground truth…"
-            : "Show ground truth questions & labels"}
+            : "Show questions & labels of existing ground truth sets"}
         </button>
 
         {groundtruthError && (
@@ -94,7 +87,7 @@ export default function CreateProjectCard() {
               <div key={set.name} className="bg-xtractyl-white p-4 rounded max-h-96 overflow-auto">
                 <h3 className="font-semibold mb-2">{set.name}</h3>
                 <p className="text-xs text-xtractyl-outline/70 mb-2">
-                  Click next to a column and drag to select all questions or all labels, then copy.
+                  You can click next to a column and drag to select all questions or all labels (ctrl+c to copy)
                 </p>
                 <div className="grid grid-cols-2 gap-4">
                   <div>

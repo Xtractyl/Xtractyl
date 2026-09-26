@@ -63,6 +63,11 @@ export default function QuestionsLabelsTable({ questions, labels, setQuestions, 
   };
 
   return (
+    <div>
+                <p className="text-xs text-xtractyl-outline/70 mb-2">
+                  You can click into the question/label field and paste all 
+                  questions/labels from a existing ground truth set (ctrl+v to paste)
+                </p>
     <div className="mt-4 border border-xtractyl-outline/30 rounded-md overflow-hidden">
       {/* Header */}
       <div className="grid grid-cols-[3rem,1fr,1fr] bg-xtractyl-offwhite text-xs font-semibold px-3 py-2 border-b border-xtractyl-outline/30">
@@ -70,6 +75,7 @@ export default function QuestionsLabelsTable({ questions, labels, setQuestions, 
         <div className="border-l border-xtractyl-outline/30 border-r pl-2 pr-2">Question</div>
         <div>Label</div>
       </div>
+    </div>
 
       {/* Rows */}
       <div className="divide-y divide-xtractyl-outline/20">
