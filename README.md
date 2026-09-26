@@ -371,7 +371,7 @@ separate `requirements.txt` or test-requirements file anymore.
    number by hand.
 2. Re-build the container (to copy requirements.lock.txt, backend containers usually
    currently do not have a bind mount)
-2. Re-resolve and re-freeze it in a container matching the service's base
+3. Re-resolve and re-freeze it in a container matching the service's base
    image (see the `FROM` line in `docker/<service>/Dockerfile`), so
    resolution matches the real build environment:
    
@@ -386,14 +386,14 @@ separate `requirements.txt` or test-requirements file anymore.
    e.g. for ml_backend:
 
    ```bash
-   docker run --rm \
-  -v "$(pwd)/docker/ml_backend:/app" \
-  -w /app \
-  mcr.microsoft.com/playwright/python@sha256:0ff30156b1035e3bc24d92f67fb57e86bd1fef126b544f32c699ce1ae9b3b692 \
-  sh -c "pip install -r requirements.lock.txt -q && pip freeze > requirements.lock.txt"
-   ```
+      docker run --rm \
+   -v "$(pwd)/docker/ml_backend:/app" \
+   -w /app \
+   mcr.microsoft.com/playwright/python@sha256:0ff30156b1035e3bc24d92f67fb57e86bd1fef126b544f32c699ce1ae9b3b692 \
+   sh -c "pip install -r requirements.lock.txt -q && pip freeze > requirements.lock.txt"
+      ```
 
-3. Check `git diff docker/<service>/requirements.lock.txt` before committing.
+4. Check `git diff docker/<service>/requirements.lock.txt` before committing.
    Only the package(s) you intentionally unpinned — plus any of their new
    transitive dependencies — should change. If unrelated packages also show
    version changes, something upstream moved between your last freeze and
@@ -505,13 +505,15 @@ Planned next.
 ### Review AI 
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 ![Review AI Page](assets/review_0.png)
+
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 ![Review AI 1](assets/review_1.png)
+
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 ![Review AI 2](assets/review_2.png)
+
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 ![Review AI 3](assets/review_3.png)
-> THE ABOVE IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 
 
 7. **Results Page** 
@@ -528,7 +530,7 @@ Planned next.
 
 ![Get results](assets/results.png)
 
-> THE ABOVE IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
+
 
 
 
@@ -545,23 +547,16 @@ Planned next.
 
 ### Evaluate the AI 
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-
 ![Evaluate AI 1](assets/evaluation_0.png)
 
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-
 ![Evaluate AI 2](assets/evaluation_1.png)
 
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-
 ![Evaluate AI 3](assets/evaluation_2.png)
 
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-
 ![Evaluate AI 4](assets/evaluation_3.png)
-
-> THE ABOVE IMAGES SHOW SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-
 
 
 9. **Monitor Evaluation Drift/Regression over Time for a Standard Set** (`/evaluationdrift`)  
@@ -573,15 +568,10 @@ Planned next.
 
 ### Evaluation Drift 
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-
 ![Evaluation Drift 1](assets/evaluation_drift_0.png)
 
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-
 ![Evaluation Drift 2](assets/evaluation_drift_1.png)
-
-> THE ABOVE IMAGES SHOW SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-
 
 
 ### Coming Soon
