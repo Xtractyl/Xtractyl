@@ -37,7 +37,7 @@ export default function AboutPage() {
                   <div className="text-sm  text-xtractyl-outline/70">www.xtractyl.com</div>
                 </div>
               </div>
-              <span className=" text-xtractyl-outline/70 group-hover:translate-x-0.5 transition">↗</span>
+              <span className=" text-xtractyl-outline/70 group-hover:translate-x-0.5 transition"></span>
             </a>
 
             <a
@@ -53,7 +53,7 @@ export default function AboutPage() {
                   <div className="text-sm  text-xtractyl-outline/70">github.com/Xtractyl/Xtractyl</div>
                 </div>
               </div>
-              <span className=" text-xtractyl-outline/70 group-hover:translate-x-0.5 transition">↗</span>
+              <span className=" text-xtractyl-outline/70 group-hover:translate-x-0.5 transition"></span>
             </a>
 
             <a
@@ -69,7 +69,7 @@ export default function AboutPage() {
                   <div className="text-sm  text-xtractyl-outline/70">Non-commercial license terms</div>
                 </div>
               </div>
-              <span className=" text-xtractyl-outline/70 group-hover:translate-x-0.5 transition">↗</span>
+              <span className=" text-xtractyl-outline/70 group-hover:translate-x-0.5 transition"></span>
             </a>
           </div>
         </div>
