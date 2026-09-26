@@ -85,7 +85,7 @@ describe("UploadAndConversionCard with an existing job", () => {
     );
 
     expect(
-      await screen.findByText("❌ Conversion failed. Docling timed out")
+      await screen.findByText("Conversion failed. Docling timed out")
     ).toBeInTheDocument();
     expect(discardConversion).toHaveBeenCalledWith("job-999");
   });
@@ -107,7 +107,7 @@ describe("UploadAndConversionCard with an existing job", () => {
     );
 
     expect(
-      await screen.findByText("⏹️ Conversion cancelled.")
+      await screen.findByText("Conversion cancelled.")
     ).toBeInTheDocument();
     expect(discardConversion).toHaveBeenCalledWith("job-000");
   });
@@ -132,7 +132,7 @@ describe("UploadAndConversionCard with an existing job", () => {
   await userEvent.click(cancelButton);
 
   expect(cancelConversion).toHaveBeenCalledWith("job-123");
-  expect(await screen.findByText("⏹️ Cancelling…")).toBeInTheDocument();
+  expect(await screen.findByText("Cancelling…")).toBeInTheDocument();
 });
 
 });

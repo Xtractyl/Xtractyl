@@ -67,7 +67,7 @@ export default function GetResultsCard() {
 
         {err ? (
        <div className="p-3 border border-xtractyl-orange/30 bg-xtractyl-offwhite text-xtractyl-darktext rounded-md">
-        ❌ {err}
+        {err}
       </div>
         ) : null}
 

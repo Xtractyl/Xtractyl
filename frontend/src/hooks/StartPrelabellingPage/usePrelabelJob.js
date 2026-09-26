@@ -14,9 +14,9 @@ function prelabelReducer(state, action) {
     case "START_BUSY":
       return { ...state, busy: true, statusMsg: "" };
     case "JOB_STARTED":
-      return { ...state, busy: false, statusMsg: "✅ Prelabeling started." };
+      return { ...state, busy: false, statusMsg: "Prelabeling started." };
     case "JOB_START_FAILED":
-      return { ...state, busy: false, statusMsg: `❌ ${action.payload}` };
+      return { ...state, busy: false, statusMsg: `${action.payload}` };
     case "STATUS_UPDATED":
       return { ...state, preStatus: action.payload };
     case "CANCEL_MSG":
@@ -24,7 +24,7 @@ function prelabelReducer(state, action) {
     case "JOB_FINISHED":
       return { ...state, preStatus: null, statusMsg: action.payload ?? "" };
     case "ERROR":
-      return { ...state, statusMsg: `❌ ${action.payload}` };
+      return { ...state, statusMsg: `${action.payload}` };
     default:
       return state;
   }
@@ -53,14 +53,14 @@ export function usePrelabelJob() {
       const s = await getPrelabelStatus(preJobId);
       const st = String(s?.state || "").toUpperCase();
       const messages = {
-        CANCEL_REQUESTED: "🛑 Cancel requested.",
-        CANCELLED: "🛑 Cancelled.",
-        SUCCEEDED: "ℹ️ Already finished.",
-        DONE: "ℹ️ Already finished.",
-        FAILED: "⚠️ Job failed.",
-        ERROR: "⚠️ Job failed.",
+        CANCEL_REQUESTED: "Cancel requested.",
+        CANCELLED: "Cancelled.",
+        SUCCEEDED: "Already finished.",
+        DONE: "Already finished.",
+        FAILED: "Job failed.",
+        ERROR: "Job failed.",
       };
-      dispatch({ type: "CANCEL_MSG", payload: messages[st] ?? `ℹ️ State: ${st || "unknown"}` });
+      dispatch({ type: "CANCEL_MSG", payload: messages[st] ?? `State: ${st || "unknown"}` });
     } catch (e) {
       dispatch({ type: "ERROR", payload: e?.message || "Cancel failed." });
     }
@@ -88,7 +88,7 @@ export function usePrelabelJob() {
         }
         if (st === "cancel_requested" && pct >= 100) {
           setPreJobId("");
-          dispatch({ type: "JOB_FINISHED", payload: "✅ Job finished (cancel request acknowledged)." });
+          dispatch({ type: "JOB_FINISHED", payload: "Job finished (cancel request acknowledged)." });
           return;
         }
         schedule();

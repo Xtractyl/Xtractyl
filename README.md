@@ -503,15 +503,15 @@ Planned next.
 
 
 ### Review AI 
->❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+> THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 ![Review AI Page](assets/review_0.png)
->❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+> THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 ![Review AI 1](assets/review_1.png)
->❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+> THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 ![Review AI 2](assets/review_2.png)
->❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+> THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 ![Review AI 3](assets/review_3.png)
->❗❗THE ABOVE IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+> THE ABOVE IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 
 
 7. **Results Page** 
@@ -524,11 +524,11 @@ Planned next.
 
 
 ### Get Results 
->❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+> THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 
 ![Get results](assets/results.png)
 
->❗❗THE ABOVE IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+> THE ABOVE IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 
 
 
@@ -544,23 +544,23 @@ Planned next.
 
 
 ### Evaluate the AI 
->❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+> THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 
 ![Evaluate AI 1](assets/evaluation_0.png)
 
->❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+> THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 
 ![Evaluate AI 2](assets/evaluation_1.png)
 
->❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+> THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 
 ![Evaluate AI 3](assets/evaluation_2.png)
 
->❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+> THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 
 ![Evaluate AI 4](assets/evaluation_3.png)
 
->❗❗THE ABOVE IMAGES SHOW SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+> THE ABOVE IMAGES SHOW SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 
 
 
@@ -572,15 +572,15 @@ Planned next.
    - View Recall and Precision for Regression Monitoring for sets with same System Prompt, same Questions and same Labels
 
 ### Evaluation Drift 
->❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+> THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 
 ![Evaluation Drift 1](assets/evaluation_drift_0.png)
 
->❗❗THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+> THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 
 ![Evaluation Drift 2](assets/evaluation_drift_1.png)
 
->❗❗THE ABOVE IMAGES SHOW SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE❗❗
+> THE ABOVE IMAGES SHOW SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 
 
 
@@ -596,8 +596,33 @@ Planned next.
 
 ## 🧹 Code quality (integrated into CI)
 
+
+### Installation
+
+1. Install NVM and Python on your system
+
+e.g. curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+
+
+2. Install Ruff for Python linting (local installation in system root outside docker)
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install ruff
+```
+
+3. Install Node for JS linting (reads frontend/.nvmrc for the correct version)
+```bash
+cd frontend
+nvm install
+nvm use
+```
+
+### Usage
+
 ### python from repository root
 ```bash
+source .venv/bin/activate
 ruff format .
 ruff check .
 ruff check . --fix
@@ -605,8 +630,11 @@ ruff check . --fix
 ### js for frontend from frontend folder
 ```bash
 cd frontend
+nvm use
 npx eslint .
 ```
+
+
 ### Tests (see also "3. Testing" above for tests integrated into CI)
 
 ## Smoke tests

@@ -15,7 +15,7 @@ export default [
   sourceType: "module",
   parserOptions: {
     ecmaFeatures: {
-      jsx: true,  // ← das fehlt!
+      jsx: true,  
     },
   },
   globals: {

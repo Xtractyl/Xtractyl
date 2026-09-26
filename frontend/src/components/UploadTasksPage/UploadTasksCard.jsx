@@ -15,7 +15,7 @@ export default function UploadTasksCard() {
 
   const handleUpload = async () => {
     if (!projectName || !token) {
-      setStatusMsg("❌ Please provide all fields.");
+      setStatusMsg("Please provide all fields.");
       return;
     }
 
@@ -25,9 +25,9 @@ export default function UploadTasksCard() {
 
       await uploadTasks({ projectName, token });
 
-      setStatusMsg("✅ Tasks uploaded successfully.");
+      setStatusMsg("Tasks uploaded successfully.");
     } catch (e) {
-     setStatusMsg(`❌ ${e.message || "Upload failed."}`);
+     setStatusMsg(`${e.message || "Upload failed."}`);
     } finally {
       setBusy(false);
     }

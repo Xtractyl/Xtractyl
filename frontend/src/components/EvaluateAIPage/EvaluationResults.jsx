@@ -152,9 +152,9 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
                         </td>
                         <td className="border px-2 py-1 text-xtractyl-outline/70">
                           {t.meta?.dom_match_by_label?.[lab] === true
-                            ? "✓"
+                            ? "ok"
                             : t.meta?.dom_match_by_label?.[lab] === false
-                            ? "✗"
+                            ? "x"
                             : "—"}
                         </td>
                         <td className="border px-2 py-1">{v.status}</td>

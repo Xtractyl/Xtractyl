@@ -54,7 +54,7 @@ describe("useJobManager handleSubmit guard", () => {
   expect(uploadToMinio).toHaveBeenCalledTimes(2);
   expect(startConversion).toHaveBeenCalledWith("job-1");
   expect(result.current.jobId).toBe("job-1");
-  expect(result.current.serverMsg).toBe("✅ Upload complete, conversion started.");
+  expect(result.current.serverMsg).toBe("Upload complete, conversion started.");
   expect(discardConversion).not.toHaveBeenCalled();
 });
 
@@ -75,12 +75,12 @@ it("discards the job when the upload fails after prepareConversion succeeded", a
 
   expect(discardConversion).toHaveBeenCalledWith("job-2");
   expect(result.current.jobId).toBeNull();
-  expect(result.current.serverMsg).toBe("❌ network error");
+  expect(result.current.serverMsg).toBe("network error");
 });
 
 it("does not call discardConversion when prepareConversion itself fails", async () => {
   const files = [{ name: "a.pdf" }];
-  prepareConversion.mockRejectedValue(new Error("project already exists"));
+  prepareConversion.mockRejectedValue(new Error("Project already exists"));
 
   const { result } = renderHook(() => useJobManager("my-project", files));
 
@@ -90,6 +90,6 @@ it("does not call discardConversion when prepareConversion itself fails", async 
 
   expect(discardConversion).not.toHaveBeenCalled();
   expect(result.current.jobId).toBeNull();
-  expect(result.current.serverMsg).toBe("❌ project already exists");
+  expect(result.current.serverMsg).toBe("Project already exists");
 });
 });
