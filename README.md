@@ -80,7 +80,7 @@ This approach is designed for environments where data privacy is non-negotiable,
 ---
 
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 
 ```mermaid
