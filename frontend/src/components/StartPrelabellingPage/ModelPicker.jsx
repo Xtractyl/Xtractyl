@@ -67,7 +67,7 @@ export default function ModelPicker({
       </div>
 
       {loading && <div className="text-sm text-xtractyl-outline/70">Loading models…</div>}
-      {err && <div className="text-sm text-xtractyl-orange">❌ {err}</div>}
+      {err && <div className="text-sm text-xtractyl-orange">{err}</div>}
     </div>
   );
 }

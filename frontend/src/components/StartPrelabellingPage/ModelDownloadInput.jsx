@@ -72,7 +72,7 @@ export default function ModelDownloadInput({
       {!pulling && pullProgress === "Done" && pullingModel === name.trim() && (
         <div className="text-sm text-xtractyl-outline">Progress: Done</div>
       )}
-      {pullError && <div className="text-sm text-xtractyl-orange">❌ {pullError}</div>}
+      {pullError && <div className="text-sm text-xtractyl-orange">{pullError}</div>}
 
     </div>
   );

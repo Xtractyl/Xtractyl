@@ -34,7 +34,7 @@ export default function UploadReadyProjectSelect({ selected, onChange }) {
           );
         })}
       </select>
-      {err && <div className="text-sm text-xtractyl-orange mt-1">❌ {err}</div>}
+      {err && <div className="text-sm text-xtractyl-orange mt-1">{err}</div>}
     </div>
   );
 }

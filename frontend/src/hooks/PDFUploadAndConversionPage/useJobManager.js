@@ -50,7 +50,7 @@ export default function useJobManager(projectName, files) {
       // 3. Trigger conversion
       await startConversion(job_id);
 
-      setServerMsg("✅ Upload complete, conversion started.");
+      setServerMsg("Upload complete, conversion started.");
     } catch (err) {
       if (job_id) {
         try {
@@ -60,7 +60,7 @@ export default function useJobManager(projectName, files) {
         }
         persistJobId(null);
       }
-      setServerMsg(`❌ ${err.message || "Couldn't start conversion."}`);
+      setServerMsg(`${err.message || "Couldn't start conversion."}`);
     } finally {
       setSubmitBusy(false);
     }
@@ -88,10 +88,10 @@ export default function useJobManager(projectName, files) {
           persistJobId(null);
           setServerMsg(
             s.status === "done"
-              ? "✅ Conversion complete."
+              ? "Conversion complete."
               : s.status === "failed"
-              ? `❌ Conversion failed.${s.error ? ` ${s.error}` : ""}`
-              : "⏹️ Conversion cancelled."          );
+              ? `Conversion failed.${s.error ? ` ${s.error}` : ""}`
+              : "Conversion cancelled."          );
 
           if (s.status === "failed" || s.status === "cancelled") {
             // best effort: free project name for another try by user
@@ -126,9 +126,9 @@ export default function useJobManager(projectName, files) {
     if (!jobId) return;
     try {
       await cancelConversion(jobId);
-      setServerMsg("⏹️ Cancelling…");
+      setServerMsg("Cancelling…");
     } catch (err) {
-      setServerMsg(`❌ ${err.message || "Couldn't cancel conversion."}`);
+      setServerMsg(`${err.message || "Couldn't cancel conversion."}`);
     }
   }, [jobId]);
 

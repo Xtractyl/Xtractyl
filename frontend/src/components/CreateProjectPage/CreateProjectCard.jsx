@@ -17,7 +17,7 @@ export default function CreateProjectCard() {
   const handleFormSubmit = async (formData) => {
     try {
       if (!token) {
-        setStatusMsg("❌ Please enter and save an API token first.");
+        setStatusMsg("Please enter and save an API token first.");
         return;
       }
 
@@ -28,9 +28,9 @@ export default function CreateProjectCard() {
         ...formData,
         token, 
       });
-      setStatusMsg("✅ Project created successfully.");
+      setStatusMsg("Project created successfully.");
     } catch (error) {
-       setStatusMsg(`❌ ${error.message || "Something went wrong."}`);
+       setStatusMsg(`${error.message || "Something went wrong."}`);
      }
   };
 
@@ -54,7 +54,7 @@ export default function CreateProjectCard() {
       <p className="text-xtractyl-outline/70 mb-6">
         Enter API token, choose a project name, enter your questions as well as labels for them.
       </p>
-      
+
       <TokenInput />
 
       {token && (
