@@ -911,7 +911,7 @@ GT or an ordinary evaluated project:
   labels/questions/model/prompt, not document set (Drift, the other caller, deliberately needs
   matches across *different* document sets) — so `get_regression_view` applies its own post-filter
   restricting results to the picked project's own `document_set_hash`, restoring "same documents,
-  only time varies" for both scopes uniformly. Requires ≥2 matching evaluations to show anything.
+  only time varies" for both scopes uniformly. Requires at least 2 matching evaluations to show anything.
   For `scope="internal"`, this means multiple different internal-GT projects can legitimately
   appear together — but only when they happen to share genuinely identical documents, not merely
   the same configuration; a coincidence, not the common case. The response carries no single
