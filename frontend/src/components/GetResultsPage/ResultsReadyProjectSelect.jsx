@@ -28,7 +28,7 @@ export default function ResultsReadyProjectSelect({ selected, onChange }) {
         {projects.map((p, i) => {
           const isGt = p.startsWith("Evaluation_Sets_Do_Not_Delete/");
           return (
-            <option key={i} value={p}>{isGt ? `🔒 GT: ${p.split("/").pop()}` : p}</option>
+            <option key={i} value={p}>{isGt ? `GT: ${p.split("/").pop()}` : p}</option>
           );
         })}
       </select>

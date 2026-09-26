@@ -17,7 +17,7 @@ export default function TokenLink() {
       </p>
       <p className="mt-1 text-sm text-xtractyl-outline/60">
       
-        ⚠️ If you see no legacy token there, go to{" "}
+        If you see no legacy token there, go to{" "}
         <a   
         href={`${LS_BASE}/organization/`}
         target="_blank"
