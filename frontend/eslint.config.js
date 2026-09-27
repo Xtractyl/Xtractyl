@@ -4,6 +4,7 @@ import importPlugin from "eslint-plugin-import";
 import globals from "globals";
 import reactPlugin from "eslint-plugin-react";
 import reactHooksPlugin from "eslint-plugin-react-hooks"; 
+import prettierConfig from "eslint-config-prettier";
 
 export default [
   js.configs.recommended,
@@ -44,4 +45,5 @@ export default [
         "react-hooks/exhaustive-deps": "warn", 
     },
   },
+  prettierConfig, // muss als letztes Element stehen
 ];
