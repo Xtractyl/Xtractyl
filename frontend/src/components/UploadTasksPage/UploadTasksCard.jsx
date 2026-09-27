@@ -39,11 +39,12 @@ export default function UploadTasksCard() {
       <p className=" text-xtractyl-outline/70 mb-6">
         Select your project, API token, and HTML folder to upload tasks.
       </p>
+
       <div className="mb-6">
         <TokenInput />
       </div>
 
-       <div className="space-y-6 bg-xtractyl-offwhite p-6 rounded shadow">
+      <div className="space-y-6 bg-xtractyl-offwhite p-6 rounded shadow">
         <UploadReadyProjectSelect selected={projectName} onChange={saveProjectName} />
 
         <button
