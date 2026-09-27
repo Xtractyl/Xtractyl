@@ -59,7 +59,8 @@ export default function UploadAndConversionCard() {
         <button
           type="submit"
           disabled={submitBusy || !!jobId}
-          className={`bg-xtractyl-green text-xtractyl-white px-4 py-2 rounded hover:bg-xtractyl-green/80 transition ${            submitBusy || jobId ? "opacity-60 cursor-not-allowed" : ""
+          className={`bg-xtractyl-green text-xtractyl-white px-4 py-2 rounded hover:bg-xtractyl-green/80 transition ${
+            submitBusy || jobId ? "opacity-60 cursor-not-allowed" : ""
           }`}
         >
           {submitBusy ? "Submitting…" : jobId ? "Job running…" : "Upload & Convert"}
@@ -78,10 +79,10 @@ export default function UploadAndConversionCard() {
           <div className="w-full h-2 bg-xtractyl-offwhite rounded">
             <div
               className="h-2 bg-xtractyl-green rounded"
-             style={{ width: `${Math.round(((jobStatus.converted_files ?? 0) / (jobStatus.total_files || 1)) * 100)}%` }}
+              style={{ width: `${Math.round(((jobStatus.converted_files ?? 0) / (jobStatus.total_files || 1)) * 100)}%` }}
             />
           </div>
-          </div>
+        </div>
       )}
 
       {/* Active job controls */}
