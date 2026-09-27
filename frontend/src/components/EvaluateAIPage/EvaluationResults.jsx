@@ -186,8 +186,8 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
               </div>
             );
           })}
-                </div>
-              </div>
+        </div>
+      </div>
 
       {/* ---------- Performance Metrics (Aggregated) ---------- */}
       {metrics.performance && (
