@@ -12,7 +12,6 @@ export default function UploadTasksCard() {
   const [statusMsg, setStatusMsg] = useState("");
   const [busy, setBusy] = useState(false);
 
-
   const handleUpload = async () => {
     if (!projectName || !token) {
       setStatusMsg("Please provide all fields.");
@@ -27,7 +26,7 @@ export default function UploadTasksCard() {
 
       setStatusMsg("Tasks uploaded successfully.");
     } catch (e) {
-     setStatusMsg(`${e.message || "Upload failed."}`);
+      setStatusMsg(`${e.message || "Upload failed."}`);
     } finally {
       setBusy(false);
     }

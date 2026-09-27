@@ -8,7 +8,10 @@ export default function UploadAndConversionCard() {
 
   const { projectName, saveProjectName } = useAppContext();
 
-  const { jobId, jobStatus, serverMsg, submitBusy, handleSubmit, handleCancel } = useJobManager(projectName, files);
+  const { jobId, jobStatus, serverMsg, submitBusy, handleSubmit, handleCancel } = useJobManager(
+    projectName,
+    files
+  );
 
   return (
     <div className="p-6 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
@@ -25,7 +28,9 @@ export default function UploadAndConversionCard() {
         className="space-y-6"
       >
         <div>
-          <label htmlFor="project-name" className="block font-medium mb-1">Project name</label>
+          <label htmlFor="project-name" className="block font-medium mb-1">
+            Project name
+          </label>
           <input
             id="project-name"
             type="text"
@@ -37,9 +42,10 @@ export default function UploadAndConversionCard() {
           />
         </div>
 
-
         <div>
-          <label htmlFor="pdf-files" className="block font-medium mb-1">Select your PDFs</label>
+          <label htmlFor="pdf-files" className="block font-medium mb-1">
+            Select your PDFs
+          </label>
           <input
             id="pdf-files"
             type="file"
@@ -50,9 +56,7 @@ export default function UploadAndConversionCard() {
             className="w-full p-2 border rounded"
           />
           {files.length > 0 && (
-            <p className="mt-2 text-sm text-xtractyl-outline">
-              {files.length} file(s) selected
-            </p>
+            <p className="mt-2 text-sm text-xtractyl-outline">{files.length} file(s) selected</p>
           )}
         </div>
 
@@ -74,12 +78,16 @@ export default function UploadAndConversionCard() {
         <div className="mt-4 bg-xtractyl-offwhite p-4 rounded">
           <div className="font-medium mb-1">
             Status: {jobStatus.status}{" "}
-            {jobStatus.total_files > 0 ? `— ${jobStatus.converted_files ?? 0}/${jobStatus.total_files} files` : ""}
+            {jobStatus.total_files > 0
+              ? `— ${jobStatus.converted_files ?? 0}/${jobStatus.total_files} files`
+              : ""}
           </div>
           <div className="w-full h-2 bg-xtractyl-offwhite rounded">
             <div
               className="h-2 bg-xtractyl-green rounded"
-              style={{ width: `${Math.round(((jobStatus.converted_files ?? 0) / (jobStatus.total_files || 1)) * 100)}%` }}
+              style={{
+                width: `${Math.round(((jobStatus.converted_files ?? 0) / (jobStatus.total_files || 1)) * 100)}%`,
+              }}
             />
           </div>
         </div>

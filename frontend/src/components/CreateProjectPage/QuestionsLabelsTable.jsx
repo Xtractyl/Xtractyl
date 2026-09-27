@@ -35,7 +35,10 @@ export default function QuestionsLabelsTable({ questions, labels, setQuestions, 
     if (!pasted.includes("\n")) return;
     e.preventDefault();
 
-    const pastedLines = pasted.replace(/\r\n/g, "\n").split("\n").filter((l) => l.trim() !== "");
+    const pastedLines = pasted
+      .replace(/\r\n/g, "\n")
+      .split("\n")
+      .filter((l) => l.trim() !== "");
     const lines = [...questionLines];
     pastedLines.forEach((line, i) => {
       lines[index + i] = line;
@@ -51,7 +54,10 @@ export default function QuestionsLabelsTable({ questions, labels, setQuestions, 
     if (!pasted.includes("\n")) return;
     e.preventDefault();
 
-    const pastedLines = pasted.replace(/\r\n/g, "\n").split("\n").filter((l) => l.trim() !== "");
+    const pastedLines = pasted
+      .replace(/\r\n/g, "\n")
+      .split("\n")
+      .filter((l) => l.trim() !== "");
     const lines = [...labelLines];
     pastedLines.forEach((line, i) => {
       lines[index + i] = line;
@@ -65,8 +71,8 @@ export default function QuestionsLabelsTable({ questions, labels, setQuestions, 
   return (
     <div>
       <p className="text-xs text-xtractyl-outline/70 mb-2">
-        You can click into the question/label field and paste all
-        questions/labels from a existing ground truth set (ctrl+v to paste)
+        You can click into the question/label field and paste all questions/labels from a existing
+        ground truth set (ctrl+v to paste)
       </p>
 
       <div className="mt-4 border border-xtractyl-outline/30 rounded-md overflow-hidden">

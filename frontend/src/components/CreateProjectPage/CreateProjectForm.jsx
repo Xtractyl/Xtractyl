@@ -23,7 +23,9 @@ export default function CreateProjectForm({ onSubmit }) {
     }
 
     if (parsedLabels.length !== parsedQuestions.length) {
-      setError(`Questions (${parsedQuestions.length}) and labels (${parsedLabels.length}) must have the same count.`);
+      setError(
+        `Questions (${parsedQuestions.length}) and labels (${parsedLabels.length}) must have the same count.`
+      );
       return;
     }
 
@@ -32,7 +34,10 @@ export default function CreateProjectForm({ onSubmit }) {
   };
 
   return (
-    <form onSubmit={handleFormSubmit} className="space-y-6 mt-10 bg-xtractyl-offwhite p-6 rounded shadow w-full">
+    <form
+      onSubmit={handleFormSubmit}
+      className="space-y-6 mt-10 bg-xtractyl-offwhite p-6 rounded shadow w-full"
+    >
       <ConvertedProjectSelect selected={title} onChange={setTitle} />
 
       {/* Numbered Questions + Labels Table */}
@@ -45,7 +50,10 @@ export default function CreateProjectForm({ onSubmit }) {
 
       {error && <p className="text-sm text-xtractyl-orange">{error}</p>}
 
-      <button type="submit" className="bg-xtractyl-green text-xtractyl-white px-4 py-2 rounded hover:bg-xtractyl-green/80 transition">
+      <button
+        type="submit"
+        className="bg-xtractyl-green text-xtractyl-white px-4 py-2 rounded hover:bg-xtractyl-green/80 transition"
+      >
         Create project
       </button>
     </form>

@@ -7,8 +7,6 @@ describe("EvaluationDrift page", () => {
   it("renders the drift and regression heading", () => {
     render(<EvaluationDriftPage />);
 
-    expect(
-      screen.getByText("Evaluation Comparison, Drift & Regression")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Evaluation Comparison, Drift & Regression")).toBeInTheDocument();
   });
 });

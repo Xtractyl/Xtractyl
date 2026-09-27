@@ -21,20 +21,19 @@ export default function CreateProjectCard() {
         return;
       }
 
-
       saveProjectName(formData.title);
 
       await createProject({
         ...formData,
-        token, 
+        token,
       });
       setStatusMsg("Project created successfully.");
     } catch (error) {
-       setStatusMsg(`${error.message || "Something went wrong."}`);
-     }
+      setStatusMsg(`${error.message || "Something went wrong."}`);
+    }
   };
 
-    const handleLoadGroundtruth = async () => {
+  const handleLoadGroundtruth = async () => {
     setGroundtruthError("");
     setGroundtruthLoading(true);
     try {
@@ -42,7 +41,7 @@ export default function CreateProjectCard() {
       setGroundtruthSets(Object.entries(data).map(([name, qal]) => ({ name, qal })));
     } catch (err) {
       console.error(err);
-       setGroundtruthError(err.message || "Failed to load groundtruth questions and labels.");
+      setGroundtruthError(err.message || "Failed to load groundtruth questions and labels.");
     } finally {
       setGroundtruthLoading(false);
     }
@@ -87,11 +86,14 @@ export default function CreateProjectCard() {
               <div key={set.name} className="bg-xtractyl-white p-4 rounded max-h-96 overflow-auto">
                 <h3 className="font-semibold mb-2">{set.name}</h3>
                 <p className="text-xs text-xtractyl-outline/70 mb-2">
-                  You can click next to a column and drag to select all questions or all labels (ctrl+c to copy)
+                  You can click next to a column and drag to select all questions or all labels
+                  (ctrl+c to copy)
                 </p>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <div className="text-xs font-medium mb-1 text-xtractyl-outline/70">Questions</div>
+                    <div className="text-xs font-medium mb-1 text-xtractyl-outline/70">
+                      Questions
+                    </div>
                     <pre className="text-xs whitespace-pre-wrap break-words">
                       {(set.qal.questions || []).join("\n")}
                     </pre>

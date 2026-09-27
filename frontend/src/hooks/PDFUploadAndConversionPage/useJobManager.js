@@ -1,6 +1,13 @@
 //src/hooks/PDFUploadAndConversionPage/useJobManager.js
 import { useState, useEffect, useCallback } from "react";
-import { prepareConversion, discardConversion, cancelConversion, uploadToMinio, startConversion, getConversionStatus } from "../../api/PDFUploadAndConversionPage/api";
+import {
+  prepareConversion,
+  discardConversion,
+  cancelConversion,
+  uploadToMinio,
+  startConversion,
+  getConversionStatus,
+} from "../../api/PDFUploadAndConversionPage/api";
 
 export default function useJobManager(projectName, files) {
   const [jobId, setJobId] = useState(() => localStorage.getItem("conversionJobId"));
@@ -18,8 +25,8 @@ export default function useJobManager(projectName, files) {
   const [serverMsg, setServerMsg] = useState("");
   const [jobStatus, setJobStatus] = useState(null);
 
- // Submit PDFs
-    const handleSubmit = useCallback(async () => {
+  // Submit PDFs
+  const handleSubmit = useCallback(async () => {
     setServerMsg("");
     if (!projectName || files.length === 0) return;
     setSubmitBusy(true);
@@ -32,10 +39,10 @@ export default function useJobManager(projectName, files) {
       const presigned_urls = prep.presigned_urls;
 
       persistJobId(job_id);
-// 2. Upload each file directly to MinIO. AbortController so that a partial
-     // failure actually cancels the remaining in-flight uploads, instead of letting
-     // them keep running in the background and racing against the discard/MinIO
-     // cleanup (orphaned objects with no matching DB row).
+      // 2. Upload each file directly to MinIO. AbortController so that a partial
+      // failure actually cancels the remaining in-flight uploads, instead of letting
+      // them keep running in the background and racing against the discard/MinIO
+      // cleanup (orphaned objects with no matching DB row).
       const controller = new AbortController();
       await Promise.all(
         presigned_urls.map(({ upload_url, filename }) => {
@@ -66,7 +73,6 @@ export default function useJobManager(projectName, files) {
     }
   }, [files, projectName]);
 
-
   // Poll job status
   useEffect(() => {
     if (!jobId) return;
@@ -90,15 +96,16 @@ export default function useJobManager(projectName, files) {
             s.status === "done"
               ? "Conversion complete."
               : s.status === "failed"
-              ? `Conversion failed.${s.error ? ` ${s.error}` : ""}`
-              : "Conversion cancelled."          );
+                ? `Conversion failed.${s.error ? ` ${s.error}` : ""}`
+                : "Conversion cancelled."
+          );
 
           if (s.status === "failed" || s.status === "cancelled") {
             // best effort: free project name for another try by user
             discardConversion(jobId).catch(() => {
               /* Cleanup-Container will remove it after 2h in case of failure here */
             });
-          }         
+          }
           return;
         }
         schedule();
@@ -120,8 +127,7 @@ export default function useJobManager(projectName, files) {
     };
   }, [jobId]);
 
-
-   // Cancel the currently running job
+  // Cancel the currently running job
   const handleCancel = useCallback(async () => {
     if (!jobId) return;
     try {

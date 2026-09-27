@@ -29,7 +29,9 @@ export default function ConvertedProjectSelect({ selected, onChange }) {
       >
         <option value="">-- Select Project --</option>
         {projects.map((p, i) => (
-          <option key={i} value={p}>{p}</option>
+          <option key={i} value={p}>
+            {p}
+          </option>
         ))}
       </select>
       {err && <div className="text-sm text-xtractyl-orange mt-1">{err}</div>}

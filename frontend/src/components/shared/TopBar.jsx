@@ -1,7 +1,7 @@
 //src/components/shared/TopBar.jsx
-import logo from '../../assets/xtractyl_corporate_without_date_no_bg.png'
-import { ChevronRight } from 'lucide-react'
-import { Link, NavLink } from 'react-router-dom'
+import logo from "../../assets/xtractyl_corporate_without_date_no_bg.png";
+import { ChevronRight } from "lucide-react";
+import { Link, NavLink } from "react-router-dom";
 
 export default function TopBar() {
   return (
@@ -9,11 +9,7 @@ export default function TopBar() {
       {/* Branding Line */}
       <div className="bg-xtractyl-green px-8 flex items-center space-x-3 shadow-md hover:brightness-110 transition cursor-pointer">
         <Link to="/aboutpage">
-          <img
-            src={logo}
-            alt="Xtractyl Logo"
-            className="h-32 w-auto cursor-pointer"
-          />
+          <img src={logo} alt="Xtractyl Logo" className="h-32 w-auto cursor-pointer" />
         </Link>
       </div>
 
@@ -23,7 +19,8 @@ export default function TopBar() {
             to="/"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-medium transition
-            ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40'}`}
+            ${isActive ? "bg-xtractyl-green text-xtractyl-white" : "text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40"}`
+            }
           >
             Import Docs
           </NavLink>
@@ -34,7 +31,8 @@ export default function TopBar() {
             to="/project"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-medium transition
-            ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40'}`}
+            ${isActive ? "bg-xtractyl-green text-xtractyl-white" : "text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40"}`
+            }
           >
             Create Labelstudio Project
           </NavLink>
@@ -45,7 +43,8 @@ export default function TopBar() {
             to="/tasks"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-medium transition
-            ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40'}`}
+            ${isActive ? "bg-xtractyl-green text-xtractyl-white" : "text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40"}`
+            }
           >
             Upload in Labelstudio Project
           </NavLink>
@@ -56,7 +55,8 @@ export default function TopBar() {
             to="/prelabelling"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-medium transition
-            ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40'}`}
+            ${isActive ? "bg-xtractyl-green text-xtractyl-white" : "text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40"}`
+            }
           >
             Start AI
           </NavLink>
@@ -67,7 +67,8 @@ export default function TopBar() {
             to="/review"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-medium transition
-            ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40'}`}
+            ${isActive ? "bg-xtractyl-green text-xtractyl-white" : "text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40"}`
+            }
           >
             Review AI
           </NavLink>
@@ -78,7 +79,8 @@ export default function TopBar() {
             to="/results"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-medium transition
-            ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40'}`}
+            ${isActive ? "bg-xtractyl-green text-xtractyl-white" : "text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40"}`
+            }
           >
             Get Results
           </NavLink>
@@ -89,7 +91,8 @@ export default function TopBar() {
             to="/evaluate"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-medium transition
-            ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40'}`}
+            ${isActive ? "bg-xtractyl-green text-xtractyl-white" : "text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40"}`
+            }
           >
             Evaluate AI
           </NavLink>
@@ -100,13 +103,13 @@ export default function TopBar() {
             to="/evaluationdrift"
             className={({ isActive }) =>
               `text-lg px-6 py-3 rounded-xl font-medium transition
-            ${isActive ? 'bg-xtractyl-green text-xtractyl-white' : 'text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40'}`}
+            ${isActive ? "bg-xtractyl-green text-xtractyl-white" : "text-xtractyl-outline/70 hover:bg-xtractyl-offwhite/40"}`
+            }
           >
             Evaluation Comparison, Drift & Regression
           </NavLink>
-
         </nav>
       </div>
     </header>
-  )
+  );
 }

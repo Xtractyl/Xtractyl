@@ -4,7 +4,6 @@ import { useLocalStorage } from "./useLocalStorage";
 import { previewQal } from "../../api/StartPrelabellingPage/api.js";
 import { useAppContext } from "../../context/AppContext";
 
-
 export function usePrelabelConfig() {
   const { projectName } = useAppContext();
   const [model, setModel] = useLocalStorage("ollamaModel", "");
@@ -19,15 +18,17 @@ export function usePrelabelConfig() {
       .then((json) => setQuestionsAndLabels(json?.data ?? json))
       .catch(() => {
         setQuestionsAndLabels({});
-        setQalError(`No questions/labels found for project "${projectName}". Go to Create Project to add them first.`);
+        setQalError(
+          `No questions/labels found for project "${projectName}". Go to Create Project to add them first.`
+        );
       });
   }, [projectName]);
 
-
-
   return {
-    model, setModel,
-    systemPrompt, setSystemPrompt,
+    model,
+    setModel,
+    systemPrompt,
+    setSystemPrompt,
     questionsAndLabels,
     qalError,
   };

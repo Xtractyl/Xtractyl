@@ -1,10 +1,6 @@
 // src/api/PDFUploadAndConversionPage/api.test.js
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import {
-  prepareConversion,
-  getConversionStatus,
-  uploadToMinio,
-} from "./api.js";
+import { prepareConversion, getConversionStatus, uploadToMinio } from "./api.js";
 
 function okResponse() {
   return {
@@ -60,8 +56,8 @@ describe("PDFUploadAndConversionPage api", () => {
     const fakeFile = new Blob(["content"], { type: "application/pdf" });
     Object.defineProperty(fakeFile, "name", { value: "broken.pdf" });
 
-    await expect(
-      uploadToMinio("https://minio.example/upload-url", fakeFile)
-    ).rejects.toMatchObject({ message: "MinIO upload failed for broken.pdf: 500", status: 500 });
+    await expect(uploadToMinio("https://minio.example/upload-url", fakeFile)).rejects.toMatchObject(
+      { message: "MinIO upload failed for broken.pdf: 500", status: 500 }
+    );
   });
 });

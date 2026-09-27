@@ -19,9 +19,7 @@ describe("TopBar", () => {
     expect(screen.getByText("Review AI")).toBeInTheDocument();
     expect(screen.getByText("Get Results")).toBeInTheDocument();
     expect(screen.getByText("Evaluate AI")).toBeInTheDocument();
-    expect(
-      screen.getByText("Evaluation Comparison, Drift & Regression")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Evaluation Comparison, Drift & Regression")).toBeInTheDocument();
   });
 
   it("links the logo to the about page", () => {

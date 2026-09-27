@@ -6,7 +6,6 @@ export default function EvaluationDriftCard() {
     <div className="p-8 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
       <h1 className="text-2xl font-semibold mb-4">Evaluation Comparison, Drift & Regression</h1>
 
-
       <EvaluationDriftView />
     </div>
   );

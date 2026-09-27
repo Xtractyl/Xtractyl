@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { listModels } from "../../api/StartPrelabellingPage/api.js";
 
 export default function ModelPicker({
-  ollamaBase,          // optional, defaults handled in api.js
+  ollamaBase, // optional, defaults handled in api.js
   selectedModel,
   onChange,
   refreshKey,
@@ -27,7 +27,9 @@ export default function ModelPicker({
       }
     };
     load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [ollamaBase, refreshKey]);
 
   return (
@@ -41,7 +43,9 @@ export default function ModelPicker({
       >
         <option value="">— Select a model —</option>
         {models.map((m) => (
-          <option key={m} value={m}>{m}</option>
+          <option key={m} value={m}>
+            {m}
+          </option>
         ))}
       </select>
 
@@ -62,7 +66,8 @@ export default function ModelPicker({
           <path d="M3.51 9a9 9 0 0 1 14.88-3.36L23 10M1 14l4.61 4.36A9 9 0 0 0 20.49 15" />
         </svg>
         <span>
-          After downloading a new model, <span className="whitespace-nowrap">refresh the page</span> to see it here.
+          After downloading a new model, <span className="whitespace-nowrap">refresh the page</span>{" "}
+          to see it here.
         </span>
       </div>
 

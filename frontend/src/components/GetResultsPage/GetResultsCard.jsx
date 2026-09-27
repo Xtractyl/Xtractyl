@@ -16,7 +16,6 @@ export default function GetResultsCard() {
 
   const canSubmit = projectName.trim();
 
-
   const fetchData = async () => {
     if (!canSubmit) return;
     setLoading(true);
@@ -34,7 +33,7 @@ export default function GetResultsCard() {
     } finally {
       setLoading(false);
     }
-    };
+  };
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -46,14 +45,12 @@ export default function GetResultsCard() {
     <div className="p-8 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
       <h1 className="text-2xl font-semibold mb-4">Get Results</h1>
       <p className="text-xtractyl-outline/70 mb-6">
-        Select your project and submit to get your database (prelabelling has to be completed to see the results).
+        Select your project and submit to get your database (prelabelling has to be completed to see
+        the results).
       </p>
       <div className="mt-6 border border-xtractyl-outline/20 p-4 flex flex-col gap-4 bg-xtractyl-offwhite">
         <form onSubmit={onSubmit} className="flex flex-row items-end gap-4">
-          <ResultsReadyProjectSelect
-            selected={projectName}
-            onChange={saveProjectName}
-          />
+          <ResultsReadyProjectSelect selected={projectName} onChange={saveProjectName} />
 
           <button
             type="submit"

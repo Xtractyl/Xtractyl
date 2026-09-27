@@ -1,7 +1,11 @@
 // frontend/src/hooks/StartPrelabellingPage/usePrelabelJob.js
 import { useReducer, useEffect } from "react";
 import { useLocalStorage } from "./useLocalStorage";
-import { prelabelProject, cancelPrelabel, getPrelabelStatus } from "../../api/StartPrelabellingPage/api.js";
+import {
+  prelabelProject,
+  cancelPrelabel,
+  getPrelabelStatus,
+} from "../../api/StartPrelabellingPage/api.js";
 
 const initialState = {
   preStatus: null,
@@ -88,16 +92,19 @@ export function usePrelabelJob() {
         }
         if (st === "cancel_requested" && pct >= 100) {
           setPreJobId("");
-          dispatch({ type: "JOB_FINISHED", payload: "Job finished (cancel request acknowledged)." });
+          dispatch({
+            type: "JOB_FINISHED",
+            payload: "Job finished (cancel request acknowledged).",
+          });
           return;
         }
         schedule();
-     } catch (e) {
-       if (e?.status === 404) {
-         setPreJobId("");
-         dispatch({ type: "JOB_FINISHED" });
-         return;
-       }
+      } catch (e) {
+        if (e?.status === 404) {
+          setPreJobId("");
+          dispatch({ type: "JOB_FINISHED" });
+          return;
+        }
         schedule();
       }
     };

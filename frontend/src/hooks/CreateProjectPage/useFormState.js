@@ -13,9 +13,12 @@ export default function useFormState(initial = { title: "", questions: "", label
   };
 
   return {
-    title, setTitle,
-    questions, setQuestions,
-    labels, setLabels,
+    title,
+    setTitle,
+    questions,
+    setQuestions,
+    labels,
+    setLabels,
     resetForm,
   };
 }

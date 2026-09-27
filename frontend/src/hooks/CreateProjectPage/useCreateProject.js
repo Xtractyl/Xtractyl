@@ -6,7 +6,5 @@ export default function useCreateProject() {
     return createProjectAPI(data); // data = { title, token, ... }
   };
 
-
-return { createProject };
-
+  return { createProject };
 }

@@ -4,4 +4,3 @@ import StartPrelabellingCard from "../components/StartPrelabellingPage/StartPrel
 export default function StartPrelabellingPage() {
   return <StartPrelabellingCard />;
 }
-

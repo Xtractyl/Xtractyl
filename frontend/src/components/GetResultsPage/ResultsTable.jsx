@@ -36,10 +36,7 @@ export default function ResultsTable({ columns, rows }) {
 
           <tbody>
             {rows.map((row, ridx) => (
-              <tr
-                key={ridx}
-                className="border-b bg-xtractyl-white border-xtractyl-outline/10"
-              >
+              <tr key={ridx} className="border-b bg-xtractyl-white border-xtractyl-outline/10">
                 {columns.map((col) => (
                   <td key={col} className="px-3 py-2 align-top">
                     {formatCell(row[col])}

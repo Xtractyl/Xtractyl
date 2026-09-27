@@ -20,9 +20,8 @@ export default function DriftTab({ projectName, scope }) {
   if (entries.length < 2)
     return (
       <p className="text-sm text-xtractyl-outline/70">
-        No drift chain yet (at least 2 non-overlapping document sets with
-        the identical configuration) for this project, in the selected
-        scope.
+        No drift chain yet (at least 2 non-overlapping document sets with the identical
+        configuration) for this project, in the selected scope.
       </p>
     );
 

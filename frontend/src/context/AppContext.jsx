@@ -1,16 +1,12 @@
-// /src/context/AppContext.jsx 
+// /src/context/AppContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
 import { pullModel } from "../api/StartPrelabellingPage/api.js";
 
 const AppContext = createContext(null);
 
 export function AppProvider({ children }) {
-  const [token, setToken] = useState(
-    () => localStorage.getItem("apiToken") ?? ""
-  );
-  const [projectName, setProjectName] = useState(
-    () => localStorage.getItem("projectName") ?? ""
-  );
+  const [token, setToken] = useState(() => localStorage.getItem("apiToken") ?? "");
+  const [projectName, setProjectName] = useState(() => localStorage.getItem("projectName") ?? "");
 
   const saveToken = (t) => {
     setToken(t);
@@ -21,7 +17,6 @@ export function AppProvider({ children }) {
     setProjectName(name);
     localStorage.setItem("projectName", name);
   };
-
 
   const [pulling, setPulling] = useState(false);
   const [pullingModel, setPullingModel] = useState("");
@@ -74,11 +69,11 @@ export function AppProvider({ children }) {
         resetPullError,
       }}
     >
-    {children}
+      {children}
     </AppContext.Provider>
   );
 }
 
 export function useAppContext() {
-  return useContext(AppContext);  
+  return useContext(AppContext);
 }

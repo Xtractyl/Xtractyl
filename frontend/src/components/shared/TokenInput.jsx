@@ -5,7 +5,6 @@ import TokenLink from "./TokenLink";
 export default function TokenInput() {
   const { token, saveToken } = useAppContext();
 
-
   const handleSubmit = (e) => {
     e.preventDefault();
     const trimmed = token.trim();
@@ -14,7 +13,10 @@ export default function TokenInput() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 bg-xtractyl-offwhite rounded shadow w-full space-y-4">
+    <form
+      onSubmit={handleSubmit}
+      className="p-4 bg-xtractyl-offwhite rounded shadow w-full space-y-4"
+    >
       <label htmlFor="ls-token" className="block text-sm font-medium mb-2">
         Enter your Label Studio legacy token
       </label>

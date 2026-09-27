@@ -29,18 +29,12 @@ export default function EvaluationDriftView() {
     run();
   }, []);
 
-  if (loading)
-    return <div className="text-sm text-xtractyl-outline/70">Loading…</div>;
+  if (loading) return <div className="text-sm text-xtractyl-outline/70">Loading…</div>;
 
-  if (errorMsg)
-    return <div className="text-sm text-xtractyl-orange">{errorMsg}</div>;
+  if (errorMsg) return <div className="text-sm text-xtractyl-orange">{errorMsg}</div>;
 
   if (!projects.length)
-    return (
-      <div className="text-sm text-xtractyl-outline/70">
-        No evaluated projects yet.
-      </div>
-    );
+    return <div className="text-sm text-xtractyl-outline/70">No evaluated projects yet.</div>;
 
   return (
     <div className="space-y-6">

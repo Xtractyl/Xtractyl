@@ -1,21 +1,20 @@
 //src/App.jsx
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Layout from './components/shared/Layout';
-import UploadAndConversionPage from './pages/PDFUploadAndConversion.jsx';
-import CreateProjectPage from './pages/CreateProject.jsx';
-import UploadTasksPage from './pages/UploadTasks.jsx';
-import StartPrelabellingPage from './pages/StartPrelabelling.jsx';
-import ReviewAIPage from './pages/ReviewAI.jsx';
-import GetResultsPage from './pages/GetResults.jsx';
-import EvaluateAIPage from './pages/EvaluateAI.jsx';
-import EvaluationDriftPage from './pages/EvaluationDrift.jsx';
-import AboutPage from './pages/AboutPage.jsx';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Layout from "./components/shared/Layout";
+import UploadAndConversionPage from "./pages/PDFUploadAndConversion.jsx";
+import CreateProjectPage from "./pages/CreateProject.jsx";
+import UploadTasksPage from "./pages/UploadTasks.jsx";
+import StartPrelabellingPage from "./pages/StartPrelabelling.jsx";
+import ReviewAIPage from "./pages/ReviewAI.jsx";
+import GetResultsPage from "./pages/GetResults.jsx";
+import EvaluateAIPage from "./pages/EvaluateAI.jsx";
+import EvaluationDriftPage from "./pages/EvaluationDrift.jsx";
+import AboutPage from "./pages/AboutPage.jsx";
 import { AppProvider } from "./context/AppContext";
 
 export default function App() {
-
   return (
-    <AppProvider> 
+    <AppProvider>
       <Router>
         <Layout>
           <Routes>
@@ -25,12 +24,12 @@ export default function App() {
             <Route path="/tasks" element={<UploadTasksPage />} />
             <Route path="/prelabelling" element={<StartPrelabellingPage />} />
             <Route path="/review" element={<ReviewAIPage />} />
-            <Route path="/results" element={<GetResultsPage/>} />
+            <Route path="/results" element={<GetResultsPage />} />
             <Route path="/evaluate" element={<EvaluateAIPage />} />
             <Route path="/evaluationdrift" element={<EvaluationDriftPage />} />
           </Routes>
         </Layout>
       </Router>
-    </AppProvider>  
+    </AppProvider>
   );
 }

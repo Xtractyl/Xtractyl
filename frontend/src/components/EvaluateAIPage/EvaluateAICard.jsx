@@ -1,6 +1,10 @@
 // src/components/EvaluateAIPage/EvaluateAICard.jsx
 import { useEffect, useState } from "react";
-import { getProjectsReadyForComparison, getGroundtruthProjectsForComparison, evaluateAI } from "../../api/EvaluateAIPage/api.js";
+import {
+  getProjectsReadyForComparison,
+  getGroundtruthProjectsForComparison,
+  evaluateAI,
+} from "../../api/EvaluateAIPage/api.js";
 import { fetchGroundtruthQuestionsAndLabels } from "../../api/CreateProjectPage/api.js";
 import SaveAsGtSet from "./SaveAsGtSet.jsx";
 import ComparisonSelection from "./ComparisonSelection.jsx";
@@ -9,7 +13,7 @@ import { useAppContext } from "../../context/AppContext";
 import TokenInput from "../shared/TokenInput";
 
 export default function EvaluateAICard() {
-  const {token } = useAppContext();
+  const { token } = useAppContext();
   const [gtSets, setGtSets] = useState([]);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -28,7 +32,7 @@ export default function EvaluateAICard() {
   useEffect(() => {
     fetchGroundtruthQuestionsAndLabels()
       .then((sets) => setGtSets(Object.keys(sets || {})))
-     .catch((e) => setErrorMsg(e.message || "Failed to load ground truth sets."));
+      .catch((e) => setErrorMsg(e.message || "Failed to load ground truth sets."));
   }, [gtSetVersion]);
 
   // Load comparison-ready project names from Postgres — no Label Studio
@@ -39,9 +43,7 @@ export default function EvaluateAICard() {
     getProjectsReadyForComparison()
       .then((projectList) => {
         setProjects(projectList);
-        const comparisonCandidates = projectList.filter(
-          (name) => !gtSets.includes(name)
-        );
+        const comparisonCandidates = projectList.filter((name) => !gtSets.includes(name));
 
         if (comparisonCandidates.length > 0) {
           setComparisonProject((prev) =>
@@ -51,14 +53,14 @@ export default function EvaluateAICard() {
           setComparisonProject("");
         }
       })
-    .catch((e) => {
-     setErrorMsg(e.message || "Failed to load projects.");
+      .catch((e) => {
+        setErrorMsg(e.message || "Failed to load projects.");
         setComparisonProject("");
       })
       .finally(() => setLoading(false));
   }, [gtSets]);
 
- // Load groundtruth sets that already have an evaluation for the
+  // Load groundtruth sets that already have an evaluation for the
   // currently selected comparison project, a DB lookup against the evaluations table
   useEffect(() => {
     if (!comparisonProject) {
@@ -89,18 +91,14 @@ export default function EvaluateAICard() {
     setEvalResult(null);
 
     try {
-      const result = await evaluateAI(
-        token,
-        groundtruthProject,
-        comparisonProject
-      );
+      const result = await evaluateAI(token, groundtruthProject, comparisonProject);
       setEvalResult(result);
- } catch (e) {
+    } catch (e) {
       if (e.data?.error === "EVALUATION_NOT_FOUND") {
         setEvalError(
           "No evaluation exists yet for this pairing. If the run is finished, " +
-          "this should appear automatically within moments — if it doesn't, " +
-          "that likely points to a sync issue rather than something to retry."
+            "this should appear automatically within moments — if it doesn't, " +
+            "that likely points to a sync issue rather than something to retry."
         );
       } else {
         setEvalError(e.message || "Evaluation failed.");
@@ -115,8 +113,8 @@ export default function EvaluateAICard() {
       <h1 className="text-2xl font-semibold mb-4">Evaluate AI</h1>
 
       <p className="text-xtractyl-outline/70">
-        Select a groundtruth project and a prelabelled project on the same tasks
-        to get evaluation metrics.
+        Select a groundtruth project and a prelabelled project on the same tasks to get evaluation
+        metrics.
       </p>
 
       {/* === TOKEN SECTION === */}
@@ -125,10 +123,7 @@ export default function EvaluateAICard() {
       </div>
 
       {/* === SAVE AS GT SET === */}
-      <SaveAsGtSet
-        apiToken={token}
-        onSuccess={() => setGtSetVersion(v => v + 1)}
-      />
+      <SaveAsGtSet apiToken={token} onSuccess={() => setGtSetVersion((v) => v + 1)} />
 
       {/* === COMPARISON SELECTION === */}
       <ComparisonSelection
@@ -148,11 +143,7 @@ export default function EvaluateAICard() {
 
       {/* === EVALUATION RESULTS === */}
       {token && (
-        <EvaluationResults
-          loading={evalLoading}
-          errorMsg={evalError}
-          result={evalResult}
-        />
+        <EvaluationResults loading={evalLoading} errorMsg={evalError} result={evalResult} />
       )}
     </div>
   );

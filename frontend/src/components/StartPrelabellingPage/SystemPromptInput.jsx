@@ -83,7 +83,8 @@ export default function SystemPromptInput({
               <button
                 type="button"
                 onClick={() => onChange(exampleText)}
-                className="px-3 py-2 rounded bg-xtractyl-green text-xtractyl-white hover:bg-xtractyl-green/80 transition"              >
+                className="px-3 py-2 rounded bg-xtractyl-green text-xtractyl-white hover:bg-xtractyl-green/80 transition"
+              >
                 Use this example
               </button>
               <button
