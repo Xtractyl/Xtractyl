@@ -1,7 +1,7 @@
 ///src/components/AboutPage/AboutPageCard.jsx
 export default function AboutPage() {
   return (
-<div className="min-h-screen bg-xtractyl-lightgreen/60 text-xtractyl-darktext px-6 py-16">
+    <div className="min-h-screen bg-xtractyl-lightgreen/60 text-xtractyl-darktext px-6 py-16">
       <div className="w-full px-8 md:px-16 lg:px-24">
         <div className="mb-10">
           <div className="inline-flex items-center gap-2 rounded-full bg-xtractyl-offwhite/60 px-3 py-1 text-xs text-xtractyl-outline shadow-sm">
@@ -96,9 +96,8 @@ export default function AboutPage() {
           >
             chris@xtractyl.com
           </a>
+        </div>
       </div>
-      </div>
-    </div>
-    
+    </div>    
   );
 }
