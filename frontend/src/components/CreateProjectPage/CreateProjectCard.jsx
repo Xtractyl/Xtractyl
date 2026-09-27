@@ -1,7 +1,7 @@
 // src/components/CreateProjectPage/CreateProjectCard.jsx
 import { useState } from "react";
 import useCreateProject from "../../hooks/CreateProjectPage/useCreateProject.js";
-import TokenInput from "./TokenInput";
+import TokenInput from "../shared/TokenInput";
 import CreateProjectForm from "./CreateProjectForm";
 import { fetchGroundtruthQuestionsAndLabels } from "../../api/CreateProjectPage/api";
 import { useAppContext } from "../../context/AppContext";
@@ -49,7 +49,7 @@ export default function CreateProjectCard() {
   };
 
   return (
-    <div className="p-8 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
+    <div className="p-6 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
       <h1 className="text-2xl font-semibold mb-4">Create Project</h1>
       <p className="text-xtractyl-outline/70 mb-6">
         Enter API token, choose a project name, enter your questions as well as labels for them.
