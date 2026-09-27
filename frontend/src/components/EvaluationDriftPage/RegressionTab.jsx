@@ -1,3 +1,4 @@
+// /src/components/EvaluationDriftPage/RegressionTab.jsx
 import { useEffect, useState } from "react";
 import { fetchRegressionView } from "../../api/EvaluationDriftPage/api.js";
 
@@ -21,8 +22,8 @@ export default function RegressionTab({ projectName, scope }) {
   if (!entries.length)
     return (
       <p className="text-sm text-xtractyl-outline/70">
-        No regression series yet (at least 2 runs with the identical
-        configuration against the same document set) for this project.
+        No regression series yet (at least 2 runs with the identical configuration against the same
+        document set) for this project.
       </p>
     );
 
@@ -81,9 +82,7 @@ export default function RegressionTab({ projectName, scope }) {
                               <td className="pr-4">
                                 {perLabel[label].precision?.toFixed(3) ?? "—"}
                               </td>
-                              <td className="pr-4">
-                                {perLabel[label].recall?.toFixed(3) ?? "—"}
-                              </td>
+                              <td className="pr-4">{perLabel[label].recall?.toFixed(3) ?? "—"}</td>
                               <td>{perLabel[label].f1?.toFixed(3) ?? "—"}</td>
                             </tr>
                           ))}

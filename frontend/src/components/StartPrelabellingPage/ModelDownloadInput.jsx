@@ -2,18 +2,10 @@
 import { useState } from "react";
 import { useAppContext } from "../../context/AppContext";
 
-export default function ModelDownloadInput({
-  onDone
-}) {
+export default function ModelDownloadInput({ onDone }) {
   const [name, setName] = useState("");
-  const {
-    pulling,
-    pullingModel,
-    pullProgress,
-    pullError,
-    startModelPull,
-    resetPullError,
-  } = useAppContext();
+  const { pulling, pullingModel, pullProgress, pullError, startModelPull, resetPullError } =
+    useAppContext();
 
   const handlePull = async () => {
     const model = name.trim();
@@ -31,17 +23,16 @@ export default function ModelDownloadInput({
     <div className="space-y-3">
       <label className="block font-medium">
         Download new model with official names (
-          <a
-        
-            href="https://ollama.com/library"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xtractyl-green hover:underline"
+        <a
+          href="https://ollama.com/library"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xtractyl-green hover:underline"
         >
-            official names
+          official names
         </a>
         )
-        </label>
+      </label>
       <div className="flex gap-2">
         <input
           type="text"
@@ -73,7 +64,6 @@ export default function ModelDownloadInput({
         <div className="text-sm text-xtractyl-outline">Progress: Done</div>
       )}
       {pullError && <div className="text-sm text-xtractyl-orange">{pullError}</div>}
-
     </div>
   );
 }

@@ -3,15 +3,14 @@ import { useState } from "react";
 import UploadReadyProjectSelect from "./UploadReadyProjectSelect";
 import { uploadTasks } from "../../api/UploadTasksPage/api.js";
 import { useAppContext } from "../../context/AppContext";
-import TokenLink from "../shared/TokenLink";
+import TokenInput from "../shared/TokenInput";
 
 const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080";
 
 export default function UploadTasksCard() {
-  const { token, projectName, saveToken, saveProjectName } = useAppContext();
+  const { token, projectName, saveProjectName } = useAppContext();
   const [statusMsg, setStatusMsg] = useState("");
   const [busy, setBusy] = useState(false);
-
 
   const handleUpload = async () => {
     if (!projectName || !token) {
@@ -27,7 +26,7 @@ export default function UploadTasksCard() {
 
       setStatusMsg("Tasks uploaded successfully.");
     } catch (e) {
-     setStatusMsg(`${e.message || "Upload failed."}`);
+      setStatusMsg(`${e.message || "Upload failed."}`);
     } finally {
       setBusy(false);
     }
@@ -40,28 +39,12 @@ export default function UploadTasksCard() {
         Select your project, API token, and HTML folder to upload tasks.
       </p>
 
+      <div className="mb-6">
+        <TokenInput />
+      </div>
+
       <div className="space-y-6 bg-xtractyl-offwhite p-6 rounded shadow">
         <UploadReadyProjectSelect selected={projectName} onChange={saveProjectName} />
-
-        {/* Token helper link */}
-        <div>
-          <TokenLink />
-        </div>
-
-        {/* Token Input */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Label Studio Token
-          </label>
-          <input
-            key={token ?? "empty"}   
-            type="password"
-            value={token}
-            onChange={(e) => saveToken(e.target.value)}
-            placeholder={token || "Enter your Label Studio token"}
-            className="w-full border border-xtractyl-outline/30 rounded px-3 py-2 bg-xtractyl-white text-xtractyl-darktext"
-          />
-        </div>
 
         <button
           onClick={handleUpload}

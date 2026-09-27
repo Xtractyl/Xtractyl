@@ -2,7 +2,5 @@
 import UploadTasksCard from "../components/UploadTasksPage/UploadTasksCard";
 
 export default function UploadTasksPage() {
-  return <UploadTasksCard 
-  />
-  ;
+  return <UploadTasksCard />;
 }

@@ -1,7 +1,7 @@
 // src/components/CreateProjectPage/CreateProjectCard.jsx
 import { useState } from "react";
 import useCreateProject from "../../hooks/CreateProjectPage/useCreateProject.js";
-import TokenInput from "./TokenInput";
+import TokenInput from "../shared/TokenInput";
 import CreateProjectForm from "./CreateProjectForm";
 import { fetchGroundtruthQuestionsAndLabels } from "../../api/CreateProjectPage/api";
 import { useAppContext } from "../../context/AppContext";
@@ -21,20 +21,19 @@ export default function CreateProjectCard() {
         return;
       }
 
-
       saveProjectName(formData.title);
 
       await createProject({
         ...formData,
-        token, 
+        token,
       });
       setStatusMsg("Project created successfully.");
     } catch (error) {
-       setStatusMsg(`${error.message || "Something went wrong."}`);
-     }
+      setStatusMsg(`${error.message || "Something went wrong."}`);
+    }
   };
 
-    const handleLoadGroundtruth = async () => {
+  const handleLoadGroundtruth = async () => {
     setGroundtruthError("");
     setGroundtruthLoading(true);
     try {
@@ -42,14 +41,14 @@ export default function CreateProjectCard() {
       setGroundtruthSets(Object.entries(data).map(([name, qal]) => ({ name, qal })));
     } catch (err) {
       console.error(err);
-       setGroundtruthError(err.message || "Failed to load groundtruth questions and labels.");
+      setGroundtruthError(err.message || "Failed to load groundtruth questions and labels.");
     } finally {
       setGroundtruthLoading(false);
     }
   };
 
   return (
-    <div className="p-8 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
+    <div className="p-6 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
       <h1 className="text-2xl font-semibold mb-4">Create Project</h1>
       <p className="text-xtractyl-outline/70 mb-6">
         Enter API token, choose a project name, enter your questions as well as labels for them.
@@ -64,15 +63,8 @@ export default function CreateProjectCard() {
         </div>
       )}
 
-          {/* Groundtruth helper section */}
+      {/* Groundtruth helper section */}
       <div className="mt-4 border rounded p-3 bg-xtractyl-offwhite">
-        <h2 className="text-xtractyl-outline/70ase font-medium mb-1 text-xtractyl-outline">
-          Use questions & labels from ground truth projects set up for time series
-        </h2>
-        <p className="text-xs  text-xtractyl-outline/60 mb-1">
-          Click the button to show the questions and labels for ground truth sets set up for time series
-        </p>
-
         <button
           type="button"
           onClick={handleLoadGroundtruth}
@@ -81,29 +73,43 @@ export default function CreateProjectCard() {
         >
           {groundtruthLoading
             ? "Loading ground truth…"
-            : "Show ground truth questions & labels"}
+            : "Show questions & labels of existing ground truth sets"}
         </button>
 
         {groundtruthError && (
           <p className="mt-2 text-sm text-xtractyl-orange">{groundtruthError}</p>
         )}
 
-       {groundtruthSets.length > 0 && (
-         <div className="mt-4 space-y-4">
+        {groundtruthSets.length > 0 && (
+          <div className="mt-4 space-y-4">
             {groundtruthSets.map((set) => (
               <div key={set.name} className="bg-xtractyl-white p-4 rounded max-h-96 overflow-auto">
                 <h3 className="font-semibold mb-2">{set.name}</h3>
                 <p className="text-xs text-xtractyl-outline/70 mb-2">
-                  Copy relevant questions and labels into your own project configuration.
+                  You can click next to a column and drag to select all questions or all labels
+                  (ctrl+c to copy)
                 </p>
-                <pre className="text-xs whitespace-pre-wrap break-words">
-                  {JSON.stringify(set.qal, null, 2)}
-                </pre>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-xs font-medium mb-1 text-xtractyl-outline/70">
+                      Questions
+                    </div>
+                    <pre className="text-xs whitespace-pre-wrap break-words">
+                      {(set.qal.questions || []).join("\n")}
+                    </pre>
+                  </div>
+                  <div>
+                    <div className="text-xs font-medium mb-1 text-xtractyl-outline/70">Labels</div>
+                    <pre className="text-xs whitespace-pre-wrap break-words">
+                      {(set.qal.labels || []).join("\n")}
+                    </pre>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         )}
-      </div> 
+      </div>
     </div>
   );
 }

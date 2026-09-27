@@ -45,8 +45,6 @@ label-studio/static/
 # Node.js
 node_modules/
 *.eslintcache
-.prettierignore
-.prettierrc
 stylelint.config.js
 
 # Frontend build output

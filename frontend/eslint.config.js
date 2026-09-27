@@ -3,7 +3,8 @@ import js from "@eslint/js";
 import importPlugin from "eslint-plugin-import";
 import globals from "globals";
 import reactPlugin from "eslint-plugin-react";
-import reactHooksPlugin from "eslint-plugin-react-hooks"; 
+import reactHooksPlugin from "eslint-plugin-react-hooks";
+import prettierConfig from "eslint-config-prettier";
 
 export default [
   js.configs.recommended,
@@ -11,23 +12,20 @@ export default [
     files: ["**/*.{js,jsx}"],
     ignores: ["dist/**", "build/**", ".vite/**", "coverage/**", "node_modules/**"],
     languageOptions: {
-  ecmaVersion: 2023,
-  sourceType: "module",
-  parserOptions: {
-    ecmaFeatures: {
-      jsx: true,  
+      ecmaVersion: 2023,
+      sourceType: "module",
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+      globals: {
+        ...globals.browser,
+      },
     },
-  },
-  globals: {
-    ...globals.browser,
-  },
-},
-    plugins: { import: importPlugin,
-      react: reactPlugin,
-      "react-hooks": reactHooksPlugin, 
-     },
+    plugins: { import: importPlugin, react: reactPlugin, "react-hooks": reactHooksPlugin },
     rules: {
-       "import/no-unresolved": "off", 
+      "import/no-unresolved": "off",
       "no-undef": "error",
       "no-unused-vars": [
         "error",
@@ -38,10 +36,11 @@ export default [
         },
       ],
       "no-empty": ["error", { allowEmptyCatch: true }],
-        "object-shorthand": "warn", 
-        "react/jsx-uses-react": "error",
-        "react/jsx-uses-vars": "error",   
-        "react-hooks/exhaustive-deps": "warn", 
+      "object-shorthand": "warn",
+      "react/jsx-uses-react": "error",
+      "react/jsx-uses-vars": "error",
+      "react-hooks/exhaustive-deps": "warn",
     },
   },
+  prettierConfig, // muss als letztes Element stehen
 ];

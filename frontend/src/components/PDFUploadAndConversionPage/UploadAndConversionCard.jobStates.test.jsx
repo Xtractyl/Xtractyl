@@ -4,7 +4,11 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AppProvider } from "../../context/AppContext.jsx";
 import UploadAndConversionCard from "./UploadAndConversionCard.jsx";
-import { getConversionStatus, discardConversion, cancelConversion } from "../../api/PDFUploadAndConversionPage/api.js";
+import {
+  getConversionStatus,
+  discardConversion,
+  cancelConversion,
+} from "../../api/PDFUploadAndConversionPage/api.js";
 
 vi.mock("../../api/PDFUploadAndConversionPage/api.js");
 
@@ -14,7 +18,7 @@ describe("UploadAndConversionCard with an existing job", () => {
     vi.clearAllMocks();
   });
 
-      it("shows the status panel but no cancel button while pending", async () => {
+  it("shows the status panel but no cancel button while pending", async () => {
     localStorage.setItem("conversionJobId", "job-456");
     getConversionStatus.mockResolvedValue({
       job_id: "job-456",
@@ -36,7 +40,7 @@ describe("UploadAndConversionCard with an existing job", () => {
     ).not.toBeInTheDocument();
   });
 
-    it("shows the status panel and the cancel button while converting", async () => {
+  it("shows the status panel and the cancel button while converting", async () => {
     localStorage.setItem("conversionJobId", "job-123");
     getConversionStatus.mockResolvedValue({
       job_id: "job-123",
@@ -51,23 +55,14 @@ describe("UploadAndConversionCard with an existing job", () => {
       </AppProvider>
     );
 
-    
-    expect(
-      await screen.findByText(/Status: converting/)
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/Status: converting/)).toBeInTheDocument();
     expect(screen.getByText("1/4 files", { exact: false })).toBeInTheDocument();
 
-    expect(
-      screen.getByRole("button", { name: "Cancel and Delete Project" })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Cancel and Delete Project" })).toBeInTheDocument();
 
-    expect(
-      screen.getByRole("button", { name: "Job running…" })
-    ).toBeDisabled();
-
-  
+    expect(screen.getByRole("button", { name: "Job running…" })).toBeDisabled();
   });
-    it("shows the error message and discards the job when conversion fails", async () => {
+  it("shows the error message and discards the job when conversion fails", async () => {
     localStorage.setItem("conversionJobId", "job-999");
     getConversionStatus.mockResolvedValue({
       job_id: "job-999",
@@ -84,9 +79,7 @@ describe("UploadAndConversionCard with an existing job", () => {
       </AppProvider>
     );
 
-    expect(
-      await screen.findByText("Conversion failed. Docling timed out")
-    ).toBeInTheDocument();
+    expect(await screen.findByText("Conversion failed. Docling timed out")).toBeInTheDocument();
     expect(discardConversion).toHaveBeenCalledWith("job-999");
   });
 
@@ -106,33 +99,30 @@ describe("UploadAndConversionCard with an existing job", () => {
       </AppProvider>
     );
 
-    expect(
-      await screen.findByText("Conversion cancelled.")
-    ).toBeInTheDocument();
+    expect(await screen.findByText("Conversion cancelled.")).toBeInTheDocument();
     expect(discardConversion).toHaveBeenCalledWith("job-000");
   });
 
   it("calls cancelConversion with the job id when the cancel button is clicked", async () => {
-  localStorage.setItem("conversionJobId", "job-123");
-  getConversionStatus.mockResolvedValue({
-    job_id: "job-123",
-    status: "converting",
-    total_files: 4,
-    converted_files: 1,
+    localStorage.setItem("conversionJobId", "job-123");
+    getConversionStatus.mockResolvedValue({
+      job_id: "job-123",
+      status: "converting",
+      total_files: 4,
+      converted_files: 1,
+    });
+    cancelConversion.mockResolvedValue({ status: "cancelling" });
+
+    render(
+      <AppProvider>
+        <UploadAndConversionCard />
+      </AppProvider>
+    );
+
+    const cancelButton = await screen.findByRole("button", { name: "Cancel and Delete Project" });
+    await userEvent.click(cancelButton);
+
+    expect(cancelConversion).toHaveBeenCalledWith("job-123");
+    expect(await screen.findByText("Cancelling…")).toBeInTheDocument();
   });
-  cancelConversion.mockResolvedValue({ status: "cancelling" });
-
-  render(
-    <AppProvider>
-      <UploadAndConversionCard />
-    </AppProvider>
-  );
-
-  const cancelButton = await screen.findByRole("button", { name: "Cancel and Delete Project" });
-  await userEvent.click(cancelButton);
-
-  expect(cancelConversion).toHaveBeenCalledWith("job-123");
-  expect(await screen.findByText("Cancelling…")).toBeInTheDocument();
-});
-
 });

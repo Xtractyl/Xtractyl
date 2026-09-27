@@ -30,7 +30,7 @@ jobs:
         run: ruff check . --output-format=github
 
   frontend-lint:
-    name: Frontend (eslint)
+    name: Frontend (eslint + prettier)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -53,3 +53,6 @@ jobs:
 
       - name: Lint (eslint)
         run: npx eslint .
+
+      - name: Check formatting (prettier)
+        run: npx prettier --check .

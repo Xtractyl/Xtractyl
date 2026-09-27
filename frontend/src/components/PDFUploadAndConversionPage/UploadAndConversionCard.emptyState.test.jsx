@@ -20,10 +20,7 @@ describe("UploadAndConversionCard", () => {
 
     // Inputs found via their linked labels
     expect(screen.getByLabelText("Project name")).toBeInTheDocument();
-    expect(screen.getByLabelText("Select your PDFs")).toHaveAttribute(
-      "accept",
-      "application/pdf"
-    );
+    expect(screen.getByLabelText("Select your PDFs")).toHaveAttribute("accept", "application/pdf");
 
     // No files selected yet
     expect(screen.queryByText(/file\(s\) selected/)).not.toBeInTheDocument();

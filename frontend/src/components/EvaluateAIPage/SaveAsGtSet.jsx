@@ -1,7 +1,6 @@
 // src/components/EvaluateAIPage/SaveAsGtSet.jsx
 import { useEffect, useState } from "react";
 import { saveAsGtSet, getProjectsReadyForGroundtruth } from "../../api/EvaluateAIPage/api.js";
- 
 
 export default function SaveAsGtSet({ apiToken, onSuccess }) {
   const [candidates, setCandidates] = useState([]);
@@ -53,18 +52,14 @@ export default function SaveAsGtSet({ apiToken, onSuccess }) {
       >
         <option value="">-- Select Project --</option>
         {candidates.map((p) => (
-          <option key={p} value={p}>{p}</option>
+          <option key={p} value={p}>
+            {p}
+          </option>
         ))}
       </select>
-      {loadError && (
-        <p className="text-sm text-xtractyl-orange mb-2">{loadError}</p>
-      )}
-      {errorMsg && (
-        <p className="text-sm text-xtractyl-orange mb-2">{errorMsg}</p>
-      )}
-      {successMsg && (
-        <p className="text-sm text-xtractyl-green mb-2">{successMsg}</p>
-      )}
+      {loadError && <p className="text-sm text-xtractyl-orange mb-2">{loadError}</p>}
+      {errorMsg && <p className="text-sm text-xtractyl-orange mb-2">{errorMsg}</p>}
+      {successMsg && <p className="text-sm text-xtractyl-green mb-2">{successMsg}</p>}
 
       <div className="flex gap-2">
         <button
@@ -84,7 +79,6 @@ export default function SaveAsGtSet({ apiToken, onSuccess }) {
           {loading ? "Saving…" : "Save as Internal GT"}
         </button>
       </div>
-
     </div>
   );
 }

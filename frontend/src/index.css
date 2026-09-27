@@ -1,5 +1,4 @@
-@import './assets/xtractyl.css';
+@import "./assets/xtractyl.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-

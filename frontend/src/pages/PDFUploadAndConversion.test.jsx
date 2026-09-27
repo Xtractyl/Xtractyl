@@ -12,8 +12,6 @@ describe("PDFUploadAndConversion page", () => {
       </AppProvider>
     );
 
-    expect(
-      screen.getByText("Upload and Convert Docs")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Upload and Convert Docs")).toBeInTheDocument();
   });
 });

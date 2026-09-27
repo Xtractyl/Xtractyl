@@ -1,10 +1,9 @@
-//src/components/CreateProjectPage/TokenInput.jsx
+//src/components/shared/TokenInput.jsx
 import { useAppContext } from "../../context/AppContext";
-import TokenLink from "../shared/TokenLink";
+import TokenLink from "./TokenLink";
 
 export default function TokenInput() {
   const { token, saveToken } = useAppContext();
-
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -14,7 +13,10 @@ export default function TokenInput() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 bg-xtractyl-offwhite rounded shadow w-full space-y-4">
+    <form
+      onSubmit={handleSubmit}
+      className="p-4 bg-xtractyl-offwhite rounded shadow w-full space-y-4"
+    >
       <label htmlFor="ls-token" className="block text-sm font-medium mb-2">
         Enter your Label Studio legacy token
       </label>
@@ -37,7 +39,7 @@ export default function TokenInput() {
 
       {/* Token helper */}
       <div className="mt-4">
-      <TokenLink />
+        <TokenLink />
       </div>
     </form>
   );

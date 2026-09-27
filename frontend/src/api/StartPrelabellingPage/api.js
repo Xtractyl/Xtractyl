@@ -1,5 +1,5 @@
 // src/api/StartPrelabellingPage/api.js
- import { request } from "../shared/request";
+import { request } from "../shared/request";
 const ORCH_BASE = (import.meta.env.VITE_ORCH_BASE || "http://localhost:5001").replace(/\/$/, "");
 const orch = (path, opts) => request(ORCH_BASE, path, opts);
 
@@ -33,8 +33,9 @@ export async function pullModel(model, onProgress) {
       try {
         const obj = JSON.parse(line);
         if (obj.error) {
-                 streamError = new Error(obj.error);
-                 break;            }
+          streamError = new Error(obj.error);
+          break;
+        }
         if (typeof obj.total === "number" && typeof obj.completed === "number" && obj.total > 0) {
           const pct = Math.round((obj.completed / obj.total) * 100);
           onProgress?.(`${pct}%`);
@@ -46,15 +47,14 @@ export async function pullModel(model, onProgress) {
       }
     }
     if (streamError) throw streamError;
-
   }
 }
 
 /** List locally available Ollama models */
 export async function listModels() {
-   const data = await orch(`/ollama/models`);
-   return Array.isArray(data?.models) ? data.models : [];
- }
+  const data = await orch(`/ollama/models`);
+  return Array.isArray(data?.models) ? data.models : [];
+}
 
 export async function previewQal(projectName) {
   return orch(`/preview_qal?project=${encodeURIComponent(projectName)}`);
@@ -72,14 +72,16 @@ export async function prelabelProject(payload) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(rest),
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    const msg = data?.message || data?.error || 
-      (Array.isArray(data) ? data.map(d => d.msg).join(", ") : null) ||
+    const msg =
+      data?.message ||
+      data?.error ||
+      (Array.isArray(data) ? data.map((d) => d.msg).join(", ") : null) ||
       `HTTP ${res.status}`;
     throw new Error(msg);
   }
@@ -97,6 +99,6 @@ export async function cancelPrelabel(jobId) {
  * Returns { state: "NOT_FOUND" } if job does not exist.
 
  */
- export async function getPrelabelStatus(jobId) {
-   return orch(`/prelabel/status/${encodeURIComponent(jobId)}`);
- }
+export async function getPrelabelStatus(jobId) {
+  return orch(`/prelabel/status/${encodeURIComponent(jobId)}`);
+}

@@ -10,34 +10,24 @@ export default function ComparisonSelection({
   setComparisonProject,
   onSubmit,
 }) {
-
   const comparisonOptions = projects.filter((name) => !gtSets.includes(name));
 
-  
   return (
     <div className="mt-8">
-      <h2 className="text-sm font-medium mb-1">
-        Select Groundtruth & Comparison Project
-      </h2>
+      <h2 className="text-sm font-medium mb-1">Select Groundtruth & Comparison Project</h2>
 
       {loading && <p className="text-sm">Loading projects…</p>}
 
       {errorMsg && <p className="text-sm text-xtractyl-orange">{errorMsg}</p>}
 
       {!loading && !errorMsg && projects.length === 0 && (
-        <p className="text-sm text-xtractyl-outline/70">
-          No projects available for evaluation.
-        </p>
+        <p className="text-sm text-xtractyl-outline/70">No projects available for evaluation.</p>
       )}
 
       {!loading && !errorMsg && (gtSets.length > 0 || projects.length > 0) && (
         <>
-
-
-                  {/* Comparison Project */}
-          <label className="block text-xs font-medium mt-4 mb-1">
-            Comparison Project
-          </label>
+          {/* Comparison Project */}
+          <label className="block text-xs font-medium mt-4 mb-1">Comparison Project</label>
           <select
             className="w-full p-2 border border-xtractyl-outline/30 rounded bg-xtractyl-white text-xtractyl-darktext"
             value={comparisonProject}
@@ -49,7 +39,6 @@ export default function ComparisonSelection({
               </option>
             ))}
           </select>
-
 
           {/* groundtruth project, restricted to sets that already have a
               computed evaluation for the comparison project selected above */}
@@ -67,8 +56,6 @@ export default function ComparisonSelection({
               </option>
             ))}
           </select>
-
-
 
           <p className="mt-3 text-xs text-xtractyl-outline">
             Groundtruth: <b>{groundtruthProject}</b>

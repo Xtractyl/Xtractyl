@@ -80,7 +80,7 @@ This approach is designed for environments where data privacy is non-negotiable,
 ---
 
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 
 ```mermaid
@@ -371,7 +371,7 @@ separate `requirements.txt` or test-requirements file anymore.
    number by hand.
 2. Re-build the container (to copy requirements.lock.txt, backend containers usually
    currently do not have a bind mount)
-2. Re-resolve and re-freeze it in a container matching the service's base
+3. Re-resolve and re-freeze it in a container matching the service's base
    image (see the `FROM` line in `docker/<service>/Dockerfile`), so
    resolution matches the real build environment:
    
@@ -386,14 +386,14 @@ separate `requirements.txt` or test-requirements file anymore.
    e.g. for ml_backend:
 
    ```bash
-   docker run --rm \
-  -v "$(pwd)/docker/ml_backend:/app" \
-  -w /app \
-  mcr.microsoft.com/playwright/python@sha256:0ff30156b1035e3bc24d92f67fb57e86bd1fef126b544f32c699ce1ae9b3b692 \
-  sh -c "pip install -r requirements.lock.txt -q && pip freeze > requirements.lock.txt"
-   ```
+      docker run --rm \
+   -v "$(pwd)/docker/ml_backend:/app" \
+   -w /app \
+   mcr.microsoft.com/playwright/python@sha256:0ff30156b1035e3bc24d92f67fb57e86bd1fef126b544f32c699ce1ae9b3b692 \
+   sh -c "pip install -r requirements.lock.txt -q && pip freeze > requirements.lock.txt"
+      ```
 
-3. Check `git diff docker/<service>/requirements.lock.txt` before committing.
+4. Check `git diff docker/<service>/requirements.lock.txt` before committing.
    Only the package(s) you intentionally unpinned — plus any of their new
    transitive dependencies — should change. If unrelated packages also show
    version changes, something upstream moved between your last freeze and
@@ -505,13 +505,15 @@ Planned next.
 ### Review AI 
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 ![Review AI Page](assets/review_0.png)
+
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 ![Review AI 1](assets/review_1.png)
+
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 ![Review AI 2](assets/review_2.png)
+
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 ![Review AI 3](assets/review_3.png)
-> THE ABOVE IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
 
 
 7. **Results Page** 
@@ -525,10 +527,9 @@ Planned next.
 
 ### Get Results 
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-
 ![Get results](assets/results.png)
 
-> THE ABOVE IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
+
 
 
 
@@ -545,23 +546,16 @@ Planned next.
 
 ### Evaluate the AI 
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-
 ![Evaluate AI 1](assets/evaluation_0.png)
 
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-
 ![Evaluate AI 2](assets/evaluation_1.png)
 
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-
 ![Evaluate AI 3](assets/evaluation_2.png)
 
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-
 ![Evaluate AI 4](assets/evaluation_3.png)
-
-> THE ABOVE IMAGES SHOW SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-
 
 
 9. **Monitor Evaluation Drift/Regression over Time for a Standard Set** (`/evaluationdrift`)  
@@ -573,15 +567,10 @@ Planned next.
 
 ### Evaluation Drift 
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-
 ![Evaluation Drift 1](assets/evaluation_drift_0.png)
 
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-
 ![Evaluation Drift 2](assets/evaluation_drift_1.png)
-
-> THE ABOVE IMAGES SHOW SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-
 
 
 ### Coming Soon
@@ -601,39 +590,57 @@ Planned next.
 
 1. Install NVM and Python on your system
 
-e.g. curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+   e.g. for NVM
+   ```bash 
+   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+   ```
 
+   e.g. for Python
+   ```bash
+   brew install python
+   ```
 
 2. Install Ruff for Python linting (local installation in system root outside docker)
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install ruff
-```
+
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install ruff
+   ```
 
 3. Install Node for JS linting (reads frontend/.nvmrc for the correct version)
-```bash
-cd frontend
-nvm install
-nvm use
-```
+
+   ```bash
+   cd frontend
+   nvm install
+   nvm use
+   ```
 
 ### Usage
 
-### python from repository root
+### Python linting with ruff (from repository root)
+
 ```bash
 source .venv/bin/activate
 ruff format .
 ruff check .
 ruff check . --fix
 ```
-### js for frontend from frontend folder
+
+### JS linting with eslint (from frontend/)
 ```bash
 cd frontend
 nvm use
 npx eslint .
 ```
 
+### JS formatting with prettier (from frontend/, local only — not yet enforced in CI)
+```bash
+cd frontend
+nvm use
+npx prettier --check .
+npx prettier --write .
+```
 
 ### Tests (see also "3. Testing" above for tests integrated into CI)
 
@@ -648,8 +655,10 @@ make down
 ## Unit tests 
 ```bash
 make deps
-make unit-orchestrator
-make unit-worker
+make unit-worker_prelabel
+make unit-worker_conversion
+make unit-ml_backend
+make unit-frontend
 ```
 ---
 
@@ -710,7 +719,7 @@ Version bump policy:
 Example:
 
 VERSION
-0.6.0 → 0.7.0
+0.7.0 → 0.8.0
 
 ---
 

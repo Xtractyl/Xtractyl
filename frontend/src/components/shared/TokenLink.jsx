@@ -16,18 +16,15 @@ export default function TokenLink() {
         Return here after copying the token from Label Studio.
       </p>
       <p className="mt-1 text-sm text-xtractyl-outline/60">
-      
         If you see no legacy token there, go to{" "}
-        <a   
-        href={`${LS_BASE}/organization/`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-xtractyl-green hover:underline"
+        <a
+          href={`${LS_BASE}/organization/`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xtractyl-green hover:underline"
         >
-        {LS_BASE}/organization
-        </a>
-        {" "} 
-       
+          {LS_BASE}/organization
+        </a>{" "}
         and enable it via the API Tokens settings.
       </p>
     </div>

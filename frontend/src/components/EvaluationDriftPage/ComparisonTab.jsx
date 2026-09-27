@@ -1,3 +1,4 @@
+// frontend/src/components/EvaluationDriftPage/ComparisonTab.jsx
 import { useEffect, useState } from "react";
 import { fetchComparisonView } from "../../api/EvaluationDriftPage/api.js";
 
@@ -17,11 +18,7 @@ export default function ComparisonTab({ projectName, scope }) {
     return <p className="text-sm text-xtractyl-outline/70">Please select a project.</p>;
 
   if (!entries.length)
-    return (
-      <p className="text-sm text-xtractyl-outline/70">
-        No evaluations yet for this project.
-      </p>
-    );
+    return <p className="text-sm text-xtractyl-outline/70">No evaluations yet for this project.</p>;
 
   return (
     <table className="w-full text-sm">
