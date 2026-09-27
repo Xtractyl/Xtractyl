@@ -37,7 +37,7 @@ export default function TokenInput() {
 
       {/* Token helper */}
       <div className="mt-4">
-      <TokenLink />
+        <TokenLink />
       </div>
     </form>
   );
