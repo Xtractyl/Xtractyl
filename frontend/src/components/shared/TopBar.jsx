@@ -17,8 +17,8 @@ export default function TopBar() {
         </Link>
       </div>
 
- <div className="px-8 py-4 bg-xtractyl-lightgreen">
-   <nav className="text-xtractyl-outline/70 py-6 flex items-center justify-center space-x-6">
+      <div className="px-8 py-4 bg-xtractyl-lightgreen">
+        <nav className="text-xtractyl-outline/70 py-6 flex items-center justify-center space-x-6">
           <NavLink
             to="/"
             className={({ isActive }) =>
