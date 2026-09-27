@@ -4,14 +4,14 @@ import ModelDownloadInput from "./ModelDownloadInput";
 import ProjectNameInput from "../shared/ProjectNameInput";
 import ModelPicker from "./ModelPicker";
 import SystemPromptInput from "./SystemPromptInput";
-import TokenLink from "../shared/TokenLink";
+import TokenInput from "../shared/TokenInput";
 import { useAppContext } from "../../context/AppContext";
 import { usePrelabelConfig } from "../../hooks/StartPrelabellingPage/usePrelabelConfig";
 import { usePrelabelJob } from "../../hooks/StartPrelabellingPage/usePrelabelJob";
 
 export default function StartPrelabellingCard() {
   const [refreshKey, setRefreshKey] = useState(0);
-  const { token, projectName, saveToken, saveProjectName } = useAppContext();
+  const { token, projectName, saveProjectName } = useAppContext();
   const config = usePrelabelConfig();
   const job = usePrelabelJob();
 
@@ -38,14 +38,15 @@ export default function StartPrelabellingCard() {
         set a system prompt, choose your Questions & Labels JSON, then start prelabeling.
       </p>
 
-      <div className="mb-6">
-        <ModelDownloadInput onDone={() => setRefreshKey((k) => k + 1)} />
-      </div>
+      <div className="space-y-6">
+        <div className="mb-6">
+          <ModelDownloadInput onDone={() => setRefreshKey((k) => k + 1)} />
+        </div>
 
-      <div className="space-y-6 bg-xtractyl-offwhite p-6 rounded shadow">
+        <div className="space-y-6 bg-xtractyl-offwhite p-6 rounded shadow">
         <ProjectNameInput value={projectName} onChange={saveProjectName} />
         <div className="text-sm text-xtractyl-outline/70 -mt-2">
-          <div>Forgot your project name?</div>
+          <p>Forgot your project name?</p>
           <a href="http://localhost:8080/projects/" target="_blank" rel="noopener noreferrer"
             className="inline-block text-xtractyl-green hover:underline">
             Open Label Studio projects
@@ -57,19 +58,8 @@ export default function StartPrelabellingCard() {
         )}
 
 
-        <div><TokenLink /></div>
-        <div className="mt-3">
-          <label className="block text-sm font-medium mb-1">Label Studio Token</label>
-          <input
-            type="password"
-            value={token}
-            onChange={(e) => saveToken(e.target.value)}
-            placeholder={token || "Enter your Label Studio token"}
-            className="w-full border rounded px-3 py-2"
-            autoComplete="off"
-            spellCheck={false}
-          />
-        </div>
+       <TokenInput />
+
 
         <ModelPicker selectedModel={config.model} onChange={config.setModel} refreshKey={refreshKey} />
         <SystemPromptInput value={config.systemPrompt} onChange={config.setSystemPrompt} />
@@ -111,6 +101,7 @@ export default function StartPrelabellingCard() {
 
         {job.statusMsg && <div className="text-sm mt-2">{job.statusMsg}</div>}
       </div>
+        </div>
     </div>
   );
 }
