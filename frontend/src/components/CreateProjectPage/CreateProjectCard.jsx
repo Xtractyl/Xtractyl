@@ -64,7 +64,7 @@ export default function CreateProjectCard() {
         </div>
       )}
 
-          {/* Groundtruth helper section */}
+      {/* Groundtruth helper section */}
       <div className="mt-4 border rounded p-3 bg-xtractyl-offwhite">
         <button
           type="button"
@@ -81,8 +81,8 @@ export default function CreateProjectCard() {
           <p className="mt-2 text-sm text-xtractyl-orange">{groundtruthError}</p>
         )}
 
-       {groundtruthSets.length > 0 && (
-         <div className="mt-4 space-y-4">
+        {groundtruthSets.length > 0 && (
+          <div className="mt-4 space-y-4">
             {groundtruthSets.map((set) => (
               <div key={set.name} className="bg-xtractyl-white p-4 rounded max-h-96 overflow-auto">
                 <h3 className="font-semibold mb-2">{set.name}</h3>
@@ -107,7 +107,7 @@ export default function CreateProjectCard() {
             ))}
           </div>
         )}
-      </div> 
+      </div>
     </div>
   );
 }
