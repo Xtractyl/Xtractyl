@@ -121,7 +121,7 @@ export default function EvaluateAICard() {
 
       {/* === TOKEN SECTION === */}
       <div className="mt-8">
-      <TokenInput />
+        <TokenInput />
       </div>
 
       {/* === SAVE AS GT SET === */}
