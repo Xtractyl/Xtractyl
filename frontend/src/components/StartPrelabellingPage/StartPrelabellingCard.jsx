@@ -44,64 +44,63 @@ export default function StartPrelabellingCard() {
         </div>
 
         <div className="space-y-6 bg-xtractyl-offwhite p-6 rounded shadow">
-        <ProjectNameInput value={projectName} onChange={saveProjectName} />
-        <div className="text-sm text-xtractyl-outline/70 -mt-2">
-          <p>Forgot your project name?</p>
-          <a href="http://localhost:8080/projects/" target="_blank" rel="noopener noreferrer"
-            className="inline-block text-xtractyl-green hover:underline">
-            Open Label Studio projects
-          </a>
-        </div>
-
-        {config.qalError && (
-          <p className="text-sm text-xtractyl-orange">{config.qalError}</p>
-        )}
-
-
-       <TokenInput />
-
-
-        <ModelPicker selectedModel={config.model} onChange={config.setModel} refreshKey={refreshKey} />
-        <SystemPromptInput value={config.systemPrompt} onChange={config.setSystemPrompt} />
-
-        <div className="pt-2 text-sm text-xtractyl-outline/70">
-          <div>Project: <span className="font-mono">{projectName || "—"}</span></div>
-          <div>Model: <span className="font-mono">{config.model || "—"}</span></div>
-        </div>
-
-        <div className="flex gap-3 pt-2">
-          <button type="button" onClick={handleStart} disabled={!canStart || job.busy}
-            className={`px-4 py-2 rounded text-xtractyl-white ${!canStart || job.busy ? "bg-xtractyl-green/50 cursor-not-allowed" : "bg-xtractyl-green hover:bg-xtractyl-green/80 transition"}`}>
-            {job.busy ? "Starting…" : "Start Prelabeling"}
-          </button>
-          <button type="button" onClick={job.cancel} disabled={!job.preJobId}
-            className={`px-4 py-2 rounded ${job.preJobId ? "bg-xtractyl-orange text-xtractyl-white hover:bg-xtractyl-orange/80 transition" : "bg-xtractyl-offwhite text-xtractyl-outline cursor-not-allowed"}`}>
-            Cancel
-          </button>
-        </div>
-
-        {(job.preJobId || job.preStatus) && (
-          <div className="mt-4 bg-xtractyl-offwhite p-4 rounded">
-            <div className="font-medium mb-1">
-              Status: {job.preStatus?.state || "queued"}{" "}
-              {Number.isFinite(job.progressPct) ? `— ${job.progressPct}%` : ""}
-            </div>
-            <div className="w-full h-2 bg-xtractyl-offwhite rounded">
-              <div className="h-2 bg-xtractyl-green rounded"
-                style={{ width: `${Number.isFinite(job.progressPct) ? job.progressPct : 0}%` }} />
-            </div>
-            {job.preStatus?.message && <div className="text-sm mt-2">{job.preStatus.message}</div>}
-            {job.preJobId && (
-              <div className="text-xs text-xtractyl-outline/70 mt-1">
-                Job ID: <span className="break-all">{job.preJobId}</span>
-              </div>
-            )}
+          <ProjectNameInput value={projectName} onChange={saveProjectName} />
+          <div className="text-sm text-xtractyl-outline/70 -mt-2">
+            <div>Forgot your project name?</div>
+            <a href="http://localhost:8080/projects/" target="_blank" rel="noopener noreferrer"
+              className="inline-block text-xtractyl-green hover:underline">
+              Open Label Studio projects
+            </a>
           </div>
-        )}
 
-        {job.statusMsg && <div className="text-sm mt-2">{job.statusMsg}</div>}
-      </div>
+          {config.qalError && (
+            <p className="text-sm text-xtractyl-orange">{config.qalError}</p>
+          )}
+
+
+          <TokenInput />
+
+          <ModelPicker selectedModel={config.model} onChange={config.setModel} refreshKey={refreshKey} />
+          <SystemPromptInput value={config.systemPrompt} onChange={config.setSystemPrompt} />
+
+          <div className="pt-2 text-sm text-xtractyl-outline/70">
+            <div>Project: <span className="font-mono">{projectName || "—"}</span></div>
+            <div>Model: <span className="font-mono">{config.model || "—"}</span></div>
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={handleStart} disabled={!canStart || job.busy}
+              className={`px-4 py-2 rounded text-xtractyl-white ${!canStart || job.busy ? "bg-xtractyl-green/50 cursor-not-allowed" : "bg-xtractyl-green hover:bg-xtractyl-green/80 transition"}`}>
+              {job.busy ? "Starting…" : "Start Prelabeling"}
+            </button>
+            <button type="button" onClick={job.cancel} disabled={!job.preJobId}
+              className={`px-4 py-2 rounded ${job.preJobId ? "bg-xtractyl-orange text-xtractyl-white hover:bg-xtractyl-orange/80 transition" : "bg-xtractyl-offwhite text-xtractyl-outline cursor-not-allowed"}`}>
+              Cancel
+            </button>
+          </div>
+
+          {(job.preJobId || job.preStatus) && (
+            <div className="mt-4 bg-xtractyl-offwhite p-4 rounded">
+              <div className="font-medium mb-1">
+                Status: {job.preStatus?.state || "queued"}{" "}
+                {Number.isFinite(job.progressPct) ? `— ${job.progressPct}%` : ""}
+              </div>
+              <div className="w-full h-2 bg-xtractyl-offwhite rounded">
+                <div className="h-2 bg-xtractyl-green rounded"
+                  style={{ width: `${Number.isFinite(job.progressPct) ? job.progressPct : 0}%` }} />
+              </div>
+              {job.preStatus?.message && <div className="text-sm mt-2">{job.preStatus.message}</div>}
+              {job.preJobId && (
+                <div className="text-xs text-xtractyl-outline/70 mt-1">
+                  Job ID: <span className="break-all">{job.preJobId}</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {job.statusMsg && <div className="text-sm mt-2">{job.statusMsg}</div>}
         </div>
+      </div>
     </div>
   );
 }
