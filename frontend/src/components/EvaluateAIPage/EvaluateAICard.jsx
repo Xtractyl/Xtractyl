@@ -6,10 +6,10 @@ import SaveAsGtSet from "./SaveAsGtSet.jsx";
 import ComparisonSelection from "./ComparisonSelection.jsx";
 import EvaluationResults from "./EvaluationResults.jsx";
 import { useAppContext } from "../../context/AppContext";
-import TokenLink from "../shared/TokenLink";
+import TokenInput from "../shared/TokenInput";
 
 export default function EvaluateAICard() {
-  const {token, saveToken } = useAppContext();
+  const {token } = useAppContext();
   const [gtSets, setGtSets] = useState([]);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -121,25 +121,7 @@ export default function EvaluateAICard() {
 
       {/* === TOKEN SECTION === */}
       <div className="mt-8">
-        <div>
-        < TokenLink />
-        </div>
-
-        <div className="mt-3">
-          <label className="block text-sm font-medium mb-1">
-            Label Studio Token
-          </label>
-
-          <input
-            type="password"
-            value={token}
-            onChange={(e) => saveToken(e.target.value)}
-            placeholder={token || "Enter your Label Studio token"}
-            className="w-full border border-xtractyl-outline/30 rounded px-3 py-2 bg-xtractyl-white text-xtractyl-darktext"
-            autoComplete="off"
-            spellCheck={false}
-          />
-        </div>
+      <TokenInput />
       </div>
 
       {/* === SAVE AS GT SET === */}
