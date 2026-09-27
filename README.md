@@ -618,7 +618,7 @@ Planned next.
 
 ### Usage
 
-### python from repository root
+### Python linting with ruff (from repository root)
 
 ```bash
 source .venv/bin/activate
@@ -627,13 +627,20 @@ ruff check .
 ruff check . --fix
 ```
 
-### js for frontend from frontend folder
+### JS linting with eslint (from frontend/)
 ```bash
 cd frontend
 nvm use
 npx eslint .
 ```
 
+### JS formatting with prettier (from frontend/, local only — not yet enforced in CI)
+```bash
+cd frontend
+nvm use
+npx prettier --check .
+npx prettier --write .
+```
 
 ### Tests (see also "3. Testing" above for tests integrated into CI)
 
@@ -648,8 +655,10 @@ make down
 ## Unit tests 
 ```bash
 make deps
-make unit-orchestrator
-make unit-worker
+make unit-worker_prelabel
+make unit-worker_conversion
+make unit-ml_backend
+make unit-frontend
 ```
 ---
 
