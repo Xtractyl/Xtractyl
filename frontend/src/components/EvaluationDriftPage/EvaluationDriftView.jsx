@@ -44,7 +44,7 @@ export default function EvaluationDriftView() {
 
   return (
     <div className="space-y-6">
-           <div className="flex gap-2">
+      <div className="flex gap-2">
         <button
           type="button"
           onClick={() => setScope("external")}
