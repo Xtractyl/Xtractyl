@@ -15,47 +15,77 @@ export default function ComparisonSelection({
 
   
   return (
-    <div>
-      <p className="text-xs text-xtractyl-outline/70 mb-2">
-        You can click into the question/label field and paste all
-        questions/labels from a existing ground truth set (ctrl+v to paste)
-      </p>
+    <div className="mt-8">
+      <h2 className="text-sm font-medium mb-1">
+        Select Groundtruth & Comparison Project
+      </h2>
 
-      <div className="mt-4 border border-xtractyl-outline/30 rounded-md overflow-hidden">
-        {/* Header */}
-        <div className="grid grid-cols-[3rem,1fr,1fr] bg-xtractyl-offwhite text-xs font-semibold px-3 py-2 border-b border-xtractyl-outline/30">
-          <div>#</div>
-          <div className="border-l border-xtractyl-outline/30 border-r pl-2 pr-2">Question</div>
-          <div>Label</div>
-        </div>
+      {loading && <p className="text-sm">Loading projects…</p>}
 
-        {/* Rows */}
-        <div className="divide-y divide-xtractyl-outline/20">
-          {Array.from({ length: rowCount }).map((_, idx) => (
-            <div key={idx} className="grid grid-cols-[3rem,1fr,1fr] px-3 py-2 items-center">
-              <div className="text-xs  text-xtractyl-outline/60">{idx + 1}</div>
+      {errorMsg && <p className="text-sm text-xtractyl-orange">{errorMsg}</p>}
 
-              <input
-                type="text"
-                value={questionLines[idx] || ""}
-                onChange={(e) => handleQuestionLineChange(idx, e.target.value)}
-                onPaste={(e) => handleQuestionPaste(e, idx)}
-                placeholder={idx === 0 ? "e.g., What is the patient ID?" : ""}
-                className="w-full text-sm px-2 py-1 border border-xtractyl-outline/20 rounded-md whitespace-nowrap overflow-x-auto overflow-y-hidden focus:outline-none focus:ring-1 focus:ring-xtractyl-lightgreen"
-              />
+      {!loading && !errorMsg && projects.length === 0 && (
+        <p className="text-sm text-xtractyl-outline/70">
+          No projects available for evaluation.
+        </p>
+      )}
 
-              <input
-                type="text"
-                value={labelLines[idx] || ""}
-                onChange={(e) => handleLabelLineChange(idx, e.target.value)}
-                onPaste={(e) => handleLabelPaste(e, idx)}
-                placeholder={idx === 0 ? "e.g., Patient ID" : ""}
-                className="w-full text-sm px-2 py-1 border border-xtractyl-outline/20 rounded-md whitespace-nowrap overflow-x-auto overflow-y-hidden focus:outline-none focus:ring-1 focus:ring-xtractyl-lightgreen"
-              />
-            </div>
-          ))}
-        </div>
-      </div>
+      {!loading && !errorMsg && (gtSets.length > 0 || projects.length > 0) && (
+        <>
+
+
+                  {/* Comparison Project */}
+          <label className="block text-xs font-medium mt-4 mb-1">
+            Comparison Project
+          </label>
+          <select
+            className="w-full p-2 border border-xtractyl-outline/30 rounded bg-xtractyl-white text-xtractyl-darktext"
+            value={comparisonProject}
+            onChange={(e) => setComparisonProject(e.target.value)}
+          >
+            {comparisonOptions.map((name, idx) => (
+              <option key={idx} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+
+
+          {/* groundtruth project, restricted to sets that already have a
+              computed evaluation for the comparison project selected above */}
+          <label className="block text-xs font-medium mt-3 mb-1">
+            Groundtruth Project (those available for the Comparison Project selected above)
+          </label>
+          <select
+            className="w-full p-2 border border-xtractyl-outline/30 rounded bg-xtractyl-white text-xtractyl-darktext"
+            value={groundtruthProject}
+            onChange={(e) => setGroundtruthProject(e.target.value)}
+          >
+            {gtSets.map((name, idx) => (
+              <option key={idx} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+
+
+
+          <p className="mt-3 text-xs text-xtractyl-outline">
+            Groundtruth: <b>{groundtruthProject}</b>
+            <br />
+            Comparison: <b>{comparisonProject}</b>
+          </p>
+
+          <button
+            type="button"
+            onClick={onSubmit}
+            className="mt-4 inline-flex items-center justify-center px-4 py-2 rounded bg-xtractyl-green text-xtractyl-white text-sm font-medium shadow hover:bg-xtractyl-green/80 transition disabled:opacity-60 disabled:cursor-not-allowed"
+            disabled={!groundtruthProject || !comparisonProject}
+          >
+            Show Evaluation
+          </button>
+        </>
+      )}
     </div>
   );
 }
