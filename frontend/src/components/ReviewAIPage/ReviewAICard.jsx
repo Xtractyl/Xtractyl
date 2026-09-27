@@ -1,8 +1,8 @@
 //src/components/ReviewAIPage/ReviewAICard.jsx
 export default function ReviewAICard() {
-    const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080";
+  const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080";
   
-    return (
+  return (
     <div className="p-8 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
         <h1 className="text-2xl font-semibold mb-4">Review AI</h1>
         <p className=" text-xtractyl-outline/70 mb-4">
@@ -21,6 +21,6 @@ export default function ReviewAICard() {
         <p className="mt-3 text-sm  text-xtractyl-outline/60">
           Return to this tab after review.
         </p>
-      </div>
-    );
-  }
+    </div>
+  );
+}
