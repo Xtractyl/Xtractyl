@@ -11,7 +11,7 @@ export default function CreateProjectCard() {
   const [statusMsg, setStatusMsg] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const handleFormSubmit = async (formData) => {
+  const handleCreateProject = async (formData) => {
     setBusy(true);
     try {
       if (!token) {
@@ -46,7 +46,7 @@ export default function CreateProjectCard() {
 
       {token && (
         <div>
-          <CreateProjectForm onSubmit={handleFormSubmit} busy={busy} />
+          <CreateProjectForm onSubmit={handleCreateProject} busy={busy} />
           {statusMsg && <div className="text-sm mt-2">{statusMsg}</div>}
         </div>
       )}
