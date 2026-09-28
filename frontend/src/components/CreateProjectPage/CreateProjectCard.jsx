@@ -9,8 +9,10 @@ import { useAppContext } from "../../context/AppContext";
 export default function CreateProjectCard() {
   const { token, saveProjectName } = useAppContext();
   const [statusMsg, setStatusMsg] = useState("");
+  const [busy, setBusy] = useState(false);
 
   const handleFormSubmit = async (formData) => {
+    setBusy(true);
     try {
       if (!token) {
         setStatusMsg("Please enter and save an API token first.");
@@ -28,6 +30,8 @@ export default function CreateProjectCard() {
     } catch (error) {
       setStatusMsg(`${error.message || "Something went wrong."}`);
       return false;
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -42,7 +46,7 @@ export default function CreateProjectCard() {
 
       {token && (
         <div>
-          <CreateProjectForm onSubmit={handleFormSubmit} />
+          <CreateProjectForm onSubmit={handleFormSubmit} busy={busy} />
           {statusMsg && <div className="text-sm mt-2">{statusMsg}</div>}
         </div>
       )}
