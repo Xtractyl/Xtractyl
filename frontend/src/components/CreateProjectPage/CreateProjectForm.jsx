@@ -1,14 +1,13 @@
 //src/components/CreateProjectPage/CreateProjectForm.jsx
 import useFormState from "../../hooks/CreateProjectPage/useFormState.js";
 import useError from "../../hooks/CreateProjectPage/useError.js";
-import useSplitLines from "../../hooks/CreateProjectPage/useSplitLines.js";
+import { splitLines } from "../../utils/CreateProjectPage/splitLines.js";
 import ConvertedProjectSelect from "./ConvertedProjectSelect";
 import QuestionsLabelsTable from "./QuestionsLabelsTable";
 
 export default function CreateProjectForm({ onSubmit }) {
   const { title, setTitle, questions, setQuestions, labels, setLabels, resetForm } = useFormState();
   const { error, setError, clearError } = useError();
-  const { splitLines } = useSplitLines();
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
