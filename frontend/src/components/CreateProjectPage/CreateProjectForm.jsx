@@ -5,7 +5,7 @@ import { splitLines } from "../../utils/CreateProjectPage/splitLines.js";
 import ConvertedProjectSelect from "./ConvertedProjectSelect";
 import QuestionsLabelsTable from "./QuestionsLabelsTable";
 
-export default function CreateProjectForm({ onSubmit, busy }) {
+export default function CreateProjectForm({ onCreateProject, busy }) {
   const { title, setTitle, questions, setQuestions, labels, setLabels, resetForm } = useFormState();
   const { error, setError, clearError } = useError();
 
@@ -28,7 +28,7 @@ export default function CreateProjectForm({ onSubmit, busy }) {
       return;
     }
 
-    const success = await onSubmit({
+    const success = await onCreateProject({
       title: title.trim(),
       questions: parsedQuestions,
       labels: parsedLabels,

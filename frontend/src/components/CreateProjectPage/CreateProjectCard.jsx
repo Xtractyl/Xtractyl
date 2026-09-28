@@ -46,7 +46,7 @@ export default function CreateProjectCard() {
 
       {token && (
         <div>
-          <CreateProjectForm onSubmit={handleCreateProject} busy={busy} />
+          <CreateProjectForm onCreateProject={handleCreateProject} busy={busy} />
           {statusMsg && <div className="text-sm mt-2">{statusMsg}</div>}
         </div>
       )}
