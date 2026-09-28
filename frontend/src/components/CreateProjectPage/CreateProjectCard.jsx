@@ -28,7 +28,7 @@ export default function CreateProjectCard() {
       setStatusMsg("Project created successfully.");
       return true;
     } catch (error) {
-      setStatusMsg(`${error.message || "Something went wrong."}`);
+      setStatusMsg(error.message || "Something went wrong.");
       return false;
     } finally {
       setBusy(false);
