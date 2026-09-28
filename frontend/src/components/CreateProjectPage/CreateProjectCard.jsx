@@ -1,13 +1,12 @@
 // src/components/CreateProjectPage/CreateProjectCard.jsx
 import { useState } from "react";
-import useCreateProject from "../../hooks/CreateProjectPage/useCreateProject.js";
+import { createProject } from "../../api/CreateProjectPage/api.js";
 import TokenInput from "../shared/TokenInput";
 import CreateProjectForm from "./CreateProjectForm";
 import GroundtruthSets from "./GroundtruthSets";
 import { useAppContext } from "../../context/AppContext";
 
 export default function CreateProjectCard() {
-  const { createProject } = useCreateProject();
   const { token, saveProjectName } = useAppContext();
   const [statusMsg, setStatusMsg] = useState("");
 
