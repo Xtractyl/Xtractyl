@@ -1,4 +1,4 @@
-// src/components/UploadTasks/UploadTasksCard.jsx
+// src/components/UploadTasksPage/UploadTasksCard.jsx
 import { useState } from "react";
 import UploadReadyProjectSelect from "./UploadReadyProjectSelect";
 import { uploadTasks } from "../../api/UploadTasksPage/api.js";
