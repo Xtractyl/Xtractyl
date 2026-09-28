@@ -10,7 +10,7 @@ export default function CreateProjectForm({ onSubmit }) {
   const { error, setError, clearError } = useError();
   const { splitLines } = useSplitLines();
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     clearError();
 
@@ -29,8 +29,12 @@ export default function CreateProjectForm({ onSubmit }) {
       return;
     }
 
-    onSubmit({ title: title.trim(), questions: parsedQuestions, labels: parsedLabels });
-    resetForm();
+    const success = await onSubmit({
+      title: title.trim(),
+      questions: parsedQuestions,
+      labels: parsedLabels,
+    });
+    if (success) resetForm();
   };
 
   return (

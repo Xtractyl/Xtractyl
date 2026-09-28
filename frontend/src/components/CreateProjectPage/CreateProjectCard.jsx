@@ -15,7 +15,7 @@ export default function CreateProjectCard() {
     try {
       if (!token) {
         setStatusMsg("Please enter and save an API token first.");
-        return;
+        return false;
       }
 
       saveProjectName(formData.title);
@@ -25,8 +25,10 @@ export default function CreateProjectCard() {
         token,
       });
       setStatusMsg("Project created successfully.");
+      return true;
     } catch (error) {
       setStatusMsg(`${error.message || "Something went wrong."}`);
+      return false;
     }
   };
 
