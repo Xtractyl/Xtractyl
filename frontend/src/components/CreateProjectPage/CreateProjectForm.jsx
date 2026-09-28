@@ -1,16 +1,15 @@
 //src/components/CreateProjectPage/CreateProjectForm.jsx
 import useFormState from "../../hooks/CreateProjectPage/useFormState.js";
 import useError from "../../hooks/CreateProjectPage/useError.js";
-import useSplitLines from "../../hooks/CreateProjectPage/useSplitLines.js";
+import { splitLines } from "../../utils/CreateProjectPage/splitLines.js";
 import ConvertedProjectSelect from "./ConvertedProjectSelect";
 import QuestionsLabelsTable from "./QuestionsLabelsTable";
 
-export default function CreateProjectForm({ onSubmit }) {
+export default function CreateProjectForm({ onCreateProject, busy }) {
   const { title, setTitle, questions, setQuestions, labels, setLabels, resetForm } = useFormState();
   const { error, setError, clearError } = useError();
-  const { splitLines } = useSplitLines();
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     clearError();
 
@@ -29,8 +28,12 @@ export default function CreateProjectForm({ onSubmit }) {
       return;
     }
 
-    onSubmit({ title: title.trim(), questions: parsedQuestions, labels: parsedLabels });
-    resetForm();
+    const success = await onCreateProject({
+      title: title.trim(),
+      questions: parsedQuestions,
+      labels: parsedLabels,
+    });
+    if (success) resetForm();
   };
 
   return (
@@ -52,9 +55,14 @@ export default function CreateProjectForm({ onSubmit }) {
 
       <button
         type="submit"
-        className="bg-xtractyl-green text-xtractyl-white px-4 py-2 rounded hover:bg-xtractyl-green/80 transition"
+        disabled={busy}
+        className={`px-4 py-2 rounded text-xtractyl-white ${
+          busy
+            ? "bg-xtractyl-green/50 cursor-not-allowed"
+            : "bg-xtractyl-green hover:bg-xtractyl-green/80 transition"
+        }`}
       >
-        Create project
+        {busy ? "Creating…" : "Create project"}
       </button>
     </form>
   );

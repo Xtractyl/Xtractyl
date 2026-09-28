@@ -1,4 +1,4 @@
-// src/components/UploadTasks/UploadTasksCard.jsx
+// src/components/UploadTasksPage/UploadTasksCard.jsx
 import { useState } from "react";
 import UploadReadyProjectSelect from "./UploadReadyProjectSelect";
 import { uploadTasks } from "../../api/UploadTasksPage/api.js";
@@ -20,13 +20,13 @@ export default function UploadTasksCard() {
 
     try {
       setBusy(true);
-      setStatusMsg(null);
+      setStatusMsg("");
 
       await uploadTasks({ projectName, token });
 
       setStatusMsg("Tasks uploaded successfully.");
     } catch (e) {
-      setStatusMsg(`${e.message || "Upload failed."}`);
+      setStatusMsg(e.message || "Upload failed.");
     } finally {
       setBusy(false);
     }
