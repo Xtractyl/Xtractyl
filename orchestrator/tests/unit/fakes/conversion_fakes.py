@@ -140,6 +140,9 @@ class FakeProjectRepo(ProjectRepositoryInterface):
     def get_projects_ready_for_creation(self):
         raise NotImplementedError("not needed by conversion domain tests yet")
 
+    def get_projects_ready_for_prelabelling(self):
+        raise NotImplementedError("not needed by conversion domain tests yet")
+
     def tasks_already_uploaded(self, name):
         raise NotImplementedError("not needed by conversion domain tests yet")
 
