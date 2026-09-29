@@ -85,7 +85,6 @@ def enqueue_prelabel_job(
         job_id = str(
             run_repo.create_run(
                 project=cmd.project_name,
-                label_studio_id=label_studio_id,
                 model_id=model.id,
                 system_prompt=cmd.system_prompt,
             )

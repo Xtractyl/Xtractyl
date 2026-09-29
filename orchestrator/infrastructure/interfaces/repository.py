@@ -120,7 +120,6 @@ class PrelabellingRunRepositoryInterface(ABC):
     def create_run(
         self,
         project: str,
-        label_studio_id: int,
         model_id: int,
         system_prompt: str,
     ) -> int: ...

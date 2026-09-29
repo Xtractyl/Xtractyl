@@ -12,13 +12,11 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
     def create_run(
         self,
         project: str,
-        label_studio_id: int,
         model_id: int,
         system_prompt: str,
     ) -> int:
         run = PrelabellingRun(
             project=project,
-            label_studio_id=label_studio_id,
             model_id=model_id,
             system_prompt=system_prompt or "",
             system_prompt_hash=compute_system_prompt_hash(system_prompt),
