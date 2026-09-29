@@ -10,6 +10,7 @@ from domain.projects import (
     check_project_exists,
     create_project_main_from_payload,
     list_projects_ready_for_creation,
+    list_projects_ready_for_prelabelling,
     list_projects_ready_for_upload,
     upload_tasks_main_from_payload,
 )
@@ -26,6 +27,7 @@ from api.contracts.projects import (
     CreateProjectRequest,
     CreateProjectResponse,
     ListProjectsReadyForCreationResponse,
+    ListProjectsReadyForPrelabellingResponse,
     ListProjectsReadyForUploadResponse,
     PreviewQalRequest,
     PreviewQalResponse,
@@ -213,6 +215,35 @@ def register(app, spec, session_factory, label_studio, storage):
             db.close()
         try:
             validated = ListProjectsReadyForUploadResponse.model_validate(result)
+        except ValidationError as e:
+            raise InternalError(
+                code="RESPONSE_CONTRACT_VIOLATED",
+                message="Internal response did not match expected schema.",
+                meta={"details": e.errors()},
+            )
+        return jsonify(validated.model_dump()), 200
+
+    @app.route("/list_projects_ready_for_prelabelling", methods=["GET"])
+    @spec.validate(
+        resp=Response(
+            HTTP_200=ListProjectsReadyForPrelabellingResponse,
+            HTTP_500=ErrorResponse,  # unexpected global exception handler
+        ),
+        tags=["projects"],
+    )
+    def list_projects_ready_for_prelabelling_route():
+        db = session_factory()
+        try:
+            repo = ProjectRepository(db)
+            result = list_projects_ready_for_prelabelling(repo=repo)
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
+        try:
+            validated = ListProjectsReadyForPrelabellingResponse.model_validate(result)
         except ValidationError as e:
             raise InternalError(
                 code="RESPONSE_CONTRACT_VIOLATED",
