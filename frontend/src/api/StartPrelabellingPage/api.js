@@ -60,6 +60,12 @@ export async function previewQal(projectName) {
   return orch(`/preview_qal?project=${encodeURIComponent(projectName)}`);
 }
 
+/** Projects with uploaded tasks that can (still) be prelabelled */
+export async function getProjectsReadyForPrelabelling() {
+  const data = await orch(`/list_projects_ready_for_prelabelling`);
+  return data.projects;
+}
+
 /**
  * Enqueue prelabel job (or start it, depending on backend).
  * Token is sent via Authorization header, not in the payload.
