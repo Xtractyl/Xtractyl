@@ -186,9 +186,9 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
   `IntegrityError` on a second attempt and translates it into a clean `AlreadyExists` API error
   (HTTP 409) rather than letting the raw DB error surface. This closes the gap that previously
   existed between two concurrent requests both passing an application-level check before either
-  committed. Note: the guard currently blocks a *second* run for any existing row regardless of its
-  `status` — a `failed` run is not yet routed into resume (that part of Planned Changes point 5 is
-  still open; see below)
+  committed. Note: the constraint blocks a second row regardless of `status`. `enqueue_prelabel_job`
+  checks `pending`/`running`/`done` explicitly beforehand; `failed`/`incomplete`/`cancelled` runs
+  pass that check on purpose but still hit this constraint until resume exists ([TODO 5])
 
 - `id` (PK)
   - **Set:** at creation — Prelabelling Pipeline, step 1 (`enqueue_prelabel_job`, `POST /prelabel_project`); automatically by Postgres (auto-increment)
@@ -211,7 +211,7 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
 - `status` (`pending` | `running` | `done` | `failed` | `cancelled` | `incomplete`) — enforced by `ck_prelabelling_runs_status_values`
   - **Set:** `"pending"` at creation — Prelabelling Pipeline, step 1
   - **Changed (current):** today, no other transition is written to this column at all — `"running"` only ever exists in the Redis status hash, and the terminal states are set by whatever the worker's end-of-job callback happens to report; this column effectively only ever shows `"pending"` in practice
-  - **Changed (planned):** transitions to `"running"` together with `total_tasks` being set for the first time, on the first successful progress callback of the run (Planned Changes point 4) — i.e. only once project/task-list resolution (Prelabelling Pipeline, step 2) has already succeeded; a pre-loop failure in that resolution step therefore goes `"pending"` → `"failed"` directly, skipping `"running"` entirely. From `"running"`: to `"done"` once `processed_tasks >= total_tasks` and every task succeeded; to `"incomplete"` under the same completion condition if at least one task's row in `task_prelabelling_metas` ended as `status="failed"` after retries were exhausted (loop continues past individual task failures rather than aborting — see Planned Changes point 4); to `"cancelled"` if `cancel_requested` was set and the worker's `should_stop` check (derived from it) ended the loop early; to `"failed"` only for a genuine hard abort of the whole loop (an exception class not covered by the planned per-task retry-with-backoff)
+  - **Changed (planned):** transitions to `"running"` together with `total_tasks` being set for the first time, on the first successful progress callback of the run (Planned Changes point 4) — i.e. only once project/task-list resolution (Prelabelling Pipeline, step 2) has already succeeded; a pre-loop failure in that resolution step therefore goes `"pending"` → `"failed"` directly, skipping `"running"` entirely. From `"running"`: to `"done"` once `processed_tasks >= total_tasks` and every task succeeded; to `"incomplete"` under the same completion condition if at least one task's row in `task_prelabelling_metas` ended as `status="failed"` after retries were exhausted (loop continues past individual task failures rather than aborting — see Planned Changes point 4); to `"cancelled"` to `"cancelled"` if `cancel_requested` was set and the worker received `continue: false` (derived from it) and ended the loop early; to `"failed"` only for a genuine hard abort of the whole loop (an exception class not covered by the planned per-task retry-with-backoff)
   - **Note:** evaluation (`sync_missing_evaluations`) only ever triggers on `"done"` — neither `"incomplete"` nor `"cancelled"` trigger it, regardless of how many tasks happened to complete successfully before the run ended
 - `error` (nullable)
   - **Set:** `NULL` at creation — Prelabelling Pipeline, step 1
@@ -219,16 +219,17 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
   - **Changed (planned):** type changes from a single error string to a **JSONB array** of `{filename, error}` entries — chosen over text-concatenation (the `conversion_jobs.error` style) because that style was built for a single-failure, fail-fast case, whereas here multiple tasks can fail independently while the loop continues; JSONB keeps this machine-readable without needing to parse a delimited string, and matches the JSONB type already used elsewhere in this table's row-level sibling (`task_prelabelling_metas.predictions`, `.raw_llm_answers`). Appended to (not overwritten) via `send_task_progress` (Planned Changes point 4) each time a task ends with `status="failed"` after its own retry-with-backoff is exhausted; on a hard pre-loop or mid-loop abort (`"failed"` status), holds a single-entry array for that failure instead
 - **planned:** `processed_tasks`, `total_tasks`, `cancel_requested` (bool) — replacing the Redis-based job status/progress/cancel tracking
   - **Set (once implemented):** `total_tasks` set once, from the worker's own task-list length, on the first progress call of a given run (see `status` above — this is the same write that also flips status to `"running"`)
-  - **Changed (once implemented):** `processed_tasks` incremented atomically per task, regardless of that task's success/failure, via the renamed per-task callback (`send_task_progress` / `/prelabel/progress`); `cancel_requested` set via the new cancel endpoint, read by the worker via the same progress callback's response (`should_stop`)
+  - **Changed (once implemented):** `processed_tasks` incremented atomically per task, regardless of that task's success/failure, via the renamed per-task callback (`send_task_progress` / `/prelabel/progress`); `cancel_requested` set via the new cancel endpoint, read by the worker via the same progress callback's response (`continue`)
 - `created_at`, `updated_at`
   - **Set:** automatically by Postgres at creation
   - **Changed:** `updated_at` automatically on any change to the row
 
 **`task_prelabelling_metas`**
-
-- **No `updated_at` column exists** — every row is written exactly once, in a single insert, never
-  updated afterward. All fields below share the same "Set" moment; there is no "Changed" for any of
-  them under current behavior.
+- **No `updated_at` column exists** — every row is written in a single insert and not updated
+  afterward. All fields below share the same "Set" moment; there is no "Changed" for any of them
+  under current behavior. Planned exception ([TODO 8]): a retry of a task whose row has
+  `status="failed"` overwrites that row via an upsert on the unique constraint below; the earlier
+  failure is not preserved.
 
 - `id` (PK)
   - **Set:** at insert — Prelabelling Pipeline, step 3, via `send_task_meta` (`POST /prelabel/task-meta`), the orchestrator call the worker makes after forwarding a completed task's `meta` from ml_backend; automatically by Postgres (auto-increment)
@@ -256,8 +257,13 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
 - **planned:** `status` (`success` | `failed`), `error` (Text, nullable) — the table currently has no
   explicit success/failure field at all; every row implicitly represents a successful task today
   - **Set (once implemented):** at insert, alongside every other field — Prelabelling Pipeline, step 3; `status="success"` for a normal completion, `status="failed"` (with `error` populated) for a task whose DOM extraction/matching crashed or whose retry-with-backoff (Planned Changes point 4) was exhausted; a timeout on any single question fails the whole task (nothing written to Label Studio in that case)
-  - **Note:** a `failed` row is kept for visibility/debugging but does **not** block a future retry from reprocessing that task — the retry/resume filter (Planned Changes point 5) checks specifically for `status="success"` under a given run's id, not mere row existence
-- `created_at`
+  - **Note:** a `failed` row is kept for visibility/debugging but does **not** block a future retry from reprocessing that task — the retry/resume filter ([TODO 7]) checks specifically for `status="success"` under a given run's id, not mere row existence. On retry, the `failed` row is overwritten by an upsert on `(prelabelling_run_id, label_studio_task_id)`, so only the latest attempt is stored
+
+  - **Retry overwrites the `failed` row:** because of the unique constraint on
+    `(prelabelling_run_id, label_studio_task_id)`, a retry updates the existing `failed` row via
+    upsert instead of inserting a second one — the earlier error is not kept. This is the only
+    exception to "written exactly once" above, and it only ever applies to `failed` rows
+ `created_at`
   - **Set:** automatically by Postgres at insert
 - unique constraint on `(prelabelling_run_id, label_studio_task_id)`
 
@@ -571,17 +577,17 @@ this ordinary user reflex already covers the case.
      Project time (see Schema Reference), but guarded regardless
   3. `project_repo.tasks_already_uploaded` — `TASKS_NOT_UPLOADED` (409) if `ls_tasks_uploaded` is
      not `true`
-  4. `run_repo.get_run_for_project` — `PRELABELLING_RUN_ALREADY_EXISTS` (409) if a run exists    with status `pending`, `running` or `done`
+  4. `run_repo.get_run_for_project` — `PRELABELLING_RUN_ALREADY_EXISTS` (409) if a run exists with  status `pending`, `running` or `done`
   5. `model_repo.get_by_archived_name(cmd.model)` — `MODEL_NOT_FOUND` if the string isn't a known
+     `archived_name`
 
-> **[TODO 5]** Second-run guard, project dropdown, resume logic, and redundant hash/QAL column
-> removal for the Start Prelabelling flow:
+> **[TODO 5]** Resume logic for the Start Prelabelling flow:
 > - A `failed`/`incomplete`/`cancelled` run is still blocked by the unique constraint on
 >   `prelabelling_runs.project` (409) — it should later route into resume instead
-> - No `GET /list_projects_ready_for_prelabelling` route exists, and `StartPrelabellingCard.jsx` still
->   uses the free-text `ProjectNameInput` rather than a dropdown — the only page in the app that still
->   works this way
 > - No resume logic exists in the worker — it doesn't distinguish a fresh run from a resumed one
+> - A `failed`/`incomplete`/`cancelled` run is still blocked by the unique constraint on
+>   `prelabelling_runs.project` (409) — it should later route into resume instead
+> - No `GET /list_projects_ready_for_prelabelling` route exists, and `StartPrelabellingCard.jsx` 
 
 - `prelabelling_runs` row created — `project`,
   `model_id`, `system_prompt` (+ hash), `status="pending"`. `questions_and_labels`/`labels_hash`/
@@ -616,11 +622,11 @@ this ordinary user reflex already covers the case.
 > exist; only the separate status hash goes away. See also [TODO 9] below, which builds on these same
 > new columns.
 
-> **Not implemented.** `GET /list_projects_ready_for_prelabelling` does not exist anywhere in the
-> codebase (no route, no domain function) — verified by a repo-wide search. The frontend
-> (`StartPrelabellingCard.jsx`) still uses `ProjectNameInput`, a free-text field, not a dropdown — the
-> only page in the app that still works this way; every other pipeline (Create Project, Upload Tasks,
-> Get Results) already has its dropdown. This is part of [TODO 5] above.
+> `GET /list_projects_ready_for_prelabelling` feeds the frontend picker
+> (`PrelabellingReadyProjectSelect` on the Start Prelabelling page): projects with
+> `ls_tasks_uploaded = true` that have either no `prelabelling_runs` row, or a run whose status is
+> not `pending`, `running` or `done`. Until resume exists, `failed`/`incomplete`/`cancelled` runs
+> appear here but are still rejected by `enqueue_prelabel_job` (409).
 
 ### 2. Worker pulls the job, validates the task list, resolves what to process
 
@@ -672,8 +678,8 @@ payload, resolved already by the orchestrator in step 1.
 > question fails the whole task, nothing written to Label Studio; DOM matching that runs but finds
 > nothing is still `status="success"` (plus a `no_dom_match` flag); DOM extraction/matching itself
 > crashing is `status="failed"`. The retry/resume filter (see [TODO 7] above) checks specifically for
-> `status="success"` — a `failed` row does not block a future retry of that task.
->
+`status="success"` — a `failed` row does not block a future retry of that task; the retry
+> overwrites it via an upsert on `(prelabelling_run_id, label_studio_task_id)`.
 > This requires a compensating transaction: if a prediction is successfully written to Label Studio
 > but the corresponding Postgres write (the `send_task_meta`/`task-meta` call above) fails — even
 > after retry — the Label Studio prediction is deleted again, so the two never permanently disagree.
@@ -716,8 +722,9 @@ payload, resolved already by the orchestrator in step 1.
 >   true, `status` transitions to its terminal value right there (`"done"` if every task succeeded,
 >   `"incomplete"` if at least one didn't — see `prelabelling_runs.status` in the Schema Reference for
 >   the full transition table), and `sync_missing_evaluations` fires on `"done"` from this same call
-> - **Stop signal:** the response includes `{"should_stop": bool}`, derived from `cancel_requested`
->   — replacing the separate `cancel_cb` polling loop against the Redis status hash
+> - **Stop signal:** the response includes `{"continue": bool}` (`false` once `cancel_requested` is
+>   set), the same shape as the Conversion callback — replacing the separate `cancel_cb` polling
+>   loop against the Redis status hash
 >
 > **Retry-with-backoff replaces run-wide abort on single-task failure:** each task's
 > `send_predict` + `send_task_progress` gets its own try/except with retry-with-backoff, instead of
@@ -731,8 +738,7 @@ payload, resolved already by the orchestrator in step 1.
 > (project/task-list resolution itself failing, per Prelabelling Pipeline step 2) — reported via a
 > distinct payload shape without a `task_id`. This is also the only remaining path to `status="failed"`
 > — see the `"pending"` → `"failed"` transition (skipping `"running"` entirely) already described
-> under `prelabelling_runs.status` in the Schema Reference. `"cancelled"` is set via this same
-> narrowed callback when the worker's loop exits early due to `should_stop` — the loop still needs to
+> under `prelabelling_runs.status` in the Schema Reference. `"cancelled"` is set via this same narrowed callback when the worker's loop exits early due to `continue: false` — the loop still needs to
 > report that it stopped, even though counting alone can't distinguish "stopped due to cancellation"
 > from "stopped due to still being mid-run".
 
