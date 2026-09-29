@@ -1,7 +1,7 @@
 // src/components/StartPrelabellingPage/StartPrelabellingCard.jsx
 import { useState } from "react";
 import ModelDownloadInput from "./ModelDownloadInput";
-import ProjectNameInput from "../shared/ProjectNameInput";
+import PrelabellingReadyProjectSelect from "./PrelabellingReadyProjectSelect";
 import ModelPicker from "./ModelPicker";
 import SystemPromptInput from "./SystemPromptInput";
 import TokenInput from "../shared/TokenInput";
@@ -43,18 +43,7 @@ export default function StartPrelabellingCard() {
         </div>
 
         <div className="space-y-6 bg-xtractyl-offwhite p-6 rounded shadow">
-          <ProjectNameInput value={projectName} onChange={saveProjectName} />
-          <div className="text-sm text-xtractyl-outline/70 -mt-2">
-            <div>Forgot your project name?</div>
-            <a
-              href="http://localhost:8080/projects/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block text-xtractyl-green hover:underline"
-            >
-              Open Label Studio projects
-            </a>
-          </div>
+          <PrelabellingReadyProjectSelect selected={projectName} onChange={saveProjectName} />
 
           {config.qalError && <p className="text-sm text-xtractyl-orange">{config.qalError}</p>}
 

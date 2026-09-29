@@ -1,7 +1,8 @@
 # orchestrator/infrastructure/repository/project_repository.py
 
-from db.models import ConversionJob, File, Project, TaskGroundtruthAnnotation
+from db.models import ConversionJob, File, PrelabellingRun, Project, TaskGroundtruthAnnotation
 from infrastructure.interfaces.repository import ProjectRepositoryInterface
+from sqlalchemy import or_
 from utils.hashing import compute_document_set_hash, compute_labels_hash, compute_questions_hash
 
 
@@ -31,6 +32,21 @@ class ProjectRepository(ProjectRepositoryInterface):
             .filter(
                 Project.label_studio_id.isnot(None),
                 Project.ls_tasks_uploaded.is_(False),
+            )
+            .all()
+        )
+
+    def get_projects_ready_for_prelabelling(self) -> list:
+        # Keep the excluded states in sync with BLOCKING_RUN_STATES in domain/jobs.py
+        return (
+            self._db.query(Project)
+            .outerjoin(PrelabellingRun, PrelabellingRun.project == Project.name)
+            .filter(
+                Project.ls_tasks_uploaded.is_(True),
+                or_(
+                    PrelabellingRun.id.is_(None),
+                    PrelabellingRun.status.notin_(("pending", "running", "done")),
+                ),
             )
             .all()
         )

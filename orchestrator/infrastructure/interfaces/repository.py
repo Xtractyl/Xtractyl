@@ -67,6 +67,9 @@ class ProjectRepositoryInterface(ABC):
     def get_projects_ready_for_upload(self) -> list: ...
 
     @abstractmethod
+    def get_projects_ready_for_prelabelling(self) -> list: ...
+
+    @abstractmethod
     def get_projects_ready_for_creation(self) -> list: ...
 
     @abstractmethod
@@ -120,7 +123,6 @@ class PrelabellingRunRepositoryInterface(ABC):
     def create_run(
         self,
         project: str,
-        label_studio_id: int,
         model_id: int,
         system_prompt: str,
     ) -> int: ...

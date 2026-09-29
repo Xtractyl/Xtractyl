@@ -164,17 +164,22 @@ class PrelabellingRun(Base):
 
     id = Column(Integer, primary_key=True)
     project = Column(Text, ForeignKey("projects.name"), nullable=False)
-    label_studio_id = Column(Integer, nullable=True)
     system_prompt_hash = Column(Text, nullable=True)
     model_id = Column(Integer, ForeignKey("models.id"), nullable=False)
     system_prompt = Column(Text, nullable=True)
     llm_timeout_seconds = Column(Integer, nullable=True)
-    status = Column(Text, nullable=False, default="pending")  # pending | running | done | failed
+    status = Column(Text, nullable=False, default="pending")
     error = Column(Text, nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
 
-    __table_args__ = (UniqueConstraint("project", name="uq_prelabelling_runs_project"),)
+    __table_args__ = (
+        UniqueConstraint("project", name="uq_prelabelling_runs_project"),
+        CheckConstraint(
+            "status IN ('pending', 'running', 'done', 'failed', 'cancelled', 'incomplete')",
+            name="ck_prelabelling_runs_status_values",
+        ),
+    )
 
 
 class TaskPrelabellingMeta(Base):
