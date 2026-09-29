@@ -67,6 +67,9 @@ class ProjectRepositoryInterface(ABC):
     def get_projects_ready_for_upload(self) -> list: ...
 
     @abstractmethod
+    def get_projects_ready_for_prelabelling(self) -> list: ...
+
+    @abstractmethod
     def get_projects_ready_for_creation(self) -> list: ...
 
     @abstractmethod
