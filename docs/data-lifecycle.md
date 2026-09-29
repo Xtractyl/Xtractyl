@@ -196,13 +196,6 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
 - `project` (FK → `projects.name`)
   - **Set:** at creation — Prelabelling Pipeline, step 1
   - **Changed:** never
-- `label_studio_id` (nullable)
-  - **Set:** at creation — Prelabelling Pipeline, step 1, read fresh from `projects.label_studio_id`
-  - **Changed:** never
-  - **Dead redundancy, planned for removal:** written at creation but never read again anywhere in
-    the codebase — `projects.label_studio_id` is the actual source of truth, and every consumer
-    (Upload Tasks, the Prelabelling worker via its own `resolve_project_id` call) either reads
-    `projects` directly or re-resolves it independently rather than reading this column
 - `system_prompt_hash` (nullable) — previously undocumented; unlike `projects.questions_and_labels`, `system_prompt` itself is **not** DB-sourced — it's free text held in the browser's `localStorage` and trusted as submitted, run-scoped only (no project-level canonical value exists)
   - **Set:** at creation — Prelabelling Pipeline, step 1, computed from the client-submitted `system_prompt`
   - **Changed:** never
@@ -215,7 +208,7 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
 - `llm_timeout_seconds` (nullable)
   - **Set:** at creation — Prelabelling Pipeline, step 1
   - **Changed:** never
-- `status` (`pending` | `running` | `done` | `failed` | `cancelled` | `incomplete`) — no DB-level CHECK constraint enforcing this set
+- `status` (`pending` | `running` | `done` | `failed` | `cancelled` | `incomplete`) — enforced by `ck_prelabelling_runs_status_values`
   - **Set:** `"pending"` at creation — Prelabelling Pipeline, step 1
   - **Changed (current):** today, no other transition is written to this column at all — `"running"` only ever exists in the Redis status hash, and the terminal states are set by whatever the worker's end-of-job callback happens to report; this column effectively only ever shows `"pending"` in practice
   - **Changed (planned):** transitions to `"running"` together with `total_tasks` being set for the first time, on the first successful progress callback of the run (Planned Changes point 4) — i.e. only once project/task-list resolution (Prelabelling Pipeline, step 2) has already succeeded; a pre-loop failure in that resolution step therefore goes `"pending"` → `"failed"` directly, skipping `"running"` entirely. From `"running"`: to `"done"` once `processed_tasks >= total_tasks` and every task succeeded; to `"incomplete"` under the same completion condition if at least one task's row in `task_prelabelling_metas` ended as `status="failed"` after retries were exhausted (loop continues past individual task failures rather than aborting — see Planned Changes point 4); to `"cancelled"` if `cancel_requested` was set and the worker's `should_stop` check (derived from it) ended the loop early; to `"failed"` only for a genuine hard abort of the whole loop (an exception class not covered by the planned per-task retry-with-backoff)
@@ -576,35 +569,21 @@ this ordinary user reflex already covers the case.
   2. `projects.questions_and_labels` — `QAL_NOT_FOUND` if unset; should practically never occur in
      practice, since `questions_and_labels` is always set together with `label_studio_id` at Create
      Project time (see Schema Reference), but guarded regardless
-  3. `model_repo.get_by_archived_name(cmd.model)` — `MODEL_NOT_FOUND` if the string isn't a known
-     `archived_name`; a pure Postgres lookup, never checked against Ollama directly — this is what
-     prevents a model that was pulled into Ollama but never archived via `reconcile_models()` from
-     being usable here at all, even via direct API/curl access
+  3. `project_repo.tasks_already_uploaded` — `TASKS_NOT_UPLOADED` (409) if `ls_tasks_uploaded` is
+     not `true`
+  4. `run_repo.get_run_for_project` — `PRELABELLING_RUN_ALREADY_EXISTS` (409) if a run exists    with status `pending`, `running` or `done`
+  5. `model_repo.get_by_archived_name(cmd.model)` — `MODEL_NOT_FOUND` if the string isn't a known
 
 > **[TODO 5]** Second-run guard, project dropdown, resume logic, and redundant hash/QAL column
 > removal for the Start Prelabelling flow:
-> - No second-run guard exists in `enqueue_prelabel_job` (`orchestrator/domain/jobs.py`) — a new run
->   can be enqueued while a `pending`/`running`/`done` run already exists for the project; a `failed`
->   run should route into resume instead of being blocked once this exists
+> - A `failed`/`incomplete`/`cancelled` run is still blocked by the unique constraint on
+>   `prelabelling_runs.project` (409) — it should later route into resume instead
 > - No `GET /list_projects_ready_for_prelabelling` route exists, and `StartPrelabellingCard.jsx` still
 >   uses the free-text `ProjectNameInput` rather than a dropdown — the only page in the app that still
 >   works this way
 > - No resume logic exists in the worker — it doesn't distinguish a fresh run from a resumed one
-> - `prelabelling_runs.questions_and_labels`, `.labels_hash`, `.questions_hash` are still present on
->   the model and still written on every `create_run` call — these are redundant (never diverge from
->   `projects.questions_and_labels`) and planned for removal, with call sites moved to join against
->   `projects` instead
 
-> **Not implemented.** `enqueue_prelabel_job` (`orchestrator/domain/jobs.py`) has no such check —
-> verified by reading the full function. It only checks `label_studio_id`, `questions_and_labels`, and
-> the model, in that order (see the ordered list above). There is no `TASKS_NOT_UPLOADED` guard, and
-> `project_repo.tasks_already_uploaded` (which does exist, and is used correctly elsewhere — see
-> `upload_tasks_main_from_payload` in the Upload Tasks Pipeline, where it guards against a *second*
-> upload) is never called from this function. A prelabelling run can currently be enqueued for a
-> project whose tasks were never uploaded to Label Studio at all; the only thing stopping this in
-> practice is the frontend's own dropdown filtering, not a backend guard.
-
-- `prelabelling_runs` row created — `project`, `label_studio_id`,
+- `prelabelling_runs` row created — `project`,
   `model_id`, `system_prompt` (+ hash), `status="pending"`. `questions_and_labels`/`labels_hash`/
   `questions_hash` are checked for existence on `projects` (`QAL_NOT_FOUND` if unset) but no longer
   stored on the run itself, they never diverge from `projects.questions_and_labels` (because only
