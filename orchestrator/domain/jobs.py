@@ -14,7 +14,7 @@ from infrastructure.interfaces.repository import (
 )
 from sqlalchemy.exc import IntegrityError
 
-from domain.errors import AlreadyExists, NotFound
+from domain.errors import AlreadyExists, InvalidState, NotFound
 from domain.models.jobs import (
     CancelJobCommand,
     EnqueueJobCommand,
@@ -31,6 +31,10 @@ QUEUE = "prelabel_jobs"
 STATUS = "status:"
 RESULT = "result:"
 LOGS = "logs:"
+
+# enqueue_prelabel_job will not be allowed for "pending", "running", "done" status
+# it remains allowed for "cancelled", "failed", "incomplete", this allows to finish exactly 1 run
+BLOCKING_RUN_STATES = ("pending", "running", "done")
 
 
 def _status_key(job_id: str) -> str:
@@ -77,6 +81,20 @@ def enqueue_prelabel_job(
             code="QAL_NOT_FOUND",
             message="No QAL found for this project.",
         )
+    if not project_repo.tasks_already_uploaded(cmd.project_name):
+        raise InvalidState(
+            code="TASKS_NOT_UPLOADED",
+            message="Tasks have not been uploaded to Label Studio for this project.",
+        )
+    existing_run = run_repo.get_run_for_project(cmd.project_name)
+    if existing_run and existing_run.status in BLOCKING_RUN_STATES:
+        raise AlreadyExists(
+            code="PRELABELLING_RUN_ALREADY_EXISTS",
+            message=(
+                f"A prelabelling run for project '{cmd.project_name}' "
+                f"already exists (status '{existing_run.status}')."
+            ),
+        )
     model = model_repo.get_by_archived_name(cmd.model)
     if not model:
         raise NotFound(code="MODEL_NOT_FOUND", message=f"Unknown model '{cmd.model}'.")
@@ -90,9 +108,11 @@ def enqueue_prelabel_job(
             )
         )
     except IntegrityError as e:
-        # due to UniqueConstraint on "project" in PrelabellingRun
-        # a DB integrity error will be thrown on a second run
-        # we translate it here from a raw error
+        # there is a unique constraint on "project" in PrelabellingRun.
+        # "cancelled", "failed", "incomplete" are allowed to be enqueued again (see above)
+        # currently they will then fail here until run_repo.continue_run is implemented
+        # IntegrityError also catches two concurrent enqueues that both
+        # passed the check. The raw IntegrityError translated from the db is translated here.
         raise AlreadyExists(
             code="PRELABELLING_RUN_ALREADY_EXISTS",
             message=(f"A prelabelling run already exists for project '{cmd.project_name}'."),
