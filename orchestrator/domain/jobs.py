@@ -141,6 +141,9 @@ def enqueue_prelabel_job(
                 message=(f"A prelabelling run already exists for project '{cmd.project_name}'."),
             ) from e
 
+        html_keys = project_repo.get_html_keys_for_project(cmd.project_name)
+        run_repo.create_run_tasks(int(job_id), [os.path.basename(key) for key in html_keys])
+
     r.hset(
         _status_key(job_id),
         mapping={
