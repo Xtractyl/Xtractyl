@@ -186,9 +186,10 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
   `IntegrityError` on a second attempt and translates it into a clean `AlreadyExists` API error
   (HTTP 409) rather than letting the raw DB error surface. This closes the gap that previously
   existed between two concurrent requests both passing an application-level check before either
-  committed. Note: the constraint blocks a second row regardless of `status`. `enqueue_prelabel_job`
-  checks `pending`/`running`/`done` explicitly beforehand; `failed`/`incomplete`/`cancelled` runs
-  pass that check on purpose but still hit this constraint until resume exists ([TODO 5])
+  committed. `enqueue_prelabel_job` additionally checks `get_run_for_project` up front and rejects an existing run in `pending`, `running` or `done` with the same `AlreadyExists` error (step 1).
+  A run in `failed`, `incomplete` or `cancelled` is resumed instead (same row, see
+  `prelabelling_runs.status`), so in practice the constraint only fires when two first enqueues
+  race each other
 
 - `id` (PK)
   - **Set:** at creation — Prelabelling Pipeline, step 1 (`enqueue_prelabel_job`, `POST /prelabel_project`); automatically by Postgres (auto-increment)
@@ -210,7 +211,10 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
   - **Changed:** never
 - `status` (`pending` | `running` | `done` | `failed` | `cancelled` | `incomplete`) — enforced by `ck_prelabelling_runs_status_values`
   - **Set:** `"pending"` at creation — Prelabelling Pipeline, step 1
-  - **Changed (current):** today, no other transition is written to this column at all — `"running"` only ever exists in the Redis status hash, and the terminal states are set by whatever the worker's end-of-job callback happens to report; this column effectively only ever shows `"pending"` in practice
+  - **Changed (resume):** from `"failed"`, `"cancelled"` or `"incomplete"` back to `"pending"` in
+    Prelabelling Pipeline, step 1 (`run_repo.resume_run`, a conditional UPDATE so concurrent
+    resumes can't both succeed), with `error` cleared to `NULL` so a second failure is never
+    mistaken for the first one
   - **Changed (planned):** transitions to `"running"` together with `total_tasks` being set for the first time, on the first successful progress callback of the run (Planned Changes point 4) — i.e. only once project/task-list resolution (Prelabelling Pipeline, step 2) has already succeeded; a pre-loop failure in that resolution step therefore goes `"pending"` → `"failed"` directly, skipping `"running"` entirely. From `"running"`: to `"done"` once `processed_tasks >= total_tasks` and every task succeeded; to `"incomplete"` under the same completion condition if at least one task's row in `task_prelabelling_metas` ended as `status="failed"` after retries were exhausted (loop continues past individual task failures rather than aborting — see Planned Changes point 4); to `"cancelled"` to `"cancelled"` if `cancel_requested` was set and the worker received `continue: false` (derived from it) and ended the loop early; to `"failed"` only for a genuine hard abort of the whole loop (an exception class not covered by the planned per-task retry-with-backoff)
   - **Note:** evaluation (`sync_missing_evaluations`) only ever triggers on `"done"` — neither `"incomplete"` nor `"cancelled"` trigger it, regardless of how many tasks happened to complete successfully before the run ended
 - `error` (nullable)
@@ -580,14 +584,18 @@ this ordinary user reflex already covers the case.
   4. `run_repo.get_run_for_project` — `PRELABELLING_RUN_ALREADY_EXISTS` (409) if a run exists with  status `pending`, `running` or `done`
   5. `model_repo.get_by_archived_name(cmd.model)` — `MODEL_NOT_FOUND` if the string isn't a known
      `archived_name`
+  6. If `get_run_for_project` found a run in `failed`, `cancelled` or `incomplete`: the run is resumed
+     (same `prelabelling_runs` row, status back to `pending`). Model (`model_id`) and system prompt
+     (`system_prompt_hash`) must match the run's original values, otherwise `RESUME_CONFIG_MISMATCH`
+     (409) — the message carries the original model name and the unchanged prompt text, since the
+     error's `meta` never reaches the client. No run → `create_run` as before
 
 > **[TODO 5]** Resume logic for the Start Prelabelling flow:
-> - A `failed`/`incomplete`/`cancelled` run is still blocked by the unique constraint on
->   `prelabelling_runs.project` (409) — it should later route into resume instead
-> - No resume logic exists in the worker — it doesn't distinguish a fresh run from a resumed one
-> - A `failed`/`incomplete`/`cancelled` run is still blocked by the unique constraint on
->   `prelabelling_runs.project` (409) — it should later route into resume instead
-> - No `GET /list_projects_ready_for_prelabelling` route exists, and `StartPrelabellingCard.jsx` 
+> **Resume:** the worker does not distinguish a fresh run from a resumed one — it simply fetches
+> every task without a prediction from Label Studio, so a resumed run skips finished tasks
+> automatically. The known gap (a task with a prediction in Label Studio but no row in
+> `task_prelabelling_metas` is never redone) is closed by [TODO 7], which moves task openness to
+> Postgres. 
 
 - `prelabelling_runs` row created — `project`,
   `model_id`, `system_prompt` (+ hash), `status="pending"`. `questions_and_labels`/`labels_hash`/
@@ -625,8 +633,8 @@ this ordinary user reflex already covers the case.
 > `GET /list_projects_ready_for_prelabelling` feeds the frontend picker
 > (`PrelabellingReadyProjectSelect` on the Start Prelabelling page): projects with
 > `ls_tasks_uploaded = true` that have either no `prelabelling_runs` row, or a run whose status is
-> not `pending`, `running` or `done`. Until resume exists, `failed`/`incomplete`/`cancelled` runs
-> appear here but are still rejected by `enqueue_prelabel_job` (409).
+> not `pending`, `running` or `done` — selecting a run in `failed`/`incomplete`/`cancelled`
+> resumes it (step 1, point 6).
 
 ### 2. Worker pulls the job, validates the task list, resolves what to process
 
