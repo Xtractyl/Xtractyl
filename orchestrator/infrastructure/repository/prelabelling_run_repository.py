@@ -1,6 +1,6 @@
 # orchestrator/infrastructure/repository/prelabelling_run_repository.py
 
-from db.models import PrelabellingRun, TaskPrelabellingMeta
+from db.models import PrelabellingRun, PrelabellingRunTask, TaskPrelabellingMeta
 from infrastructure.interfaces.repository import PrelabellingRunRepositoryInterface
 from utils.hashing import compute_system_prompt_hash
 
@@ -26,6 +26,13 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
         self._db.flush()
         self._db.refresh(run)
         return run.id
+
+    def create_run_tasks(self, run_id: int, filenames: list[str]) -> None:
+        self._db.add_all(
+            PrelabellingRunTask(prelabelling_run_id=run_id, filename=name, status="pending")
+            for name in filenames
+        )
+        self._db.flush()
 
     def get_run(self, job_id: int):
         return self._db.query(PrelabellingRun).filter(PrelabellingRun.id == job_id).first()
