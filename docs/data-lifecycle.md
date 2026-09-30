@@ -272,10 +272,9 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
 - unique constraint on `(prelabelling_run_id, label_studio_task_id)`
 
 **`prelabelling_run_tasks`** — replacement for `task_prelabelling_metas`; **exists, but nothing
-writes or reads it yet**. Once fully active, `task_prelabelling_metas` is dropped.
-
-- One row per task of a run, created when the run is enqueued, so the row
-  count is the run's task total and `status` is the task's state.
+writes or reads it yet, apart from row creation at enqueue** (Prelabelling Pipeline, step 1). Once fully active, `task_prelabelling_metas` is dropped.
+- One row per task of a run, created when a new run is enqueued, so the
+  row count is the run's task total and `status` is the task's state.
 - `id` (PK), `prelabelling_run_id` (FK → `prelabelling_runs.id`)
 - `filename` (NOT NULL) — `basename(files.html_key)`, i.e. the `name` of the Label Studio task,
   not `files.filename` (which is the PDF name)
@@ -621,7 +620,7 @@ this ordinary user reflex already covers the case.
   stored on the run itself, they never diverge from `projects.questions_and_labels` (because only
   one run is currently allowed), so consumers
   join against `projects` directly instead (see the Schema Reference's `prelabelling_runs` section).
- 
+ - One `prelabelling_run_tasks` row per file with an `html_key` is created in the same transaction (`filename = basename(html_key)`, `status="pending"`). Nothing reads or updates these rows yet
 
 > **Clarification on why `status` stays `"pending"` here, unlike `conversion_jobs.status` at the
 > equivalent point:** for Conversion, all the work that can fail (file uploads, `files` rows) already
