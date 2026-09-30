@@ -38,6 +38,18 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
                 run.error = error
             self._db.flush()
 
+    def resume_run(self, job_id: int) -> bool:
+        updated = (
+            self._db.query(PrelabellingRun)
+            .filter(
+                PrelabellingRun.id == job_id,
+                PrelabellingRun.status.in_(("failed", "cancelled", "incomplete")),
+            )
+            .update({"status": "pending", "error": None}, synchronize_session=False)
+        )
+        self._db.flush()
+        return updated == 1
+
     def get_run_for_project(self, project: str):
         return (
             self._db.query(PrelabellingRun)
