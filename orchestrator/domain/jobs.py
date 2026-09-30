@@ -13,6 +13,7 @@ from infrastructure.interfaces.repository import (
     ProjectRepositoryInterface,
 )
 from sqlalchemy.exc import IntegrityError
+from utils.hashing import compute_system_prompt_hash
 
 from domain.errors import AlreadyExists, InvalidState, NotFound
 from domain.models.jobs import (
@@ -99,24 +100,46 @@ def enqueue_prelabel_job(
     if not model:
         raise NotFound(code="MODEL_NOT_FOUND", message=f"Unknown model '{cmd.model}'.")
 
-    try:
-        job_id = str(
-            run_repo.create_run(
-                project=cmd.project_name,
-                model_id=model.id,
-                system_prompt=cmd.system_prompt,
+    if existing_run:
+        if existing_run.model_id != model.id or (
+            existing_run.system_prompt_hash != compute_system_prompt_hash(cmd.system_prompt)
+        ):
+            original_model = model_repo.get_by_id(existing_run.model_id)
+            raise InvalidState(
+                code="RESUME_CONFIG_MISMATCH",
+                message=(
+                    f"The run for project '{cmd.project_name}' ended as '{existing_run.status}' "
+                    "and can only be resumed with its original configuration.\n"
+                    f"Model: {original_model.archived_name}\n"
+                    f"System prompt:\n{existing_run.system_prompt}"
+                ),
             )
-        )
-    except IntegrityError as e:
-        # there is a unique constraint on "project" in PrelabellingRun.
-        # "cancelled", "failed", "incomplete" are allowed to be enqueued again (see above)
-        # currently they will then fail here until run_repo.continue_run is implemented
-        # IntegrityError also catches two concurrent enqueues that both
-        # passed the check. The raw IntegrityError translated from the db is translated here.
-        raise AlreadyExists(
-            code="PRELABELLING_RUN_ALREADY_EXISTS",
-            message=(f"A prelabelling run already exists for project '{cmd.project_name}'."),
-        ) from e
+
+        if not run_repo.resume_run(existing_run.id):
+            raise AlreadyExists(
+                code="PRELABELLING_RUN_ALREADY_EXISTS",
+                message=(
+                    f"The prelabelling run for project '{cmd.project_name}' "
+                    "is already being resumed."
+                ),
+            )
+        job_id = str(existing_run.id)
+    else:
+        try:
+            job_id = str(
+                run_repo.create_run(
+                    project=cmd.project_name,
+                    model_id=model.id,
+                    system_prompt=cmd.system_prompt,
+                )
+            )
+        except IntegrityError as e:
+            # UniqueConstraint on "project" in PrelabellingRun: catches two concurrent first
+            # enqueues that both saw no existing run. Translated here from a raw DB error.
+            raise AlreadyExists(
+                code="PRELABELLING_RUN_ALREADY_EXISTS",
+                message=(f"A prelabelling run already exists for project '{cmd.project_name}'."),
+            ) from e
 
     r.hset(
         _status_key(job_id),
