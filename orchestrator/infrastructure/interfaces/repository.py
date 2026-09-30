@@ -134,6 +134,9 @@ class PrelabellingRunRepositoryInterface(ABC):
     def set_run_status(self, job_id: int, status: str, error: str | None = None) -> None: ...
 
     @abstractmethod
+    def create_run_tasks(self, run_id: int, filenames: list[str]) -> None: ...
+
+    @abstractmethod
     def resume_run(self, job_id: int) -> bool: ...
 
     @abstractmethod
