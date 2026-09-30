@@ -271,6 +271,24 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
   - **Set:** automatically by Postgres at insert
 - unique constraint on `(prelabelling_run_id, label_studio_task_id)`
 
+**`prelabelling_run_tasks`** — replacement for `task_prelabelling_metas`; **exists, but nothing
+writes or reads it yet**. Once fully active, `task_prelabelling_metas` is dropped.
+
+- One row per task of a run, created when the run is enqueued, so the row
+  count is the run's task total and `status` is the task's state.
+- `id` (PK), `prelabelling_run_id` (FK → `prelabelling_runs.id`)
+- `filename` (NOT NULL) — `basename(files.html_key)`, i.e. the `name` of the Label Studio task,
+  not `files.filename` (which is the PDF name)
+- `label_studio_task_id` (nullable) — unknown at row creation, set by the first callback for the row
+- `status` (`pending` | `success` | `failed`, default `pending`, enforced by
+  `ck_prelabelling_run_tasks_status_values`), `error` (Text, nullable)
+- Result columns, identical in name and type to `task_prelabelling_metas` (`predictions`,
+  `raw_llm_answers`, `dom_match_diagnostics`, `dom_match_by_label`, `task_ms_*`, `n_llm_calls`,
+  `n_timeouts`, `avg_llm_call_ms`, `median_llm_call_ms`) — all nullable, empty until the task is
+  processed
+- `created_at`, `updated_at` (automatic; `updated_at` changes on every update of the row)
+- unique constraints on `(prelabelling_run_id, filename)` and `(prelabelling_run_id, label_studio_task_id)`
+
 **`task_groundtruth_annotations`**
 
 - **No `updated_at` column exists** — every row is written once, in a single batch insert, never
