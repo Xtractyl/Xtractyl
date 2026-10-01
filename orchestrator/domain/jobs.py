@@ -265,4 +265,5 @@ def handle_task_result(
             code="RUN_TASK_NOT_FOUND",
             message=f"No task '{cmd.filename}' in prelabelling run {cmd.job_id}.",
         )
+    run_repo.mark_run_running(cmd.job_id)
     return {"status": "ok"}
