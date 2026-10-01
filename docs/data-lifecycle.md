@@ -215,6 +215,7 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
     Prelabelling Pipeline, step 1 (`run_repo.resume_run`, a conditional UPDATE so concurrent
     resumes can't both succeed), with `error` cleared to `NULL` so a second failure is never
     mistaken for the first one
+  - **Changed (current):** from `"pending"` to `"running"` on the first `POST /prelabel/task-result` of a run (`run_repo.mark_run_running`, a conditional UPDATE that leaves a run in any other state alone, same transaction as the task row). `"done"`, `"failed"` and `"cancelled"` are still set only by the worker's end-of-job callback (`handle_prelabel_callback`). The planned transition below therefore only adds `total_tasks` and the terminal states derived from the task rows
   - **Changed (planned):** transitions to `"running"` together with `total_tasks` being set for the first time, on the first successful progress callback of the run (Planned Changes point 4) — i.e. only once project/task-list resolution (Prelabelling Pipeline, step 2) has already succeeded; a pre-loop failure in that resolution step therefore goes `"pending"` → `"failed"` directly, skipping `"running"` entirely. From `"running"`: to `"done"` once `processed_tasks >= total_tasks` and every task succeeded; to `"incomplete"` under the same completion condition if at least one task's row in `task_prelabelling_metas` ended as `status="failed"` after retries were exhausted (loop continues past individual task failures rather than aborting — see Planned Changes point 4); to `"cancelled"` to `"cancelled"` if `cancel_requested` was set and the worker received `continue: false` (derived from it) and ended the loop early; to `"failed"` only for a genuine hard abort of the whole loop (an exception class not covered by the planned per-task retry-with-backoff)
   - **Note:** evaluation (`sync_missing_evaluations`) only ever triggers on `"done"` — neither `"incomplete"` nor `"cancelled"` trigger it, regardless of how many tasks happened to complete successfully before the run ended
 - `error` (nullable)
@@ -621,7 +622,7 @@ this ordinary user reflex already covers the case.
   stored on the run itself, they never diverge from `projects.questions_and_labels` (because only
   one run is currently allowed), so consumers
   join against `projects` directly instead (see the Schema Reference's `prelabelling_runs` section).
- - One `prelabelling_run_tasks` row per file with an `html_key` is created in the same transaction (`filename = basename(html_key)`, `status="pending"`). Nothing reads or updates these rows yet
+- One `prelabelling_run_tasks` row per file with an `html_key` is created in the same transaction (`filename = basename(html_key)`, `status="pending"`). Each row is updated by `POST /prelabel/task-result` (step 3); nothing reads them yet
 
 > **Clarification on why `status` stays `"pending"` here, unlike `conversion_jobs.status` at the
 > equivalent point:** for Conversion, all the work that can fail (file uploads, `files` rows) already
@@ -703,7 +704,8 @@ payload, resolved already by the orchestrator in step 1.
   HTML). The orchestrator updates the matching `prelabelling_run_tasks` row, found by
   `(prelabelling_run_id, filename)` where `filename` is the Label Studio task `name`: `status` is
   `success` or `failed`, `error` is set on failure, result columns only on success. Unlike
-  `send_task_meta`, this call is not swallowed: a missing row (404 `RUN_TASK_NOT_FOUND`, treated as tampering/integrity error, not repaired), a non-200 or a connection error raises in the worker and fails the run. `prelabelling_runs.status` is not touched by this call yet
+  `send_task_meta`, this call is not swallowed: a missing row (404 `RUN_TASK_NOT_FOUND`, treated as tampering/integrity error, not repaired), a non-200 or a connection error raises in the worker and fails the run. The first call of a run also sets `prelabelling_runs.status` from `"pending"` to `"running"` (same transaction as the task row); nothing else on the run is written by this call
+
 
 > **[TODO 8]** Planned: `task_prelabelling_metas` gains `status` (`success`/`failed`) and `error`
 > columns — the table currently has no explicit success/failure field at all, every row implicitly
