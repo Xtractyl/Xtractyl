@@ -71,3 +71,27 @@ class TaskPrelabellingMetaRequest(BaseModel):
 
 class TaskPrelabellingMetaResponse(BaseModel):
     status: str
+
+
+class TaskResultRequest(BaseModel):
+    job_id: str = Field(..., min_length=1)
+    task_id: int
+    filename: str = Field(..., min_length=1)
+    success: bool
+    error: str | None = None
+    predictions: list | None = None
+    raw_llm_answers: dict | None = None
+    dom_match_diagnostics: list | None = None
+    dom_match_by_label: dict | None = None
+    task_ms_total: float | None = None
+    task_ms_llm_total: float | None = None
+    task_ms_dom_extract: float | None = None
+    task_ms_dom_match: float | None = None
+    n_llm_calls: int | None = None
+    n_timeouts: int | None = None
+    avg_llm_call_ms: float | None = None
+    median_llm_call_ms: float | None = None
+
+
+class TaskResultResponse(BaseModel):
+    status: str
