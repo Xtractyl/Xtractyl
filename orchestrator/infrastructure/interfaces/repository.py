@@ -134,6 +134,34 @@ class PrelabellingRunRepositoryInterface(ABC):
     def set_run_status(self, job_id: int, status: str, error: str | None = None) -> None: ...
 
     @abstractmethod
+    def create_run_tasks(self, run_id: int, filenames: list[str]) -> None: ...
+
+    @abstractmethod
+    def save_run_task_result(
+        self,
+        prelabelling_run_id: int,
+        filename: str,
+        label_studio_task_id: int,
+        status: str,
+        error: str | None,
+        predictions: list | None,
+        raw_llm_answers: dict | None,
+        dom_match_diagnostics: list | None,
+        dom_match_by_label: dict | None,
+        task_ms_total: float | None,
+        task_ms_llm_total: float | None,
+        task_ms_dom_extract: float | None,
+        task_ms_dom_match: float | None,
+        n_llm_calls: int | None,
+        n_timeouts: int | None,
+        avg_llm_call_ms: float | None,
+        median_llm_call_ms: float | None,
+    ) -> bool: ...
+
+    @abstractmethod
+    def resume_run(self, job_id: int) -> bool: ...
+
+    @abstractmethod
     def get_run_for_project(self, project: str): ...
 
     @abstractmethod

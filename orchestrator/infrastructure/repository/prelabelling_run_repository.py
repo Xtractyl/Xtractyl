@@ -1,6 +1,6 @@
 # orchestrator/infrastructure/repository/prelabelling_run_repository.py
 
-from db.models import PrelabellingRun, TaskPrelabellingMeta
+from db.models import PrelabellingRun, PrelabellingRunTask, TaskPrelabellingMeta
 from infrastructure.interfaces.repository import PrelabellingRunRepositoryInterface
 from utils.hashing import compute_system_prompt_hash
 
@@ -27,6 +27,13 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
         self._db.refresh(run)
         return run.id
 
+    def create_run_tasks(self, run_id: int, filenames: list[str]) -> None:
+        self._db.add_all(
+            PrelabellingRunTask(prelabelling_run_id=run_id, filename=name, status="pending")
+            for name in filenames
+        )
+        self._db.flush()
+
     def get_run(self, job_id: int):
         return self._db.query(PrelabellingRun).filter(PrelabellingRun.id == job_id).first()
 
@@ -37,6 +44,66 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
             if error:
                 run.error = error
             self._db.flush()
+
+    def save_run_task_result(
+        self,
+        prelabelling_run_id: int,
+        filename: str,
+        label_studio_task_id: int,
+        status: str,
+        error: str | None,
+        predictions: list | None,
+        raw_llm_answers: dict | None,
+        dom_match_diagnostics: list | None,
+        dom_match_by_label: dict | None,
+        task_ms_total: float | None,
+        task_ms_llm_total: float | None,
+        task_ms_dom_extract: float | None,
+        task_ms_dom_match: float | None,
+        n_llm_calls: int | None,
+        n_timeouts: int | None,
+        avg_llm_call_ms: float | None,
+        median_llm_call_ms: float | None,
+    ) -> bool:
+        row = (
+            self._db.query(PrelabellingRunTask)
+            .filter(
+                PrelabellingRunTask.prelabelling_run_id == prelabelling_run_id,
+                PrelabellingRunTask.filename == filename,
+            )
+            .first()
+        )
+        if row is None:
+            return False
+        row.label_studio_task_id = label_studio_task_id
+        row.status = status
+        row.error = error
+        row.predictions = predictions
+        row.raw_llm_answers = raw_llm_answers
+        row.dom_match_diagnostics = dom_match_diagnostics
+        row.dom_match_by_label = dom_match_by_label
+        row.task_ms_total = task_ms_total
+        row.task_ms_llm_total = task_ms_llm_total
+        row.task_ms_dom_extract = task_ms_dom_extract
+        row.task_ms_dom_match = task_ms_dom_match
+        row.n_llm_calls = n_llm_calls
+        row.n_timeouts = n_timeouts
+        row.avg_llm_call_ms = avg_llm_call_ms
+        row.median_llm_call_ms = median_llm_call_ms
+        self._db.flush()
+        return True
+
+    def resume_run(self, job_id: int) -> bool:
+        updated = (
+            self._db.query(PrelabellingRun)
+            .filter(
+                PrelabellingRun.id == job_id,
+                PrelabellingRun.status.in_(("failed", "cancelled", "incomplete")),
+            )
+            .update({"status": "pending", "error": None}, synchronize_session=False)
+        )
+        self._db.flush()
+        return updated == 1
 
     def get_run_for_project(self, project: str):
         return (

@@ -11,6 +11,63 @@ ORCH_HOST = os.getenv("ORCH_CONTAINER_NAME", "orchestrator")
 ORCH_PORT = os.getenv("ORCH_PORT", "5001")
 ORCHESTRATOR_URL = f"http://{ORCH_HOST}:{ORCH_PORT}"
 
+RESULT_FIELDS = (
+    "predictions",
+    "raw_llm_answers",
+    "dom_match_diagnostics",
+    "dom_match_by_label",
+    "task_ms_total",
+    "task_ms_llm_total",
+    "task_ms_dom_extract",
+    "task_ms_dom_match",
+    "n_llm_calls",
+    "n_timeouts",
+    "avg_llm_call_ms",
+    "median_llm_call_ms",
+)
+
+
+def send_task_result(
+    *,
+    task_id: int,
+    filename: str,
+    success: bool,
+    error: str | None,
+    result: dict | None,
+    job: JobPayload,
+) -> None:
+    """Report the outcome of one task. Unlike send_task_meta, failures are not swallowed:
+    a rejected or unreachable call raises and fails the whole run."""
+    payload = {
+        "job_id": job.job_id,
+        "task_id": task_id,
+        "filename": filename,
+        "success": success,
+        "error": error,
+    }
+    payload.update({key: (result or {}).get(key) for key in RESULT_FIELDS})
+    try:
+        resp = requests.post(
+            f"{ORCHESTRATOR_URL}/prelabel/task-result",
+            json=payload,
+            timeout=10,
+        )
+    except requests.RequestException as e:
+        safe_logger.error("send_task_result_failed | job_id=%s | task_id=%s", job.job_id, task_id)
+        if dev_logger:
+            dev_logger.exception("send_task_result_failed_dev | error=%s", str(e))
+        raise
+    if resp.status_code != 200:
+        safe_logger.error(
+            "send_task_result_rejected | job_id=%s | task_id=%s | status=%s",
+            job.job_id,
+            task_id,
+            resp.status_code,
+        )
+        if dev_logger:
+            dev_logger.error("send_task_result_rejected_dev | body=%s", resp.text)
+        raise RuntimeError(f"task-result rejected for task {task_id}: HTTP {resp.status_code}")
+
 
 def send_task_meta(*, task_id: int, meta: dict, job: JobPayload) -> None:
     payload = {

@@ -7,7 +7,7 @@ from typing import Callable, List, Optional
 from contracts.jobs import JobPayload
 from infrastructure.label_studio import get_tasks_without_predictions
 from infrastructure.ml_backend import send_predict
-from infrastructure.orchestrator import send_task_meta
+from infrastructure.orchestrator import send_task_meta, send_task_result
 
 LogCB = Optional[Callable[[str], None]]
 ProgressCB = Optional[Callable[[int], None]]
@@ -61,6 +61,14 @@ def prelabel_project(
         filename = (t.get("data") or {}).get("name", "")
         if not html:
             _log(f"[WARN] Task {task_id} has no HTML. Skipping.")
+            send_task_result(
+                task_id=task_id,
+                filename=filename,
+                success=False,
+                error="Task has no HTML.",
+                result=None,
+                job=job,
+            )
             done += 1
             _progress(int(done / total * 100) if total else 100)
             continue
@@ -70,10 +78,26 @@ def prelabel_project(
         ok = resp.status_code == 200
         if not ok:
             _log(f"[WARN] /predict returned {resp.status_code} for task {task_id}. Continuing.")
+            send_task_result(
+                task_id=task_id,
+                filename=filename,
+                success=False,
+                error=f"/predict returned HTTP {resp.status_code}",
+                result=None,
+                job=job,
+            )
         else:
             body = resp.json()
             meta = body.get("meta", {})
             send_task_meta(task_id=task_id, meta=meta, job=job)
+            send_task_result(
+                task_id=task_id,
+                filename=filename,
+                success=True,
+                error=None,
+                result=meta,
+                job=job,
+            )
         dt = time.time() - start
         durations.append(dt)
         total_time += dt

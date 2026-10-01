@@ -106,8 +106,15 @@ export default function StartPrelabellingCard() {
               )}
             </div>
           )}
-
-          {job.statusMsg && <div className="text-sm mt-2">{job.statusMsg}</div>}
+          {/* the following formatting is highly important on resume of a priorily failed
+          prelabelling run. The user will get an info through job.statusMsg about the original prompt
+          when she/he accidentally used a different prompt now. She/he can only copy it and have it 
+          resolve to the original hash, when no additional line breaks etc. are introduced
+          ADD explicit unit test later!
+          */}
+          {job.statusMsg && (
+            <div className="text-sm mt-2 whitespace-pre-wrap break-words">{job.statusMsg}</div>
+          )}
         </div>
       </div>
     </div>

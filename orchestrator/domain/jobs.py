@@ -13,6 +13,7 @@ from infrastructure.interfaces.repository import (
     ProjectRepositoryInterface,
 )
 from sqlalchemy.exc import IntegrityError
+from utils.hashing import compute_system_prompt_hash
 
 from domain.errors import AlreadyExists, InvalidState, NotFound
 from domain.models.jobs import (
@@ -21,6 +22,7 @@ from domain.models.jobs import (
     JobStatusCommand,
     PrelabelCallbackCommand,
     TaskPrelabellingMetaCommand,
+    TaskResultCommand,
 )
 
 REDIS_HOST = os.getenv("REDIS_HOST", "job_queue")
@@ -99,24 +101,49 @@ def enqueue_prelabel_job(
     if not model:
         raise NotFound(code="MODEL_NOT_FOUND", message=f"Unknown model '{cmd.model}'.")
 
-    try:
-        job_id = str(
-            run_repo.create_run(
-                project=cmd.project_name,
-                model_id=model.id,
-                system_prompt=cmd.system_prompt,
+    if existing_run:
+        if existing_run.model_id != model.id or (
+            existing_run.system_prompt_hash != compute_system_prompt_hash(cmd.system_prompt)
+        ):
+            original_model = model_repo.get_by_id(existing_run.model_id)
+            raise InvalidState(
+                code="RESUME_CONFIG_MISMATCH",
+                message=(
+                    f"The run for project '{cmd.project_name}' ended as '{existing_run.status}' "
+                    "and can only be resumed with its original configuration.\n"
+                    f"Model: {original_model.archived_name}\n"
+                    f"System prompt:\n{existing_run.system_prompt}"
+                ),
             )
-        )
-    except IntegrityError as e:
-        # there is a unique constraint on "project" in PrelabellingRun.
-        # "cancelled", "failed", "incomplete" are allowed to be enqueued again (see above)
-        # currently they will then fail here until run_repo.continue_run is implemented
-        # IntegrityError also catches two concurrent enqueues that both
-        # passed the check. The raw IntegrityError translated from the db is translated here.
-        raise AlreadyExists(
-            code="PRELABELLING_RUN_ALREADY_EXISTS",
-            message=(f"A prelabelling run already exists for project '{cmd.project_name}'."),
-        ) from e
+
+        if not run_repo.resume_run(existing_run.id):
+            raise AlreadyExists(
+                code="PRELABELLING_RUN_ALREADY_EXISTS",
+                message=(
+                    f"The prelabelling run for project '{cmd.project_name}' "
+                    "is already being resumed."
+                ),
+            )
+        job_id = str(existing_run.id)
+    else:
+        try:
+            job_id = str(
+                run_repo.create_run(
+                    project=cmd.project_name,
+                    model_id=model.id,
+                    system_prompt=cmd.system_prompt,
+                )
+            )
+        except IntegrityError as e:
+            # UniqueConstraint on "project" in PrelabellingRun: catches two concurrent first
+            # enqueues that both saw no existing run. Translated here from a raw DB error.
+            raise AlreadyExists(
+                code="PRELABELLING_RUN_ALREADY_EXISTS",
+                message=(f"A prelabelling run already exists for project '{cmd.project_name}'."),
+            ) from e
+
+        html_keys = project_repo.get_html_keys_for_project(cmd.project_name)
+        run_repo.create_run_tasks(int(job_id), [os.path.basename(key) for key in html_keys])
 
     r.hset(
         _status_key(job_id),
@@ -201,4 +228,41 @@ def handle_task_prelabelling_meta(
         avg_llm_call_ms=cmd.avg_llm_call_ms,
         median_llm_call_ms=cmd.median_llm_call_ms,
     )
+    return {"status": "ok"}
+
+
+def handle_task_result(
+    cmd: TaskResultCommand,
+    run_repo: PrelabellingRunRepositoryInterface,
+) -> dict:
+    run = run_repo.get_run(cmd.job_id)
+    if not run:
+        raise NotFound(
+            code="RUN_NOT_FOUND",
+            message=f"No prelabelling run with id {cmd.job_id}.",
+        )
+    found = run_repo.save_run_task_result(
+        prelabelling_run_id=cmd.job_id,
+        filename=cmd.filename,
+        label_studio_task_id=cmd.task_id,
+        status="success" if cmd.success else "failed",
+        error=None if cmd.success else cmd.error,
+        predictions=cmd.predictions,
+        raw_llm_answers=cmd.raw_llm_answers,
+        dom_match_diagnostics=cmd.dom_match_diagnostics,
+        dom_match_by_label=cmd.dom_match_by_label,
+        task_ms_total=cmd.task_ms_total,
+        task_ms_llm_total=cmd.task_ms_llm_total,
+        task_ms_dom_extract=cmd.task_ms_dom_extract,
+        task_ms_dom_match=cmd.task_ms_dom_match,
+        n_llm_calls=cmd.n_llm_calls,
+        n_timeouts=cmd.n_timeouts,
+        avg_llm_call_ms=cmd.avg_llm_call_ms,
+        median_llm_call_ms=cmd.median_llm_call_ms,
+    )
+    if not found:
+        raise NotFound(
+            code="RUN_TASK_NOT_FOUND",
+            message=f"No task '{cmd.filename}' in prelabelling run {cmd.job_id}.",
+        )
     return {"status": "ok"}

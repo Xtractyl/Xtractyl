@@ -212,6 +212,48 @@ class TaskPrelabellingMeta(Base):
     )
 
 
+class PrelabellingRunTask(Base):
+    __tablename__ = "prelabelling_run_tasks"
+
+    id = Column(Integer, primary_key=True)
+    prelabelling_run_id = Column(Integer, ForeignKey("prelabelling_runs.id"), nullable=False)
+    filename = Column(Text, nullable=False)
+    label_studio_task_id = Column(Integer, nullable=True)
+    status = Column(Text, nullable=False, default="pending", server_default="pending")
+    error = Column(Text, nullable=True)
+    predictions = Column(JSONB, nullable=True)
+    raw_llm_answers = Column(JSONB, nullable=True)
+    dom_match_diagnostics = Column(JSONB, nullable=True)
+    dom_match_by_label = Column(JSONB, nullable=True)
+    task_ms_total = Column(Float, nullable=True)
+    task_ms_llm_total = Column(Float, nullable=True)
+    task_ms_dom_extract = Column(Float, nullable=True)
+    task_ms_dom_match = Column(Float, nullable=True)
+    n_llm_calls = Column(Integer, nullable=True)
+    n_timeouts = Column(Integer, nullable=True)
+    avg_llm_call_ms = Column(Float, nullable=True)
+    median_llm_call_ms = Column(Float, nullable=True)
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    __table_args__ = (
+        UniqueConstraint(
+            "prelabelling_run_id",
+            "filename",
+            name="uq_prelabelling_run_tasks_run_filename",
+        ),
+        UniqueConstraint(
+            "prelabelling_run_id",
+            "label_studio_task_id",
+            name="uq_prelabelling_run_tasks_run_task",
+        ),
+        CheckConstraint(
+            "status IN ('pending', 'success', 'failed')",
+            name="ck_prelabelling_run_tasks_status_values",
+        ),
+    )
+
+
 class TaskGroundtruthAnnotation(Base):
     __tablename__ = "task_groundtruth_annotations"
 
