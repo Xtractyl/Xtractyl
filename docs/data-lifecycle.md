@@ -272,7 +272,8 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
 - unique constraint on `(prelabelling_run_id, label_studio_task_id)`
 
 **`prelabelling_run_tasks`** — replacement for `task_prelabelling_metas`; **exists, but nothing
-writes or reads it yet, apart from row creation at enqueue** (Prelabelling Pipeline, step 1). Once fully active, `task_prelabelling_metas` is dropped.
+reads it yet; rows are created at enqueue and updated per task by `POST /prelabel/task-result`**
+Once fully active, `task_prelabelling_metas` is dropped.
 - One row per task of a run, created when a new run is enqueued, so the
   row count is the run's task total and `status` is the task's state.
 - `id` (PK), `prelabelling_run_id` (FK → `prelabelling_runs.id`)
@@ -696,6 +697,13 @@ payload, resolved already by the orchestrator in step 1.
 - The worker then forwards the returned `meta` to the orchestrator (`send_task_meta` /
   `POST /prelabel/task-meta`), which is what actually persists it into `task_prelabelling_metas` —
   neither the worker nor ml_backend has any direct Postgres access anywhere in the codebase
+
+- **Transition phase, in parallel:** after every task the worker also calls `send_task_result`
+  (`POST /prelabel/task-result`) — including failed tasks (non-200 from `/predict`, task without
+  HTML). The orchestrator updates the matching `prelabelling_run_tasks` row, found by
+  `(prelabelling_run_id, filename)` where `filename` is the Label Studio task `name`: `status` is
+  `success` or `failed`, `error` is set on failure, result columns only on success. Unlike
+  `send_task_meta`, this call is not swallowed: a missing row (404 `RUN_TASK_NOT_FOUND`, treated as tampering/integrity error, not repaired), a non-200 or a connection error raises in the worker and fails the run. `prelabelling_runs.status` is not touched by this call yet
 
 > **[TODO 8]** Planned: `task_prelabelling_metas` gains `status` (`success`/`failed`) and `error`
 > columns — the table currently has no explicit success/failure field at all, every row implicitly
