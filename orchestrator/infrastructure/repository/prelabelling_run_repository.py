@@ -2,6 +2,7 @@
 
 from db.models import PrelabellingRun, PrelabellingRunTask, TaskPrelabellingMeta
 from infrastructure.interfaces.repository import PrelabellingRunRepositoryInterface
+from sqlalchemy import case, exists, func
 from utils.hashing import compute_system_prompt_hash
 
 
@@ -93,10 +94,40 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
         self._db.flush()
         return True
 
-    def mark_run_running(self, job_id: int) -> None:
+    def derive_run_status(self, job_id: int) -> None:
+        # derives PrelabellingRun status from tasks in PrelabellingRunTask
+        # bumps updated_at for it
+        #   - any task still pending            -> running
+        #   - no task pending, at least 1 failed -> incomplete
+        #   - no task pending, none failed       -> running (the end-of-job callback sets done)
+        open_tasks = (
+            exists()
+            .where(
+                PrelabellingRunTask.prelabelling_run_id == PrelabellingRun.id,
+                PrelabellingRunTask.status == "pending",
+            )
+            .correlate(PrelabellingRun)
+        )
+        failed_tasks = (
+            exists()
+            .where(
+                PrelabellingRunTask.prelabelling_run_id == PrelabellingRun.id,
+                PrelabellingRunTask.status == "failed",
+            )
+            .correlate(PrelabellingRun)
+        )
+        # Order is of importance, CASE takes the first matching branch, so
+        # given open tasks a run with a failed task
+        # gets status "running" even though a failed task already exists, which is what we want
+        new_status = case(
+            (open_tasks, "running"),
+            (failed_tasks, "incomplete"),
+            else_="done",
+        )
         self._db.query(PrelabellingRun).filter(
-            PrelabellingRun.id == job_id, PrelabellingRun.status == "pending"
-        ).update({"status": "running"}, synchronize_session=False)
+            PrelabellingRun.id == job_id,
+            PrelabellingRun.status.in_(("pending", "running")),
+        ).update({"status": new_status, "updated_at": func.now()}, synchronize_session=False)
         self._db.flush()
 
     def resume_run(self, job_id: int) -> bool:
@@ -108,6 +139,11 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
             )
             .update({"status": "pending", "error": None}, synchronize_session=False)
         )
+        if updated == 1:
+            self._db.query(PrelabellingRunTask).filter(
+                PrelabellingRunTask.prelabelling_run_id == job_id,
+                PrelabellingRunTask.status == "failed",
+            ).update({"status": "pending", "error": None}, synchronize_session=False)
         self._db.flush()
         return updated == 1
 
