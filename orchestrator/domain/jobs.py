@@ -22,6 +22,7 @@ from domain.models.jobs import (
     JobStatusCommand,
     PrelabelCallbackCommand,
     TaskPrelabellingMetaCommand,
+    TaskResultCommand,
 )
 
 REDIS_HOST = os.getenv("REDIS_HOST", "job_queue")
@@ -227,4 +228,41 @@ def handle_task_prelabelling_meta(
         avg_llm_call_ms=cmd.avg_llm_call_ms,
         median_llm_call_ms=cmd.median_llm_call_ms,
     )
+    return {"status": "ok"}
+
+
+def handle_task_result(
+    cmd: TaskResultCommand,
+    run_repo: PrelabellingRunRepositoryInterface,
+) -> dict:
+    run = run_repo.get_run(cmd.job_id)
+    if not run:
+        raise NotFound(
+            code="RUN_NOT_FOUND",
+            message=f"No prelabelling run with id {cmd.job_id}.",
+        )
+    found = run_repo.save_run_task_result(
+        prelabelling_run_id=cmd.job_id,
+        filename=cmd.filename,
+        label_studio_task_id=cmd.task_id,
+        status="success" if cmd.success else "failed",
+        error=None if cmd.success else cmd.error,
+        predictions=cmd.predictions,
+        raw_llm_answers=cmd.raw_llm_answers,
+        dom_match_diagnostics=cmd.dom_match_diagnostics,
+        dom_match_by_label=cmd.dom_match_by_label,
+        task_ms_total=cmd.task_ms_total,
+        task_ms_llm_total=cmd.task_ms_llm_total,
+        task_ms_dom_extract=cmd.task_ms_dom_extract,
+        task_ms_dom_match=cmd.task_ms_dom_match,
+        n_llm_calls=cmd.n_llm_calls,
+        n_timeouts=cmd.n_timeouts,
+        avg_llm_call_ms=cmd.avg_llm_call_ms,
+        median_llm_call_ms=cmd.median_llm_call_ms,
+    )
+    if not found:
+        raise NotFound(
+            code="RUN_TASK_NOT_FOUND",
+            message=f"No task '{cmd.filename}' in prelabelling run {cmd.job_id}.",
+        )
     return {"status": "ok"}
