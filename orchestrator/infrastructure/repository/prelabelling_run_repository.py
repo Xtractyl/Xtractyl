@@ -93,6 +93,12 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
         self._db.flush()
         return True
 
+    def mark_run_running(self, job_id: int) -> None:
+        self._db.query(PrelabellingRun).filter(
+            PrelabellingRun.id == job_id, PrelabellingRun.status == "pending"
+        ).update({"status": "running"}, synchronize_session=False)
+        self._db.flush()
+
     def resume_run(self, job_id: int) -> bool:
         updated = (
             self._db.query(PrelabellingRun)
