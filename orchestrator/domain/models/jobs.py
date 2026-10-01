@@ -124,3 +124,52 @@ class TaskPrelabellingMetaCommand(BaseModel):
                 message="Invalid command payload.",
                 details=e.errors(),
             )
+
+
+class TaskResultCommand(BaseModel):
+    job_id: int
+    task_id: int
+    filename: str
+    success: bool
+    error: str | None = None
+    predictions: list | None = None
+    raw_llm_answers: dict | None = None
+    dom_match_diagnostics: list | None = None
+    dom_match_by_label: dict | None = None
+    task_ms_total: float | None = None
+    task_ms_llm_total: float | None = None
+    task_ms_dom_extract: float | None = None
+    task_ms_dom_match: float | None = None
+    n_llm_calls: int | None = None
+    n_timeouts: int | None = None
+    avg_llm_call_ms: float | None = None
+    median_llm_call_ms: float | None = None
+
+    @classmethod
+    def from_contract(cls, contract):
+        try:
+            return cls(
+                job_id=contract.job_id,
+                task_id=contract.task_id,
+                filename=contract.filename,
+                success=contract.success,
+                error=contract.error,
+                predictions=contract.predictions,
+                raw_llm_answers=contract.raw_llm_answers,
+                dom_match_diagnostics=contract.dom_match_diagnostics,
+                dom_match_by_label=contract.dom_match_by_label,
+                task_ms_total=contract.task_ms_total,
+                task_ms_llm_total=contract.task_ms_llm_total,
+                task_ms_dom_extract=contract.task_ms_dom_extract,
+                task_ms_dom_match=contract.task_ms_dom_match,
+                n_llm_calls=contract.n_llm_calls,
+                n_timeouts=contract.n_timeouts,
+                avg_llm_call_ms=contract.avg_llm_call_ms,
+                median_llm_call_ms=contract.median_llm_call_ms,
+            )
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="INVALID_COMMAND",
+                message="Invalid command payload.",
+                details=e.errors(),
+            )
