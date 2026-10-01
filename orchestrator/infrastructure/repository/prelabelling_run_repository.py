@@ -45,6 +45,54 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
                 run.error = error
             self._db.flush()
 
+    def save_run_task_result(
+        self,
+        prelabelling_run_id: int,
+        filename: str,
+        label_studio_task_id: int,
+        status: str,
+        error: str | None,
+        predictions: list | None,
+        raw_llm_answers: dict | None,
+        dom_match_diagnostics: list | None,
+        dom_match_by_label: dict | None,
+        task_ms_total: float | None,
+        task_ms_llm_total: float | None,
+        task_ms_dom_extract: float | None,
+        task_ms_dom_match: float | None,
+        n_llm_calls: int | None,
+        n_timeouts: int | None,
+        avg_llm_call_ms: float | None,
+        median_llm_call_ms: float | None,
+    ) -> bool:
+        row = (
+            self._db.query(PrelabellingRunTask)
+            .filter(
+                PrelabellingRunTask.prelabelling_run_id == prelabelling_run_id,
+                PrelabellingRunTask.filename == filename,
+            )
+            .first()
+        )
+        if row is None:
+            return False
+        row.label_studio_task_id = label_studio_task_id
+        row.status = status
+        row.error = error
+        row.predictions = predictions
+        row.raw_llm_answers = raw_llm_answers
+        row.dom_match_diagnostics = dom_match_diagnostics
+        row.dom_match_by_label = dom_match_by_label
+        row.task_ms_total = task_ms_total
+        row.task_ms_llm_total = task_ms_llm_total
+        row.task_ms_dom_extract = task_ms_dom_extract
+        row.task_ms_dom_match = task_ms_dom_match
+        row.n_llm_calls = n_llm_calls
+        row.n_timeouts = n_timeouts
+        row.avg_llm_call_ms = avg_llm_call_ms
+        row.median_llm_call_ms = median_llm_call_ms
+        self._db.flush()
+        return True
+
     def resume_run(self, job_id: int) -> bool:
         updated = (
             self._db.query(PrelabellingRun)
