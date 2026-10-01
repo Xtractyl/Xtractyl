@@ -159,6 +159,9 @@ class PrelabellingRunRepositoryInterface(ABC):
     ) -> bool: ...
 
     @abstractmethod
+    def mark_run_running(self, job_id: int) -> None: ...
+
+    @abstractmethod
     def resume_run(self, job_id: int) -> bool: ...
 
     @abstractmethod
