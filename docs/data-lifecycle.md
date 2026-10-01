@@ -214,8 +214,9 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
   - **Changed (resume):** from `"failed"`, `"cancelled"` or `"incomplete"` back to `"pending"` in
     Prelabelling Pipeline, step 1 (`run_repo.resume_run`, a conditional UPDATE so concurrent
     resumes can't both succeed), with `error` cleared to `NULL` so a second failure is never
-    mistaken for the first one
-  - **Changed (current):** from `"pending"` to `"running"` on the first `POST /prelabel/task-result` of a run (`run_repo.mark_run_running`, a conditional UPDATE that leaves a run in any other state alone, same transaction as the task row). `"done"`, `"failed"` and `"cancelled"` are still set only by the worker's end-of-job callback (`handle_prelabel_callback`). The planned transition below therefore only adds `total_tasks` and the terminal states derived from the task rows
+    mistaken for the first one; the run's `failed` rows in `prelabelling_run_tasks` are reset to
+    `pending` in the same call, so the derived status below doesn't read a resumed run as finished
+  - **Changed (current):** after every `POST /prelabel/task-result`, `run_repo.derive_run_status` (same transaction as the task row, one conditional UPDATE, only for runs in `"pending"` or `"running"`) bumps `updated_at` and derives the status from the run's `prelabelling_run_tasks` rows: `"running"` while any task is still `pending`, `"incomplete"` once no task is `pending` anymore and at least one is `failed`, `"done"` once no task is `pending` or `failed` anymore. `"failed"` and `"cancelled"` are still set only by the worker's end-of-job callback (`handle_prelabel_callback`), which also still sets `"done"` and triggers the evaluation, and until it is removed overwrites a derived `"incomplete"` with `"done"`. The evaluation is not triggered by the derivation yet
   - **Changed (planned):** transitions to `"running"` together with `total_tasks` being set for the first time, on the first successful progress callback of the run (Planned Changes point 4) — i.e. only once project/task-list resolution (Prelabelling Pipeline, step 2) has already succeeded; a pre-loop failure in that resolution step therefore goes `"pending"` → `"failed"` directly, skipping `"running"` entirely. From `"running"`: to `"done"` once `processed_tasks >= total_tasks` and every task succeeded; to `"incomplete"` under the same completion condition if at least one task's row in `task_prelabelling_metas` ended as `status="failed"` after retries were exhausted (loop continues past individual task failures rather than aborting — see Planned Changes point 4); to `"cancelled"` to `"cancelled"` if `cancel_requested` was set and the worker received `continue: false` (derived from it) and ended the loop early; to `"failed"` only for a genuine hard abort of the whole loop (an exception class not covered by the planned per-task retry-with-backoff)
   - **Note:** evaluation (`sync_missing_evaluations`) only ever triggers on `"done"` — neither `"incomplete"` nor `"cancelled"` trigger it, regardless of how many tasks happened to complete successfully before the run ended
 - `error` (nullable)
@@ -273,7 +274,7 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
 - unique constraint on `(prelabelling_run_id, label_studio_task_id)`
 
 **`prelabelling_run_tasks`** — replacement for `task_prelabelling_metas`; **exists, but nothing
-reads it yet; rows are created at enqueue and updated per task by `POST /prelabel/task-result`**
+reads it yet apart from `derive_run_status`; rows are created at enqueue, updated per task by `POST /prelabel/task-result`, and `failed` rows are reset to `pending` by `resume_run`**
 Once fully active, `task_prelabelling_metas` is dropped.
 - One row per task of a run, created when a new run is enqueued, so the
   row count is the run's task total and `status` is the task's state.
