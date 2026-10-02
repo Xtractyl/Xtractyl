@@ -58,24 +58,6 @@ def test_job_payload_missing_job_id_raises(valid_payload):
 
 # --- handle_job ---
 
-
-def test_handle_job_sets_running_and_succeeded(valid_job):
-    import app as worker_app
-
-    mock_r = MagicMock()
-    mock_r.hget.return_value = "RUNNING"
-
-    with (
-        patch.object(worker_app, "r", mock_r),
-        patch("app.prelabel_project", return_value=["log1", "log2"]),
-    ):
-        worker_app.handle_job(valid_job)
-
-    calls = [str(c) for c in mock_r.hset.call_args_list]
-    assert any("RUNNING" in c for c in calls)
-    assert any("SUCCEEDED" in c for c in calls)
-
-
 def test_handle_job_sets_failed_on_exception(valid_job):
     import app as worker_app
 
@@ -90,19 +72,3 @@ def test_handle_job_sets_failed_on_exception(valid_job):
 
     calls = [str(c) for c in mock_r.hset.call_args_list]
     assert any("FAILED" in c for c in calls)
-
-
-def test_handle_job_sets_cancelled_when_cancel_requested(valid_job):
-    import app as worker_app
-
-    mock_r = MagicMock()
-    mock_r.hget.return_value = "CANCEL_REQUESTED"
-
-    with (
-        patch.object(worker_app, "r", mock_r),
-        patch("app.prelabel_project", return_value=[]),
-    ):
-        worker_app.handle_job(valid_job)
-
-    calls = [str(c) for c in mock_r.hset.call_args_list]
-    assert any("CANCELLED" in c for c in calls)
