@@ -61,7 +61,17 @@ def register(app, spec, session_factory):
                 meta={"details": e.errors()},
             )
         cmd = JobStatusCommand.from_contract(job_id=contract.job_id)
-        result = get_job_status(cmd)
+        db = session_factory()
+        try:
+            run_repo = PrelabellingRunRepository(db)
+            result = get_job_status(cmd, run_repo=run_repo)
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
+
         try:
             validated = JobStatusResponse.model_validate(result)
         except ValidationError as e:
@@ -127,7 +137,16 @@ def register(app, spec, session_factory):
     )
     def prelabel_cancel_route(job_id):
         cmd = CancelJobCommand.from_contract(job_id=job_id)
-        result = cancel_prelabel_job(cmd)
+        db = session_factory()
+        try:
+            run_repo = PrelabellingRunRepository(db)
+            result = cancel_prelabel_job(cmd, run_repo=run_repo)
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
         try:
             validated = CancelJobResponse.model_validate(result)
         except ValidationError as e:
@@ -239,4 +258,4 @@ def register(app, spec, session_factory):
                 message="Internal response did not match expected schema.",
                 meta={"details": e.errors()},
             )
-        return jsonify(validated.model_dump()), 200
+        return jsonify(validated.model_dump(by_alias=True)), 200
