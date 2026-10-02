@@ -53,18 +53,7 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
         label_studio_task_id: int,
         status: str,
         error: str | None,
-        predictions: list | None,
-        raw_llm_answers: dict | None,
-        dom_match_diagnostics: list | None,
-        dom_match_by_label: dict | None,
-        task_ms_total: float | None,
-        task_ms_llm_total: float | None,
-        task_ms_dom_extract: float | None,
-        task_ms_dom_match: float | None,
-        n_llm_calls: int | None,
-        n_timeouts: int | None,
-        avg_llm_call_ms: float | None,
-        median_llm_call_ms: float | None,
+        result: dict,
     ) -> bool:
         row = (
             self._db.query(PrelabellingRunTask)
@@ -79,18 +68,8 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
         row.label_studio_task_id = label_studio_task_id
         row.status = status
         row.error = error
-        row.predictions = predictions
-        row.raw_llm_answers = raw_llm_answers
-        row.dom_match_diagnostics = dom_match_diagnostics
-        row.dom_match_by_label = dom_match_by_label
-        row.task_ms_total = task_ms_total
-        row.task_ms_llm_total = task_ms_llm_total
-        row.task_ms_dom_extract = task_ms_dom_extract
-        row.task_ms_dom_match = task_ms_dom_match
-        row.n_llm_calls = n_llm_calls
-        row.n_timeouts = n_timeouts
-        row.avg_llm_call_ms = avg_llm_call_ms
-        row.median_llm_call_ms = median_llm_call_ms
+        for column, value in result.items():
+            setattr(row, column, value)
         self._db.flush()
         return True
 
@@ -129,6 +108,48 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
             PrelabellingRun.status.in_(("pending", "running")),
         ).update({"status": new_status, "updated_at": func.now()}, synchronize_session=False)
         self._db.flush()
+
+    def request_cancel(self, job_id: int) -> bool:
+        updated = (
+            self._db.query(PrelabellingRun)
+            .filter(
+                PrelabellingRun.id == job_id,
+                PrelabellingRun.status.in_(("pending", "running")),
+            )
+            .update({"cancel_requested": True}, synchronize_session=False)
+        )
+        self._db.flush()
+        return updated == 1
+
+    def apply_cancel(self, job_id: int) -> bool:
+        # called right after derive_run_status (jobs that are determined to be finished don't need
+        # cancelling anymore
+        updated = (
+            self._db.query(PrelabellingRun)
+            .filter(
+                PrelabellingRun.id == job_id,
+                PrelabellingRun.status == "running",
+                PrelabellingRun.cancel_requested.is_(True),
+            )
+            .update({"status": "cancelled"}, synchronize_session=False)
+        )
+        self._db.flush()
+        return updated == 1
+
+    def get_run_status(self, job_id: int) -> str | None:
+        return self._db.query(PrelabellingRun.status).filter(PrelabellingRun.id == job_id).scalar()
+
+    def count_run_tasks(self, run_id: int) -> tuple[int, int]:
+        """(total tasks, tasks that are no longer pending) of a run."""
+        total, finished = (
+            self._db.query(
+                func.count(PrelabellingRunTask.id),
+                func.count(case((PrelabellingRunTask.status != "pending", 1))),
+            )
+            .filter(PrelabellingRunTask.prelabelling_run_id == run_id)
+            .one()
+        )
+        return total, finished
 
     def resume_run(self, job_id: int) -> bool:
         updated = (
