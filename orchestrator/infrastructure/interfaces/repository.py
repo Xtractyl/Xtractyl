@@ -144,22 +144,23 @@ class PrelabellingRunRepositoryInterface(ABC):
         label_studio_task_id: int,
         status: str,
         error: str | None,
-        predictions: list | None,
-        raw_llm_answers: dict | None,
-        dom_match_diagnostics: list | None,
-        dom_match_by_label: dict | None,
-        task_ms_total: float | None,
-        task_ms_llm_total: float | None,
-        task_ms_dom_extract: float | None,
-        task_ms_dom_match: float | None,
-        n_llm_calls: int | None,
-        n_timeouts: int | None,
-        avg_llm_call_ms: float | None,
-        median_llm_call_ms: float | None,
+        result: dict,
     ) -> bool: ...
 
     @abstractmethod
     def derive_run_status(self, job_id: int) -> None: ...
+
+    @abstractmethod
+    def request_cancel(self, job_id: int) -> bool: ...
+
+    @abstractmethod
+    def apply_cancel(self, job_id: int) -> bool: ...
+
+    @abstractmethod
+    def get_run_status(self, job_id: int) -> str | None: ...
+
+    @abstractmethod
+    def count_run_tasks(self, run_id: int) -> tuple[int, int]: ...
 
     @abstractmethod
     def resume_run(self, job_id: int) -> bool: ...
