@@ -58,6 +58,7 @@ def test_job_payload_missing_job_id_raises(valid_payload):
 
 # --- handle_job ---
 
+
 def test_handle_job_sets_failed_on_exception(valid_job):
     import app as worker_app
 
