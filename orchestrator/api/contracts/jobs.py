@@ -73,12 +73,7 @@ class TaskPrelabellingMetaResponse(BaseModel):
     status: str
 
 
-class TaskResultRequest(BaseModel):
-    job_id: str = Field(..., min_length=1)
-    task_id: int
-    filename: str = Field(..., min_length=1)
-    success: bool
-    error: str | None = None
+class TaskResultData(BaseModel):
     predictions: list | None = None
     raw_llm_answers: dict | None = None
     dom_match_diagnostics: list | None = None
@@ -93,5 +88,14 @@ class TaskResultRequest(BaseModel):
     median_llm_call_ms: float | None = None
 
 
+class TaskResultRequest(BaseModel):
+    job_id: str = Field(..., min_length=1)
+    task_id: int
+    filename: str = Field(..., min_length=1)
+    success: bool
+    error: str | None = None
+    result: TaskResultData | None = None
+
+
 class TaskResultResponse(BaseModel):
-    status: str
+    continue_: bool = Field(alias="continue")
