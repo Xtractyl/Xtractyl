@@ -51,19 +51,23 @@ def _logs_key(job_id: str) -> str:
     return f"{LOGS}{job_id}"
 
 
-def get_job_status(cmd: JobStatusCommand):
+def get_job_status(cmd: JobStatusCommand, run_repo: PrelabellingRunRepositoryInterface):
     job_id = cmd.job_id
-    h = r.hgetall(_status_key(job_id)) or {}
-    if not h:
+    run = run_repo.get_run(int(job_id)) if job_id.isdigit() else None
+    if not run:
         return {"job_id": job_id, "state": "NOT_FOUND"}
-    res = r.get(_result_key(job_id))
-    out: Dict[str, Any] = {"job_id": job_id, **h}
-    if res:
-        try:
-            out["result"] = json.loads(res)
-        except Exception:
-            out["result"] = res
-    return out
+    state = run.status
+    if run.cancel_requested and run.status in ("pending", "running"):
+        state = "cancel_requested"
+    total, finished = run_repo.count_run_tasks(run.id)
+    progress = int(finished / total * 100) if total else (100 if run.status == "done" else 0)
+    return {
+        "job_id": job_id,
+        "state": state,
+        "progress": str(progress),
+        "project_name": run.project,
+        "error": run.error,
+    }
 
 
 def enqueue_prelabel_job(
@@ -177,9 +181,13 @@ def enqueue_prelabel_job(
     }
 
 
-def cancel_prelabel_job(cmd: CancelJobCommand) -> Dict[str, Any]:
+def cancel_prelabel_job(
+    cmd: CancelJobCommand, run_repo: PrelabellingRunRepositoryInterface
+) -> Dict[str, Any]:
     job_id = cmd.job_id
-    r.hset(_status_key(job_id), "state", "CANCEL_REQUESTED")
+    # No-op for a run that is not pending/running (button should'nt be available in frontend then)
+    if job_id.isdigit():
+        run_repo.request_cancel(int(job_id))
     return {"job_id": job_id, "status": "cancel_requested"}
 
 
@@ -247,18 +255,7 @@ def handle_task_result(
         label_studio_task_id=cmd.task_id,
         status="success" if cmd.success else "failed",
         error=None if cmd.success else cmd.error,
-        predictions=cmd.predictions,
-        raw_llm_answers=cmd.raw_llm_answers,
-        dom_match_diagnostics=cmd.dom_match_diagnostics,
-        dom_match_by_label=cmd.dom_match_by_label,
-        task_ms_total=cmd.task_ms_total,
-        task_ms_llm_total=cmd.task_ms_llm_total,
-        task_ms_dom_extract=cmd.task_ms_dom_extract,
-        task_ms_dom_match=cmd.task_ms_dom_match,
-        n_llm_calls=cmd.n_llm_calls,
-        n_timeouts=cmd.n_timeouts,
-        avg_llm_call_ms=cmd.avg_llm_call_ms,
-        median_llm_call_ms=cmd.median_llm_call_ms,
+        result=cmd.result or {},
     )
     if not found:
         raise NotFound(
@@ -266,4 +263,10 @@ def handle_task_result(
             message=f"No task '{cmd.filename}' in prelabelling run {cmd.job_id}.",
         )
     run_repo.derive_run_status(cmd.job_id)
-    return {"status": "ok"}
+    # this order allows runs that are already finished to finish before cancel
+    # because apply_cancel will only cancel running jobs
+    run_repo.apply_cancel(cmd.job_id)
+    return {
+        "status": "ok",
+        "continue": run_repo.get_run_status(cmd.job_id) != "cancelled",
+    }
