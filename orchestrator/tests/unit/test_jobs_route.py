@@ -18,7 +18,7 @@ def client():
 def test_prelabel_status_returns_200(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.jobs.get_job_status",
-        lambda cmd: {"job_id": "123", "state": "RUNNING"},
+        lambda cmd, run_repo: {"job_id": "123", "state": "RUNNING"},
     )
     res = client.get("/prelabel/status/123")
     assert res.status_code == 200
@@ -30,7 +30,7 @@ def test_prelabel_status_returns_200(client, monkeypatch):
 def test_prelabel_status_contract_violated_returns_500(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.jobs.get_job_status",
-        lambda cmd: {"wrong_field": "oops"},
+        lambda cmd, run_repo: {"wrong_field": "oops"},
     )
     res = client.get("/prelabel/status/123")
     assert res.status_code == 500
@@ -75,7 +75,7 @@ def test_prelabel_project_missing_fields_returns_422(client):
 def test_prelabel_cancel_returns_200(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.jobs.cancel_prelabel_job",
-        lambda cmd: {"job_id": "123", "status": "cancel_requested"},
+        lambda cmd, run_repo: {"job_id": "123", "status": "cancel_requested"},
     )
     res = client.post("/prelabel/cancel/123")
     assert res.status_code == 200
@@ -86,7 +86,7 @@ def test_prelabel_cancel_returns_200(client, monkeypatch):
 def test_prelabel_cancel_contract_violated_returns_500(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.jobs.cancel_prelabel_job",
-        lambda cmd: {"wrong_field": "oops"},
+        lambda cmd, run_repo: {"wrong_field": "oops"},
     )
     res = client.post("/prelabel/cancel/123")
     assert res.status_code == 500

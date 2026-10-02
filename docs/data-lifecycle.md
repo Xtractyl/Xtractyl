@@ -214,16 +214,21 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
   - **Changed (resume):** from `"failed"`, `"cancelled"` or `"incomplete"` back to `"pending"` in
     Prelabelling Pipeline, step 1 (`run_repo.resume_run`, a conditional UPDATE so concurrent
     resumes can't both succeed), with `error` cleared to `NULL` so a second failure is never
-    mistaken for the first one
+    mistaken for the first one; the run's `failed` rows in `prelabelling_run_tasks` are reset to
+    `pending` in the same call, so the derived status below doesn't read a resumed run as finished
+  - **Changed (current):** after every `POST /prelabel/task-result`, `run_repo.derive_run_status` (same transaction as the task row, one conditional UPDATE, only for runs in `"pending"` or `"running"`) bumps `updated_at` and derives the status from the run's `prelabelling_run_tasks` rows: `"running"` while any task is still `pending`, `"incomplete"` once no task is `pending` anymore and at least one is `failed`, `"done"` once no task is `pending` or `failed` anymore. `"failed"` and `"cancelled"` are still set only by the worker's end-of-job callback (`handle_prelabel_callback`), which also still sets `"done"` and triggers the evaluation, and until it is removed overwrites a derived `"incomplete"` with `"done"`. The evaluation is not triggered by the derivation yet
+  - **Changed (cancel):** `"running"` → `"cancelled"` in `handle_task_result` (`run_repo.apply_cancel`), right after `derive_run_status`, if `cancel_requested` is set. A run the derivation just finished (`"done"`/`"incomplete"`) is not cancelled. The end-of-job callback still reports `"cancelled"` as well, which changes nothing
   - **Changed (planned):** transitions to `"running"` together with `total_tasks` being set for the first time, on the first successful progress callback of the run (Planned Changes point 4) — i.e. only once project/task-list resolution (Prelabelling Pipeline, step 2) has already succeeded; a pre-loop failure in that resolution step therefore goes `"pending"` → `"failed"` directly, skipping `"running"` entirely. From `"running"`: to `"done"` once `processed_tasks >= total_tasks` and every task succeeded; to `"incomplete"` under the same completion condition if at least one task's row in `task_prelabelling_metas` ended as `status="failed"` after retries were exhausted (loop continues past individual task failures rather than aborting — see Planned Changes point 4); to `"cancelled"` to `"cancelled"` if `cancel_requested` was set and the worker received `continue: false` (derived from it) and ended the loop early; to `"failed"` only for a genuine hard abort of the whole loop (an exception class not covered by the planned per-task retry-with-backoff)
   - **Note:** evaluation (`sync_missing_evaluations`) only ever triggers on `"done"` — neither `"incomplete"` nor `"cancelled"` trigger it, regardless of how many tasks happened to complete successfully before the run ended
 - `error` (nullable)
   - **Set:** `NULL` at creation — Prelabelling Pipeline, step 1
   - **Changed (current):** set by the worker's end-of-job callback on `"failed"`, as a single value
   - **Changed (planned):** type changes from a single error string to a **JSONB array** of `{filename, error}` entries — chosen over text-concatenation (the `conversion_jobs.error` style) because that style was built for a single-failure, fail-fast case, whereas here multiple tasks can fail independently while the loop continues; JSONB keeps this machine-readable without needing to parse a delimited string, and matches the JSONB type already used elsewhere in this table's row-level sibling (`task_prelabelling_metas.predictions`, `.raw_llm_answers`). Appended to (not overwritten) via `send_task_progress` (Planned Changes point 4) each time a task ends with `status="failed"` after its own retry-with-backoff is exhausted; on a hard pre-loop or mid-loop abort (`"failed"` status), holds a single-entry array for that failure instead
-- **planned:** `processed_tasks`, `total_tasks`, `cancel_requested` (bool) — replacing the Redis-based job status/progress/cancel tracking
-  - **Set (once implemented):** `total_tasks` set once, from the worker's own task-list length, on the first progress call of a given run (see `status` above — this is the same write that also flips status to `"running"`)
-  - **Changed (once implemented):** `processed_tasks` incremented atomically per task, regardless of that task's success/failure, via the renamed per-task callback (`send_task_progress` / `/prelabel/progress`); `cancel_requested` set via the new cancel endpoint, read by the worker via the same progress callback's response (`continue`)
+- `cancel_requested` (bool, NOT NULL, default `false`)
+  - **Set:** `false` at creation
+  - **Changed:** to `true` by `POST /prelabel/cancel/<job_id>` (`run_repo.request_cancel`, only while the run is `pending` or `running`); back to `false` by `resume_run`. Read by `handle_task_result`, which turns it into `status="cancelled"` and answers the worker with `continue: false`
++- **No progress counters.** There are no `processed_tasks`/`total_tasks` columns: progress is derived from the `prelabelling_run_tasks` rows at read time (tasks that are no longer `pending` / all tasks)
+
 - `created_at`, `updated_at`
   - **Set:** automatically by Postgres at creation
   - **Changed:** `updated_at` automatically on any change to the row
@@ -272,7 +277,7 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
 - unique constraint on `(prelabelling_run_id, label_studio_task_id)`
 
 **`prelabelling_run_tasks`** — replacement for `task_prelabelling_metas`; **exists, but nothing
-reads it yet; rows are created at enqueue and updated per task by `POST /prelabel/task-result`**
+reads it yet apart from `derive_run_status`; rows are created at enqueue, updated per task by `POST /prelabel/task-result`, and `failed` rows are reset to `pending` by `resume_run`**
 Once fully active, `task_prelabelling_metas` is dropped.
 - One row per task of a run, created when a new run is enqueued, so the
   row count is the run's task total and `status` is the task's state.
@@ -621,7 +626,7 @@ this ordinary user reflex already covers the case.
   stored on the run itself, they never diverge from `projects.questions_and_labels` (because only
   one run is currently allowed), so consumers
   join against `projects` directly instead (see the Schema Reference's `prelabelling_runs` section).
- - One `prelabelling_run_tasks` row per file with an `html_key` is created in the same transaction (`filename = basename(html_key)`, `status="pending"`). Nothing reads or updates these rows yet
+- One `prelabelling_run_tasks` row per file with an `html_key` is created in the same transaction (`filename = basename(html_key)`, `status="pending"`). Each row is updated by `POST /prelabel/task-result` (step 3); nothing reads them yet
 
 > **Clarification on why `status` stays `"pending"` here, unlike `conversion_jobs.status` at the
 > equivalent point:** for Conversion, all the work that can fail (file uploads, `files` rows) already
@@ -641,12 +646,10 @@ this ordinary user reflex already covers the case.
   compared against the client-submitted value), `token` — is pushed to the `prelabel_jobs`
    queue (Redis DB 0; separate from `conversion_jobs` in DB 1)
 
-> **[TODO 6]** Planned: the Redis status hash (`state`/`progress`/`error` etc.) is
-> dropped entirely, replaced by `processed_tasks`/`total_tasks`/`cancel_requested` columns added to
-> `prelabelling_runs` — job status becomes a Postgres read, not a Redis read.
-> The job *payload* pushed to the queue is unaffected by this particular change and continues to
-> exist; only the separate status hash goes away. See also [TODO 9] below, which builds on these same
-> new columns.
+> **[TODO 6]** The Redis status hash is no longer read (polling and cancel are DB-based, see step 4).
+> What remains is removing the now dead writes: `enqueue_prelabel_job` still sets `status:<job_id>`,
+> `result:` and `logs:`, and the worker still writes state, progress and logs to Redis. The job
+> *payload* in the `prelabel_jobs` queue stays.
 
 > `GET /list_projects_ready_for_prelabelling` feeds the frontend picker
 > (`PrelabellingReadyProjectSelect` on the Start Prelabelling page): projects with
@@ -703,7 +706,9 @@ payload, resolved already by the orchestrator in step 1.
   HTML). The orchestrator updates the matching `prelabelling_run_tasks` row, found by
   `(prelabelling_run_id, filename)` where `filename` is the Label Studio task `name`: `status` is
   `success` or `failed`, `error` is set on failure, result columns only on success. Unlike
-  `send_task_meta`, this call is not swallowed: a missing row (404 `RUN_TASK_NOT_FOUND`, treated as tampering/integrity error, not repaired), a non-200 or a connection error raises in the worker and fails the run. `prelabelling_runs.status` is not touched by this call yet
+  `send_task_meta`, this call is not swallowed: a missing row (404 `RUN_TASK_NOT_FOUND`, treated as tampering/integrity error, not repaired), a non-200 or a connection error raises in the worker and fails the run. The first call of a run also sets `prelabelling_runs.status` from `"pending"` to `"running"` (same transaction as the task row); nothing else on the run is written by this call
+  The ml_backend's `meta` travels unchanged as `result`; the orchestrator's contract (`TaskResultData`) decides which fields are stored. The response carries `continue`: `false` only if the run is `cancelled`, which makes the worker stop its loop (and report `cancelled`)
+
 
 > **[TODO 8]** Planned: `task_prelabelling_metas` gains `status` (`success`/`failed`) and `error`
 > columns — the table currently has no explicit success/failure field at all, every row implicitly
@@ -733,8 +738,12 @@ payload, resolved already by the orchestrator in step 1.
 - On `"done"`: triggers `sync_missing_evaluations` (see Evaluation Pipeline) — this and
   `save_as_gt_set` are the only two triggers for this function; it is deliberately not exposed as its
   own route to prevent a user from forcing an evaluation to (re-)compute on demand
-- Cancellation: `POST /prelabel/cancel/:id` sets `state="CANCEL_REQUESTED"` in the *same* Redis status
-  hash from step 1; the worker checks this once per task-loop iteration (`cancel_cb`)
+- Cancellation: `POST /prelabel/cancel/:id` only sets `prelabelling_runs.cancel_requested`. The run
+  becomes `"cancelled"` with the next `task-result` call (so after the task that is currently
+  running), and the response to that call tells the worker to stop (`continue: false`)
+- Polling: `GET /prelabel/status/:id` reads the run and counts its task rows; it no longer touches  Redis. `state` is the run's status (`pending`, `running`, `done`, `incomplete`, `failed`,
+  `cancelled`), or `cancel_requested` while a `pending`/`running` run has `cancel_requested` set;
+  `progress` is the share of task rows that are no longer `pending`. The frontend stops polling on any final status and picks the message shown at the end from it
 - Redis `logs:<job_id>` is written throughout the worker run (`_add_log`) but never read anywhere;
   `result:<job_id>` (just `{"logs_count": ...}`) is included in `get_job_status`'s response but the
   frontend never reads it either

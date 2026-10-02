@@ -13,6 +13,14 @@ const initialState = {
   statusMsg: "",
 };
 
+const RESUME_HINT = "You can resume it the same way you started it.";
+const OUTCOME_MESSAGES = {
+  done: "Prelabeling finished successfully.",
+  cancelled: `Prelabeling was cancelled. ${RESUME_HINT}`,
+  failed: `Prelabeling failed. ${RESUME_HINT}`,
+  incomplete: `Prelabeling finished, but some tasks were not successful. ${RESUME_HINT}`,
+};
+
 function prelabelReducer(state, action) {
   switch (action.type) {
     case "START_BUSY":
@@ -61,6 +69,7 @@ export function usePrelabelJob() {
         CANCELLED: "Cancelled.",
         SUCCEEDED: "Already finished.",
         DONE: "Already finished.",
+        INCOMPLETE: "Already finished.",
         FAILED: "Job failed.",
         ERROR: "Job failed.",
       };
@@ -85,9 +94,9 @@ export function usePrelabelJob() {
         dispatch({ type: "STATUS_UPDATED", payload: s });
         const st = String(s?.state || "").toLowerCase();
         const pct = Number(s?.progress ?? 0);
-        if (["done", "error", "failed", "cancelled", "succeeded"].includes(st)) {
+        if (["done", "incomplete", "error", "failed", "cancelled", "succeeded"].includes(st)) {
           setPreJobId("");
-          dispatch({ type: "JOB_FINISHED" });
+          dispatch({ type: "JOB_FINISHED", payload: OUTCOME_MESSAGES[st] });
           return;
         }
         if (st === "cancel_requested" && pct >= 100) {

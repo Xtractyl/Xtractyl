@@ -79,14 +79,13 @@ def handle_job(job: JobPayload) -> None:
     _add_log(job_id, "[INFO] Worker picked up job.")
 
     try:
-        logs = prelabel_project(
+        logs, stopped = prelabel_project(
             job,
             log_cb=lambda line: _add_log(job_id, line),
             progress_cb=lambda pct: _set_status(job_id, progress=str(pct)),
-            cancel_cb=lambda: _cancelled(job_id),
         )
 
-        if _cancelled(job_id):
+        if stopped:
             _mark_cancelled(job_id)
             _send_callback(job.job_id, "cancelled")
             return

@@ -11,15 +11,14 @@ from infrastructure.orchestrator import send_task_meta, send_task_result
 
 LogCB = Optional[Callable[[str], None]]
 ProgressCB = Optional[Callable[[int], None]]
-CancelCB = Optional[Callable[[], bool]]
 
 
 def prelabel_project(
     job: JobPayload,
     log_cb: LogCB = None,
     progress_cb: ProgressCB = None,
-    cancel_cb: CancelCB = None,
-) -> List[str]:
+) -> tuple[List[str], bool]:
+
     logs: List[str] = []
 
     def _log(line: str) -> None:
@@ -48,29 +47,30 @@ def prelabel_project(
     total_time = 0.0
     durations: List[float] = []
     done = 0
+    stopped = False
 
     _progress(0 if total > 0 else 100)
 
     for t in tasks:
-        if cancel_cb and cancel_cb():
-            _log("[INFO] Cancel observed. Stopping.")
-            break
-
         task_id = t["id"]
         html = (t.get("data") or {}).get("html")
         filename = (t.get("data") or {}).get("name", "")
         if not html:
             _log(f"[WARN] Task {task_id} has no HTML. Skipping.")
-            send_task_result(
+            keep_going = send_task_result(
+                job_id=job.job_id,
                 task_id=task_id,
                 filename=filename,
                 success=False,
                 error="Task has no HTML.",
                 result=None,
-                job=job,
             )
             done += 1
             _progress(int(done / total * 100) if total else 100)
+            if not keep_going:
+                _log("[INFO] Stopped by the orchestrator (run cancelled).")
+                stopped = True
+                break
             continue
 
         start = time.time()
@@ -78,25 +78,25 @@ def prelabel_project(
         ok = resp.status_code == 200
         if not ok:
             _log(f"[WARN] /predict returned {resp.status_code} for task {task_id}. Continuing.")
-            send_task_result(
+            keep_going = send_task_result(
+                job_id=job.job_id,
                 task_id=task_id,
                 filename=filename,
                 success=False,
                 error=f"/predict returned HTTP {resp.status_code}",
                 result=None,
-                job=job,
             )
         else:
             body = resp.json()
             meta = body.get("meta", {})
             send_task_meta(task_id=task_id, meta=meta, job=job)
-            send_task_result(
+            keep_going = send_task_result(
+                job_id=job.job_id,
                 task_id=task_id,
                 filename=filename,
                 success=True,
                 error=None,
                 result=meta,
-                job=job,
             )
         dt = time.time() - start
         durations.append(dt)
@@ -106,6 +106,10 @@ def prelabel_project(
 
         done += 1
         _progress(int(done / total * 100) if total else 100)
+        if not keep_going:
+            _log("[INFO] Stopped by the orchestrator (run cancelled).")
+            stopped = True
+            break
 
     if durations:
         avg = total_time / len(durations)
@@ -114,4 +118,4 @@ def prelabel_project(
         )
 
     _log(f"[JOB] job_id={job.job_id}")
-    return logs
+    return logs, stopped
