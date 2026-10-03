@@ -18,46 +18,10 @@ r = redis.Redis(
 )
 
 QUEUE = "prelabel_jobs"
-STATUS = "status:"
-RESULT = "result:"
-LOGS = "logs:"
 
 ORCHESTRATOR_URL = (
     f"http://{os.getenv('ORCH_CONTAINER_NAME', 'orchestrator')}:{os.getenv('ORCH_PORT', '5001')}"
 )
-
-
-def _status_key(job_id: str) -> str:
-    return f"{STATUS}{job_id}"
-
-
-def _result_key(job_id: str) -> str:
-    return f"{RESULT}{job_id}"
-
-
-def _logs_key(job_id: str) -> str:
-    return f"{LOGS}{job_id}"
-
-
-def _set_status(job_id: str, **kv) -> None:
-    r.hset(_status_key(job_id), mapping=kv)
-
-
-def _get_state(job_id: str) -> str | None:
-    return r.hget(_status_key(job_id), "state")
-
-
-def _add_log(job_id: str, line: str) -> None:
-    r.rpush(_logs_key(job_id), line)
-
-
-def _cancelled(job_id: str) -> bool:
-    return _get_state(job_id) == "CANCEL_REQUESTED"
-
-
-def _mark_cancelled(job_id: str) -> None:
-    _set_status(job_id, state="CANCELLED")
-    _add_log(job_id, "[INFO] Job cancelled.")
 
 
 def _send_callback(job_id: str, status: str, error: str | None = None) -> None:
@@ -74,37 +38,15 @@ def _send_callback(job_id: str, status: str, error: str | None = None) -> None:
 
 
 def handle_job(job: JobPayload) -> None:
-    job_id = job.job_id
-    _set_status(job_id, state="RUNNING")
-    _add_log(job_id, "[INFO] Worker picked up job.")
-
+    safe_logger.info("job_picked_up | job_id=%s", job.job_id)
     try:
-        logs, stopped = prelabel_project(
-            job,
-            log_cb=lambda line: _add_log(job_id, line),
-            progress_cb=lambda pct: _set_status(job_id, progress=str(pct)),
-        )
-
-        if stopped:
-            _mark_cancelled(job_id)
-            _send_callback(job.job_id, "cancelled")
-            return
-
-        r.set(_result_key(job_id), json.dumps({"job_id": job_id, "logs_count": len(logs)}))
-
-        final_state = _get_state(job_id) or "RUNNING"
-        if final_state not in ("CANCELLED", "FAILED"):
-            _set_status(job_id, state="SUCCEEDED", progress="100")
-            _send_callback(job.job_id, "done")
-
-        _add_log(job_id, "[INFO] Job finished.")
-
+        stopped = prelabel_project(job)
+        _send_callback(job.job_id, "cancelled" if stopped else "done")
     except Exception as e:
-        _set_status(job_id, state="FAILED", error=str(e))
         _send_callback(job.job_id, "failed", error=str(e))
-        safe_logger.error("job_failed | job_id=%s", job_id)
+        safe_logger.error("job_failed | job_id=%s", job.job_id)
         if dev_logger:
-            dev_logger.exception("job_failed_dev | job_id=%s", job_id)
+            dev_logger.exception("job_failed_dev | job_id=%s", job.job_id)
 
 
 def main() -> None:
