@@ -1,6 +1,6 @@
 # orchestrator/infrastructure/repository/prelabelling_run_repository.py
 
-from db.models import PrelabellingRun, PrelabellingRunTask, TaskPrelabellingMeta
+from db.models import PrelabellingRun, PrelabellingRunTask
 from infrastructure.interfaces.repository import PrelabellingRunRepositoryInterface
 from sqlalchemy import case, exists, func
 from utils.hashing import compute_system_prompt_hash
@@ -176,77 +176,16 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
             .first()
         )
 
-    def get_task_prelabelling_metas(self, prelabelling_run_id: int) -> list:
+    def get_successful_run_tasks(self, prelabelling_run_id: int) -> list:
         return (
-            self._db.query(TaskPrelabellingMeta)
-            .filter(TaskPrelabellingMeta.prelabelling_run_id == prelabelling_run_id)
+            self._db.query(PrelabellingRunTask)
+            .filter(
+                PrelabellingRunTask.prelabelling_run_id == prelabelling_run_id,
+                PrelabellingRunTask.status == "success",
+            )
+            .order_by(PrelabellingRunTask.id)
             .all()
         )
-
-    def save_task_prelabelling_meta(
-        self,
-        prelabelling_run_id: int,
-        label_studio_task_id: int,
-        filename: str,
-        predictions: list,
-        raw_llm_answers: dict,
-        dom_match_diagnostics: list,
-        dom_match_by_label: dict,
-        task_ms_total: float,
-        task_ms_llm_total: float,
-        task_ms_dom_extract: float,
-        task_ms_dom_match: float,
-        n_llm_calls: int,
-        n_timeouts: int,
-        avg_llm_call_ms: float,
-        median_llm_call_ms: float,
-    ) -> None:
-        meta = TaskPrelabellingMeta(
-            prelabelling_run_id=prelabelling_run_id,
-            label_studio_task_id=label_studio_task_id,
-            filename=filename,
-            predictions=predictions,
-            raw_llm_answers=raw_llm_answers,
-            dom_match_diagnostics=dom_match_diagnostics,
-            dom_match_by_label=dom_match_by_label,
-            task_ms_total=task_ms_total,
-            task_ms_llm_total=task_ms_llm_total,
-            task_ms_dom_extract=task_ms_dom_extract,
-            task_ms_dom_match=task_ms_dom_match,
-            n_llm_calls=n_llm_calls,
-            n_timeouts=n_timeouts,
-            avg_llm_call_ms=avg_llm_call_ms,
-            median_llm_call_ms=median_llm_call_ms,
-        )
-        self._db.add(meta)
-        self._db.flush()
-
-    def build_pred_rows_for_run(self, prelabelling_run_id: int) -> list:
-        metas = self.get_task_prelabelling_metas(prelabelling_run_id)
-        rows = []
-        for m in metas:
-            labels = {
-                label: (val.get("answer", "") if isinstance(val, dict) else "")
-                for label, val in (m.raw_llm_answers or {}).items()
-            }
-            rows.append(
-                {
-                    "filename": m.filename,
-                    "labels": labels,
-                    "meta": {
-                        "raw_llm_answers": m.raw_llm_answers,
-                        "performance": {
-                            "request": {
-                                "task_ms_total": m.task_ms_total,
-                                "task_ms_llm_total": m.task_ms_llm_total,
-                                "task_ms_dom_extract": m.task_ms_dom_extract,
-                                "task_ms_dom_match": m.task_ms_dom_match,
-                            }
-                        },
-                    },
-                }
-            )
-        return rows
 
     def list_done_runs(self) -> list:
         return self._db.query(PrelabellingRun).filter(PrelabellingRun.status == "done").all()

@@ -169,30 +169,7 @@ class PrelabellingRunRepositoryInterface(ABC):
     def get_run_for_project(self, project: str): ...
 
     @abstractmethod
-    def get_task_prelabelling_metas(self, prelabelling_run_id: int) -> list: ...
-
-    @abstractmethod
-    def save_task_prelabelling_meta(
-        self,
-        prelabelling_run_id: int,
-        label_studio_task_id: int,
-        filename: str,
-        predictions: list,
-        raw_llm_answers: dict,
-        dom_match_diagnostics: list,
-        dom_match_by_label: dict,
-        task_ms_total: float,
-        task_ms_llm_total: float,
-        task_ms_dom_extract: float,
-        task_ms_dom_match: float,
-        n_llm_calls: int,
-        n_timeouts: int,
-        avg_llm_call_ms: float,
-        median_llm_call_ms: float,
-    ) -> None: ...
-
-    @abstractmethod
-    def build_pred_rows_for_run(self, prelabelling_run_id: int) -> list: ...
+    def get_successful_run_tasks(self, prelabelling_run_id: int) -> list: ...
 
     @abstractmethod
     def list_done_runs(self) -> list: ...

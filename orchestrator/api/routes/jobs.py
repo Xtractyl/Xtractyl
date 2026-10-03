@@ -5,7 +5,6 @@ from domain.jobs import (
     enqueue_prelabel_job,
     get_job_status,
     handle_prelabel_callback,
-    handle_task_prelabelling_meta,
     handle_task_result,
 )
 from domain.models.jobs import (
@@ -13,7 +12,6 @@ from domain.models.jobs import (
     EnqueueJobCommand,
     JobStatusCommand,
     PrelabelCallbackCommand,
-    TaskPrelabellingMetaCommand,
     TaskResultCommand,
 )
 from flask import jsonify, request
@@ -33,8 +31,6 @@ from api.contracts.jobs import (
     JobStatusResponse,
     PrelabelCallbackRequest,
     PrelabelCallbackResponse,
-    TaskPrelabellingMetaRequest,
-    TaskPrelabellingMetaResponse,
     TaskResultRequest,
     TaskResultResponse,
 )
@@ -186,39 +182,6 @@ def register(app, spec, session_factory):
             db.close()
         try:
             validated = PrelabelCallbackResponse.model_validate(result)
-        except ValidationError as e:
-            raise InternalError(
-                code="RESPONSE_CONTRACT_VIOLATED",
-                message="Internal response did not match expected schema.",
-                meta={"details": e.errors()},
-            )
-        return jsonify(validated.model_dump()), 200
-
-    @app.route("/prelabel/task-meta", methods=["POST"])
-    @spec.validate(
-        body=Request(TaskPrelabellingMetaRequest),
-        resp=Response(
-            HTTP_200=TaskPrelabellingMetaResponse,
-            HTTP_404=ErrorResponse,
-            HTTP_500=ErrorResponse,
-        ),
-        tags=["jobs"],
-    )
-    def prelabel_task_meta():
-        contract = TaskPrelabellingMetaRequest.model_validate(request.get_json(silent=True) or {})
-        cmd = TaskPrelabellingMetaCommand.from_contract(contract)
-        db = session_factory()
-        try:
-            run_repo = PrelabellingRunRepository(db)
-            result = handle_task_prelabelling_meta(cmd, run_repo=run_repo)
-            db.commit()
-        except Exception:
-            db.rollback()
-            raise
-        finally:
-            db.close()
-        try:
-            validated = TaskPrelabellingMetaResponse.model_validate(result)
         except ValidationError as e:
             raise InternalError(
                 code="RESPONSE_CONTRACT_VIOLATED",

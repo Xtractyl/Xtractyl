@@ -15,6 +15,34 @@ from .utils.shared.label_studio_client import (
 )
 
 
+def _build_pred_rows(tasks: list) -> list:
+    """Changes shape of get_successful_run_tasks return to format needed for compute_metrics_from_rows (used by evaluate_run)"""
+    rows = []
+    for t in tasks:
+        labels = {
+            label: (val.get("answer", "") if isinstance(val, dict) else "")
+            for label, val in (t.raw_llm_answers or {}).items()
+        }
+        rows.append(
+            {
+                "filename": t.filename,
+                "labels": labels,
+                "meta": {
+                    "raw_llm_answers": t.raw_llm_answers,
+                    "performance": {
+                        "request": {
+                            "task_ms_total": t.task_ms_total,
+                            "task_ms_llm_total": t.task_ms_llm_total,
+                            "task_ms_dom_extract": t.task_ms_dom_extract,
+                            "task_ms_dom_match": t.task_ms_dom_match,
+                        }
+                    },
+                },
+            }
+        )
+    return rows
+
+
 def list_projects_ready_for_comparison(eval_repo) -> dict:
     """Backs GET /list_projects_ready_for_comparison, the comparison
     project dropdown on the EvaluateAIPage. Filters to projects that
@@ -189,7 +217,7 @@ def evaluate_run(run_id: int, groundtruth_project: str, project_repo, run_repo, 
         )
 
     gt_rows = project_repo.get_groundtruth_annotations(groundtruth_project)
-    pred_rows = run_repo.build_pred_rows_for_run(run.id)
+    pred_rows = _build_pred_rows(run_repo.get_successful_run_tasks(run.id))
 
     overall = compute_metrics_from_rows(gt_rows, pred_rows)
     run_at = run.updated_at if run.updated_at else run.created_at

@@ -1,5 +1,5 @@
 # worker/tests/unit/test_worker.py
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 from contracts.jobs import JobPayload
@@ -59,17 +59,37 @@ def test_job_payload_missing_job_id_raises(valid_payload):
 # --- handle_job ---
 
 
-def test_handle_job_sets_failed_on_exception(valid_job):
+def test_handle_job_sends_failed_callback_on_exception(valid_job):
     import app as worker_app
 
-    mock_r = MagicMock()
-    mock_r.hget.return_value = "RUNNING"
-
     with (
-        patch.object(worker_app, "r", mock_r),
         patch("app.prelabel_project", side_effect=Exception("boom")),
+        patch("app._send_callback") as send_callback,
     ):
         worker_app.handle_job(valid_job)
 
-    calls = [str(c) for c in mock_r.hset.call_args_list]
-    assert any("FAILED" in c for c in calls)
+    send_callback.assert_called_once_with("123", "failed", error="boom")
+
+
+def test_handle_job_sends_done_callback(valid_job):
+    import app as worker_app
+
+    with (
+        patch("app.prelabel_project", return_value=False),
+        patch("app._send_callback") as send_callback,
+    ):
+        worker_app.handle_job(valid_job)
+
+    send_callback.assert_called_once_with("123", "done")
+
+
+def test_handle_job_sends_cancelled_callback_when_stopped(valid_job):
+    import app as worker_app
+
+    with (
+        patch("app.prelabel_project", return_value=True),
+        patch("app._send_callback") as send_callback,
+    ):
+        worker_app.handle_job(valid_job)
+
+    send_callback.assert_called_once_with("123", "cancelled")
