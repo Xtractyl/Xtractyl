@@ -349,7 +349,7 @@ of the row-level insert itself.
   - **Set:** at insert — Evaluation Pipeline, `evaluate_run`, from `compute_metrics_from_rows(...)["per_label"]`
 - `filenames_count` (nullable)
   - **Set:** at insert — Evaluation Pipeline, `evaluate_run`, from `compute_metrics_from_rows(...)["filenames_count"]`
-- `task_metrics` (JSONB, nullable) — previously undocumented; per-task rows built from `run_repo.build_pred_rows_for_run`, ultimately sourced from the `success` rows of `prelabelling_run_tasks`
+- `task_metrics` (JSONB, nullable) — previously undocumented; per-task rows built in `domain/evaluation.py` (`_build_pred_rows`) from `run_repo.get_successful_run_tasks`, i.e. the `success` rows of `prelabelling_run_tasks`
   - **Set:** at insert — Evaluation Pipeline, `evaluate_run`, from `compute_metrics_from_rows(...)["task_metrics"]`
 - `performance` (JSONB, nullable) — previously undocumented; per-task timing/meta, same source as above
   - **Set:** at insert — Evaluation Pipeline, `evaluate_run`, from `compute_metrics_from_rows(...)["performance"]`
