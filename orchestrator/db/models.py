@@ -183,36 +183,6 @@ class PrelabellingRun(Base):
     )
 
 
-class TaskPrelabellingMeta(Base):
-    __tablename__ = "task_prelabelling_metas"
-
-    id = Column(Integer, primary_key=True)
-    prelabelling_run_id = Column(Integer, ForeignKey("prelabelling_runs.id"), nullable=False)
-    label_studio_task_id = Column(Integer, nullable=False)
-    filename = Column(Text, nullable=False)
-    predictions = Column(JSONB, nullable=True)
-    raw_llm_answers = Column(JSONB, nullable=True)
-    dom_match_diagnostics = Column(JSONB, nullable=True)
-    dom_match_by_label = Column(JSONB, nullable=True)
-    task_ms_total = Column(Float, nullable=True)
-    task_ms_llm_total = Column(Float, nullable=True)
-    task_ms_dom_extract = Column(Float, nullable=True)
-    task_ms_dom_match = Column(Float, nullable=True)
-    n_llm_calls = Column(Integer, nullable=True)
-    n_timeouts = Column(Integer, nullable=True)
-    avg_llm_call_ms = Column(Float, nullable=True)
-    median_llm_call_ms = Column(Float, nullable=True)
-    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
-
-    __table_args__ = (
-        UniqueConstraint(
-            "prelabelling_run_id",
-            "label_studio_task_id",
-            name="uq_task_prelabelling_meta_run_task",
-        ),
-    )
-
-
 class PrelabellingRunTask(Base):
     __tablename__ = "prelabelling_run_tasks"
 
