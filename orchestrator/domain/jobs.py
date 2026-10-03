@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import json
 import os
-import time
 from typing import Any, Dict
 
 import redis
@@ -29,25 +28,10 @@ REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
 r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
 
 QUEUE = "prelabel_jobs"
-STATUS = "status:"
-RESULT = "result:"
-LOGS = "logs:"
 
 # enqueue_prelabel_job will not be allowed for "pending", "running", "done" status
 # it remains allowed for "cancelled", "failed", "incomplete", this allows to finish exactly 1 run
 BLOCKING_RUN_STATES = ("pending", "running", "done")
-
-
-def _status_key(job_id: str) -> str:
-    return f"{STATUS}{job_id}"
-
-
-def _result_key(job_id: str) -> str:
-    return f"{RESULT}{job_id}"
-
-
-def _logs_key(job_id: str) -> str:
-    return f"{LOGS}{job_id}"
 
 
 def get_job_status(cmd: JobStatusCommand, run_repo: PrelabellingRunRepositoryInterface):
@@ -147,20 +131,6 @@ def enqueue_prelabel_job(
 
         html_keys = project_repo.get_html_keys_for_project(cmd.project_name)
         run_repo.create_run_tasks(int(job_id), [os.path.basename(key) for key in html_keys])
-
-    r.hset(
-        _status_key(job_id),
-        mapping={
-            "state": "PENDING",
-            "progress": "0",
-            "project_name": cmd.project_name,
-            "model": cmd.model,
-            "created_at": str(time.time()),
-            "error": "",
-        },
-    )
-    r.delete(_result_key(job_id))
-    r.delete(_logs_key(job_id))
 
     payload = {
         "job_id": job_id,
