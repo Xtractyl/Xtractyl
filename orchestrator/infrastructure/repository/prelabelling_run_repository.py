@@ -176,10 +176,14 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
             .first()
         )
 
-    def get_task_prelabelling_metas(self, prelabelling_run_id: int) -> list:
+    def get_successful_run_tasks(self, prelabelling_run_id: int) -> list:
         return (
-            self._db.query(TaskPrelabellingMeta)
-            .filter(TaskPrelabellingMeta.prelabelling_run_id == prelabelling_run_id)
+            self._db.query(PrelabellingRunTask)
+            .filter(
+                PrelabellingRunTask.prelabelling_run_id == prelabelling_run_id,
+                PrelabellingRunTask.status == "success",
+            )
+            .order_by(PrelabellingRunTask.id)
             .all()
         )
 
@@ -222,25 +226,25 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
         self._db.flush()
 
     def build_pred_rows_for_run(self, prelabelling_run_id: int) -> list:
-        metas = self.get_task_prelabelling_metas(prelabelling_run_id)
+        tasks = self.get_successful_run_tasks(prelabelling_run_id)
         rows = []
-        for m in metas:
+        for t in tasks:
             labels = {
                 label: (val.get("answer", "") if isinstance(val, dict) else "")
-                for label, val in (m.raw_llm_answers or {}).items()
+                for label, val in (t.raw_llm_answers or {}).items()
             }
             rows.append(
                 {
-                    "filename": m.filename,
+                    "filename": t.filename,
                     "labels": labels,
                     "meta": {
-                        "raw_llm_answers": m.raw_llm_answers,
+                        "raw_llm_answers": t.raw_llm_answers,
                         "performance": {
                             "request": {
-                                "task_ms_total": m.task_ms_total,
-                                "task_ms_llm_total": m.task_ms_llm_total,
-                                "task_ms_dom_extract": m.task_ms_dom_extract,
-                                "task_ms_dom_match": m.task_ms_dom_match,
+                                "task_ms_total": t.task_ms_total,
+                                "task_ms_llm_total": t.task_ms_llm_total,
+                                "task_ms_dom_extract": t.task_ms_dom_extract,
+                                "task_ms_dom_match": t.task_ms_dom_match,
                             }
                         },
                     },
