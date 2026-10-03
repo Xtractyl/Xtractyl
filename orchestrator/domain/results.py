@@ -27,8 +27,8 @@ def build_results_table(cmd: GetResultsTableCommand, run_repo):
                 f"has completed successfully."
             ),
         )
-    metas = run_repo.get_task_prelabelling_metas(run.id)
-    if not metas:
+    tasks = run_repo.get_successful_run_tasks(run.id)
+    if not tasks:
         return {
             "columns": ["task_id", "filename"],
             "rows": [],
@@ -36,20 +36,20 @@ def build_results_table(cmd: GetResultsTableCommand, run_repo):
         }
 
     label_columns: List[str] = []
-    for m in metas:
-        for label in (m.raw_llm_answers or {}).keys():
+    for t in tasks:
+        for label in (t.raw_llm_answers or {}).keys():
             col = f"{label}__pred"
             if col not in label_columns:
                 label_columns.append(col)
 
     columns = ["task_id", "filename"] + label_columns
     rows: List[Dict[str, Any]] = []
-    for m in metas:
+    for t in tasks:
         flat: Dict[str, Any] = {
-            "task_id": m.label_studio_task_id,
-            "filename": m.filename,
+            "task_id": t.label_studio_task_id,
+            "filename": t.filename,
         }
-        for label, val in (m.raw_llm_answers or {}).items():
+        for label, val in (t.raw_llm_answers or {}).items():
             flat[f"{label}__pred"] = val.get("answer", "") if isinstance(val, dict) else ""
         rows.append(flat)
 
