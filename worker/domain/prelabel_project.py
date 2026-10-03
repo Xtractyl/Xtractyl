@@ -7,7 +7,7 @@ from typing import Callable, List, Optional
 from contracts.jobs import JobPayload
 from infrastructure.label_studio import get_tasks_without_predictions
 from infrastructure.ml_backend import send_predict
-from infrastructure.orchestrator import send_task_meta, send_task_result
+from infrastructure.orchestrator import send_task_result
 
 LogCB = Optional[Callable[[str], None]]
 ProgressCB = Optional[Callable[[int], None]]
@@ -89,7 +89,6 @@ def prelabel_project(
         else:
             body = resp.json()
             meta = body.get("meta", {})
-            send_task_meta(task_id=task_id, meta=meta, job=job)
             keep_going = send_task_result(
                 job_id=job.job_id,
                 task_id=task_id,
