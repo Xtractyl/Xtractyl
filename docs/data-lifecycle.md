@@ -234,6 +234,7 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
   - **Changed:** `updated_at` automatically on any change to the row
 
 **`task_prelabelling_metas`**
+- **Written, but no longer read.** Get Results and the evaluation read `prelabelling_run_tasks` (`get_successful_run_tasks`). The table is only filled by the legacy `task-meta` callback until that is removed
 - **No `updated_at` column exists** — every row is written in a single insert and not updated
   afterward. All fields below share the same "Set" moment; there is no "Changed" for any of them
   under current behavior. Planned exception ([TODO 8]): a retry of a task whose row has
@@ -348,7 +349,7 @@ of the row-level insert itself.
   - **Set:** at insert — Evaluation Pipeline, `evaluate_run`, from `compute_metrics_from_rows(...)["per_label"]`
 - `filenames_count` (nullable)
   - **Set:** at insert — Evaluation Pipeline, `evaluate_run`, from `compute_metrics_from_rows(...)["filenames_count"]`
-- `task_metrics` (JSONB, nullable) — previously undocumented; per-task rows built from `run_repo.build_pred_rows_for_run`, ultimately sourced from `task_prelabelling_metas`
+- `task_metrics` (JSONB, nullable) — previously undocumented; per-task rows built from `run_repo.build_pred_rows_for_run`, ultimately sourced from the `success` rows of `prelabelling_run_tasks`
   - **Set:** at insert — Evaluation Pipeline, `evaluate_run`, from `compute_metrics_from_rows(...)["task_metrics"]`
 - `performance` (JSONB, nullable) — previously undocumented; per-task timing/meta, same source as above
   - **Set:** at insert — Evaluation Pipeline, `evaluate_run`, from `compute_metrics_from_rows(...)["performance"]`
@@ -830,8 +831,9 @@ gain.
 - `run_repo.get_run_for_project(cmd.project_name)` resolves the project name to a
   `prelabelling_runs` row; raises `RUN_NOT_FOUND` if none exists; raises `InvalidState("RUN_NOT_DONE")`
   if the resolved run's `status` isn't `"done"`
-- Reads `task_prelabelling_metas` for that run, flattens `raw_llm_answers` into one column per label
+- Reads the `success` rows of `prelabelling_run_tasks` for that run (`run_repo.get_successful_run_tasks`), flattens `raw_llm_answers` into one column per label
   (`<label>__pred`), returns a table: `task_id`, `filename`, one predicted-answer column per label
+
 - **DB-only, not a Label Studio passthrough** — despite what the route's own OpenAPI contract and
   auth requirement suggest (see the two stale-artifact findings below), this function never calls
   Label Studio at all; it reads exclusively from Postgres via `PrelabellingRunRepository`. This
