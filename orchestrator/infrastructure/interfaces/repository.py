@@ -192,9 +192,6 @@ class PrelabellingRunRepositoryInterface(ABC):
     ) -> None: ...
 
     @abstractmethod
-    def build_pred_rows_for_run(self, prelabelling_run_id: int) -> list: ...
-
-    @abstractmethod
     def list_done_runs(self) -> list: ...
 
     @abstractmethod
