@@ -546,9 +546,9 @@ this ordinary user reflex already covers the case.
 ### 4. Enqueueing a prelabelling run against an archived model
 - `enqueue_prelabel_job` resolves the `archived_name` string sent by the frontend to a `models` row
   (`get_by_archived_name`) purely to obtain `model.id` for the `prelabelling_runs.model_id` FK
-- The Redis status hash and the job payload pushed to the worker queue both carry the
-  `archived_name` **string**, never the numeric id — Ollama and the worker/ml_backend chain only
-  ever see the archived name, matching what `/api/generate` expects
+- The job payload pushed to the worker queue carries the `archived_name` **string**, never the
+  numeric id — Ollama and the worker/ml_backend chain only ever see the archived name, matching
+  what `/api/generate` expects
 
 ---
 
@@ -601,16 +601,11 @@ this ordinary user reflex already covers the case.
 > resolution failure needs to read as `"pending"` → `"failed"` (the loop never started), not
 > `"running"` → `"failed"` (which would incorrectly imply it had).
 
-- Redis: a status hash (`status:<job_id>`) is set, and the job payload — `project_name`, `model`,
+- Redis: the job payload — `project_name`, `model`,
   `system_prompt`, `questions_and_labels` (the *client-submitted* value, a separate, independent
   copy from `projects.questions_and_labels`, which is only checked for existence above, never
   compared against the client-submitted value), `token` — is pushed to the `prelabel_jobs`
    queue (Redis DB 0; separate from `conversion_jobs` in DB 1)
-
-> **[TODO 6]** The Redis status hash is no longer read (polling and cancel are DB-based, see step 4).
-> What remains is removing the now dead writes: `enqueue_prelabel_job` still sets `status:<job_id>`,
-> `result:` and `logs:`, and the worker still writes state, progress and logs to Redis. The job
-> *payload* in the `prelabel_jobs` queue stays.
 
 > `GET /list_projects_ready_for_prelabelling` feeds the frontend picker
 > (`PrelabellingReadyProjectSelect` on the Start Prelabelling page): projects with
@@ -709,16 +704,8 @@ payload, resolved already by the orchestrator in step 1.
 - Polling: `GET /prelabel/status/:id` reads the run and counts its task rows; it no longer touches  Redis. `state` is the run's status (`pending`, `running`, `done`, `incomplete`, `failed`,
   `cancelled`), or `cancel_requested` while a `pending`/`running` run has `cancel_requested` set;
   `progress` is the share of task rows that are no longer `pending`. The frontend stops polling on any final status and picks the message shown at the end from it
-- Redis `logs:<job_id>` is written throughout the worker run (`_add_log`) but never read anywhere;
-  `result:<job_id>` (just `{"logs_count": ...}`) is included in `get_job_status`'s response but the
-  frontend never reads it either
-
-> See [TODO 6] above for the planned `processed_tasks`/`total_tasks`/`cancel_requested` columns that
-> replace this Redis status hash, mirroring how Conversion already works. `total_tasks` is set once,
-> from the worker's own task-list length, on the *first* progress call of a given run (needed because
-> a resumed run's true task count can be smaller than the project's full document count — see
-> [TODO 5] and [TODO 7]). The dead Redis keys (`logs:`, `result:`, and the status hash itself) are
-> dropped outright.
+- Redis is only the job queue (`prelabel_jobs`). The worker's per-task lines go to its normal log
+  (`safe_logger`), not to Redis
 
 > **[TODO 9]** Callback consolidation — the per-task callback from step 3
 > (`send_task_meta` / `/prelabel/task-meta`) is renamed to `send_task_progress` /
