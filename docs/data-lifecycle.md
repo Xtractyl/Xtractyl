@@ -227,59 +227,18 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
 - `cancel_requested` (bool, NOT NULL, default `false`)
   - **Set:** `false` at creation
   - **Changed:** to `true` by `POST /prelabel/cancel/<job_id>` (`run_repo.request_cancel`, only while the run is `pending` or `running`); back to `false` by `resume_run`. Read by `handle_task_result`, which turns it into `status="cancelled"` and answers the worker with `continue: false`
-+- **No progress counters.** There are no `processed_tasks`/`total_tasks` columns: progress is derived from the `prelabelling_run_tasks` rows at read time (tasks that are no longer `pending` / all tasks)
+- **No progress counters.** There are no `processed_tasks`/`total_tasks` columns: progress is derived from the `prelabelling_run_tasks` rows at read time (tasks that are no longer `pending` / all tasks)
+
 
 - `created_at`, `updated_at`
   - **Set:** automatically by Postgres at creation
   - **Changed:** `updated_at` automatically on any change to the row
 
-**`task_prelabelling_metas`**
-- **Written, but no longer read.** Get Results and the evaluation read `prelabelling_run_tasks` (`get_successful_run_tasks`). The table is only filled by the legacy `task-meta` callback until that is removed
-- **No `updated_at` column exists** — every row is written in a single insert and not updated
-  afterward. All fields below share the same "Set" moment; there is no "Changed" for any of them
-  under current behavior. Planned exception ([TODO 8]): a retry of a task whose row has
-  `status="failed"` overwrites that row via an upsert on the unique constraint below; the earlier
-  failure is not preserved.
-
-- `id` (PK)
-  - **Set:** at insert — Prelabelling Pipeline, step 3, via `send_task_meta` (`POST /prelabel/task-meta`), the orchestrator call the worker makes after forwarding a completed task's `meta` from ml_backend; automatically by Postgres (auto-increment)
-- `prelabelling_run_id` (FK → `prelabelling_runs.id`)
-  - **Set:** at insert — Prelabelling Pipeline, step 3
-- `label_studio_task_id`
-  - **Set:** at insert — Prelabelling Pipeline, step 3
-- `filename`
-  - **Set:** at insert — Prelabelling Pipeline, step 3
-  - **Planned:** validated against `files.filename` before insert (Planned Changes point 1) — a task without a matching filename is skipped with a warning instead of being written here with `filename=""` or an unverified name, as happens today
-- `predictions` (JSONB, nullable)
-  - **Set:** at insert — Prelabelling Pipeline, step 3, from ml_backend's `run_predict` output
-- `raw_llm_answers` (JSONB, nullable)
-  - **Set:** at insert — Prelabelling Pipeline, step 3, from ml_backend's `run_predict` output
-- `dom_match_diagnostics` (JSONB, nullable)
-  - **Set:** at insert — Prelabelling Pipeline, step 3, from ml_backend's `extract_xpath_matches_from_dom` output
-- `dom_match_by_label` (JSONB, nullable)
-  - **Set:** at insert — Prelabelling Pipeline, step 3, from ml_backend's `extract_xpath_matches_from_dom` output
-- `task_ms_total`, `task_ms_llm_total`, `task_ms_dom_extract`, `task_ms_dom_match` (float, nullable)
-  - **Set:** at insert — Prelabelling Pipeline, step 3, from ml_backend's `PerfCollector` output
-- `n_llm_calls`, `n_timeouts` (nullable)
-  - **Set:** at insert — Prelabelling Pipeline, step 3, from ml_backend's `PerfCollector` output
-- `avg_llm_call_ms`, `median_llm_call_ms` (float, nullable)
-  - **Set:** at insert — Prelabelling Pipeline, step 3, from ml_backend's `PerfCollector` output
-- **planned:** `status` (`success` | `failed`), `error` (Text, nullable) — the table currently has no
-  explicit success/failure field at all; every row implicitly represents a successful task today
-  - **Set (once implemented):** at insert, alongside every other field — Prelabelling Pipeline, step 3; `status="success"` for a normal completion, `status="failed"` (with `error` populated) for a task whose DOM extraction/matching crashed or whose retry-with-backoff (Planned Changes point 4) was exhausted; a timeout on any single question fails the whole task (nothing written to Label Studio in that case)
-  - **Note:** a `failed` row is kept for visibility/debugging but does **not** block a future retry from reprocessing that task — the retry/resume filter ([TODO 7]) checks specifically for `status="success"` under a given run's id, not mere row existence. On retry, the `failed` row is overwritten by an upsert on `(prelabelling_run_id, label_studio_task_id)`, so only the latest attempt is stored
-
-  - **Retry overwrites the `failed` row:** because of the unique constraint on
-    `(prelabelling_run_id, label_studio_task_id)`, a retry updates the existing `failed` row via
-    upsert instead of inserting a second one — the earlier error is not kept. This is the only
-    exception to "written exactly once" above, and it only ever applies to `failed` rows
- `created_at`
-  - **Set:** automatically by Postgres at insert
-- unique constraint on `(prelabelling_run_id, label_studio_task_id)`
-
-**`prelabelling_run_tasks`** — replacement for `task_prelabelling_metas`; **exists, but nothing
-reads it yet apart from `derive_run_status`; rows are created at enqueue, updated per task by `POST /prelabel/task-result`, and `failed` rows are reset to `pending` by `resume_run`**
-Once fully active, `task_prelabelling_metas` is dropped.
+**`prelabelling_run_tasks`** — one row per task of a run; the only per-task table (it replaced
+`task_prelabelling_metas`, which was dropped). Rows are created at enqueue, updated per task by
+`POST /prelabel/task-result`, and `failed` rows are reset to `pending` by `resume_run`. Read by
+`derive_run_status`, the status polling (`count_run_tasks`) and `get_successful_run_tasks` (Get
+Results, evaluation)
 - One row per task of a run, created when a new run is enqueued, so the
   row count is the run's task total and `status` is the task's state.
 - `id` (PK), `prelabelling_run_id` (FK → `prelabelling_runs.id`)
@@ -288,10 +247,10 @@ Once fully active, `task_prelabelling_metas` is dropped.
 - `label_studio_task_id` (nullable) — unknown at row creation, set by the first callback for the row
 - `status` (`pending` | `success` | `failed`, default `pending`, enforced by
   `ck_prelabelling_run_tasks_status_values`), `error` (Text, nullable)
-- Result columns, identical in name and type to `task_prelabelling_metas` (`predictions`,
-  `raw_llm_answers`, `dom_match_diagnostics`, `dom_match_by_label`, `task_ms_*`, `n_llm_calls`,
-  `n_timeouts`, `avg_llm_call_ms`, `median_llm_call_ms`) — all nullable, empty until the task is
-  processed
+- Result columns, filled from the ml_backend's `meta` (validated by `TaskResultData`):
+  `predictions`, `raw_llm_answers`, `dom_match_diagnostics`, `dom_match_by_label`, `task_ms_*`,
+  `n_llm_calls`, `n_timeouts`, `avg_llm_call_ms`, `median_llm_call_ms` — all nullable, empty until
+  the task succeeded
 - `created_at`, `updated_at` (automatic; `updated_at` changes on every update of the row)
 - unique constraints on `(prelabelling_run_id, filename)` and `(prelabelling_run_id, label_studio_task_id)`
 
@@ -370,7 +329,7 @@ of the row-level insert itself.
 ## Conversion Pipeline
 
 ### 1. When starting a completely new project (new project name, selection of PDFs, conversion to HTMLs etc.)
-- No rows for *this* project exist yet in any of the 7 tables: `projects`, `files`, `conversion_jobs`, `prelabelling_runs`, `task_prelabelling_metas`, `task_groundtruth_annotations` and `evaluations`
+- No rows for *this* project exist yet in any of the 7 tables: `projects`, `files`, `conversion_jobs`, `prelabelling_runs`, `prelabelling_run_tasks`, `task_groundtruth_annotations` and `evaluations` 
 - MinIO: overall bucket exists (created once, not per project)
 
 ### 2. `prepare_conversion` (`POST /conversion/prepare`)
@@ -617,9 +576,9 @@ this ordinary user reflex already covers the case.
 > **[TODO 5]** Resume logic for the Start Prelabelling flow:
 > **Resume:** the worker does not distinguish a fresh run from a resumed one — it simply fetches
 > every task without a prediction from Label Studio, so a resumed run skips finished tasks
-> automatically. The known gap (a task with a prediction in Label Studio but no row in
-> `task_prelabelling_metas` is never redone) is closed by [TODO 7], which moves task openness to
-> Postgres. 
+> automatically. The known gap (a task with a prediction in Label Studio whose
+> `prelabelling_run_tasks` row is still `pending` is never redone) is closed by [TODO 7], which moves task openness to Postgres
+
 
 - `prelabelling_runs` row created — `project`,
   `model_id`, `system_prompt` (+ hash), `status="pending"`. `questions_and_labels`/`labels_hash`/
@@ -627,7 +586,8 @@ this ordinary user reflex already covers the case.
   stored on the run itself, they never diverge from `projects.questions_and_labels` (because only
   one run is currently allowed), so consumers
   join against `projects` directly instead (see the Schema Reference's `prelabelling_runs` section).
-- One `prelabelling_run_tasks` row per file with an `html_key` is created in the same transaction (`filename = basename(html_key)`, `status="pending"`). Each row is updated by `POST /prelabel/task-result` (step 3); nothing reads them yet
+- One `prelabelling_run_tasks` row per file with an `html_key` is created in the same transaction (`filename = basename(html_key)`, `status="pending"`). Each row is updated by `POST /prelabel/task-result` (step 3); they are the source for the run status, the status polling, Get Results and the evaluation
+
 
 > **Clarification on why `status` stays `"pending"` here, unlike `conversion_jobs.status` at the
 > equivalent point:** for Conversion, all the work that can fail (file uploads, `files` rows) already
@@ -697,18 +657,22 @@ payload, resolved already by the orchestrator in step 1.
   this grounding check is the closest thing the system has to hallucination detection
 
 
-- ml_backend writes to Label Studio: `save_predictions_to_labelstudio` (the actual prediction) 
-- The worker then forwards the returned `meta` to the orchestrator (`send_task_meta` /
-  `POST /prelabel/task-meta`), which is what actually persists it into `task_prelabelling_metas` —
-  neither the worker nor ml_backend has any direct Postgres access anywhere in the codebase
-
-- **Transition phase, in parallel:** after every task the worker also calls `send_task_result`
-  (`POST /prelabel/task-result`) — including failed tasks (non-200 from `/predict`, task without
-  HTML). The orchestrator updates the matching `prelabelling_run_tasks` row, found by
+- ml_backend writes to Label Studio: `save_predictions_to_labelstudio` (the actual prediction, this will
+  will always be necessary, even when we have established a perfect duplicate in the Xtractyl Posgres, because
+  we need the labelstudio GUI to create the groundtruth) 
+- After every task the worker calls `send_task_result` (`POST /prelabel/task-result`) — including
+  failed tasks (non-200 from `/predict`, task without HTML). The ml_backend's `meta` travels
+  unchanged as `result`; the orchestrator's contract (`TaskResultData`) decides which fields are
+  stored. The orchestrator updates the matching `prelabelling_run_tasks` row, found by
   `(prelabelling_run_id, filename)` where `filename` is the Label Studio task `name`: `status` is
-  `success` or `failed`, `error` is set on failure, result columns only on success. Unlike
-  `send_task_meta`, this call is not swallowed: a missing row (404 `RUN_TASK_NOT_FOUND`, treated as tampering/integrity error, not repaired), a non-200 or a connection error raises in the worker and fails the run. The first call of a run also sets `prelabelling_runs.status` from `"pending"` to `"running"` (same transaction as the task row); nothing else on the run is written by this call
-  The ml_backend's `meta` travels unchanged as `result`; the orchestrator's contract (`TaskResultData`) decides which fields are stored. The response carries `continue`: `false` only if the run is `cancelled`, which makes the worker stop its loop (and report `cancelled`)
+  `success` or `failed`, `error` is set on failure, result columns only on success. Neither the
+  worker nor ml_backend has any direct Postgres access anywhere in the codebase
+- This call is not swallowed: a missing row (404 `RUN_TASK_NOT_FOUND`, treated as
+  tampering/integrity error, not repaired), a non-200 or a connection error raises in the worker and
+  fails the run. After the row is written, the same transaction derives the run status
+  (`run_repo.derive_run_status`) and applies a pending cancel (`run_repo.apply_cancel`). The
+  response carries `continue`: `false` only if the run is `cancelled`, which makes the worker stop
+  its loop (and report `cancelled`)
 
 
 > **[TODO 8]** Planned: `task_prelabelling_metas` gains `status` (`success`/`failed`) and `error`
