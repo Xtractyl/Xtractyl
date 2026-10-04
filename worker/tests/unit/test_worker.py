@@ -59,37 +59,25 @@ def test_job_payload_missing_job_id_raises(valid_payload):
 # --- handle_job ---
 
 
-def test_handle_job_sends_failed_callback_on_exception(valid_job):
+def test_handle_job_reports_failure_to_orchestrator(valid_job):
     import app as worker_app
 
     with (
         patch("app.prelabel_project", side_effect=Exception("boom")),
-        patch("app._send_callback") as send_callback,
+        patch("app._report_job_failed") as report,
     ):
         worker_app.handle_job(valid_job)
 
-    send_callback.assert_called_once_with("123", "failed", error="boom")
+    report.assert_called_once_with(valid_job.job_id, "boom")
 
 
-def test_handle_job_sends_done_callback(valid_job):
+def test_handle_job_reports_nothing_on_success(valid_job):
     import app as worker_app
 
     with (
-        patch("app.prelabel_project", return_value=False),
-        patch("app._send_callback") as send_callback,
+        patch("app.prelabel_project", return_value=None),
+        patch("app._report_job_failed") as report,
     ):
         worker_app.handle_job(valid_job)
 
-    send_callback.assert_called_once_with("123", "done")
-
-
-def test_handle_job_sends_cancelled_callback_when_stopped(valid_job):
-    import app as worker_app
-
-    with (
-        patch("app.prelabel_project", return_value=True),
-        patch("app._send_callback") as send_callback,
-    ):
-        worker_app.handle_job(valid_job)
-
-    send_callback.assert_called_once_with("123", "cancelled")
+    report.assert_not_called()
