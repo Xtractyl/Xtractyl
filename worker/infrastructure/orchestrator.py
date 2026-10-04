@@ -10,6 +10,18 @@ ORCH_HOST = os.getenv("ORCH_CONTAINER_NAME", "orchestrator")
 ORCH_PORT = os.getenv("ORCH_PORT", "5001")
 ORCHESTRATOR_URL = f"http://{ORCH_HOST}:{ORCH_PORT}"
 
+def send_job_failed(job_id: str, error: str) -> None:
+    try:
+        requests.post(
+            f"{ORCHESTRATOR_URL}/prelabel/job-failed",
+            json={"job_id": job_id, "error": error},
+            timeout=10,
+        )
+    except requests.RequestException as e:
+        safe_logger.error("send_job_failed_failed | job_id=%s", job_id)
+        if dev_logger:
+            dev_logger.exception("send_job_failed_failed_dev | error=%s", str(e))
+
 
 def send_task_result(
     *,
