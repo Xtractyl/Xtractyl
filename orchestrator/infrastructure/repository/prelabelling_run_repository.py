@@ -38,13 +38,14 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
     def get_run(self, job_id: int):
         return self._db.query(PrelabellingRun).filter(PrelabellingRun.id == job_id).first()
 
-    def set_run_status(self, job_id: int, status: str, error: str | None = None) -> None:
-        run = self._db.query(PrelabellingRun).filter(PrelabellingRun.id == job_id).first()
-        if run:
-            run.status = status
-            if error:
-                run.error = error
-            self._db.flush()
+    def fail_run(self, job_id: int, error: str | None) -> None:
+        self._db.query(PrelabellingRun).filter(
+            PrelabellingRun.id == job_id,
+            PrelabellingRun.status.in_(
+                ("pending", "running")
+            ),  # avoids failing a run that finished successfully seconds before (with a callback to /prelabel/task-result)
+        ).update({"status": "failed", "error": error}, synchronize_session=False)
+        self._db.flush()
 
     def save_run_task_result(
         self,
