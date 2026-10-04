@@ -10,10 +10,9 @@ from infrastructure.orchestrator import send_task_result
 from utils.logging_utils import dev_logger, safe_logger
 
 
-def prelabel_project(job: JobPayload) -> bool:
+def prelabel_project(job: JobPayload) -> None:
     """Process all open tasks of the job's project.
-
-    Returns True if the orchestrator stopped the run (cancelled) before all tasks were done.
+    Stops early if the orchestrator answers a task result with continue=false (run cancelled).
     """
     safe_logger.info(
         "prelabel_started | job_id=%s | label_studio_id=%s", job.job_id, job.label_studio_id
@@ -44,7 +43,7 @@ def prelabel_project(job: JobPayload) -> bool:
             )
             if not keep_going:
                 safe_logger.info("prelabel_stopped | job_id=%s", job.job_id)
-                return True
+                return
             continue
 
         start = time.time()
@@ -87,7 +86,7 @@ def prelabel_project(job: JobPayload) -> bool:
         )
         if not keep_going:
             safe_logger.info("prelabel_stopped | job_id=%s", job.job_id)
-            return True
+            return
 
     if durations:
         total_time = sum(durations)
@@ -98,4 +97,3 @@ def prelabel_project(job: JobPayload) -> bool:
             round(total_time, 2),
             round(total_time / len(durations), 2),
         )
-    return False

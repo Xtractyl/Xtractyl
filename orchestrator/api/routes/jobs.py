@@ -4,14 +4,14 @@ from domain.jobs import (
     cancel_prelabel_job,
     enqueue_prelabel_job,
     get_job_status,
-    handle_prelabel_callback,
+    handle_job_failed,
     handle_task_result,
 )
 from domain.models.jobs import (
     CancelJobCommand,
     EnqueueJobCommand,
+    JobFailedCommand,
     JobStatusCommand,
-    PrelabelCallbackCommand,
     TaskResultCommand,
 )
 from flask import jsonify, request
@@ -27,10 +27,10 @@ from api.contracts.jobs import (
     CancelJobResponse,
     EnqueueJobRequest,
     EnqueueJobResponse,
+    JobFailedRequest,
+    JobFailedResponse,
     JobStatusRequest,
     JobStatusResponse,
-    PrelabelCallbackRequest,
-    PrelabelCallbackResponse,
     TaskResultRequest,
     TaskResultResponse,
 )
@@ -153,27 +153,23 @@ def register(app, spec, session_factory):
             )
         return jsonify(validated.model_dump()), 200
 
-    @app.route("/prelabel/callback", methods=["POST"])
+    @app.route("/prelabel/job-failed", methods=["POST"])
     @spec.validate(
-        body=Request(PrelabelCallbackRequest),
+        body=Request(JobFailedRequest),
         resp=Response(
-            HTTP_200=PrelabelCallbackResponse,
-            HTTP_409=ErrorResponse,  # label or html-hash mismatch (via sync_missing_evaluations)
+            HTTP_200=JobFailedResponse,
             HTTP_500=ErrorResponse,
         ),
         tags=["jobs"],
     )
-    def prelabel_callback():
-        contract = PrelabelCallbackRequest.model_validate(request.get_json(silent=True) or {})
-        cmd = PrelabelCallbackCommand.from_contract(contract)
+    def prelabel_job_failed():
+        contract = JobFailedRequest.model_validate(request.get_json(silent=True) or {})
+        cmd = JobFailedCommand.from_contract(contract)
         db = session_factory()
         try:
             run_repo = PrelabellingRunRepository(db)
-            project_repo = ProjectRepository(db)
-            eval_repo = EvaluationRepository(db)
-            result = handle_prelabel_callback(
-                cmd, run_repo=run_repo, project_repo=project_repo, eval_repo=eval_repo
-            )
+            result = handle_job_failed(cmd, run_repo=run_repo)
+
             db.commit()
         except Exception:
             db.rollback()
@@ -181,7 +177,7 @@ def register(app, spec, session_factory):
         finally:
             db.close()
         try:
-            validated = PrelabelCallbackResponse.model_validate(result)
+            validated = JobFailedResponse.model_validate(result)
         except ValidationError as e:
             raise InternalError(
                 code="RESPONSE_CONTRACT_VIOLATED",
@@ -196,6 +192,7 @@ def register(app, spec, session_factory):
         resp=Response(
             HTTP_200=TaskResultResponse,
             HTTP_404=ErrorResponse,  # run or run task not found
+            HTTP_409=ErrorResponse,  # label or html-hash mismatch (via sync_missing_evaluations)
             HTTP_500=ErrorResponse,
         ),
         tags=["jobs"],
@@ -206,7 +203,11 @@ def register(app, spec, session_factory):
         db = session_factory()
         try:
             run_repo = PrelabellingRunRepository(db)
-            result = handle_task_result(cmd, run_repo=run_repo)
+            project_repo = ProjectRepository(db)
+            eval_repo = EvaluationRepository(db)
+            result = handle_task_result(
+                cmd, run_repo=run_repo, project_repo=project_repo, eval_repo=eval_repo
+            )
             db.commit()
         except Exception:
             db.rollback()

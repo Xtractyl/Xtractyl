@@ -5,9 +5,8 @@ import json
 import os
 
 import redis
-import requests
 from contracts.jobs import JobPayload
-from domain.prelabel_project import prelabel_project
+from domain.jobs import run_job
 from pydantic import ValidationError
 from utils.logging_utils import dev_logger, safe_logger
 
@@ -18,35 +17,6 @@ r = redis.Redis(
 )
 
 QUEUE = "prelabel_jobs"
-
-ORCHESTRATOR_URL = (
-    f"http://{os.getenv('ORCH_CONTAINER_NAME', 'orchestrator')}:{os.getenv('ORCH_PORT', '5001')}"
-)
-
-
-def _send_callback(job_id: str, status: str, error: str | None = None) -> None:
-    try:
-        requests.post(
-            f"{ORCHESTRATOR_URL}/prelabel/callback",
-            json={"job_id": job_id, "status": status, "error": error},
-            timeout=10,
-        )
-    except requests.RequestException as e:
-        safe_logger.error("prelabel_callback_failed | job_id=%s", job_id)
-        if dev_logger:
-            dev_logger.exception("prelabel_callback_failed_dev | error=%s", str(e))
-
-
-def handle_job(job: JobPayload) -> None:
-    safe_logger.info("job_picked_up | job_id=%s", job.job_id)
-    try:
-        stopped = prelabel_project(job)
-        _send_callback(job.job_id, "cancelled" if stopped else "done")
-    except Exception as e:
-        _send_callback(job.job_id, "failed", error=str(e))
-        safe_logger.error("job_failed | job_id=%s", job.job_id)
-        if dev_logger:
-            dev_logger.exception("job_failed_dev | job_id=%s", job.job_id)
 
 
 def main() -> None:
@@ -64,7 +34,7 @@ def main() -> None:
             if dev_logger:
                 dev_logger.exception("invalid_payload_dev | error=%s", str(e))
             continue
-        handle_job(job)
+        run_job(job)
 
 
 if __name__ == "__main__":

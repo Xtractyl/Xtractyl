@@ -60,9 +60,8 @@ class CancelJobCommand(BaseModel):
             )
 
 
-class PrelabelCallbackCommand(BaseModel):
-    job_id: str
-    status: str
+class JobFailedCommand(BaseModel):
+    job_id: int
     error: str | None = None
 
     @classmethod
@@ -70,7 +69,6 @@ class PrelabelCallbackCommand(BaseModel):
         try:
             return cls(
                 job_id=contract.job_id,
-                status=contract.status,
                 error=contract.error,
             )
         except ValidationError as e:

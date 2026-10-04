@@ -41,13 +41,12 @@ class CancelJobResponse(BaseModel):
     status: str
 
 
-class PrelabelCallbackRequest(BaseModel):
-    job_id: str
-    status: str
+class JobFailedRequest(BaseModel):
+    job_id: str = Field(..., min_length=1)
     error: str | None = None
 
 
-class PrelabelCallbackResponse(BaseModel):
+class JobFailedResponse(BaseModel):
     status: str
 
 

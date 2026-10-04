@@ -353,7 +353,7 @@ make unit-orchestrator
 make unit-worker
 ```
 
-**Note:** Unit tests for evaluation metrics (precision, recall, F1, confusion matrix calculations) are planned but not yet implemented. Current unit tests cover API route contracts, request/response validation, error handling (orchestrator), and queue contract validation and job state management (worker).
+**Note:** Unit tests for evaluation metrics (precision, recall, F1, confusion matrix calculations) are planned but not yet implemented. Current unit tests cover API route contracts, request/response validation, error handling (orchestrator), and queue contract validation and failure reporting of a job (worker). The run status logic (task results, derived run status, cancel, resume) is not covered by tests yet.
 
 #### Managing Python dependencies (lock files)
 
@@ -469,8 +469,8 @@ Planned next.
 4. **Upload your tasks into the project**  
 
    Page: **Upload Tasks** (`/tasks`)  
-   - Pick the project name  (same name as in step 3)
-   - Click "Upload HTML Tasks"
+   - Pick the project from the dropdown (it lists projects with uploaded tasks that have no run yet, or whose run was cancelled, failed or ended incomplete)
+   - Enter the label studio token
 
 
 ### Upload Tasks Page
@@ -489,6 +489,10 @@ Planned next.
       under "Show example")
      > **Caution:** The instruction `- If there is NO matching passage: respond with <<<NO_MATCH>>>.` must be included in the system prompt, otherwise true negatives are not marked correctly and evaluation metrics will be skewed.
    - Click the "Start prelabeling button"
+   - The progress is shown while the run is processed; a note tells you how it ended
+   - Use the cancel button to stop a run; it stops after the task that is currently being processed
+   - A cancelled, failed or incomplete run is resumed by starting it again for the same project with the **same model and the same system prompt**. If they differ, the error message shows the original values. Tasks that already have predictions in Label Studio are not processed again
+
 
 ### Start AI Page
 ![Start AI Page](assets/start_AI.png)
@@ -520,8 +524,8 @@ Planned next.
 
    Page: **Get Results** (`/results`)  
    - Enter your project name 
-   - Enter the label studio token
-   - Click "Submit" to get the results as a table (in case you did not wait till prelabelling was finished, you have to re-click to see the predictions added over time)
+   - Click "Submit" to get the results as a table. Results are only available for a run that finished successfully; a cancelled, failed or incomplete run has to be resumed first
+
 
 
 

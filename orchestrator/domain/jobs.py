@@ -18,8 +18,8 @@ from domain.errors import AlreadyExists, InvalidState, NotFound
 from domain.models.jobs import (
     CancelJobCommand,
     EnqueueJobCommand,
+    JobFailedCommand,
     JobStatusCommand,
-    PrelabelCallbackCommand,
     TaskResultCommand,
 )
 
@@ -160,34 +160,17 @@ def cancel_prelabel_job(
     return {"job_id": job_id, "status": "cancel_requested"}
 
 
-def handle_prelabel_callback(
-    cmd: PrelabelCallbackCommand,
-    run_repo: PrelabellingRunRepositoryInterface,
-    project_repo: ProjectRepositoryInterface,
-    eval_repo,
-) -> dict:
-    run_repo.set_run_status(int(cmd.job_id), cmd.status, cmd.error)
-    if cmd.status == "done":
-        # Trigger A: check every existing groundtruth set for a match now
-        # that this run's predictions are final. Imported here rather than
-        # at module level to avoid a jobs.py <-> evaluation.py import cycle
-        # (evaluation.py does not import from jobs.py, so this is one-way).
-        from domain.evaluation import sync_missing_evaluations
-
-        sync_missing_evaluations(project_repo=project_repo, run_repo=run_repo, eval_repo=eval_repo)
+def handle_job_failed(cmd: JobFailedCommand, run_repo: PrelabellingRunRepositoryInterface) -> dict:
+    run_repo.fail_run(cmd.job_id, cmd.error)
     return {"status": "ok"}
 
 
 def handle_task_result(
     cmd: TaskResultCommand,
     run_repo: PrelabellingRunRepositoryInterface,
+    project_repo: ProjectRepositoryInterface,
+    eval_repo,
 ) -> dict:
-    run = run_repo.get_run(cmd.job_id)
-    if not run:
-        raise NotFound(
-            code="RUN_NOT_FOUND",
-            message=f"No prelabelling run with id {cmd.job_id}.",
-        )
     found = run_repo.save_run_task_result(
         prelabelling_run_id=cmd.job_id,
         filename=cmd.filename,
@@ -205,7 +188,16 @@ def handle_task_result(
     # this order allows runs that are already finished to finish before cancel
     # because apply_cancel will only cancel running jobs
     run_repo.apply_cancel(cmd.job_id)
+    status = run_repo.get_run_status(cmd.job_id)
+    if status == "done":
+        # One of two triggers for performing this (and all missing [only an addtional safety net]) evaluations
+        # (the second trigger to perform all missing evaluations is when setting a set as groundtruth)
+        # Imported here rather than at module level to avoid a
+        # jobs.py <-> evaluation.py import cycle (evaluation.py does not import from jobs.py).
+        from domain.evaluation import sync_missing_evaluations
+
+        sync_missing_evaluations(project_repo=project_repo, run_repo=run_repo, eval_repo=eval_repo)
     return {
         "status": "ok",
-        "continue": run_repo.get_run_status(cmd.job_id) != "cancelled",
-    }
+        "continue": status != "cancelled",
+    }  # only a cancelled run sets continue false a "done" run will finish anyway because no tasks are left in the worker
