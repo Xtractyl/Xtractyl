@@ -10,6 +10,7 @@ ORCH_HOST = os.getenv("ORCH_CONTAINER_NAME", "orchestrator")
 ORCH_PORT = os.getenv("ORCH_PORT", "5001")
 ORCHESTRATOR_URL = f"http://{ORCH_HOST}:{ORCH_PORT}"
 
+
 def send_job_failed(job_id: str, error: str) -> None:
     try:
         requests.post(

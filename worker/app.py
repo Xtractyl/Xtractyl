@@ -6,9 +6,9 @@ import os
 
 import redis
 from contracts.jobs import JobPayload
+from domain.jobs import run_job
 from pydantic import ValidationError
 from utils.logging_utils import dev_logger, safe_logger
-from domain.jobs import run_job
 
 r = redis.Redis(
     host=os.getenv("REDIS_HOST", "job_queue"),
@@ -17,6 +17,7 @@ r = redis.Redis(
 )
 
 QUEUE = "prelabel_jobs"
+
 
 def main() -> None:
     safe_logger.info("worker_starting")

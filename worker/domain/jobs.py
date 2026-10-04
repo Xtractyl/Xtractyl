@@ -2,9 +2,10 @@
 from __future__ import annotations
 
 from contracts.jobs import JobPayload
-from domain.prelabel_project import prelabel_project
 from infrastructure.orchestrator import send_job_failed
 from utils.logging_utils import dev_logger, safe_logger
+
+from domain.prelabel_project import prelabel_project
 
 
 def run_job(job: JobPayload) -> None:
