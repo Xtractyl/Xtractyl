@@ -24,26 +24,25 @@ ORCHESTRATOR_URL = (
 )
 
 
-def _send_callback(job_id: str, status: str, error: str | None = None) -> None:
+def _report_job_failed(job_id: str, error: str) -> None:
     try:
         requests.post(
-            f"{ORCHESTRATOR_URL}/prelabel/callback",
-            json={"job_id": job_id, "status": status, "error": error},
+            f"{ORCHESTRATOR_URL}/prelabel/job-failed",
+            json={"job_id": job_id, "error": error},
             timeout=10,
         )
     except requests.RequestException as e:
-        safe_logger.error("prelabel_callback_failed | job_id=%s", job_id)
+        safe_logger.error("job_failed_report_failed | job_id=%s", job_id)
         if dev_logger:
-            dev_logger.exception("prelabel_callback_failed_dev | error=%s", str(e))
+            dev_logger.exception("job_failed_report_failed_dev | error=%s", str(e))
 
 
 def handle_job(job: JobPayload) -> None:
     safe_logger.info("job_picked_up | job_id=%s", job.job_id)
     try:
-        stopped = prelabel_project(job)
-        _send_callback(job.job_id, "cancelled" if stopped else "done")
+        prelabel_project(job)
     except Exception as e:
-        _send_callback(job.job_id, "failed", error=str(e))
+        _report_job_failed(job.job_id, str(e))
         safe_logger.error("job_failed | job_id=%s", job.job_id)
         if dev_logger:
             dev_logger.exception("job_failed_dev | job_id=%s", job.job_id)
