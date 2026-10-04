@@ -216,13 +216,14 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
     resumes can't both succeed), with `error` cleared to `NULL` so a second failure is never
     mistaken for the first one; the run's `failed` rows in `prelabelling_run_tasks` are reset to
     `pending` in the same call, so the derived status below doesn't read a resumed run as finished
-  - **Changed (current):** after every `POST /prelabel/task-result`, `run_repo.derive_run_status` (same transaction as the task row, one conditional UPDATE, only for runs in `"pending"` or `"running"`) bumps `updated_at` and derives the status from the run's `prelabelling_run_tasks` rows: `"running"` while any task is still `pending`, `"incomplete"` once no task is `pending` anymore and at least one is `failed`, `"done"` once no task is `pending` or `failed` anymore. `"failed"` and `"cancelled"` are still set only by the worker's end-of-job callback (`handle_prelabel_callback`), which also still sets `"done"` and triggers the evaluation, and until it is removed overwrites a derived `"incomplete"` with `"done"`. The evaluation is not triggered by the derivation yet
-  - **Changed (cancel):** `"running"` → `"cancelled"` in `handle_task_result` (`run_repo.apply_cancel`), right after `derive_run_status`, if `cancel_requested` is set. A run the derivation just finished (`"done"`/`"incomplete"`) is not cancelled. The end-of-job callback still reports `"cancelled"` as well, which changes nothing
+  - **Changed (current):** after every `POST /prelabel/task-result`, `run_repo.derive_run_status` (same transaction as the task row, one conditional UPDATE, only for runs in `"pending"` or `"running"`) bumps `updated_at` and derives the status from the run's `prelabelling_run_tasks` rows: `"running"` while any task is still `pending`, `"incomplete"` once no task is `pending` anymore and at least one is `failed`, `"done"` once no task is `pending` or `failed` anymore. `"failed"` is set by the worker's `POST /prelabel/job-failed` (`run_repo.fail_run`, only for a run that is still `"pending"` or `"running"`), which is sent when the worker cannot start or aborts its loop. When the derivation sets `"done"`, the same transaction triggers `sync_missing_evaluations`
+
+  - **Changed (cancel):** `"running"` → `"cancelled"` in `handle_task_result` (`run_repo.apply_cancel`), right after `derive_run_status`, if `cancel_requested` is set. A run the derivation just finished (`"done"`/`"incomplete"`) is not cancelled
   - **Changed (planned):** transitions to `"running"` together with `total_tasks` being set for the first time, on the first successful progress callback of the run (Planned Changes point 4) — i.e. only once project/task-list resolution (Prelabelling Pipeline, step 2) has already succeeded; a pre-loop failure in that resolution step therefore goes `"pending"` → `"failed"` directly, skipping `"running"` entirely. From `"running"`: to `"done"` once `processed_tasks >= total_tasks` and every task succeeded; to `"incomplete"` under the same completion condition if at least one task's row in `task_prelabelling_metas` ended as `status="failed"` after retries were exhausted (loop continues past individual task failures rather than aborting — see Planned Changes point 4); to `"cancelled"` to `"cancelled"` if `cancel_requested` was set and the worker received `continue: false` (derived from it) and ended the loop early; to `"failed"` only for a genuine hard abort of the whole loop (an exception class not covered by the planned per-task retry-with-backoff)
   - **Note:** evaluation (`sync_missing_evaluations`) only ever triggers on `"done"` — neither `"incomplete"` nor `"cancelled"` trigger it, regardless of how many tasks happened to complete successfully before the run ended
 - `error` (nullable)
   - **Set:** `NULL` at creation — Prelabelling Pipeline, step 1
-  - **Changed (current):** set by the worker's end-of-job callback on `"failed"`, as a single value
+  - **Changed (current):** set by `POST /prelabel/job-failed` together with `"failed"`, as a single value
   - **Changed (planned):** type changes from a single error string to a **JSONB array** of `{filename, error}` entries — chosen over text-concatenation (the `conversion_jobs.error` style) because that style was built for a single-failure, fail-fast case, whereas here multiple tasks can fail independently while the loop continues; JSONB keeps this machine-readable without needing to parse a delimited string, and matches the JSONB type already used elsewhere in this table's row-level sibling (`task_prelabelling_metas.predictions`, `.raw_llm_answers`). Appended to (not overwritten) via `send_task_progress` (Planned Changes point 4) each time a task ends with `status="failed"` after its own retry-with-backoff is exhausted; on a hard pre-loop or mid-loop abort (`"failed"` status), holds a single-entry array for that failure instead
 - `cancel_requested` (bool, NOT NULL, default `false`)
   - **Set:** `false` at creation
@@ -692,14 +693,16 @@ payload, resolved already by the orchestrator in step 1.
 ### 4. Job completion / cancellation
 
 **Current mechanism (today):**
-- `handle_prelabel_callback` (`POST /prelabel/callback`) sets `prelabelling_runs.status` to `"done"`,
-  `"failed"`, or `"cancelled"` — this is a *separate* callback from the per-task one in step 3, fired
-  once after the worker's task loop ends
-- On `"done"`: triggers `sync_missing_evaluations` (see Evaluation Pipeline) — this and
-  `save_as_gt_set` are the only two triggers for this function; it is deliberately not exposed as its
-  own route to prevent a user from forcing an evaluation to (re-)compute on demand
+- The run status is derived from the task rows in `handle_task_result` (step 3). When that sets
+  `"done"`, the same transaction triggers `sync_missing_evaluations` (see Evaluation Pipeline) — this
+  and `save_as_gt_set` are the only two triggers for this function; it is deliberately not exposed as
+  its own route to prevent a user from forcing an evaluation to (re-)compute on demand. An error in
+  the evaluation therefore fails the `task-result` call (and with it the run)
+- `POST /prelabel/job-failed` (`handle_job_failed`) is the only other writer: the worker calls it when
+  it cannot start (project or task-list resolution fails) or aborts its loop (e.g. a rejected
+  `task-result`). It sets `"failed"` and the error, only if the run is still `"pending"` or `"running"`
 - Cancellation: `POST /prelabel/cancel/:id` only sets `prelabelling_runs.cancel_requested`. The run
-  becomes `"cancelled"` with the next `task-result` call (so after the task that is currently
+  becomes `"cancelled"` as the next `task-result` call (so after the task that is currently
   running), and the response to that call tells the worker to stop (`continue: false`)
 - Polling: `GET /prelabel/status/:id` reads the run and counts its task rows; it no longer touches  Redis. `state` is the run's status (`pending`, `running`, `done`, `incomplete`, `failed`,
   `cancelled`), or `cancel_requested` while a `pending`/`running` run has `cancel_requested` set;
