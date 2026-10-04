@@ -56,28 +56,28 @@ def test_job_payload_missing_job_id_raises(valid_payload):
         JobPayload.model_validate(valid_payload)
 
 
-# --- handle_job ---
+# --- run_job ---
 
 
-def test_handle_job_reports_failure_to_orchestrator(valid_job):
-    import app as worker_app
+def test_run_job_reports_failure_to_orchestrator(valid_job):
+    from domain.jobs import run_job
 
     with (
-        patch("app.prelabel_project", side_effect=Exception("boom")),
-        patch("app._report_job_failed") as report,
+        patch("domain.jobs.prelabel_project", side_effect=Exception("boom")),
+        patch("domain.jobs.send_job_failed") as report,
     ):
-        worker_app.handle_job(valid_job)
+        run_job(valid_job)
 
     report.assert_called_once_with(valid_job.job_id, "boom")
 
 
-def test_handle_job_reports_nothing_on_success(valid_job):
-    import app as worker_app
+def test_run_job_reports_nothing_on_success(valid_job):
+    from domain.jobs import run_job
 
     with (
-        patch("app.prelabel_project", return_value=None),
-        patch("app._report_job_failed") as report,
+        patch("domain.jobs.prelabel_project", return_value=None),
+        patch("domain.jobs.send_job_failed") as report,
     ):
-        worker_app.handle_job(valid_job)
+        run_job(valid_job)
 
     report.assert_not_called()
