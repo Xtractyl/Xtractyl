@@ -21,6 +21,7 @@ def valid_payload():
             "questions": ["Q1"],
             "labels": ["L1"],
         },
+        "task_filenames": ["a.html"],
     }
 
 
