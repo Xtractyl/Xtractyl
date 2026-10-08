@@ -137,6 +137,9 @@ class PrelabellingRunRepositoryInterface(ABC):
     def create_run_tasks(self, run_id: int, filenames: list[str]) -> None: ...
 
     @abstractmethod
+    def get_pending_filenames(self, run_id: int) -> list[str]: ...
+
+    @abstractmethod
     def save_run_task_result(
         self,
         prelabelling_run_id: int,
