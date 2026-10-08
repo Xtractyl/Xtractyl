@@ -74,6 +74,18 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
         self._db.flush()
         return True
 
+    def get_pending_filenames(self, run_id: int) -> list[str]:
+        rows = (
+            self._db.query(PrelabellingRunTask.filename)
+            .filter(
+                PrelabellingRunTask.prelabelling_run_id == run_id,
+                PrelabellingRunTask.status == "pending",
+            )
+            .order_by(PrelabellingRunTask.id)
+            .all()
+        )
+        return [filename for (filename,) in rows]
+
     def derive_run_status(self, job_id: int) -> None:
         # derives PrelabellingRun status from tasks in PrelabellingRunTask
         # bumps updated_at for it

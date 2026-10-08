@@ -220,7 +220,7 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
 
   - **Changed (cancel):** `"running"` → `"cancelled"` in `handle_task_result` (`run_repo.apply_cancel`), right after `derive_run_status`, if `cancel_requested` is set. A run the derivation just finished (`"done"`/`"incomplete"`) is not cancelled
   - **Note on `"running"` and `"failed"`:** `"running"` is first set by the first `task-result` of a run, not when the worker picks the job up. A failure before the first task result (e.g. the task list cannot be fetched) therefore goes `"pending"` → `"failed"` directly, skipping `"running"`
-  - **Changed (planned):** the stale-run sweep ([TODO 3]) sets `"running"` → `"incomplete"` and `"pending"` → `"failed"` for runs that stopped receiving updates
+  - **Changed (planned):** the stale-run sweep ([TODO 2]) sets `"running"` → `"incomplete"` and `"pending"` → `"failed"` for runs that stopped receiving updates
   - **Note:** evaluation (`sync_missing_evaluations`) only ever triggers on `"done"` — neither `"incomplete"` nor `"cancelled"` trigger it, regardless of how many tasks happened to complete successfully before the run ended
 - `error` (nullable)
   - **Set:** `NULL` at creation — Prelabelling Pipeline, step 1
@@ -575,14 +575,14 @@ this ordinary user reflex already covers the case.
      (`system_prompt_hash`) must match the run's original values, otherwise `RESUME_CONFIG_MISMATCH`
      (409) — the message carries the original model name and the unchanged prompt text, since the
      error's `meta` never reaches the client. No run → `create_run` as before
+  7. `run_repo.get_pending_filenames` — `PENDING_TASKS_NOT_FOUND` (404) if the run has no `pending`
+     task rows after it was created or resumed; the request is rolled back and nothing is queued.
+     The returned `filename`s travel in the job payload as `task_filenames` (step 2)
 
-> **Resume and the worker:** the worker does not distinguish a fresh run from a resumed one — it
-> simply fetches every task without a prediction from Label Studio, so a resumed run skips finished
-> tasks automatically. Known gap until [TODO 1] lands: a task with a prediction in Label Studio
-> whose `prelabelling_run_tasks` row is still `pending` (e.g. the worker died between the two
-> writes) is never redone, and a run without any such task never receives a `task-result`. Both
-> leave the run in `"pending"`/`"running"` until the stale-run sweep ([TODO 3]) catches it
-
+> **Resume and the worker:** the worker does not distinguish a fresh run from a resumed one. It
+> fetches the open tasks from Label Studio and checks them against `task_filenames` (step 2). Tasks
+> that were processed successfully have predictions in Label Studio and rows with `status="success"`,
+> so they are neither in the payload nor among the fetched tasks
 
 
 - `prelabelling_runs` row created — `project`,
@@ -622,23 +622,18 @@ this ordinary user reflex already covers the case.
 
 `resolve_project_id` is no longer called here, `label_studio_id` arrives directly in the job
 payload, resolved already by the orchestrator in step 1.
-
-> **[TODO 1]** Select the tasks to process from Postgres instead of from Label Studio. Today,
-> `worker/domain/prelabel_project.py` calls `get_tasks_without_predictions(label_studio_id, token)`
-> (`worker/infrastructure/label_studio.py`), a live, paginated Label Studio API call
-> (`GET /api/projects/{id}/tasks?include=predictions`), so task openness is determined entirely from
-> Label Studio's live state. Planned instead:
-> - On enqueue and on resume, the orchestrator puts the `filename`s of the run's `pending`
->   `prelabelling_run_tasks` rows into the queue payload, and the worker processes exactly those
->   tasks (it still fetches the tasks, including their HTML, from Label Studio, but skips the
->   others). Postgres decides what is open, so a resume is correct even if a prediction was deleted
->   in Label Studio, and a run can no longer hang because Label Studio already shows a prediction
->   for a task the DB considers open — that task is simply processed again
-> - Accepted limits, deliberately without a coherence check against Label Studio: a task processed
->   again may end up with a second prediction in Label Studio; a task deleted in Label Studio leaves
->   its row `pending` until the stale-run sweep ([TODO 3]) catches the run; tasks created manually
->   in Label Studio have no row and are ignored
->
+The job payload carries `task_filenames`: the `filename`s of the run's `pending`
+`prelabelling_run_tasks` rows at the time of enqueue or resume (`run_repo.get_pending_filenames`).
+Before the loop, the worker fetches the open tasks (those without a prediction) from Label Studio
+(`get_tasks_without_predictions`) and compares their `name`s with `task_filenames`. The two must
+match exactly (same names, each once); otherwise the job fails at once with `TASKS_OUT_OF_SYNC`:
+nothing is processed, the message names the differences (shortened), and `POST /prelabel/job-failed`
+sets the run to `"failed"` with that message. Postgres is the source of truth. A mismatch means
+Label Studio was changed outside of Xtractyl (a task or prediction deleted or added) or an earlier
+run died between writing a prediction and reporting it; this is deliberately not repaired. Resuming
+such a run fails the same way until the data is consistent again, the practical fix is to set the
+project up anew. The tasks the worker processes are still the ones it fetched; `task_filenames`
+is only used for this check.
 > **What happens today:** `prelabel_project` fetches all tasks without predictions from Label
 > Studio, loops over them, calls `/predict` for each and reports every task, successful or not, via
 > `send_task_result`.
@@ -651,7 +646,13 @@ payload, resolved already by the orchestrator in step 1.
   Ollama once per question (`temperature=0, seed=42` for reproducibility), then matches each answer
   back into the DOM (`extract_xpath_matches_from_dom`) to ground it in an actual document location —
   this grounding check is the closest thing the system has to hallucination detection
-
+- A failed question (timeout, connection error, `model_missing` from Ollama) fails the whole task:
+  `run_predict` raises `LLM_CALL_FAILED` (HTTP 502) at the first failed question, before any further
+  LLM call and before anything is written to Label Studio. An unexpected error in the DOM matching
+  raises `DOM_MATCH_FAILED` (HTTP 500). The worker reports every non-200 answer of `/predict` as a
+  failed task (`status="failed"`). A matching that runs but does not find an answer is not an error:
+  the task stays `success` and the label's entry in `dom_match_by_label` / `dom_match_diagnostics`
+  records it
 
 - ml_backend writes to Label Studio: `save_predictions_to_labelstudio` (the actual prediction). This
   will always be necessary, even though the results are also stored in Postgres, because the Label
@@ -671,15 +672,13 @@ payload, resolved already by the orchestrator in step 1.
   its loop (and report `cancelled`)
 
 
-> **[TODO 2]** Per-task retry and compensation.
+> **[TODO 1]** Per-task retry and compensation.
 > - **Retry with backoff:** `send_predict` and `send_task_result` of each task get their own
 >   retry-with-backoff instead of an exception ending the whole run. Today a non-200 `/predict`
 >   response is reported as a failed task and the loop continues, while a raised exception (e.g. a
 >   dropped connection) aborts the run and sends `job-failed` — two behaviours for the same kind of
->   problem. Outcomes per task: a timeout (or similar failure) on any single question fails the
->   whole task, nothing written to Label Studio; DOM matching that runs but finds nothing is still
->   `status="success"` (plus a `no_dom_match` flag); DOM extraction/matching itself crashing is
->   `status="failed"`. A `failed` row does not block a retry — `resume_run` resets it to `pending`
+>   problem. A `failed` row does not block a retry — `resume_run` resets it to `pending`
+
 > - **Compensating transaction:** if a prediction is successfully written to Label Studio but the
 >   corresponding Postgres write (the `task-result` call) fails — even after retry — the Label Studio
 >   prediction is deleted again, so the two never permanently disagree. Needs
@@ -713,7 +712,7 @@ payload, resolved already by the orchestrator in step 1.
 - Redis is only the job queue (`prelabel_jobs`). The worker's per-task lines go to its normal log
   (`safe_logger`), not to Redis
 
-> **[TODO 3]** Stale-run sweep in the cleanup container, mirroring Conversion's stale-job sweep (see
+> **[TODO 2]** Stale-run sweep in the cleanup container, mirroring Conversion's stale-job sweep (see
 > the Insert after `conversion_jobs` in the Schema Reference, `CLEANUP_STALE_AFTER_HOURS`).
 >
 > Covers runs that stop receiving updates because the worker crashed mid-loop or never picked the

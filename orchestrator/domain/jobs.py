@@ -132,6 +132,13 @@ def enqueue_prelabel_job(
         html_keys = project_repo.get_html_keys_for_project(cmd.project_name)
         run_repo.create_run_tasks(int(job_id), [os.path.basename(key) for key in html_keys])
 
+    task_filenames = run_repo.get_pending_filenames(int(job_id))
+    if not task_filenames:
+        raise NotFound(
+            code="PENDING_TASKS_NOT_FOUND",
+            message="No pending tasks found for this project.",
+        )
+
     payload = {
         "job_id": job_id,
         "project_name": cmd.project_name,
@@ -140,6 +147,7 @@ def enqueue_prelabel_job(
         "system_prompt": cmd.system_prompt,
         "questions_and_labels": cmd.questions_and_labels,
         "token": cmd.token,
+        "task_filenames": task_filenames,
     }
     r.rpush(QUEUE, json.dumps(payload))
 

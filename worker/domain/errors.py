@@ -23,3 +23,8 @@ class NotFound(DomainError):
 @dataclass
 class ExternalServiceError(DomainError):
     pass
+
+
+@dataclass
+class InvalidState(DomainError):
+    pass

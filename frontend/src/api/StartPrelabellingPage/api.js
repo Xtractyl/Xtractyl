@@ -72,7 +72,6 @@ export async function getProjectsReadyForPrelabelling() {
  */
 export async function prelabelProject(payload) {
   const { token, ...rest } = payload;
-  console.log("prelabelProject rest:", JSON.stringify(rest, null, 2));
   const url = `${ORCH_BASE}/prelabel_project`;
   const res = await fetch(url, {
     method: "POST",

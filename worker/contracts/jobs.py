@@ -15,3 +15,4 @@ class JobPayload(BaseModel):
     system_prompt: str = Field(..., min_length=1)
     token: str = Field(..., min_length=1)
     questions_and_labels: QuestionsAndLabels
+    task_filenames: list[str]

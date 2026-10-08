@@ -31,7 +31,6 @@ def run_predict(cmd: PredictCommand) -> dict:
     puretext = BeautifulSoup(cmd.html, "html.parser").get_text("\n", strip=True)
 
     answers_by_label: dict = {}
-    timed_out = False
 
     for q, lab in zip(qal.questions, qal.labels, strict=False):
         prompt = f"{llm.system_prompt}\n\nQuestion: {q}\n\nText: {puretext}"
@@ -44,8 +43,17 @@ def run_predict(cmd: PredictCommand) -> dict:
                 num_ctx=llm.num_ctx,
             )
             t["status"] = result.get("status")
-            if result.get("status") == "failed":
-                timed_out = True
+            if result.get("status") != "ok":
+                # one failed questions fails the whole task.
+                raise ExternalServiceError(
+                    code="LLM_CALL_FAILED",
+                    message="The LLM did not answer a question.",
+                    meta={
+                        "label": str(lab),
+                        "status": result.get("status"),
+                        "error": result.get("error"),
+                    },
+                )
             answers_by_label[str(lab)] = {
                 "question": q,
                 "answer": result["answer"],
@@ -77,8 +85,11 @@ def run_predict(cmd: PredictCommand) -> dict:
                     dom_match_by_label[lab] = lab not in diag_labels
 
         except Exception as e:
-            prelabels, diagnostics = [], [{"reason": "match_failed", "error": str(e)}]
-            dom_match_by_label = {}
+            raise InternalError(
+                code="DOM_MATCH_FAILED",
+                message="Unexpected error while matching answers into the DOM (not a 'not found' case).",
+                meta={"error": str(e)},
+            )
 
     meta = {
         "raw_llm_answers": answers_by_label,
@@ -114,7 +125,7 @@ def run_predict(cmd: PredictCommand) -> dict:
         "result": prelabels,
         "meta": {
             **meta,
-            "status": "timeout" if timed_out else "success",
+            "status": "success",
             "task_id": cmd.task_id,
             "job_id": cmd.job_id,
             "filename": cmd.filename,
