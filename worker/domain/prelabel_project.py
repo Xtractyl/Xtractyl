@@ -2,12 +2,48 @@
 from __future__ import annotations
 
 import time
+from collections import Counter
 
 from contracts.jobs import JobPayload
 from infrastructure.label_studio import get_tasks_without_predictions
 from infrastructure.ml_backend import send_predict
 from infrastructure.orchestrator import send_task_result
 from utils.logging_utils import dev_logger, safe_logger
+
+from domain.errors import InvalidState
+
+
+def _preview(names: list[str], limit: int = 5) -> str:
+    shown = ", ".join(names[:limit])
+    return f"{shown} (+{len(names) - limit} more)" if len(names) > limit else shown
+
+
+def _assert_tasks_match(expected: list[str], tasks: list[dict]) -> None:
+    """Open tasks in Postgres must match exactly open tasks in label studio. Any difference
+    lets prelabelling fail. The discrepancies between Postgres and labelstudio tasks mean
+    either that someone added tasks to labelstudio directly or removed tasks from labelstudio
+    directly. The least likely reason for Postgres/labelstudio discrepasncies
+    is that a task's result was written to labelstudio but xtractyl crashed before the write to Postgres.
+    """
+    found = [(t.get("data") or {}).get("name", "") for t in tasks]
+    missing = sorted(set(expected) - set(found))
+    unexpected = sorted(set(found) - set(expected))
+    duplicated = sorted(name for name, n in Counter(found).items() if n > 1)
+    if not (missing or unexpected or duplicated):
+        return
+    parts = []
+    if missing:
+        parts.append(f"missing in Label Studio: {_preview(missing)}")
+    if unexpected:
+        parts.append(f"unexpected in Label Studio: {_preview(unexpected)}")
+    if duplicated:
+        parts.append(f"duplicated in Label Studio: {_preview(duplicated)}")
+    raise InvalidState(
+        code="TASKS_OUT_OF_SYNC",
+        message="Label Studio does not match the open tasks in Xtractyl ("
+        + "; ".join(parts)
+        + ").",
+    )
 
 
 def prelabel_project(job: JobPayload) -> None:
@@ -23,6 +59,7 @@ def prelabel_project(job: JobPayload) -> None:
         )
 
     tasks = get_tasks_without_predictions(job.label_studio_id, job.token)
+    _assert_tasks_match(job.task_filenames, tasks)
     safe_logger.info("prelabel_tasks_found | job_id=%s | count=%s", job.job_id, len(tasks))
 
     durations: list[float] = []
