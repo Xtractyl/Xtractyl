@@ -96,7 +96,12 @@ export function usePrelabelJob() {
         const pct = Number(s?.progress ?? 0);
         if (["done", "incomplete", "error", "failed", "cancelled", "succeeded"].includes(st)) {
           setPreJobId("");
-          dispatch({ type: "JOB_FINISHED", payload: OUTCOME_MESSAGES[st] });
+          const base = OUTCOME_MESSAGES[st];
+          dispatch({
+            type: "JOB_FINISHED",
+            payload: base && s?.error ? `${base}\n${s.error}` : base,
+          });
+
           return;
         }
         if (st === "cancel_requested" && pct >= 100) {
