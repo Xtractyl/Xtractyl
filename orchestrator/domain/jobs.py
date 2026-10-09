@@ -65,7 +65,8 @@ def enqueue_prelabel_job(
             code="PROJECT_NOT_FOUND",
             message="Project not found or has no Label Studio ID.",
         )
-    if not project_repo.get_questions_and_labels(cmd.project_name):
+    questions_and_labels = project_repo.get_questions_and_labels(cmd.project_name)
+    if not questions_and_labels:
         raise NotFound(
             code="QAL_NOT_FOUND",
             message="No QAL found for this project.",
@@ -145,7 +146,7 @@ def enqueue_prelabel_job(
         "label_studio_id": label_studio_id,
         "model": cmd.model,
         "system_prompt": cmd.system_prompt,
-        "questions_and_labels": cmd.questions_and_labels,
+        "questions_and_labels": questions_and_labels,
         "token": cmd.token,
         "task_filenames": task_filenames,
     }

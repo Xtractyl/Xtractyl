@@ -11,7 +11,6 @@ from domain.errors import (
 )
 from domain.models.projects import (
     CreateProjectCommand,
-    PreviewQalCommand,
     ProjectExistsCommand,
     UploadTasksCommand,
 )
@@ -91,16 +90,6 @@ def list_projects_ready_for_creation(repo: ProjectRepositoryInterface):
 def list_projects_ready_for_prelabelling(repo: ProjectRepositoryInterface):
     projects = repo.get_projects_ready_for_prelabelling()
     return {"projects": [p.name for p in projects]}
-
-
-def preview_qal(cmd: PreviewQalCommand, repo: ProjectRepositoryInterface):
-    qal = repo.get_questions_and_labels(cmd.project)
-    if not qal:
-        raise NotFound(
-            code="QAL_NOT_FOUND",
-            message="No QAL found for this project.",
-        )
-    return {"data": qal}
 
 
 def upload_tasks_main_from_payload(
