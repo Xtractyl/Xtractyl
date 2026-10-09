@@ -48,7 +48,6 @@ def test_prelabel_project_missing_token_returns_401(client):
             "project_name": "test",
             "model": "llama3.1:8b",
             "system_prompt": "test",
-            "questions_and_labels": {"questions": ["Q1"], "labels": ["L1"]},
         },
     )
     assert res.status_code == 401
