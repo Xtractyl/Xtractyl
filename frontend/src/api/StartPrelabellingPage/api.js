@@ -56,10 +56,6 @@ export async function listModels() {
   return Array.isArray(data?.models) ? data.models : [];
 }
 
-export async function previewQal(projectName) {
-  return orch(`/preview_qal?project=${encodeURIComponent(projectName)}`);
-}
-
 /** Projects with uploaded tasks that can (still) be prelabelled */
 export async function getProjectsReadyForPrelabelling() {
   const data = await orch(`/list_projects_ready_for_prelabelling`);
