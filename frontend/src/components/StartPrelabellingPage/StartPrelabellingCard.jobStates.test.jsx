@@ -57,7 +57,11 @@ describe("StartPrelabellingCard with an existing job", () => {
   });
 
   it("appends the backend error to the failure message", async () => {
-    getPrelabelStatus.mockResolvedValue({ state: "FAILED", progress: 10, error: "Model not found" });
+    getPrelabelStatus.mockResolvedValue({
+      state: "FAILED",
+      progress: 10,
+      error: "Model not found",
+    });
 
     renderCard();
 

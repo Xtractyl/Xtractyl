@@ -2,7 +2,10 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { AppProvider } from "../../context/AppContext";
 import StartPrelabellingCard from "./StartPrelabellingCard.jsx";
-import { listModels, getProjectsReadyForPrelabelling } from "../../api/StartPrelabellingPage/api.js";
+import {
+  listModels,
+  getProjectsReadyForPrelabelling,
+} from "../../api/StartPrelabellingPage/api.js";
 
 vi.mock("../../api/StartPrelabellingPage/api.js");
 
