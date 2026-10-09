@@ -18,16 +18,10 @@ class JobStatusResponse(BaseModel):
     result: dict | None = None
 
 
-class QuestionsAndLabels(BaseModel):
-    questions: list[str] = Field(..., min_length=1)
-    labels: list[str] = Field(..., min_length=1)
-
-
 class EnqueueJobRequest(BaseModel):
     project_name: str = Field(..., min_length=1)
     model: str = Field(..., min_length=1)
     system_prompt: str = Field(..., min_length=1)
-    questions_and_labels: QuestionsAndLabels
 
 
 class EnqueueJobResponse(BaseModel):
