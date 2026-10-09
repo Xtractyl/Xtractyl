@@ -24,7 +24,6 @@ class EnqueueJobCommand(BaseModel):
     project_name: str
     model: str
     system_prompt: str
-    questions_and_labels: dict
     token: str
 
     @classmethod
@@ -34,7 +33,6 @@ class EnqueueJobCommand(BaseModel):
                 project_name=contract.project_name,
                 model=contract.model,
                 system_prompt=contract.system_prompt,
-                questions_and_labels=contract.questions_and_labels.model_dump(),
                 token=token,
             )
         except ValidationError as e:
