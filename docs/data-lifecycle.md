@@ -607,9 +607,8 @@ this ordinary user reflex already covers the case.
 > `"running"` → `"failed"` (which would incorrectly imply it had).
 
 - Redis: the job payload — `project_name`, `model`,
-  `system_prompt`, `questions_and_labels` (the *client-submitted* value, a separate, independent
-  copy from `projects.questions_and_labels`, which is only checked for existence above, never
-  compared against the client-submitted value), `token` — is pushed to the `prelabel_jobs`
+  `system_prompt`, `questions_and_labels` (read from `projects.questions_and_labels` in the
+  same request, never submitted by the client), `token` — is pushed to the `prelabel_jobs`
    queue (Redis DB 0; separate from `conversion_jobs` in DB 1)
 
 > `GET /list_projects_ready_for_prelabelling` feeds the frontend picker
