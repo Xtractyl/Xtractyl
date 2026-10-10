@@ -1,7 +1,7 @@
 # orchestrator/domain/conversion.py
 
 
-from infrastructure.interfaces.queue import QueueInterface
+from infrastructure.interfaces.queue import ConversionQueueInterface
 from infrastructure.interfaces.repository import (
     ConversionRepositoryInterface,
     ProjectRepositoryInterface,
@@ -40,7 +40,7 @@ def prepare_conversion(
 
 
 def start_conversion(
-    cmd: ConvertCommand, repo: ConversionRepositoryInterface, queue: QueueInterface
+    cmd: ConvertCommand, repo: ConversionRepositoryInterface, queue: ConversionQueueInterface
 ) -> dict:
     job = repo.get_conversion_job(cmd.job_id)
     if not job:
