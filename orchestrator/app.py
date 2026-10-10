@@ -8,7 +8,7 @@ from flask_cors import CORS
 from flask_pydantic_spec import FlaskPydanticSpec
 from infrastructure.label_studio.label_studio_client import LabelStudioClient
 from infrastructure.ollama.ollama_client import OllamaClient
-from infrastructure.queue.redis_queue import RedisQueue
+from infrastructure.queue.redis_queue import RedisConversionQueue, RedisPrelabelQueue
 from infrastructure.storage.minio_storage import MinioStorage
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -35,13 +35,25 @@ def create_app() -> Flask:
         bucket=os.getenv("MINIO_BUCKET", "xtractyl"),
         presign_expiry_seconds=int(os.getenv("MINIO_PRESIGN_EXPIRY_SECONDS", "3600")),
     )
-    queue = RedisQueue(
-        host=os.getenv("REDIS_HOST", "job_queue"),
-        port=int(os.getenv("REDIS_PORT", "6379")),
+    redis_host = os.getenv("REDIS_HOST", "job_queue")
+    redis_port = int(os.getenv("REDIS_PORT", "6379"))
+    redis_max_retries = int(os.getenv("REDIS_PUSH_MAX_RETRIES", "3"))
+    redis_retry_delay = float(os.getenv("REDIS_PUSH_RETRY_DELAY_SECONDS", "0.5"))
+    conversion_queue = RedisConversionQueue(
+        host=redis_host,
+        port=redis_port,
         db=1,
         queue_name="conversion_jobs",
-        max_retries=int(os.getenv("REDIS_PUSH_MAX_RETRIES", "3")),
-        retry_delay_seconds=float(os.getenv("REDIS_PUSH_RETRY_DELAY_SECONDS", "0.5")),
+        max_retries=redis_max_retries,
+        retry_delay_seconds=redis_retry_delay,
+    )
+    prelabel_queue = RedisPrelabelQueue(
+        host=redis_host,
+        port=redis_port,
+        db=0,
+        queue_name="prelabel_jobs",
+        max_retries=redis_max_retries,
+        retry_delay_seconds=redis_retry_delay,
     )
     engine = create_engine(os.getenv("DATABASE_URL"))
     session_factory = sessionmaker(bind=engine)
@@ -58,11 +70,12 @@ def create_app() -> Flask:
         app,
         spec,
         storage=storage,
-        queue=queue,
         session_factory=session_factory,
         label_studio=label_studio,
         ollama_client=ollama_client,
         archive_prefix=archive_prefix,
+        conversion_queue=conversion_queue,
+        prelabel_queue=prelabel_queue,
     )
 
     register_error_handlers(
