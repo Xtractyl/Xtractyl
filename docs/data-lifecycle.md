@@ -606,10 +606,25 @@ this ordinary user reflex already covers the case.
 > resolution failure needs to read as `"pending"` → `"failed"` (the loop never started), not
 > `"running"` → `"failed"` (which would incorrectly imply it had).
 
-- Redis: the job payload — `project_name`, `model`,
-  `system_prompt`, `questions_and_labels` (read from `projects.questions_and_labels` in the
-  same request, never submitted by the client), `token` — is pushed to the `prelabel_jobs`
-   queue (Redis DB 0; separate from `conversion_jobs` in DB 1)
+- Redis: the job payload — `job_id`, `project_name`, `label_studio_id`, `model`, `system_prompt`,
+  `questions_and_labels` (read from `projects.questions_and_labels` in the same request, never
+  submitted by the client), `token` and `task_filenames` — is pushed to the `prelabel_jobs` queue
+  (Redis DB 0; separate from `conversion_jobs` in DB 1) through `PrelabelQueueInterface`
+  (`RedisPrelabelQueue`; Conversion uses `ConversionQueueInterface` / `RedisConversionQueue`).
+  Both Redis queues share the retry logic of `RedisJobQueue`; a push that still fails after the
+  retries raises `REDIS_UNAVAILABLE` (HTTP 502) and the request is rolled back
+
+> **Known property — the push happens before the commit:** `enqueue_prelabel_job` pushes the job
+> inside the request's transaction, the route commits afterwards. If that commit fails after a
+> successful push, the job sits in the queue without its database changes. For a new run there is
+> no `prelabelling_runs` row: the worker's first `task-result` is answered with 404
+> `RUN_TASK_NOT_FOUND` and fails the job, but by then ml_backend has written that task's
+> prediction to Label Studio, so the next start of the project fails with `TASKS_OUT_OF_SYNC`
+> (step 2); the fix is to delete that one prediction in Label Studio or to set the project up
+> anew. For a resumed run the rows still exist, so the results of the orphaned job are stored,
+> while the run status is not changed by them. Accepted deliberately: it needs a failed commit
+> right after a successful push, and pushing after the commit would instead leave a `pending` run
+> without a job when the push fails, which blocks the project (enqueue guard)
 
 > `GET /list_projects_ready_for_prelabelling` feeds the frontend picker
 > (`PrelabellingReadyProjectSelect` on the Start Prelabelling page): projects with
@@ -703,13 +718,15 @@ is only used for this check.
 - Cancellation: `POST /prelabel/cancel/:id` only sets `prelabelling_runs.cancel_requested`. The run
   becomes `"cancelled"` with the next `task-result` call (so after the task that is currently
   running), and the response to that call tells the worker to stop (`continue: false`)
-- Polling: `GET /prelabel/status/:id` reads the run and counts its task rows; it no longer touches
-  Redis. `state` is the run's status (`pending`, `running`, `done`, `incomplete`, `failed`,
-  `cancelled`), or `cancel_requested` while a `pending`/`running` run has `cancel_requested` set;
+- Polling: `GET /prelabel/status/:id` reads the run and counts its task rows; it no longer touches Redis. 
+  `state` is the run's status (`pending`, `running`, `done`, `incomplete`, `failed`, `cancelled`), 
+  or `cancel_requested` while a `pending`/`running` run has `cancel_requested` set;
+  for an id that is not a known run it answers HTTP 200 with `state` `NOT_FOUND`.
   `progress` is the share of task rows that are no longer `pending`. The frontend stops polling on
-  any final status and picks the message shown at the end from it
-- Redis is only the job queue (`prelabel_jobs`). The worker's per-task lines go to its normal log
-  (`safe_logger`), not to Redis
+  any final status and on `NOT_FOUND` (which only clears the stored job id, without a message),
+  and picks the message shown at the end from the final status
+- Redis is only the job queue (`prelabel_jobs`). The worker's per-task lines go to its normal log 
+ (`safe_logger`), not to Redis
 
 > **[TODO 2]** Stale-run sweep in the cleanup container, mirroring Conversion's stale-job sweep (see
 > the Insert after `conversion_jobs` in the Schema Reference, `CLEANUP_STALE_AFTER_HOURS`).
