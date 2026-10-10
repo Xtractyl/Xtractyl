@@ -1,6 +1,6 @@
 # orchestrator/tests/unit/fakes/conversion_fakes.py
 from db.models import ConversionJob, File, Project
-from infrastructure.interfaces.queue import QueueInterface
+from infrastructure.interfaces.queue import ConversionQueueInterface
 from infrastructure.interfaces.repository import (
     ConversionRepositoryInterface,
     ProjectRepositoryInterface,
@@ -45,11 +45,6 @@ class FakeConversionRepo(ConversionRepositoryInterface):
         return [f.pdf_key for f in self.files if f.project == project]
 
     def delete_project_cascade(self, project):
-        self.projects.pop(project, None)
-        self.files = [f for f in self.files if f.project != project]
-        self.conversion_jobs = {
-            jid: j for jid, j in self.conversion_jobs.items() if j.project != project
-        }
         self.deleted_projects.append(project)
 
     def set_conversion_job_status(self, job_id, status, error=None):
@@ -98,7 +93,7 @@ class FakeStorage(StorageInterface):
         raise NotImplementedError("not needed by conversion domain tests yet")
 
 
-class FakeQueue(QueueInterface):
+class FakeQueue(ConversionQueueInterface):
     def __init__(self):
         self.pushed = []
 
@@ -107,13 +102,35 @@ class FakeQueue(QueueInterface):
 
 
 class FakeProjectRepo(ProjectRepositoryInterface):
-    def __init__(self):
+    def __init__(
+        self,
+        label_studio_ids=None,
+        questions_and_labels=None,
+        tasks_uploaded=(),
+        html_keys=None,
+    ):
         self.document_set_hashes_set = []
+        self._label_studio_ids = label_studio_ids or {}
+        self._questions_and_labels = questions_and_labels or {}
+        self._tasks_uploaded = set(tasks_uploaded)
+        self._html_keys = html_keys or {}
 
     # --- used by conversion domain ---
 
     def set_document_set_hash(self, name):
         self.document_set_hashes_set.append(name)
+
+    def get_label_studio_id(self, name):
+        return self._label_studio_ids.get(name)
+
+    def get_questions_and_labels(self, name):
+        return self._questions_and_labels.get(name)
+
+    def tasks_already_uploaded(self, name):
+        return name in self._tasks_uploaded
+
+    def get_html_keys_for_project(self, name):
+        return self._html_keys.get(name, [])
 
     """
     All following methods defined for the FakeProjectRepo are unused by the conversion 
@@ -131,9 +148,6 @@ class FakeProjectRepo(ProjectRepositoryInterface):
     def set_label_studio_id(self, name, label_studio_id):
         raise NotImplementedError("not needed by conversion domain tests yet")
 
-    def get_label_studio_id(self, name):
-        raise NotImplementedError("not needed by conversion domain tests yet")
-
     def get_projects_ready_for_upload(self):
         raise NotImplementedError("not needed by conversion domain tests yet")
 
@@ -143,22 +157,13 @@ class FakeProjectRepo(ProjectRepositoryInterface):
     def get_projects_ready_for_prelabelling(self):
         raise NotImplementedError("not needed by conversion domain tests yet")
 
-    def tasks_already_uploaded(self, name):
-        raise NotImplementedError("not needed by conversion domain tests yet")
-
     def is_conversion_done(self, name):
-        raise NotImplementedError("not needed by conversion domain tests yet")
-
-    def get_html_keys_for_project(self, name):
         raise NotImplementedError("not needed by conversion domain tests yet")
 
     def set_ls_tasks_uploaded(self, name):
         raise NotImplementedError("not needed by conversion domain tests yet")
 
     def save_questions_and_labels(self, name, qal):
-        raise NotImplementedError("not needed by conversion domain tests yet")
-
-    def get_questions_and_labels(self, name):
         raise NotImplementedError("not needed by conversion domain tests yet")
 
     def get_groundtruth_scope(self, name):
