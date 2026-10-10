@@ -91,6 +91,20 @@ describe("usePrelabelJob polling", () => {
     expect(getPrelabelStatus).toHaveBeenCalledTimes(1);
   });
 
+  it("drops the job without a message when the backend reports NOT_FOUND", async () => {
+    getPrelabelStatus.mockResolvedValue({ job_id: "job-1", state: "NOT_FOUND" });
+
+    const { result } = renderHook(() => usePrelabelJob());
+    await advance(0);
+
+    expect(result.current.preJobId).toBe("");
+    expect(result.current.preStatus).toBeNull();
+    expect(result.current.statusMsg).toBe("");
+
+    await advance(5000);
+    expect(getPrelabelStatus).toHaveBeenCalledTimes(1);
+  });
+
   it("keeps the job id and polls again after another error", async () => {
     getPrelabelStatus.mockRejectedValueOnce(new Error("network"));
     getPrelabelStatus.mockResolvedValue({ state: "RUNNING", progress: 10 });
