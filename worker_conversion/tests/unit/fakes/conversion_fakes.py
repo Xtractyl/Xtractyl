@@ -6,22 +6,22 @@ from infrastructure.interfaces.storage import ConversionStorageInterface
 
 
 class FakeConversionStorage(ConversionStorageInterface):
-    def __init__(self, objects=None, fail_get=False, fail_put=False):
+    def __init__(self, objects=None, get_error=None, put_error=None):
         self.objects = dict(objects or {})
-        self.fail_get = fail_get
-        self.fail_put = fail_put
+        self.get_error = get_error
+        self.put_error = put_error
         self.put_calls = []
 
     def get_object(self, bucket, key):
-        if self.fail_get:
-            raise StorageError(f"forced get failure for {key}")
+        if self.get_error:
+            raise self.get_error
         if key not in self.objects:
             raise StorageError(f"no such object: {key}")
         return self.objects[key]
 
     def put_object(self, bucket, key, data, content_type):
-        if self.fail_put:
-            raise StorageError(f"forced put failure for {key}")
+        if self.put_error:
+            raise self.put_error
         self.objects[key] = data
         self.put_calls.append({"bucket": bucket, "key": key, "content_type": content_type})
 
