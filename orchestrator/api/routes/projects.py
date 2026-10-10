@@ -2,7 +2,6 @@
 from domain.errors import InternalError, Unauthorized
 from domain.models.projects import (
     CreateProjectCommand,
-    PreviewQalCommand,
     ProjectExistsCommand,
     UploadTasksCommand,
 )
@@ -14,9 +13,6 @@ from domain.projects import (
     list_projects_ready_for_upload,
     upload_tasks_main_from_payload,
 )
-from domain.projects import (
-    preview_qal as domain_preview_qal,
-)  # renaming necessary preview_qal is the name of the flask endpoint
 from flask import jsonify, request
 from flask_pydantic_spec import Request, Response
 from infrastructure.repository.project_repository import ProjectRepository
@@ -29,8 +25,6 @@ from api.contracts.projects import (
     ListProjectsReadyForCreationResponse,
     ListProjectsReadyForPrelabellingResponse,
     ListProjectsReadyForUploadResponse,
-    PreviewQalRequest,
-    PreviewQalResponse,
     ProjectExistsRequest,
     ProjectExistsResponse,
     UploadTasksRequest,
@@ -244,39 +238,6 @@ def register(app, spec, session_factory, label_studio, storage):
             db.close()
         try:
             validated = ListProjectsReadyForPrelabellingResponse.model_validate(result)
-        except ValidationError as e:
-            raise InternalError(
-                code="RESPONSE_CONTRACT_VIOLATED",
-                message="Internal response did not match expected schema.",
-                meta={"details": e.errors()},
-            )
-        return jsonify(validated.model_dump()), 200
-
-    @app.route("/preview_qal", methods=["GET"])
-    @spec.validate(
-        query=PreviewQalRequest,
-        resp=Response(
-            HTTP_200=PreviewQalResponse,
-            HTTP_404=ErrorResponse,  # file not found
-            HTTP_500=ErrorResponse,  # unexpected global exception handler
-        ),
-        tags=["projects"],
-    )
-    def preview_qal():
-        contract = PreviewQalRequest.model_validate(dict(request.args))
-        cmd = PreviewQalCommand.from_contract(project=contract.project)
-        db = session_factory()
-        try:
-            repo = ProjectRepository(db)
-            result = domain_preview_qal(cmd, repo=repo)
-            db.commit()
-        except Exception:
-            db.rollback()
-            raise
-        finally:
-            db.close()
-        try:
-            validated = PreviewQalResponse.model_validate(result)
         except ValidationError as e:
             raise InternalError(
                 code="RESPONSE_CONTRACT_VIOLATED",

@@ -1,7 +1,5 @@
 # orchestrator/api/contracts/projects.py
 
-from typing import Any
-
 from pydantic import BaseModel, Field
 
 
@@ -9,10 +7,6 @@ class CreateProjectRequest(BaseModel):
     title: str = Field(..., min_length=3)
     questions: list[str] = Field(..., min_length=1)
     labels: list[str] = Field(..., min_length=1)
-
-
-class PreviewQalRequest(BaseModel):
-    project: str = Field(..., min_length=1)
 
 
 class UploadTasksRequest(BaseModel):
@@ -37,10 +31,6 @@ class ListProjectsReadyForCreationResponse(BaseModel):
 
 class ListProjectsReadyForPrelabellingResponse(BaseModel):
     projects: list[str]
-
-
-class PreviewQalResponse(BaseModel):
-    data: Any
 
 
 class ProjectExistsResponse(BaseModel):

@@ -48,7 +48,6 @@ def test_prelabel_project_missing_token_returns_401(client):
             "project_name": "test",
             "model": "llama3.1:8b",
             "system_prompt": "test",
-            "questions_and_labels": {"questions": ["Q1"], "labels": ["L1"]},
         },
     )
     assert res.status_code == 401
@@ -65,8 +64,26 @@ def test_prelabel_project_missing_fields_returns_422(client):
     assert res.status_code == 422
 
 
-# test_prelabel_project_returns_200 removed
-# pending DB migration, test update otherwise had to include DB workflow and legacy testing
+def test_prelabel_project_returns_200(client, monkeypatch):
+    monkeypatch.setattr(
+        "api.routes.jobs.enqueue_prelabel_job",
+        lambda cmd, run_repo, project_repo, model_repo, queue: {
+            "job_id": "123",
+            "status_url": "/prelabel/status/123",
+            "cancel_url": "/prelabel/cancel/123",
+        },
+    )
+    res = client.post(
+        "/prelabel_project",
+        headers={"Authorization": "Bearer dummy"},
+        json={"project_name": "test", "model": "llama3.1:8b", "system_prompt": "test"},
+    )
+    assert res.status_code == 200
+    assert res.get_json() == {
+        "job_id": "123",
+        "status_url": "/prelabel/status/123",
+        "cancel_url": "/prelabel/cancel/123",
+    }
 
 
 # --- prelabel/cancel ---

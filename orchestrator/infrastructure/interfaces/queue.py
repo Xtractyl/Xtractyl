@@ -2,7 +2,7 @@
 from abc import ABC, abstractmethod
 
 
-class QueueInterface(ABC):
+class ConversionQueueInterface(ABC):
     @abstractmethod
     def push_conversion_job(
         self,
@@ -10,3 +10,8 @@ class QueueInterface(ABC):
         project: str,
         pdf_keys: list[str],
     ) -> None: ...
+
+
+class PrelabelQueueInterface(ABC):
+    @abstractmethod
+    def push_prelabel_job(self, payload: dict) -> None: ...

@@ -31,7 +31,7 @@ def test_convert_file_success_returns_key_and_hashes():
 
 
 def test_convert_file_raises_storage_error_when_pdf_read_fails():
-    storage = FakeConversionStorage(fail_get=True)
+    storage = FakeConversionStorage(get_error=StorageError("read failed"))
     docling = FakeDoclingClient(html_content="<html>x</html>")
 
     with pytest.raises(StorageError):
@@ -51,7 +51,9 @@ def test_convert_file_raises_docling_error_when_conversion_fails():
 
 
 def test_convert_file_raises_storage_error_when_html_write_fails():
-    storage = FakeConversionStorage(objects={"proj/pdfs/a.pdf": b"content"}, fail_put=True)
+    storage = FakeConversionStorage(
+        objects={"proj/pdfs/a.pdf": b"content"}, put_error=StorageError("write failed")
+    )
     docling = FakeDoclingClient(html_content="<html>x</html>")
 
     with pytest.raises(StorageError):
@@ -77,7 +79,7 @@ def test_handle_job_sends_success_callback_for_each_file():
 
 
 def test_handle_job_sends_failure_callback_and_stops_when_told_to():
-    storage = FakeConversionStorage(objects={})
+    storage = FakeConversionStorage(get_error=StorageError("read failed"))
     docling = FakeDoclingClient(html_content="<html>ok</html>")
     callback = FakeCallbackClient(continue_value=False)
     job = ConversionJobPayload(
@@ -89,7 +91,7 @@ def test_handle_job_sends_failure_callback_and_stops_when_told_to():
     assert len(callback.calls) == 1
     call = callback.calls[0]
     assert call["success"] is False
-    assert "no such object" in call["error"]
+    assert call["error"] == "read failed"
     assert call["html_key"] is None
 
 

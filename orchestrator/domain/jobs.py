@@ -1,11 +1,10 @@
 # orchestrator/domain/jobs.py
 from __future__ import annotations
 
-import json
 import os
 from typing import Any, Dict
 
-import redis
+from infrastructure.interfaces.queue import PrelabelQueueInterface
 from infrastructure.interfaces.repository import (
     ModelRepositoryInterface,
     PrelabellingRunRepositoryInterface,
@@ -22,12 +21,6 @@ from domain.models.jobs import (
     JobStatusCommand,
     TaskResultCommand,
 )
-
-REDIS_HOST = os.getenv("REDIS_HOST", "job_queue")
-REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
-r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
-
-QUEUE = "prelabel_jobs"
 
 # enqueue_prelabel_job will not be allowed for "pending", "running", "done" status
 # it remains allowed for "cancelled", "failed", "incomplete", this allows to finish exactly 1 run
@@ -58,6 +51,7 @@ def enqueue_prelabel_job(
     run_repo: PrelabellingRunRepositoryInterface,
     project_repo: ProjectRepositoryInterface,
     model_repo: ModelRepositoryInterface,
+    queue: PrelabelQueueInterface,
 ) -> Dict[str, Any]:
     label_studio_id = project_repo.get_label_studio_id(cmd.project_name)
     if not label_studio_id:
@@ -65,7 +59,8 @@ def enqueue_prelabel_job(
             code="PROJECT_NOT_FOUND",
             message="Project not found or has no Label Studio ID.",
         )
-    if not project_repo.get_questions_and_labels(cmd.project_name):
+    questions_and_labels = project_repo.get_questions_and_labels(cmd.project_name)
+    if not questions_and_labels:
         raise NotFound(
             code="QAL_NOT_FOUND",
             message="No QAL found for this project.",
@@ -145,11 +140,11 @@ def enqueue_prelabel_job(
         "label_studio_id": label_studio_id,
         "model": cmd.model,
         "system_prompt": cmd.system_prompt,
-        "questions_and_labels": cmd.questions_and_labels,
+        "questions_and_labels": questions_and_labels,
         "token": cmd.token,
         "task_filenames": task_filenames,
     }
-    r.rpush(QUEUE, json.dumps(payload))
+    queue.push_prelabel_job(payload)
 
     return {
         "job_id": job_id,

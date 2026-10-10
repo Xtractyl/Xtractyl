@@ -25,7 +25,6 @@ export default function StartPrelabellingCard() {
       model: config.model,
       system_prompt: config.systemPrompt,
       token,
-      questions_and_labels: config.questionsAndLabels,
     });
   };
 
@@ -34,7 +33,7 @@ export default function StartPrelabellingCard() {
       <h1 className="text-2xl font-semibold mb-4">Start AI</h1>
       <p className="text-xtractyl-outline/70 mb-6">
         Download a model (if needed), enter your project, pick an installed model, set a system
-        prompt, choose your Questions & Labels JSON, then start prelabeling.
+        prompt, then start prelabeling.
       </p>
 
       <div className="space-y-6">
@@ -44,8 +43,6 @@ export default function StartPrelabellingCard() {
 
         <div className="space-y-6 bg-xtractyl-offwhite p-6 rounded shadow">
           <PrelabellingReadyProjectSelect selected={projectName} onChange={saveProjectName} />
-
-          {config.qalError && <p className="text-sm text-xtractyl-orange">{config.qalError}</p>}
 
           <TokenInput />
 

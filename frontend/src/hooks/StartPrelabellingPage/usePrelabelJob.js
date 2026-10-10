@@ -94,6 +94,11 @@ export function usePrelabelJob() {
         dispatch({ type: "STATUS_UPDATED", payload: s });
         const st = String(s?.state || "").toLowerCase();
         const pct = Number(s?.progress ?? 0);
+        if (st === "not_found") {
+          setPreJobId("");
+          dispatch({ type: "JOB_FINISHED" });
+          return;
+        }
         if (["done", "incomplete", "error", "failed", "cancelled", "succeeded"].includes(st)) {
           setPreJobId("");
           const base = OUTCOME_MESSAGES[st];

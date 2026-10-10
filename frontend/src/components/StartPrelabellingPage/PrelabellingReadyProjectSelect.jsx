@@ -28,7 +28,7 @@ export default function PrelabellingReadyProjectSelect({ selected, onChange }) {
   return (
     <div>
       <label className="block font-medium mb-1">
-        Select project (tasks uploaded, prelabelling not yet (successfully) run)
+        Select project (tasks uploaded, prelabelling not yet [successfully] run)
       </label>
       <select
         value={selected}
