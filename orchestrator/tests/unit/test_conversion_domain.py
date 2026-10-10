@@ -144,20 +144,18 @@ def test_cancel_conversion_rejects_job_that_is_not_converting():
     assert repo.conversion_jobs[1].status == "pending"
 
 
-def test_discard_conversion_deletes_project_cascade_and_storage_prefix():
+@pytest.mark.parametrize("status", ["pending", "failed", "cancelled"])
+def test_discard_conversion_deletes_project_cascade_and_storage_prefix(status):
     repo = FakeConversionRepo(existing_projects={"my-project"})
-    repo.files.append(File(project="my-project", filename="a.pdf", pdf_key="my-project/pdfs/a.pdf"))
     repo.conversion_jobs[1] = ConversionJob(
-        id=1, project="my-project", status="failed", total_files=1, converted_files=0
+        id=1, project="my-project", status=status, total_files=1, converted_files=0
     )
     storage = FakeStorage()
     cmd = DiscardConversionCommand(job_id=1)
 
     result = discard_conversion(cmd, repo=repo, storage=storage)
 
-    assert "my-project" not in repo.projects
-    assert repo.files == []
-    assert 1 not in repo.conversion_jobs
+    assert repo.deleted_projects == ["my-project"]
     assert repo.committed is True
     assert storage.deleted_prefixes == ["my-project"]
     assert result == {"status": "discarded"}
@@ -171,21 +169,25 @@ def test_discard_conversion_returns_already_gone_when_job_missing():
     result = discard_conversion(cmd, repo=repo, storage=storage)
 
     assert result == {"status": "already_gone"}
+    assert repo.deleted_projects == []
     assert storage.deleted_prefixes == []
 
 
-def test_discard_conversion_rejects_job_that_is_converting():
+@pytest.mark.parametrize("status", ["converting", "done"])
+def test_discard_conversion_rejects_job_that_is_not_discardable(status):
     repo = FakeConversionRepo(existing_projects={"my-project"})
     repo.conversion_jobs[1] = ConversionJob(
-        id=1, project="my-project", status="converting", total_files=1, converted_files=0
+        id=1, project="my-project", status=status, total_files=1, converted_files=0
     )
     storage = FakeStorage()
     cmd = DiscardConversionCommand(job_id=1)
 
-    with pytest.raises(InvalidState):
+    with pytest.raises(InvalidState) as excinfo:
         discard_conversion(cmd, repo=repo, storage=storage)
 
-    assert "my-project" in repo.projects
+    assert excinfo.value.code == "JOB_NOT_DISCARDABLE"
+    assert repo.deleted_projects == []
+    assert repo.committed is False
     assert storage.deleted_prefixes == []
 
 
