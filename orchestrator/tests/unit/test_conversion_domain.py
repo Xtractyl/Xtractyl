@@ -19,12 +19,10 @@ from domain.models.conversion import (
     PrepareConversionCommand,
 )
 
-from tests.unit.fakes.conversion_fakes import (
-    FakeConversionRepo,
-    FakeProjectRepo,
-    FakeQueue,
-    FakeStorage,
-)
+from tests.unit.fakes.conversion_repository import FakeConversionRepo
+from tests.unit.fakes.project_repository import FakeProjectRepo
+from tests.unit.fakes.queue import FakeConversionQueue
+from tests.unit.fakes.storage import FakeStorage
 
 
 def test_prepare_conversion_creates_project_files_and_job():
@@ -72,7 +70,7 @@ def test_start_conversion_transitions_pending_job_to_converting_and_queues_it():
     repo.conversion_jobs[1] = ConversionJob(
         id=1, project="my-project", status="pending", total_files=1, converted_files=0
     )
-    queue = FakeQueue()
+    queue = FakeConversionQueue()
     cmd = ConvertCommand(job_id=1)
 
     result = start_conversion(cmd, repo=repo, queue=queue)
@@ -86,7 +84,7 @@ def test_start_conversion_transitions_pending_job_to_converting_and_queues_it():
 
 def test_start_conversion_raises_when_job_not_found():
     repo = FakeConversionRepo()
-    queue = FakeQueue()
+    queue = FakeConversionQueue()
     cmd = ConvertCommand(job_id=999)
 
     with pytest.raises(NotFound):
@@ -100,7 +98,7 @@ def test_start_conversion_rejects_job_that_is_not_pending():
     repo.conversion_jobs[1] = ConversionJob(
         id=1, project="my-project", status="converting", total_files=1, converted_files=0
     )
-    queue = FakeQueue()
+    queue = FakeConversionQueue()
     cmd = ConvertCommand(job_id=1)
 
     with pytest.raises(InvalidState):

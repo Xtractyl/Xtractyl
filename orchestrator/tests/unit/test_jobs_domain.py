@@ -1,19 +1,21 @@
 # /orchestrator/tests/unit/test_jobs_domain.py
 import pytest
+from db.models import Model
 from domain.errors import AlreadyExists, InvalidState, NotFound
 from domain.jobs import enqueue_prelabel_job
 from domain.models.jobs import EnqueueJobCommand
 
-from tests.unit.fakes.conversion_fakes import FakeProjectRepo
-from tests.unit.fakes.jobs_fakes import (
-    FakeModelRepo,
-    FakePrelabellingRunRepo,
-    FakePrelabelQueue,
-    make_model,
-    make_run,
-)
+from tests.unit.fakes.builders import make_run
+from tests.unit.fakes.model_repository import FakeModelRepo
+from tests.unit.fakes.prelabelling_run_repository import FakePrelabellingRunRepo
+from tests.unit.fakes.project_repository import FakeProjectRepo
+from tests.unit.fakes.queue import FakePrelabelQueue
 
 QUESTIONS_AND_LABELS = {"questions": ["q1"], "labels": ["l1"]}
+
+
+def make_model(model_id, archived_name):
+    return Model(id=model_id, archived_name=archived_name)
 
 
 def make_command(**overrides):
