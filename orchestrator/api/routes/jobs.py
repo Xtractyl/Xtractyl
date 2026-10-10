@@ -37,7 +37,7 @@ from api.contracts.jobs import (
 from api.utils.auth import extract_token
 
 
-def register(app, spec, session_factory):
+def register(app, spec, queue, session_factory):
     @app.route("/prelabel/status/<job_id>", methods=["GET"])
     @spec.validate(
         resp=Response(
@@ -86,6 +86,7 @@ def register(app, spec, session_factory):
             HTTP_400=ErrorResponse,  # validation failed
             HTTP_401=ErrorResponse,  # missing token
             HTTP_409=ErrorResponse,  # a prelabelling run already exists for this project
+            HTTP_502=ErrorResponse,  # job queue (Redis) unavailable
             HTTP_500=ErrorResponse,
         ),
         tags=["jobs"],
@@ -105,7 +106,11 @@ def register(app, spec, session_factory):
             project_repo = ProjectRepository(db)
             model_repo = ModelRepository(db)
             result = enqueue_prelabel_job(
-                cmd, run_repo=run_repo, project_repo=project_repo, model_repo=model_repo
+                cmd,
+                run_repo=run_repo,
+                project_repo=project_repo,
+                model_repo=model_repo,
+                queue=queue,
             )
             db.commit()
         except Exception:
