@@ -11,13 +11,23 @@ from .results import register as register_results
 
 
 def register_routes(
-    app, spec, storage, queue, session_factory, label_studio, ollama_client, archive_prefix
+    app,
+    spec,
+    storage,
+    conversion_queue,
+    prelabel_queue,
+    session_factory,
+    label_studio,
+    ollama_client,
+    archive_prefix,
 ):
     register_health(app)
-    register_conversion(app, spec, storage=storage, queue=queue, session_factory=session_factory)
+    register_conversion(
+        app, spec, storage=storage, queue=conversion_queue, session_factory=session_factory
+    )
     register_evaluation(app, spec, session_factory=session_factory)
     register_evaluation_views(app, spec, session_factory=session_factory)
-    register_jobs(app, spec, session_factory=session_factory)
+    register_jobs(app, spec, queue=prelabel_queue, session_factory=session_factory)
     register_results(app, spec, session_factory=session_factory)
     register_projects(
         app, spec, session_factory=session_factory, label_studio=label_studio, storage=storage
