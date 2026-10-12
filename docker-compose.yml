@@ -20,7 +20,7 @@ services:
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - ${PGDATA_VOLUME:-pgdata}:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-dbname}
       POSTGRES_USER: ${POSTGRES_USER:-username}
@@ -40,7 +40,7 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      - ${LABELSTUDIO_DATA_VOLUME:-labelstudio_data}:/label-studio/data
+      - labelstudio_data:/label-studio/data
     environment:
       - LABEL_STUDIO_PORT=${LABELSTUDIO_INTERNAL_PORT:-8080}
       - COLLECT_ANALYTICS=0
@@ -137,7 +137,7 @@ services:
     ports:
       - "${OLLAMA_PORT:-11434}:11434"
     volumes:
-      - ${OLLAMA_MODELS_VOLUME:-ollama_models}:/root/.ollama
+      - ollama_models:/root/.ollama
 
   docling:
     build:
@@ -149,9 +149,9 @@ services:
     volumes:
       - ${LOGS_DIR:-./logs}:/app/logs
       - ${DEV_LOGS_DIR:-./data/logs}:/app/data/logs
-      - ${FONTCACHE_VOLUME:-fontcache}:/var/cache/fontconfig
-      - ${XDG_CACHE_VOLUME:-xdg_cache}:/root/.cache
-      - ${XDG_DATA_VOLUME:-xdg_data}:/root/.local/share
+      - fontcache:/var/cache/fontconfig
+      - xdg_cache:/root/.cache
+      - xdg_data:/root/.local/share
     environment:
       - SERVICE_NAME=docling
       - DOCLING_CONVERT_TIMEOUT_SECONDS=${DOCLING_CONVERT_TIMEOUT_SECONDS:-240}
@@ -250,7 +250,7 @@ services:
     ports:
       - "${POSTGRES_XTRACTYL_PORT:-5433}:5432"
     volumes:
-      - ${PGDATA_XTRACTYL_VOLUME:-pgdata_xtractyl}:/var/lib/postgresql/data
+      - pgdata_xtractyl:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: ${POSTGRES_XTRACTYL_DB:-xtractyl}
       POSTGRES_USER: ${POSTGRES_XTRACTYL_USER:-xtractyl}
@@ -271,7 +271,7 @@ services:
       - "${MINIO_API_PORT:-9000}:9000"
       - "${MINIO_CONSOLE_PORT:-9001}:9001"
     volumes:
-      - ${MINIO_DATA_VOLUME:-minio_data}:/data
+      - minio_data:/data
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
