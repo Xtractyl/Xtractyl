@@ -31,7 +31,6 @@ def send_predict(*, task_id: int, html: str, filename: str, job: JobPayload) -> 
         "llm_config": {
             "ollama_model": job.model,
             "system_prompt": job.system_prompt,
-            "llm_timeout_seconds": LLM_TIMEOUT,
         },
         "label_studio_config": {
             "ls_token": job.token,
