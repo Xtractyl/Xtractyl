@@ -13,12 +13,9 @@ VALID_PAYLOAD = {
     },
     "llm_config": {
         "ollama_model": "llama3",
-        "ollama_base": "http://ollama:11434",
         "system_prompt": "Extract the answer.",
-        "llm_timeout_seconds": 20,
     },
     "label_studio_config": {
-        "label_studio_url": "http://labelstudio:8080",
         "ls_token": "dummy-token",
     },
 }
