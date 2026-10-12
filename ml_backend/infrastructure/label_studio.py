@@ -1,10 +1,15 @@
 # ml_backend/infrastructure/label_studio.py
+import os
+
 import requests
 from domain.errors import ExternalServiceError
 
+LS_HOST = os.getenv("LABELSTUDIO_HOST", "labelstudio")
+LS_PORT = os.getenv("LABELSTUDIO_PORT", "8080")
+LS_BASE = os.getenv("LS_BASE", f"http://{LS_HOST}:{LS_PORT}")
+
 
 def save_predictions_to_labelstudio(
-    label_studio_url: str,
     token: str,
     model_version: str,
     task_id: str,
@@ -17,7 +22,7 @@ def save_predictions_to_labelstudio(
     }
     try:
         response = requests.post(
-            f"{label_studio_url}/api/predictions",
+            f"{LS_BASE}/api/predictions",
             headers={"Authorization": f"Token {token}", "Content-Type": "application/json"},
             json=payload,
             timeout=15,
