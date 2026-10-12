@@ -35,13 +35,7 @@ def run_predict(cmd: PredictCommand) -> dict:
     for q, lab in zip(qal.questions, qal.labels, strict=False):
         prompt = f"{llm.system_prompt}\n\nQuestion: {q}\n\nText: {puretext}"
         with perf.measure("llm.call", label=str(lab)) as t:
-            result = ask_llm_with_timeout(
-                ollama_base=llm.ollama_base,
-                prompt=prompt,
-                timeout=llm.llm_timeout_seconds,
-                model_name=llm.ollama_model,
-                num_ctx=llm.num_ctx,
-            )
+            result = ask_llm_with_timeout(prompt=prompt, model_name=llm.ollama_model)
             t["status"] = result.get("status")
             if result.get("status") != "ok":
                 # one failed questions fails the whole task.
@@ -103,7 +97,6 @@ def run_predict(cmd: PredictCommand) -> dict:
 
     try:
         save_predictions_to_labelstudio(
-            label_studio_url=ls.label_studio_url,
             token=ls.ls_token,
             model_version=llm.ollama_model,
             task_id=cmd.task_id,
