@@ -6,14 +6,10 @@ from pydantic import BaseModel, Field
 
 class LLMConfig(BaseModel):
     ollama_model: str
-    ollama_base: str
     system_prompt: str
-    llm_timeout_seconds: int
-    num_ctx: int = 4096
 
 
 class LabelStudioConfig(BaseModel):
-    label_studio_url: str
     ls_token: str
 
 
