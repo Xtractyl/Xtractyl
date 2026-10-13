@@ -4,6 +4,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Dict
 
+from pydantic import ValidationError
+
 
 @dataclass
 class DomainError(Exception):
@@ -16,11 +18,6 @@ class DomainError(Exception):
 
 
 @dataclass
-class NotFound(DomainError):
-    pass
-
-
-@dataclass
 class ExternalServiceError(DomainError):
     pass
 
@@ -28,3 +25,13 @@ class ExternalServiceError(DomainError):
 @dataclass
 class InvalidState(DomainError):
     pass
+
+
+@dataclass
+class ContractViolation(DomainError):
+    @classmethod
+    def from_validation_error(
+        cls, code: str, message: str, error: ValidationError
+    ) -> "ContractViolation":
+        problems = [{"loc": [str(p) for p in e["loc"]], "type": e["type"]} for e in error.errors()]
+        return cls(code=code, message=message, meta={"errors": problems})
