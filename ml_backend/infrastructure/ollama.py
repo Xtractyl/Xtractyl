@@ -2,13 +2,17 @@
 import os
 
 import requests
+from domain.errors import ExternalServiceError
 
 OLLAMA_BASE = os.getenv("OLLAMA_BASE", "http://ollama:11434")
 LLM_TIMEOUT = int(os.getenv("LLM_TIMEOUT", "20"))
 LLM_NUM_CTX = int(os.getenv("LLM_NUM_CTX", "4096"))
 
 
-def ask_llm_with_timeout(prompt: str, model_name: str) -> dict:
+def ask_llm_with_timeout(prompt: str, model_name: str) -> str | None:
+    """Ask Ollama one question. Returns the answer, or None if the model answered with an empty text.
+    Raises ExternalServiceError: LLM_MODEL_MISSING, LLM_TIMEOUT or LLM_CALL_FAILED.
+    """
     try:
         response = requests.post(
             f"{OLLAMA_BASE}/api/generate",
@@ -22,11 +26,23 @@ def ask_llm_with_timeout(prompt: str, model_name: str) -> dict:
             timeout=LLM_TIMEOUT,
         )
         if response.status_code == 404:
-            return {"answer": None, "status": "model_missing", "error": "model_not_available"}
+            raise ExternalServiceError(
+                code="LLM_MODEL_MISSING",
+                message="The model is not available in Ollama.",
+                meta={"model": model_name},
+            )
         response.raise_for_status()
-        ans = (response.json().get("response") or "").strip()
-        return {"answer": ans if ans else None, "status": "ok", "error": None}
-    except requests.exceptions.Timeout:
-        return {"answer": None, "status": "failed", "error": "timeout"}
-    except requests.exceptions.RequestException as e:
-        return {"answer": None, "status": "failed", "error": str(e)}
+        answer = (response.json().get("response") or "").strip()
+    except requests.exceptions.Timeout as e:
+        raise ExternalServiceError(
+            code="LLM_TIMEOUT",
+            message="The LLM did not answer in time.",
+            meta={"model": model_name, "timeout_seconds": LLM_TIMEOUT},
+        ) from e
+    except (requests.exceptions.RequestException, ValueError) as e:
+        raise ExternalServiceError(
+            code="LLM_CALL_FAILED",
+            message="The LLM call failed.",
+            meta={"model": model_name, "error": str(e)},
+        ) from e
+    return answer or None
