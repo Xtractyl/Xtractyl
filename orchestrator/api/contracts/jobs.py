@@ -54,7 +54,6 @@ class TaskResultData(BaseModel):
     task_ms_dom_extract: float | None = None
     task_ms_dom_match: float | None = None
     n_llm_calls: int | None = None
-    n_timeouts: int | None = None
     avg_llm_call_ms: float | None = None
     median_llm_call_ms: float | None = None
 
