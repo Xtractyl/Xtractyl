@@ -649,7 +649,7 @@ is only used for this check.
 > Studio, loops over them, calls `/predict` for each and reports every task, successful or not, via
 > `send_task_result`.
 
-### 3. Per task: `send_predict` → ml_backend `/predict`
+### 3. Per task: `predict` → ml_backend `/predict`
 - The worker already holds the task's HTML in memory from the bulk fetch in step 2, so it's passed
   directly in the request body — no second Label Studio round-trip per task
 - ml_backend (`run_predict`): extracts the DOM via a freshly-launched headless Chromium
@@ -657,9 +657,11 @@ is only used for this check.
   Ollama once per question (`temperature=0, seed=42` for reproducibility), then matches each answer
   back into the DOM (`extract_xpath_matches_from_dom`) to ground it in an actual document location —
   this grounding check is the closest thing the system has to hallucination detection
-- A failed question (timeout, connection error, `model_missing` from Ollama) fails the whole task:
-  `run_predict` raises `LLM_CALL_FAILED` (HTTP 502) at the first failed question, before any further
-  LLM call and before anything is written to Label Studio. An unexpected error in the DOM matching
+- A failed question fails the whole task: the Ollama call raises `LLM_MODEL_MISSING` (model not
+  available), `LLM_TIMEOUT` or `LLM_CALL_FAILED` (anything else), all HTTP 502, at the first failed
+  question, before any further LLM call and before anything is written to Label Studio. A failed
+  write to Label Studio raises `LABEL_STUDIO_UNREACHABLE` (HTTP 502). An unexpected error in the DOM matching
+  
   raises `DOM_MATCH_FAILED` (HTTP 500). The worker reports every non-200 answer of `/predict` as a
   failed task (`status="failed"`). A matching that runs but does not find an answer is not an error:
   the task stays `success` and the label's entry in `dom_match_by_label` / `dom_match_diagnostics`
