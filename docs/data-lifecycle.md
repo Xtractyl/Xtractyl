@@ -206,9 +206,6 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
 - `system_prompt` (nullable)
   - **Set:** at creation — Prelabelling Pipeline, step 1, from the client-submitted value
   - **Changed:** never
-- `llm_timeout_seconds` (nullable) — currently unused: `create_run` takes no such argument, so it is always `NULL`
-  - **Set:** never
-  - **Changed:** never
 - `status` (`pending` | `running` | `done` | `failed` | `cancelled` | `incomplete`) — enforced by `ck_prelabelling_runs_status_values`
   - **Set:** `"pending"` at creation — Prelabelling Pipeline, step 1
   - **Changed (resume):** from `"failed"`, `"cancelled"` or `"incomplete"` back to `"pending"` in
@@ -252,7 +249,7 @@ Results, evaluation)
   `ck_prelabelling_run_tasks_status_values`), `error` (Text, nullable)
 - Result columns, filled from the ml_backend's `meta` (validated by `TaskResultData`):
   `predictions`, `raw_llm_answers`, `dom_match_diagnostics`, `dom_match_by_label`, `task_ms_*`,
-  `n_llm_calls`, `n_timeouts`, `avg_llm_call_ms`, `median_llm_call_ms` — all nullable, empty until
+  `n_llm_calls`, `avg_llm_call_ms`, `median_llm_call_ms` — all nullable, empty until
   the task succeeded
 - `created_at`, `updated_at` (automatic; `updated_at` changes on every update of the row)
 - unique constraints on `(prelabelling_run_id, filename)` and `(prelabelling_run_id, label_studio_task_id)`
