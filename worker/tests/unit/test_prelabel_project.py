@@ -17,7 +17,6 @@ META = PredictMeta.model_validate(
         "task_ms_dom_extract": 1.0,
         "task_ms_dom_match": 1.0,
         "n_llm_calls": 1,
-        "n_timeouts": 0,
         "avg_llm_call_ms": 1.0,
         "median_llm_call_ms": 1.0,
     }

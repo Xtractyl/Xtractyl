@@ -129,10 +129,10 @@ def test_predict_answer_that_is_not_json_is_a_contract_violation(job):
 
 
 def test_predict_answer_with_missing_meta_field_is_a_contract_violation(job):
-    meta = {k: v for k, v in META.items() if k != "n_timeouts"}
+    meta = {k: v for k, v in META.items() if k != "n_llm_calls"}
     body = {"model_version": "m", "score": 1.0, "result": [], "meta": meta}
     with patch("infrastructure.ml_backend.requests.post", return_value=_response(200, body)):
         with pytest.raises(ContractViolation) as exc:
             _predict(job)
     assert exc.value.code == "ML_RESPONSE_INVALID"
-    assert exc.value.meta["errors"][0]["loc"] == ["meta", "n_timeouts"]
+    assert exc.value.meta["errors"][0]["loc"] == ["meta", "n_llm_calls"]
