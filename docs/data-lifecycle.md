@@ -206,9 +206,6 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
 - `system_prompt` (nullable)
   - **Set:** at creation — Prelabelling Pipeline, step 1, from the client-submitted value
   - **Changed:** never
-- `llm_timeout_seconds` (nullable) — currently unused: `create_run` takes no such argument, so it is always `NULL`
-  - **Set:** never
-  - **Changed:** never
 - `status` (`pending` | `running` | `done` | `failed` | `cancelled` | `incomplete`) — enforced by `ck_prelabelling_runs_status_values`
   - **Set:** `"pending"` at creation — Prelabelling Pipeline, step 1
   - **Changed (resume):** from `"failed"`, `"cancelled"` or `"incomplete"` back to `"pending"` in
@@ -252,7 +249,7 @@ Results, evaluation)
   `ck_prelabelling_run_tasks_status_values`), `error` (Text, nullable)
 - Result columns, filled from the ml_backend's `meta` (validated by `TaskResultData`):
   `predictions`, `raw_llm_answers`, `dom_match_diagnostics`, `dom_match_by_label`, `task_ms_*`,
-  `n_llm_calls`, `n_timeouts`, `avg_llm_call_ms`, `median_llm_call_ms` — all nullable, empty until
+  `n_llm_calls`, `avg_llm_call_ms`, `median_llm_call_ms` — all nullable, empty until
   the task succeeded
 - `created_at`, `updated_at` (automatic; `updated_at` changes on every update of the row)
 - unique constraints on `(prelabelling_run_id, filename)` and `(prelabelling_run_id, label_studio_task_id)`
@@ -652,7 +649,7 @@ is only used for this check.
 > Studio, loops over them, calls `/predict` for each and reports every task, successful or not, via
 > `send_task_result`.
 
-### 3. Per task: `send_predict` → ml_backend `/predict`
+### 3. Per task: `predict` → ml_backend `/predict`
 - The worker already holds the task's HTML in memory from the bulk fetch in step 2, so it's passed
   directly in the request body — no second Label Studio round-trip per task
 - ml_backend (`run_predict`): extracts the DOM via a freshly-launched headless Chromium
@@ -660,9 +657,11 @@ is only used for this check.
   Ollama once per question (`temperature=0, seed=42` for reproducibility), then matches each answer
   back into the DOM (`extract_xpath_matches_from_dom`) to ground it in an actual document location —
   this grounding check is the closest thing the system has to hallucination detection
-- A failed question (timeout, connection error, `model_missing` from Ollama) fails the whole task:
-  `run_predict` raises `LLM_CALL_FAILED` (HTTP 502) at the first failed question, before any further
-  LLM call and before anything is written to Label Studio. An unexpected error in the DOM matching
+- A failed question fails the whole task: the Ollama call raises `LLM_MODEL_MISSING` (model not
+  available), `LLM_TIMEOUT` or `LLM_CALL_FAILED` (anything else), all HTTP 502, at the first failed
+  question, before any further LLM call and before anything is written to Label Studio. A failed
+  write to Label Studio raises `LABEL_STUDIO_UNREACHABLE` (HTTP 502). An unexpected error in the DOM matching
+  
   raises `DOM_MATCH_FAILED` (HTTP 500). The worker reports every non-200 answer of `/predict` as a
   failed task (`status="failed"`). A matching that runs but does not find an answer is not an error:
   the task stays `success` and the label's entry in `dom_match_by_label` / `dom_match_diagnostics`

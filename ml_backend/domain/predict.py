@@ -34,32 +34,19 @@ def run_predict(cmd: PredictCommand) -> dict:
 
     for q, lab in zip(qal.questions, qal.labels, strict=False):
         prompt = f"{llm.system_prompt}\n\nQuestion: {q}\n\nText: {puretext}"
-        with perf.measure("llm.call", label=str(lab)) as t:
-            result = ask_llm_with_timeout(
-                ollama_base=llm.ollama_base,
-                prompt=prompt,
-                timeout=llm.llm_timeout_seconds,
-                model_name=llm.ollama_model,
-                num_ctx=llm.num_ctx,
-            )
-            t["status"] = result.get("status")
-            if result.get("status") != "ok":
-                # one failed questions fails the whole task.
-                raise ExternalServiceError(
-                    code="LLM_CALL_FAILED",
-                    message="The LLM did not answer a question.",
-                    meta={
-                        "label": str(lab),
-                        "status": result.get("status"),
-                        "error": result.get("error"),
-                    },
-                )
-            answers_by_label[str(lab)] = {
-                "question": q,
-                "answer": result["answer"],
-                "status": result["status"],
-                "error": result.get("error"),
-            }
+        with perf.measure("llm.call", label=str(lab)):
+            try:
+                answer = ask_llm_with_timeout(prompt=prompt, model_name=llm.ollama_model)
+            except ExternalServiceError as e:
+                # one failed question fails the whole task, the error is passed on unchanged
+                e.meta = {**(e.meta or {}), "label": str(lab)}
+                raise
+        answers_by_label[str(lab)] = {
+            "question": q,
+            "answer": answer,
+            "status": "ok",
+            "error": None,
+        }
 
     with perf.measure("dom.match"):
         try:
@@ -77,9 +64,7 @@ def run_predict(cmd: PredictCommand) -> dict:
 
             dom_match_by_label = {}
             for lab, v in answers_by_label.items():
-                status = v.get("status")
-                ans = v.get("answer")
-                if status != "ok" or not ans:
+                if not v.get("answer"):
                     dom_match_by_label[lab] = None
                 else:
                     dom_match_by_label[lab] = lab not in diag_labels
@@ -91,45 +76,22 @@ def run_predict(cmd: PredictCommand) -> dict:
                 meta={"error": str(e)},
             )
 
-    meta = {
-        "raw_llm_answers": answers_by_label,
-        "system_prompt": llm.system_prompt,
-        "model": llm.ollama_model,
-        "dom_match_diagnostics": diagnostics,
-        "dom_match_by_label": dom_match_by_label,
-        "job_id": cmd.job_id,
-        "performance": perf.to_dict(include_events=True),
-    }
-
-    try:
-        save_predictions_to_labelstudio(
-            label_studio_url=ls.label_studio_url,
-            token=ls.ls_token,
-            model_version=llm.ollama_model,
-            task_id=cmd.task_id,
-            prediction_result=prelabels,
-        )
-
-    except Exception as e:
-        raise ExternalServiceError(
-            code="LABEL_STUDIO_WRITE_FAILED",
-            message="Failed to write predictions to Label Studio.",
-            meta={"error": str(e)},
-        )
-
-    perf_dict = perf.to_dict(include_events=False)["request"]
+    save_predictions_to_labelstudio(
+        token=ls.ls_token,
+        model_version=llm.ollama_model,
+        task_id=cmd.task_id,
+        prediction_result=prelabels,
+    )
 
     return {
         "model_version": llm.ollama_model,
         "score": 1.0 if prelabels else 0.0,
         "result": prelabels,
         "meta": {
-            **meta,
-            "status": "success",
-            "task_id": cmd.task_id,
-            "job_id": cmd.job_id,
-            "filename": cmd.filename,
             "predictions": prelabels,
-            **perf_dict,
+            "raw_llm_answers": answers_by_label,
+            "dom_match_diagnostics": diagnostics,
+            "dom_match_by_label": dom_match_by_label,
+            **perf.to_dict()["request"],
         },
     }

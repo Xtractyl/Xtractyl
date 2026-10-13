@@ -2,7 +2,7 @@
 from domain.errors import InternalError, ValidationFailed
 from domain.models.predict import PredictCommand
 from domain.predict import run_predict
-from flask import Flask, jsonify, request
+from flask import Flask, g, jsonify, request
 from flask_pydantic_spec import FlaskPydanticSpec, Request, Response
 from pydantic import ValidationError
 
@@ -31,6 +31,9 @@ def register(app: Flask, spec: FlaskPydanticSpec) -> None:
                 message="Request did not match expected schema.",
                 details=e.errors(),
             )
+
+        g.job_id = contract.job_id
+        g.task_id = contract.task_id
 
         cmd = PredictCommand.from_contract(contract)
         result = run_predict(cmd)

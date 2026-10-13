@@ -3,9 +3,24 @@
 import pytest
 from app import create_app
 
+META = {
+    "predictions": [],
+    "raw_llm_answers": {},
+    "dom_match_diagnostics": [],
+    "dom_match_by_label": {},
+    "task_ms_total": 1.0,
+    "task_ms_llm_total": 1.0,
+    "task_ms_dom_extract": 1.0,
+    "task_ms_dom_match": 1.0,
+    "n_llm_calls": 1,
+    "avg_llm_call_ms": 1.0,
+    "median_llm_call_ms": 1.0,
+}
+
 VALID_PAYLOAD = {
     "job_id": "job-123",
     "task_id": "42",
+    "filename": "doc.html",
     "html": "<p>Some content</p>",
     "questions_and_labels": {
         "questions": ["What is the diagnosis?"],
@@ -13,12 +28,9 @@ VALID_PAYLOAD = {
     },
     "llm_config": {
         "ollama_model": "llama3",
-        "ollama_base": "http://ollama:11434",
         "system_prompt": "Extract the answer.",
-        "llm_timeout_seconds": 20,
     },
     "label_studio_config": {
-        "label_studio_url": "http://labelstudio:8080",
         "ls_token": "dummy-token",
     },
 }
@@ -42,7 +54,7 @@ def test_predict_returns_200(client, monkeypatch):
             "model_version": "llama3",
             "score": 1.0,
             "result": [],
-            "meta": {},
+            "meta": META,
         },
     )
     res = client.post("/predict", json=VALID_PAYLOAD)
@@ -64,6 +76,13 @@ def test_predict_missing_job_id_returns_422(client):
 def test_predict_missing_html_returns_422(client):
     payload = {**VALID_PAYLOAD}
     del payload["html"]
+    res = client.post("/predict", json=payload)
+    assert res.status_code == 422
+
+
+def test_predict_missing_filename_returns_422(client):
+    payload = {**VALID_PAYLOAD}
+    del payload["filename"]
     res = client.post("/predict", json=payload)
     assert res.status_code == 422
 
@@ -102,21 +121,34 @@ def test_predict_empty_body_returns_422(client):
 # --- 502 external service error ---
 
 
-def test_predict_label_studio_unreachable_returns_502(client, monkeypatch):
+def test_predict_external_service_error_keeps_its_code_and_returns_502(client, monkeypatch):
     from domain.errors import ExternalServiceError
 
     monkeypatch.setattr(
         "api.routes.predict.run_predict",
         lambda cmd: (_ for _ in ()).throw(
             ExternalServiceError(
-                code="LABEL_STUDIO_WRITE_FAILED",
+                code="LABEL_STUDIO_UNREACHABLE",
                 message="Could not write predictions to Label Studio.",
             )
         ),
     )
     res = client.post("/predict", json=VALID_PAYLOAD)
     assert res.status_code == 502
-    assert res.get_json()["error"] == "LABEL_STUDIO_WRITE_FAILED"
+    assert res.get_json()["error"] == "LABEL_STUDIO_UNREACHABLE"
+
+
+# --- 500 unexpected error ---
+
+
+def test_predict_unexpected_error_returns_500(client, monkeypatch):
+    def boom(cmd):
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr("api.routes.predict.run_predict", boom)
+    res = client.post("/predict", json=VALID_PAYLOAD)
+    assert res.status_code == 500
+    assert res.get_json()["error"] == "INTERNAL_ERROR"
 
 
 # --- 500 response contract violated ---

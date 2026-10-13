@@ -6,11 +6,11 @@ from collections import Counter
 
 from contracts.jobs import JobPayload
 from infrastructure.label_studio import get_tasks_without_predictions
-from infrastructure.ml_backend import send_predict
+from infrastructure.ml_backend import predict
 from infrastructure.orchestrator import send_task_result
 from utils.logging_utils import dev_logger, safe_logger
 
-from domain.errors import InvalidState
+from domain.errors import ContractViolation, DomainError, ExternalServiceError, InvalidState
 
 
 def _preview(names: list[str], limit: int = 5) -> str:
@@ -66,52 +66,53 @@ def prelabel_project(job: JobPayload) -> None:
 
     for t in tasks:
         task_id = t["id"]
-        html = (t.get("data") or {}).get("html")
-        filename = (t.get("data") or {}).get("name", "")
-        if not html:
-            safe_logger.warning("task_no_html | job_id=%s | task_id=%s", job.job_id, task_id)
-            keep_going = send_task_result(
-                job_id=job.job_id,
-                task_id=task_id,
-                filename=filename,
-                success=False,
-                error="Task has no HTML.",
-                result=None,
-            )
-            if not keep_going:
-                safe_logger.info("prelabel_stopped | job_id=%s", job.job_id)
-                return
-            continue
+        data = t.get("data") or {}
+        html = data.get("html")
+        filename = data.get("name", "")
 
         start = time.time()
-        resp = send_predict(task_id=task_id, html=html, filename=filename, job=job)
-        ok = resp.status_code == 200
-        if not ok:
-            safe_logger.warning(
-                "predict_rejected | job_id=%s | task_id=%s | status=%s",
-                job.job_id,
-                task_id,
-                resp.status_code,
-            )
-            keep_going = send_task_result(
-                job_id=job.job_id,
-                task_id=task_id,
-                filename=filename,
-                success=False,
-                error=f"/predict returned HTTP {resp.status_code}",
-                result=None,
-            )
-        else:
-            body = resp.json()
-            meta = body.get("meta", {})
+        task_error: DomainError | None = None
+        meta = None
+        try:
+            meta = predict(task_id=task_id, html=html, filename=filename, job=job)
+        except (ExternalServiceError, ContractViolation) as e:
+            # A problem with this one task: the task fails, the run goes on. The failed tasks are
+            # tried again when the run is resumed.
+            task_error = e
+
+        if task_error is None:
             keep_going = send_task_result(
                 job_id=job.job_id,
                 task_id=task_id,
                 filename=filename,
                 success=True,
                 error=None,
-                result=meta,
+                result=meta.model_dump(),
             )
+        else:
+            safe_logger.warning(
+                "task_failed | job_id=%s | task_id=%s",
+                job.job_id,
+                task_id,
+                extra={"code": task_error.code},
+            )
+            if dev_logger:
+                dev_logger.warning(
+                    "task_failed_dev | job_id=%s | task_id=%s | filename=%s",
+                    job.job_id,
+                    task_id,
+                    filename,
+                    extra={"code": task_error.code, "meta": task_error.meta},
+                )
+            keep_going = send_task_result(
+                job_id=job.job_id,
+                task_id=task_id,
+                filename=filename,
+                success=False,
+                error=str(task_error),
+                result=None,
+            )
+        ok = task_error is None
         dt = time.time() - start
         durations.append(dt)
         safe_logger.info(
