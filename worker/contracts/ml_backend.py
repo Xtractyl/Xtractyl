@@ -33,7 +33,6 @@ class PredictMeta(BaseModel):
     task_ms_dom_extract: float
     task_ms_dom_match: float
     n_llm_calls: int
-    n_timeouts: int
     avg_llm_call_ms: float
     median_llm_call_ms: float
 
