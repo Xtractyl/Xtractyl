@@ -64,8 +64,6 @@ class PerfCollector:
         avg_call_ms = statistics.mean(llm_calls) if llm_calls else 0.0
         median_call_ms = statistics.median(llm_calls) if llm_calls else 0.0
 
-        timeouts = sum(1 for e in llm if e.name == "llm.call" and e.tags.get("status") == "timeout")
-
         out = {
             "request": {
                 "task_ms_total": task_ms_total,
@@ -73,7 +71,6 @@ class PerfCollector:
                 "task_ms_dom_extract": task_ms_dom_extract,
                 "task_ms_dom_match": task_ms_dom_match,
                 "n_llm_calls": sum(1 for e in llm if e.name == "llm.call"),
-                "n_timeouts": timeouts,
                 "avg_llm_call_ms": avg_call_ms,
                 "median_llm_call_ms": median_call_ms,
             }
