@@ -225,7 +225,8 @@ Current limitation: the pipeline has been validated on structurally simple PDFs.
 
 ### Phase 2 – Hardening (in progress)
 
-The focus is on building a consistent engineering foundation before scaling features. The orchestrator serves as the template; patterns established there will be replicated across all containers. The orchestrator is the central integration point of the pipeline and therefore the highest-leverage starting point. Hardening it first ensures that architectural decisions are validated before being replicated across the remaining containers. This phase will also include expansion of unit tests, addition of integration and E2E tests as well as Frontend TypeScript migration.
+The focus is on building a consistent engineering foundation before scaling features. The orchestrator serves as the template; patterns established there are replicated across the containers, so far in worker_prelabel and ml_backend (contracts, typed errors, error handling, unit tests). Open items are listed in [`docs/data-lifecycle.md`](docs/data-lifecycle.md) under "Open TODOs and later work". The orchestrator is the central integration point of the pipeline and therefore the highest-leverage starting point. Hardening it first ensures that architectural decisions are validated before being replicated across the remaining containers. This phase will also include expansion of unit tests, addition of integration and E2E tests as well as Frontend TypeScript migration.
+
 
 ### Phase 3 – FHIR integration (starting)
 
@@ -243,7 +244,10 @@ Once a configuration is validated, promote it to a locked, versioned extraction 
 - Complex/long PDFs not yet reliably handled — see [Current Status & Roadmap](#️-current-status--roadmap)
 - Label Studio requires a brief internet connection on startup, see github issue for a manual workaround ([upstream issue](https://github.com/HumanSignal/label-studio/issues/9086#issuecomment-3817949828))
 - Dev mode may log sensitive data — use default mode with real data
-
+- No authentication in Xtractyl itself: currently it is meant for on-premise use in a team that trusts each other (authentication will be added in future)
+- A prelabelling run interrupted by a crash of the worker or the orchestrator stays in `pending` or `running` and blocks its project until the planned stale-run sweep exists (see [`docs/data-lifecycle.md`](docs/data-lifecycle.md))
+- Open to-dos: see [`docs/data-lifecycle.md`](docs/data-lifecycle.md), "Open TODOs and later work"
+ 
 
 ---
 
@@ -303,6 +307,7 @@ Each backend container exposes its own OpenAPI documentation on its respective p
 
 - OpenAPI schemas are generated from Pydantic request and error contracts.
 - Only endpoints using `@spec.validate(...)` are included in the documentation.
+- The request is validated before the route runs: an invalid request is answered by the library itself with HTTP 422 and a list of the pydantic errors, not with the `ErrorResponse` of the route (hopefully documentation only will be allowed in a future version of flask-pydantic-spec).
 
 To document a new endpoint:
 
@@ -345,15 +350,16 @@ make down
 ```
 
 #### Unit tests (pytest)
-Currently in implementation.  Starting with the orchestrator. When adding new backend unit tests they need a build (e.g. via ```bash docker compose up --build orchestrator```) prior to using them as opposed to frontend unit tests [the frontend has a bind mount].
+Currently in implementation: the orchestrator, worker_prelabel, ml_backend and the frontend have unit tests. When adding new backend unit tests they need a build (e.g. via ```bash docker compose up --build orchestrator```) prior to using them as opposed to frontend unit tests [the frontend has a bind mount].
 
 ```bash
 make deps
 make unit-orchestrator
-make unit-worker
+make unit-worker_prelabel
+make unit-ml_backend
 ```
 
-**Note:** Unit tests for evaluation metrics (precision, recall, F1, confusion matrix calculations) are planned but not yet implemented. Current unit tests cover API route contracts, request/response validation, error handling (orchestrator), and queue contract validation and failure reporting of a job (worker). The run status logic (task results, derived run status, cancel, resume) is not covered by tests yet.
+Note: Unit tests for evaluation metrics (precision, recall, F1, confusion matrix calculations) are planned but not yet implemented. Current unit tests cover API route contracts, request/response validation, and error handling (orchestrator); contracts, error handling on task and run level, retries of orchestrator calls and validation of the queue payload (worker_prelabel); the Ollama interaction including the context limit, the predict route and the predict domain (ml_backend). The run status logic (task results, derived run status, cancel, resume) and the Redis retry loop of the worker_prelabel are not covered by tests yet.
 
 #### Managing Python dependencies (lock files)
 
@@ -659,6 +665,7 @@ make down
 ## Unit tests 
 ```bash
 make deps
+make unit-orchestrator
 make unit-worker_prelabel
 make unit-worker_conversion
 make unit-ml_backend

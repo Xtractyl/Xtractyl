@@ -217,11 +217,11 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
 
   - **Changed (cancel):** `"running"` → `"cancelled"` in `handle_task_result` (`run_repo.apply_cancel`), right after `derive_run_status`, if `cancel_requested` is set. A run the derivation just finished (`"done"`/`"incomplete"`) is not cancelled
   - **Note on `"running"` and `"failed"`:** `"running"` is first set by the first `task-result` of a run, not when the worker picks the job up. A failure before the first task result (e.g. the task list cannot be fetched) therefore goes `"pending"` → `"failed"` directly, skipping `"running"`
-  - **Changed (planned):** the stale-run sweep ([TODO 2]) sets `"running"` → `"incomplete"` and `"pending"` → `"failed"` for runs that stopped receiving updates
+  - **Changed (planned):** the stale-run sweep sets `"running"` → `"incomplete"` and `"pending"` → `"failed"` for runs that stopped receiving updates
   - **Note:** evaluation (`sync_missing_evaluations`) only ever triggers on `"done"` — neither `"incomplete"` nor `"cancelled"` trigger it, regardless of how many tasks happened to complete successfully before the run ended
 - `error` (nullable)
   - **Set:** `NULL` at creation — Prelabelling Pipeline, step 1
-  - **Changed (current):** set by `POST /prelabel/job-failed` together with `"failed"`, as a single value
+  - **Changed (current):** set by `POST /prelabel/job-failed` together with `"failed"`, as a single value in the form `[CODE] message`
   - Errors of single tasks are not stored here but in `prelabelling_run_tasks.error`; this column only holds the error of a job that failed as a whole
 
 - `cancel_requested` (bool, NOT NULL, default `false`)
@@ -246,7 +246,8 @@ Results, evaluation)
   not `files.filename` (which is the PDF name)
 - `label_studio_task_id` (nullable) — unknown at row creation, set by the first callback for the row
 - `status` (`pending` | `success` | `failed`, default `pending`, enforced by
-  `ck_prelabelling_run_tasks_status_values`), `error` (Text, nullable)
+  `ck_prelabelling_run_tasks_status_values`), `error` (Text, nullable; plain text in the form
+  `[CODE] message`)
 - Result columns, filled from the ml_backend's `meta` (validated by `TaskResultData`):
   `predictions`, `raw_llm_answers`, `dom_match_diagnostics`, `dom_match_by_label`, `task_ms_*`,
   `n_llm_calls`, `avg_llm_call_ms`, `median_llm_call_ms` — all nullable, empty until
@@ -649,6 +650,20 @@ is only used for this check.
 > Studio, loops over them, calls `/predict` for each and reports every task, successful or not, via
 > `send_task_result`.
 
+> **[TODO 2]** `TaskResultData` (orchestrator contract of `POST /prelabel/task-result`) declares its
+> result fields as optional, although a successful task always carries all of them: the worker
+> validates the ml_backend's `meta` before sending. Make them required for a successful task, like
+> the worker's `TaskResultRequest` does. The same applies to the `@spec.validate(body=...)` routes in
+> general: the library validates before the route runs and answers 422 itself with a plain list of
+> pydantic errors, which is accepted for now
+
+> **[TODO 3]** ml_backend writes the prediction to Label Studio before the worker reports the task
+> result. If the report fails, Label Studio and Postgres disagree and the next start of the project
+> fails with `TASKS_OUT_OF_SYNC` (step 2). Planned: move the Label Studio write from ml_backend into
+> the worker, which resolves this case
+
+
+
 ### 3. Per task: `predict` → ml_backend `/predict`
 - The worker already holds the task's HTML in memory from the bulk fetch in step 2, so it's passed
   directly in the request body — no second Label Studio round-trip per task
@@ -657,40 +672,60 @@ is only used for this check.
   Ollama once per question (`temperature=0, seed=42` for reproducibility), then matches each answer
   back into the DOM (`extract_xpath_matches_from_dom`) to ground it in an actual document location —
   this grounding check is the closest thing the system has to hallucination detection
- - A failed question fails the whole task: the Ollama call raises `LLM_MODEL_MISSING` (model not  available), `LLM_TIMEOUT`, `LLM_CONTEXT_EXCEEDED` (`prompt_eval_count` of the Ollama answer reached
+- A failed question fails the whole task: the Ollama call raises `LLM_MODEL_MISSING` (model not
+  available), `LLM_TIMEOUT`, `LLM_CONTEXT_EXCEEDED` (`prompt_eval_count` of the Ollama answer reached
   `LLM_NUM_CTX - LLM_ANSWER_RESERVE`, Ollama cuts longer prompts off without an error),
   `LLM_RESPONSE_INVALID` (no `prompt_eval_count` in the Ollama answer) or `LLM_CALL_FAILED`
   (anything else), all HTTP 502, at the first failed question, before any further LLM call and
-  before anything is written to Label Studio. A failed
-  write to Label Studio raises `LABEL_STUDIO_UNREACHABLE` (HTTP 502). An unexpected error in the DOM matching raises `DOM_MATCH_FAILED` (HTTP 500). The worker reports every non-200 answer of `/predict` as a
-  failed task (`status="failed"`). A matching that runs but does not find an answer is not an error:
-  the task stays `success` and the label's entry in `dom_match_by_label` / `dom_match_diagnostics`
-  records it
+  before anything is written to Label Studio. A failed write to Label Studio raises
+  `LABEL_STUDIO_UNREACHABLE` (HTTP 502). An unexpected error in the DOM matching raises
+  `DOM_MATCH_FAILED` (HTTP 500). The worker reports every error around `/predict` as a failed task
+  (`status="failed"`, see "Worker: errors and retries" below). A matching that runs but does not
+  find an answer is not an error: the task stays `success` and the label's entry in
+  `dom_match_by_label` / `dom_match_diagnostics` records it
 
 - ml_backend writes to Label Studio: `save_predictions_to_labelstudio` (the actual prediction). This
   will always be necessary, even though the results are also stored in Postgres, because the Label
   Studio GUI is needed to create the ground truth
 - After every task the worker calls `send_task_result` (`POST /prelabel/task-result`) — including
-  failed tasks (non-200 from `/predict`, task without HTML). The ml_backend's `meta` travels
+  failed tasks (any error around `/predict`, task without HTML). The ml_backend's `meta` travels
   unchanged as `result`; the orchestrator's contract (`TaskResultData`) decides which fields are
   stored. The orchestrator updates the matching `prelabelling_run_tasks` row, found by
   `(prelabelling_run_id, filename)` where `filename` is the Label Studio task `name`: `status` is
   `success` or `failed`, `error` is set on failure, result columns only on success. Neither the
   worker nor ml_backend has any direct Postgres access anywhere in the codebase
 - This call is not swallowed: a missing row (404 `RUN_TASK_NOT_FOUND`, treated as
-  tampering/integrity error, not repaired), a non-200 or a connection error raises in the worker and
-  fails the run. After the row is written, the same transaction derives the run status
+  tampering/integrity error, not repaired), a non-200 raises in the worker and fails the run (a
+  connection error is retried first, see below). After the row is written, the same transaction derives the run status
   (`run_repo.derive_run_status`) and applies a pending cancel (`run_repo.apply_cancel`). The
   response carries `continue`: `false` only if the run is `cancelled`, which makes the worker stop
   its loop (and report `cancelled`)
 
+**Worker: errors and retries**
+- Errors around one `/predict` call (`ML_REQUEST_INVALID`, `ML_BACKEND_UNAVAILABLE`,
+  `ML_BACKEND_TIMEOUT`, `ML_BACKEND_HTTP_ERROR`, `ML_RESPONSE_INVALID`, or the code and message the
+  ml_backend itself answered with) fail only that task: `send_task_result` with `success=False` and
+  `[CODE] message` as the error, the run continues
+- Every other domain error fails the run: `POST /prelabel/job-failed` with `[CODE] message`. An
+  unexpected exception becomes `[INTERNAL_ERROR] Unexpected error in the worker.`
+- Exception: `ORCHESTRATOR_UNAVAILABLE` (the orchestrator did not answer after all attempts) is only
+  logged, there is nobody to report to. The run then keeps its status until the stale-run sweep
+  exists (planned)
+- Calls to the orchestrator are repeated only if no answer came at all (`ORCH_MAX_ATTEMPTS`, default
+  5; `ORCH_RETRY_DELAY_SECONDS`, default 10, doubling per attempt). An answer, even an error, is not
+  repeated. Waiting for a job in Redis reconnects without an end (`REDIS_RETRY_DELAY_SECONDS`,
+  default 5, doubling up to `REDIS_RETRY_MAX_DELAY_SECONDS`, default 60)
+- A job payload that does not match the contract is logged and, if its `job_id` can be read,
+  answered with `job-failed` without an error text; its tasks stay `pending`
+- Safe log: code and ids only. With `DEBUG_ARTIFACTS=1` the Dev log additionally holds `meta` and
+  payload
 
 > **[TODO 1]** Per-task retry and compensation.
-> - **Retry with backoff:** `send_predict` and `send_task_result` of each task get their own
->   retry-with-backoff instead of an exception ending the whole run. Today a non-200 `/predict`
->   response is reported as a failed task and the loop continues, while a raised exception (e.g. a
->   dropped connection) aborts the run and sends `job-failed` — two behaviours for the same kind of
->   problem. A `failed` row does not block a retry — `resume_run` resets it to `pending`
+> - **Retry (mostly done):** `send_task_result` repeats when the orchestrator does not answer (see
+>   "Worker: errors and retries"), and every error around `/predict`, including a dropped connection,
+>   fails only that task while the loop continues. A `failed` row does not block a retry —
+>   `resume_run` resets it to `pending`. Open: whether `predict` itself should be repeated before a
+>   task is marked `failed`
 
 > - **Compensating transaction:** if a prediction is successfully written to Label Studio but the
 >   corresponding Postgres write (the `task-result` call) fails — even after retry — the Label Studio
@@ -727,8 +762,10 @@ is only used for this check.
 - Redis is only the job queue (`prelabel_jobs`). The worker's per-task lines go to its normal log 
  (`safe_logger`), not to Redis
 
-> **[TODO 2]** Stale-run sweep in the cleanup container, mirroring Conversion's stale-job sweep (see
-> the Insert after `conversion_jobs` in the Schema Reference, `CLEANUP_STALE_AFTER_HOURS`).
+> **[TODO 4]** `sync_missing_evaluations` runs in the same transaction as the last `task-result`
+> (see above). An error in the evaluation therefore rolls back that transaction as well, and the
+> result of the last task is lost. Decouple the evaluation from the `task-result` transaction, so a
+> failing evaluation cannot cost a task result
 >
 > Covers runs that stop receiving updates because the worker crashed mid-loop or never picked the
 > job up: neither `task-result` nor `job-failed` will ever arrive for them again, and a run in
@@ -742,6 +779,9 @@ is only used for this check.
 >
 > By definition nothing is left executing to perform this check from inside a crashed run, so this
 > can only be a periodic sweep.
+
+> **[TODO 5]** Stale-run sweep in the cleanup container, mirroring Conversion's stale-job sweep (see
+
 
 ---
 
@@ -767,8 +807,7 @@ gain.
 - **DB-only, not a Label Studio passthrough** — despite what the route's own OpenAPI contract and
   auth requirement suggest (see the two stale-artifact findings below), this function never calls
   Label Studio at all; it reads exclusively from Postgres via `PrelabellingRunRepository`. This
-  appears to be a completed migration (see README, Phase 2: "Migration of filesystem-based state to
-  Postgres and MinIO" — marked Completed) whose cleanup was left unfinished at this route
+  appears to be a completed migration whose cleanup was left unfinished at this route
 - selectable projects restricted to `status="done"` runs only and a matching `RUN_NOT_DONE` guard added directly in `build_results_table` itself.
 
 **`prelabelling_runs.project` now has a `UNIQUE` constraint** (see the Schema Reference), so
@@ -829,6 +868,9 @@ sentinel for a TN.** A falsy-but-not-sentinel prediction (empty string, `None`, 
 classified as FP instead — the model failed to follow the required "signal no-match via the
 sentinel" convention, which is itself a real, countable error (`orchestrator/domain/utils/calculate_metrics.py`).
  
+> **[TODO 6]** The same function still contains a `timeout` counter. Timeouts are no longer counted
+> (`n_timeouts` was removed, a timeout fails the task), so the counter is dead and can be removed.
+
 
 **Internal ground truth sets — implemented.** See the guard, matching-loop exclusion above for the
 Evaluation Pipeline's own share of the work; see Evaluation Drift, Regression, Comparison below for
@@ -915,3 +957,36 @@ GT or an ordinary evaluated project:
 with Regression) rather than needing its own — the internal/external split already happens at that
 level; Drift's only additional step beyond Regression is the document-set dedup and overlap-chain
 search described above.
+
+
+
+
+
+---
+
+## Open TODOs and later work
+
+**TODOs in the pipelines above**
+- see the description of the pipeline for the immediate to dos.
+
+**Later, not scheduled**
+- Frontend: translate the `[CODE] message` texts of runs and tasks for the user
+- Decide whether `error` stays text in the database and in the callback or becomes an object
+- `LLM_TIMEOUT` is configured separately for worker and ml_backend
+- Check that the pinned Label Studio image honors `LABEL_STUDIO_PORT` (test with `LABELSTUDIO_INTERNAL_PORT=1010`)
+- Tests: review of the existing tests, a test for the Redis retry loop, integration and E2E tests, a test concept for evaluation and drift
+- Abort a run when the same cause keeps failing task after task
+- Prompt order: the question stands before the text, so Ollama's prompt cache hardly helps; moving the text first needs testing, the answers may change
+- `num_predict` is not set; limiting the answer length needs a check for cut-off answers (presumably via `done_reason`, not verified)
+- DOM extraction: one `evaluate` instead of one per element, including the silent `continue` per element
+- Exact matching of repeated answers
+- Record the Ollama version per run (`models.ollama_version` is `NULL` today)
+- Check `.env.example`, Compose and code defaults against each other in CI
+- Operation: error code catalog for the admin, backup and restore, personal data in Dev logs, several users at once
+
+**After the MVP**
+- Operation: production server instead of the dev server, CUDA for Ollama
+- FHIR import: upload branch for HTML and text, selection interface in the frontend, queue, worker and state in the database
+- Hosting of the validated model in a container
+- Authentication (none on purpose: on-premise, trusted team)
+- Frontend migration to TypeScript
