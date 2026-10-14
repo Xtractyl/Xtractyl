@@ -5,7 +5,7 @@ import requests
 from domain.errors import ExternalServiceError
 
 OLLAMA_BASE = os.getenv("OLLAMA_BASE", "http://ollama:11434")
-LLM_TIMEOUT = int(os.getenv("LLM_TIMEOUT", "20"))
+LLM_TIMEOUT = int(os.getenv("LLM_TIMEOUT", "120"))
 LLM_NUM_CTX = int(os.getenv("LLM_NUM_CTX", "4096"))
 
 
