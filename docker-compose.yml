@@ -121,6 +121,7 @@ services:
     - OLLAMA_BASE=${OLLAMA_BASE:-http://ollama:11434}
     - LLM_TIMEOUT=${LLM_TIMEOUT:-120}
     - LLM_NUM_CTX=${LLM_NUM_CTX:-4096}
+    - LLM_ANSWER_RESERVE=${LLM_ANSWER_RESERVE:-500}
     - DEBUG_ARTIFACTS=${DEBUG_ARTIFACTS:-0}
     - LOGS_DIR=/app/logs        
     - DEV_LOGS_DIR=/app/data/logs
