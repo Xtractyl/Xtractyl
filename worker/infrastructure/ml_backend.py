@@ -13,8 +13,8 @@ ML_HOST = os.getenv("ML_BACKEND_HOST", "ml_backend")
 ML_PORT = int(os.getenv("ML_BACKEND_PORT", "6789"))
 ML_BASE = os.getenv("ML_BACKEND_BASE", f"http://{ML_HOST}:{ML_PORT}")
 
-LLM_TIMEOUT = int(os.getenv("LLM_TIMEOUT", "20"))
-LLM_OVERHEAD = int(os.getenv("LLM_OVERHEAD", "5"))
+LLM_TIMEOUT = int(os.getenv("LLM_TIMEOUT", "120"))
+LLM_OVERHEAD = int(os.getenv("LLM_OVERHEAD", "10"))
 UPLOAD_MARGIN = int(os.getenv("UPLOAD_MARGIN", "30"))
 
 

@@ -88,10 +88,10 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
 
     def derive_run_status(self, job_id: int) -> None:
         # derives PrelabellingRun status from tasks in PrelabellingRunTask
-        # bumps updated_at for it
-        #   - any task still pending            -> running
+        # and bumps updated_at; only runs in "pending" or "running" are touched
+        #   - any task still pending             -> running
         #   - no task pending, at least 1 failed -> incomplete
-        #   - no task pending, none failed       -> running (the end-of-job callback sets done)
+        #   - no task pending, none failed       -> done
         open_tasks = (
             exists()
             .where(
