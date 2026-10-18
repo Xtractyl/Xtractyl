@@ -183,10 +183,7 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
 
     def get_run_for_project(self, project: str):
         return (
-            self._db.query(PrelabellingRun)
-            .filter(PrelabellingRun.project == project)
-            .order_by(PrelabellingRun.created_at.desc())
-            .first()
+            self._db.query(PrelabellingRun).filter(PrelabellingRun.project == project).one_or_none()
         )
 
     def get_successful_run_tasks(self, prelabelling_run_id: int) -> list:

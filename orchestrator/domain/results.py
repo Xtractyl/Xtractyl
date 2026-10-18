@@ -1,7 +1,7 @@
 # orchestrator/domain/results.py
 from typing import Any, Dict, List
 
-from domain.errors import InvalidState, NotFound
+from domain.errors import InternalError, InvalidState, NotFound
 from domain.models.results import GetResultsTableCommand
 
 
@@ -29,12 +29,13 @@ def build_results_table(cmd: GetResultsTableCommand, run_repo):
         )
     tasks = run_repo.get_successful_run_tasks(run.id)
     if not tasks:
-        return {
-            "columns": ["task_id", "filename"],
-            "rows": [],
-            "total": 0,
-        }
-
+        raise InternalError(
+            code="DONE_RUN_WITHOUT_TASKS",
+            message=(
+                f"Prelabelling run for project '{cmd.project_name}' is marked as done "
+                "but has no successful tasks."
+            ),
+        )
     label_columns: List[str] = []
     for t in tasks:
         for label in (t.raw_llm_answers or {}).keys():

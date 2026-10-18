@@ -47,7 +47,9 @@ def register(app, spec, session_factory=None):
         body=Request(GetResultsTableRequest),
         resp=Response(
             HTTP_200=GetResultsTableResponse,
+            HTTP_400=ErrorResponse,  # invalid payload
             HTTP_404=ErrorResponse,  # project not found
+            HTTP_409=ErrorResponse,  # run not done
             HTTP_500=ErrorResponse,  # unexpected global exception handler
         ),
         tags=["results"],

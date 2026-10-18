@@ -11,12 +11,17 @@ class FakePrelabellingRunRepo(PrelabellingRunRepositoryInterface):
         pending_filenames=(),
         resume_succeeds=True,
         create_raises_integrity_error=False,
+        successful_tasks=(),
+        ready_projects=(),
     ):
         self._existing_run = existing_run
         self._new_run_id = new_run_id
         self._pending_filenames = list(pending_filenames)
         self._resume_succeeds = resume_succeeds
         self._create_raises_integrity_error = create_raises_integrity_error
+        self._successful_tasks = list(successful_tasks)
+        self._ready_projects = list(ready_projects)
+        self.successful_tasks_requested = []
         self.created_runs = []
         self.created_tasks = []
         self.resumed = []
@@ -40,15 +45,22 @@ class FakePrelabellingRunRepo(PrelabellingRunRepositoryInterface):
     def get_pending_filenames(self, run_id):
         return list(self._pending_filenames)
 
-    def get_run(self, job_id):
-        raise NotImplementedError("not needed by prelabel enqueue tests yet")
+    def get_projects_ready_for_results(self):
+        return list(self._ready_projects)
 
-    def fail_run(self, job_id, error):
-        raise NotImplementedError("not needed by prelabel enqueue tests yet")
+    def get_successful_run_tasks(self, prelabelling_run_id):
+        self.successful_tasks_requested.append(prelabelling_run_id)
+        return list(self._successful_tasks)
 
     def save_run_task_result(
         self, prelabelling_run_id, filename, label_studio_task_id, status, error, result
     ):
+        raise NotImplementedError("not needed by prelabel enqueue tests yet")
+
+    def get_run(self, job_id):
+        raise NotImplementedError("not needed by prelabel enqueue tests yet")
+
+    def fail_run(self, job_id, error):
         raise NotImplementedError("not needed by prelabel enqueue tests yet")
 
     def derive_run_status(self, job_id):
@@ -66,11 +78,5 @@ class FakePrelabellingRunRepo(PrelabellingRunRepositoryInterface):
     def count_run_tasks(self, run_id):
         raise NotImplementedError("not needed by prelabel enqueue tests yet")
 
-    def get_successful_run_tasks(self, prelabelling_run_id):
-        raise NotImplementedError("not needed by prelabel enqueue tests yet")
-
     def list_done_runs(self):
-        raise NotImplementedError("not needed by prelabel enqueue tests yet")
-
-    def get_projects_ready_for_results(self):
         raise NotImplementedError("not needed by prelabel enqueue tests yet")
