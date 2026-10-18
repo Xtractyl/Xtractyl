@@ -2,43 +2,26 @@
 import { useState } from "react";
 import ResultsTable from "./ResultsTable";
 import ResultsReadyProjectSelect from "./ResultsReadyProjectSelect";
-import { getResultsTable } from "../../api/GetResultsPage/api.js";
+import { useResultsTable } from "../../hooks/GetResultsPage/useResultsTable";
 import { useAppContext } from "../../context/AppContext";
 
 export default function GetResultsCard() {
   const { projectName, saveProjectName } = useAppContext();
-  const [columns, setColumns] = useState([]);
-  const [rows, setRows] = useState([]);
-
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState("");
+  const { columns, rows, loading, err, load, reset } = useResultsTable();
   const [submitted, setSubmitted] = useState(false);
 
   const canSubmit = projectName.trim();
 
-  const fetchData = async () => {
-    if (!canSubmit) return;
-    setLoading(true);
-    setErr("");
-    try {
-      const data = await getResultsTable({
-        projectName,
-      });
-      setColumns(Array.isArray(data.columns) ? data.columns : []);
-      setRows(Array.isArray(data.rows) ? data.rows : []);
-    } catch (e) {
-      setErr(e.message || "Request failed");
-      setColumns([]);
-      setRows([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const onSubmit = (e) => {
     e.preventDefault();
     setSubmitted(true);
-    fetchData();
+    if (canSubmit) load(projectName);
+  };
+
+  const onProjectChange = (name) => {
+    saveProjectName(name);
+    setSubmitted(false);
+    reset();
   };
 
   return (
@@ -50,8 +33,7 @@ export default function GetResultsCard() {
       </p>
       <div className="mt-6 border border-xtractyl-outline/20 p-4 flex flex-col gap-4 bg-xtractyl-offwhite">
         <form onSubmit={onSubmit} className="flex flex-row items-end gap-4">
-          <ResultsReadyProjectSelect selected={projectName} onChange={saveProjectName} />
-
+          <ResultsReadyProjectSelect selected={projectName} onChange={onProjectChange} />
           <button
             type="submit"
             disabled={!canSubmit || loading}
