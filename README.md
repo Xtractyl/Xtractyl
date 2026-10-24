@@ -499,6 +499,7 @@ in a file dev_helpers.py. In the debugger console you can use them e.g.
 
 ```python
 from dev_helpers import print_db_table
+
 print_db_table(run_repo, "prelabelling_runs")
 ```
 
