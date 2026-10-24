@@ -490,6 +490,25 @@ bound to localhost only:
 A paused process still runs into timeouts (e.g. `LLM_TIMEOUT`). In dev mode,
 logs stay inside the containers; use `docker compose logs -f <service>`.
 
+#### Inspecting objects in the Debug Console
+
+`dev/` is mounted read-only at `/dev_tools` and is on `PYTHONPATH`.
+
+You can add your helper functions there, e.g. a helper function named "print_db_table"
+in a file dev_helpers.py. In the debugger console you can use them e.g.
+
+```python
+from dev_helpers import print_db_table
+print_db_table(run_repo, "prelabelling_runs")
+```
+
+When you update the helper functions code during debugging, update them
+in the container via e.g.
+
+`import importlib, dev_helpers; importlib.reload(dev_helpers)`
+
+
+
 #### Switching back
 
 The dev and the normal setup are two configurations of the same containers, so
