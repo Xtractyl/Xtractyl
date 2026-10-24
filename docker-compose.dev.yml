@@ -2,6 +2,8 @@
 # debugpy server in each of them (one port per service, localhost only).
 # Usage: make dev-up | dev-restart | dev-down
 # There is no auto-reload; restart a service to apply code changes.
+# Debug helpers from ./dev are importable (live, read-only).
+
 
 x-dev-env: &dev-env
   PYTHONUNBUFFERED: "1"
@@ -9,6 +11,7 @@ x-dev-env: &dev-env
   # keep logs inside the container, not in the bind-mounted source tree
   LOGS_DIR: /tmp/logs
   DEV_LOGS_DIR: /tmp/dev_logs
+  PYTHONPATH: /dev_tools
 
 services:
   orchestrator:
@@ -18,6 +21,7 @@ services:
     volumes: !override
       - ./orchestrator:/app
       - ./shared/logging_utils.py:/app/utils/logging_utils.py:ro
+      - ./dev:/dev_tools:ro
       - ./orchestrator/alembic/versions:/app/alembic/versions
     command: >
       sh -c "pip install -q debugpy &&
@@ -31,6 +35,7 @@ services:
     volumes: !override
       - ./orchestrator:/app
       - ./shared/logging_utils.py:/app/utils/logging_utils.py:ro
+      - ./dev:/dev_tools:ro
     command: >
       sh -c "pip install -q debugpy &&
       python -m debugpy --listen 0.0.0.0:5682 cleanup_loop.py"
@@ -42,6 +47,7 @@ services:
     volumes: !override
       - ./ml_backend:/app
       - ./shared/logging_utils.py:/app/utils/logging_utils.py:ro
+      - ./dev:/dev_tools:ro
     command: >
       sh -c "pip install -q debugpy &&
       python -m debugpy --listen 0.0.0.0:5679 app.py"
@@ -53,6 +59,7 @@ services:
     volumes: !override
       - ./worker:/app
       - ./shared/logging_utils.py:/app/utils/logging_utils.py:ro
+      - ./dev:/dev_tools:ro
     command: >
       sh -c "pip install -q debugpy &&
       python -m debugpy --listen 0.0.0.0:5680 app.py"
@@ -64,6 +71,7 @@ services:
     volumes: !override
       - ./worker_conversion:/app
       - ./shared/logging_utils.py:/app/utils/logging_utils.py:ro
+      - ./dev:/dev_tools:ro
     command: >
       sh -c "pip install -q debugpy &&
       python -m debugpy --listen 0.0.0.0:5681 app.py"
@@ -75,6 +83,7 @@ services:
     volumes: !override
       - ./docling:/app
       - ./shared/logging_utils.py:/app/utils/logging_utils.py:ro
+      - ./dev:/dev_tools:ro
       - fontcache:/var/cache/fontconfig
       - xdg_cache:/root/.cache
       - xdg_data:/root/.local/share
