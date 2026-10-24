@@ -438,6 +438,65 @@ Planned next.
 #### E2E tests
 Planned next.
 
+### 5. Local development (live code mounts + debugger)
+
+By default the Python services run the code baked into their images, so every
+code change needs a rebuild. For faster iteration, `docker-compose.dev.yml`
+bind-mounts the source of `orchestrator`, `ml_backend`, `worker_prelabel`,
+`worker_conversion`, `docling` and `cleanup` into the containers (the frontend
+already has a bind mount) and starts a [debugpy](https://github.com/microsoft/debugpy)
+server in each of them. debugpy is installed when the container starts and is
+not part of the lock files or the images.
+
+Requirements: Docker Compose >= 2.24, and for debugging VS Code with the
+Python Debugger extension, opened at the repository root.
+
+#### Commands
+
+```bash
+make dev-up        # start the stack with live mounts and debug servers
+make dev-restart   # apply code changes (all services, or: make dev-restart S=orchestrator)
+make dev-build     # only after changes to requirements or Dockerfiles
+make dev-down      # stop everything
+```
+
+There is no auto-reload: edits take effect when a service is restarted.
+
+#### Debugging a service
+
+1. Run `make dev-up`.
+2. Open the repository root in VS Code and set a breakpoint (click left of the
+   line number).
+3. In the Run and Debug panel (`F5`) select the matching attach configuration,
+   e.g. "Attach orchestrator", and start it. The service keeps running; it does
+   not wait for the debugger.
+4. Trigger the action in the frontend. Execution stops at the breakpoint, and
+   you can inspect variables, evaluate expressions in the Debug Console and step
+   through the code.
+5. After `make dev-restart`, attach again. Breakpoints are kept.
+
+`.vscode/launch.json` contains one configuration per service. Debug ports are
+bound to localhost only:
+
+| Service | Port | Local folder |
+|---|---|---|
+| orchestrator | 5678 | `orchestrator` |
+| ml_backend | 5679 | `ml_backend` |
+| worker_prelabel | 5680 | `worker` |
+| worker_conversion | 5681 | `worker_conversion` |
+| cleanup | 5682 | `orchestrator` |
+| docling | 5683 | `docling` |
+
+A paused process still runs into timeouts (e.g. `LLM_TIMEOUT`). In dev mode,
+logs stay inside the containers; use `docker compose logs -f <service>`.
+
+#### Switching back
+
+The dev and the normal setup are two configurations of the same containers, so
+only one of them runs at a time. The images are not rebuilt in dev mode and
+still contain the code from their last build. 
+If you did not add any changes to the code, you can go back to the normal setup via `docker compose up`. If you added changes to the code, go back to the normal setup via e.g. `docker compose up --build orchestrator worker_prelabel -d`, when the changes only affected the orchestrator and the worker_prelabel. Then `docker compose up` to recreate all other containers without dev mounts as well. Doing this before committing also verifies that the change works from the image alone, without the mounts. 
+
 ---
 
 
