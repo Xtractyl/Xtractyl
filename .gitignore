@@ -67,3 +67,5 @@ logs/
 # Dev mode (docker-compose.dev.yml): mountpoints Docker creates for the shared logger mount
 **/utils/logging_utils.py
 docling/utils/
+# content of folder with helper scripts including helper functions will remain private
+dev/*
