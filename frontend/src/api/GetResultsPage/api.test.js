@@ -20,13 +20,13 @@ describe("GetResultsPage api", () => {
     vi.unstubAllGlobals();
   });
 
-  it("getProjectsReadyForResults GETs /list_projects_ready_for_results and returns the projects", async () => {
+  it("getProjectsReadyForResults GETs /list-projects-ready-for-results and returns the projects", async () => {
     fetch.mockResolvedValue(jsonResponse({ projects: ["a", "b"] }));
 
     const projects = await getProjectsReadyForResults();
 
     const [url, opts] = fetch.mock.calls[0];
-    expect(url).toMatch(/\/list_projects_ready_for_results$/);
+    expect(url).toMatch(/\/list-projects-ready-for-results$/);
     expect(opts.method).toBe("GET");
     expect(projects).toEqual(["a", "b"]);
   });
