@@ -1,6 +1,6 @@
 // src/pages/PDFUploadAndConversion.jsx
-import UploadAndConvertCard from "../components/PDFUploadAndConversionPage/UploadAndConversionCard";
+import UploadAndConversionCard from "../components/PDFUploadAndConversionPage/UploadAndConversionCard";
 
 export default function PDFUploadAndConversion() {
-  return <UploadAndConvertCard />;
+  return <UploadAndConversionCard />;
 }
