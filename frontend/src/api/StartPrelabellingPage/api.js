@@ -58,7 +58,7 @@ export async function listModels() {
 
 /** Projects with uploaded tasks that can (still) be prelabelled */
 export async function getProjectsReadyForPrelabelling() {
-  const data = await orch(`/list_projects_ready_for_prelabelling`);
+  const data = await orch(`/list-projects-ready-for-prelabelling`);
   return data.projects;
 }
 
@@ -68,7 +68,7 @@ export async function getProjectsReadyForPrelabelling() {
  */
 export async function prelabelProject(payload) {
   const { token, ...rest } = payload;
-  const url = `${ORCH_BASE}/prelabel_project`;
+  const url = `${ORCH_BASE}/prelabel-project`;
   const res = await fetch(url, {
     method: "POST",
     headers: {
