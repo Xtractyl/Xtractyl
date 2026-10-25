@@ -160,7 +160,6 @@ def register(app, spec, session_factory=None):
         body=Request(EvaluateProjectsRequest),
         resp=Response(
             HTTP_200=EvaluateProjectsResponse,
-            HTTP_401=ErrorResponse,  # missing token
             HTTP_404=ErrorResponse,  # project not found
             HTTP_409=ErrorResponse,  # filename or label mismatch
             HTTP_502=ErrorResponse,  # label studio unreachable
@@ -170,18 +169,10 @@ def register(app, spec, session_factory=None):
     )
     def evaluate_ai():
         payload = request.get_json(silent=True) or {}
-        token = extract_token(request)
-
         contract = EvaluateProjectsRequest.model_validate(payload)
-        if not token:
-            raise Unauthorized(
-                code="TOKEN_REQUIRED",
-                message="Authorization token is required.",
-            )
         cmd = EvaluateProjectsCommand.from_contract(
             groundtruth_project=contract.groundtruth_project,
             comparison_project=contract.comparison_project,
-            token=token,
         )
         db = session_factory()
         try:
