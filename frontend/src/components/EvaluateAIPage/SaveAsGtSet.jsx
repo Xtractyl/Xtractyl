@@ -11,6 +11,7 @@ export default function SaveAsGtSet({ apiToken, onSuccess }) {
   const [successMsg, setSuccessMsg] = useState("");
 
   const loadCandidates = () => {
+    setLoadError("");
     getProjectsReadyForGroundtruth()
       .then(setCandidates)
       .catch((e) => setLoadError(e.message || "Failed to load projects."));

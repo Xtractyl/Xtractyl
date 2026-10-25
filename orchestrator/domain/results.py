@@ -6,7 +6,7 @@ from domain.models.results import GetResultsTableCommand
 
 
 def list_projects_ready_for_results(run_repo) -> dict:
-    """Backs GET /list_projects_ready_for_results. Restricted to projects
+    """Backs GET /list-projects-ready-for-results. Restricted to projects
     with a prelabelling_runs row at status="done" """
     return {"projects": run_repo.get_projects_ready_for_results()}
 

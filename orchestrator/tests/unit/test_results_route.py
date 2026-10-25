@@ -57,7 +57,7 @@ def test_list_projects_ready_for_results_returns_projects(client, monkeypatch):
         "api.routes.results.list_projects_ready_for_results",
         lambda run_repo=None: {"projects": ["a", "b"]},
     )
-    res = client.get("/list_projects_ready_for_results")
+    res = client.get("/list-projects-ready-for-results")
     assert res.status_code == 200
     assert res.get_json() == {"projects": ["a", "b"]}
 
@@ -67,7 +67,7 @@ def test_list_projects_ready_for_results_contract_violated_returns_500(client, m
         "api.routes.results.list_projects_ready_for_results",
         lambda run_repo=None: {"wrong_field": "oops"},
     )
-    res = client.get("/list_projects_ready_for_results")
+    res = client.get("/list-projects-ready-for-results")
     assert res.status_code == 500
     assert res.get_json()["error"] == "RESPONSE_CONTRACT_VIOLATED"
 

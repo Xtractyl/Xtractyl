@@ -43,7 +43,7 @@ def test_prelabel_status_contract_violated_returns_500(client, monkeypatch):
 
 def test_prelabel_project_missing_token_returns_401(client):
     res = client.post(
-        "/prelabel_project",
+        "/prelabel-project",
         json={
             "project_name": "test",
             "model": "llama3.1:8b",
@@ -57,7 +57,7 @@ def test_prelabel_project_missing_token_returns_401(client):
 
 def test_prelabel_project_missing_fields_returns_422(client):
     res = client.post(
-        "/prelabel_project",
+        "/prelabel-project",
         headers={"Authorization": "Bearer dummy"},
         json={"project_name": "test"},
     )
@@ -74,7 +74,7 @@ def test_prelabel_project_returns_200(client, monkeypatch):
         },
     )
     res = client.post(
-        "/prelabel_project",
+        "/prelabel-project",
         headers={"Authorization": "Bearer dummy"},
         json={"project_name": "test", "model": "llama3.1:8b", "system_prompt": "test"},
     )

@@ -43,7 +43,7 @@ from api.utils.auth import extract_token
 
 
 def register(app, spec, session_factory=None):
-    @app.route("/list_projects_ready_for_comparison", methods=["GET"])
+    @app.route("/list-projects-ready-for-comparison", methods=["GET"])
     @spec.validate(
         resp=Response(
             HTTP_200=ListProjectsReadyForComparisonResponse,
@@ -68,7 +68,7 @@ def register(app, spec, session_factory=None):
             )
         return jsonify(validated.model_dump()), 200
 
-    @app.route("/list_projects_ready_for_groundtruth", methods=["GET"])
+    @app.route("/list-projects-ready-for-groundtruth", methods=["GET"])
     @spec.validate(
         resp=Response(
             HTTP_200=ListProjectsReadyForGroundtruthResponse,
@@ -93,11 +93,10 @@ def register(app, spec, session_factory=None):
             )
         return jsonify(validated.model_dump()), 200
 
-    @app.route("/groundtruth_qals", methods=["GET"])
+    @app.route("/groundtruth-qals", methods=["GET"])
     @spec.validate(
         resp=Response(
             HTTP_200=GroundtruthQalsResponse,
-            HTTP_404=ErrorResponse,  # no groundtruth sets found
             HTTP_500=ErrorResponse,
         ),
         tags=["evaluation"],
@@ -119,7 +118,7 @@ def register(app, spec, session_factory=None):
             )
         return jsonify(validated.model_dump()), 200
 
-    @app.route("/list_groundtruth_projects_for_comparison", methods=["POST"])
+    @app.route("/list-groundtruth-projects-for-comparison", methods=["POST"])
     @spec.validate(
         body=Request(ListGroundtruthProjectsForComparisonRequest),
         resp=Response(
@@ -160,28 +159,17 @@ def register(app, spec, session_factory=None):
         body=Request(EvaluateProjectsRequest),
         resp=Response(
             HTTP_200=EvaluateProjectsResponse,
-            HTTP_401=ErrorResponse,  # missing token
             HTTP_404=ErrorResponse,  # project not found
-            HTTP_409=ErrorResponse,  # filename or label mismatch
-            HTTP_502=ErrorResponse,  # label studio unreachable
             HTTP_500=ErrorResponse,
         ),
         tags=["evaluation"],
     )
     def evaluate_ai():
         payload = request.get_json(silent=True) or {}
-        token = extract_token(request)
-
         contract = EvaluateProjectsRequest.model_validate(payload)
-        if not token:
-            raise Unauthorized(
-                code="TOKEN_REQUIRED",
-                message="Authorization token is required.",
-            )
         cmd = EvaluateProjectsCommand.from_contract(
             groundtruth_project=contract.groundtruth_project,
             comparison_project=contract.comparison_project,
-            token=token,
         )
         db = session_factory()
         try:

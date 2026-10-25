@@ -1,0 +1,93 @@
+# Dev override: mounts the real code into the Python services and starts a
+# debugpy server in each of them (one port per service, localhost only).
+# Usage: make dev-up | dev-restart | dev-down
+# There is no auto-reload; restart a service to apply code changes.
+# Debug helpers from ./dev are importable (live, read-only).
+
+
+x-dev-env: &dev-env
+  PYTHONUNBUFFERED: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+  # keep logs inside the container, not in the bind-mounted source tree
+  LOGS_DIR: /tmp/logs
+  DEV_LOGS_DIR: /tmp/dev_logs
+  PYTHONPATH: /dev_tools
+
+services:
+  orchestrator:
+    environment: *dev-env
+    ports:
+      - "127.0.0.1:5678:5678"
+    volumes: !override
+      - ./orchestrator:/app
+      - ./shared/logging_utils.py:/app/utils/logging_utils.py:ro
+      - ./dev:/dev_tools:ro
+      - ./orchestrator/alembic/versions:/app/alembic/versions
+    command: >
+      sh -c "pip install -q debugpy &&
+      alembic upgrade head &&
+      python -m debugpy --listen 0.0.0.0:5678 app.py"
+
+  cleanup:
+    environment: *dev-env
+    ports:
+      - "127.0.0.1:5682:5682"
+    volumes: !override
+      - ./orchestrator:/app
+      - ./shared/logging_utils.py:/app/utils/logging_utils.py:ro
+      - ./dev:/dev_tools:ro
+    command: >
+      sh -c "pip install -q debugpy &&
+      python -m debugpy --listen 0.0.0.0:5682 cleanup_loop.py"
+
+  ml_backend:
+    environment: *dev-env
+    ports:
+      - "127.0.0.1:5679:5679"
+    volumes: !override
+      - ./ml_backend:/app
+      - ./shared/logging_utils.py:/app/utils/logging_utils.py:ro
+      - ./dev:/dev_tools:ro
+    command: >
+      sh -c "pip install -q debugpy &&
+      python -m debugpy --listen 0.0.0.0:5679 app.py"
+
+  worker_prelabel:
+    environment: *dev-env
+    ports:
+      - "127.0.0.1:5680:5680"
+    volumes: !override
+      - ./worker:/app
+      - ./shared/logging_utils.py:/app/utils/logging_utils.py:ro
+      - ./dev:/dev_tools:ro
+    command: >
+      sh -c "pip install -q debugpy &&
+      python -m debugpy --listen 0.0.0.0:5680 app.py"
+
+  worker_conversion:
+    environment: *dev-env
+    ports:
+      - "127.0.0.1:5681:5681"
+    volumes: !override
+      - ./worker_conversion:/app
+      - ./shared/logging_utils.py:/app/utils/logging_utils.py:ro
+      - ./dev:/dev_tools:ro
+    command: >
+      sh -c "pip install -q debugpy &&
+      python -m debugpy --listen 0.0.0.0:5681 app.py"
+
+  docling:
+    environment: *dev-env
+    ports:
+      - "127.0.0.1:5683:5683"
+    volumes: !override
+      - ./docling:/app
+      - ./shared/logging_utils.py:/app/utils/logging_utils.py:ro
+      - ./dev:/dev_tools:ro
+      - fontcache:/var/cache/fontconfig
+      - xdg_cache:/root/.cache
+      - xdg_data:/root/.local/share
+    command: >
+      sh -c "pip install -q debugpy &&
+      python -m debugpy --listen 0.0.0.0:5683 -m flask --app app.py run
+      --host=0.0.0.0 --port=$${DOCLING_PORT:-5004}"

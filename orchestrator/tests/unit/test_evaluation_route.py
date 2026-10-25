@@ -16,16 +16,6 @@ def client():
 # --- /evaluate-ai ---
 
 
-def test_evaluate_ai_missing_token_returns_401(client):
-    res = client.post(
-        "/evaluate-ai",
-        json={"groundtruth_project": "gt", "comparison_project": "cmp"},
-    )
-    assert res.status_code == 401
-    data = res.get_json()
-    assert data["error"] == "TOKEN_REQUIRED"
-
-
 def test_evaluate_ai_missing_groundtruth_returns_422(client):
     res = client.post(
         "/evaluate-ai",
@@ -38,7 +28,6 @@ def test_evaluate_ai_missing_groundtruth_returns_422(client):
 def test_evaluate_ai_missing_comparison_returns_422(client):
     res = client.post(
         "/evaluate-ai",
-        headers={"Authorization": "Bearer dummy"},
         json={"groundtruth_project": "gt"},
     )
     assert res.status_code == 422
@@ -61,7 +50,6 @@ def test_evaluate_ai_returns_200(client, monkeypatch):
     )
     res = client.post(
         "/evaluate-ai",
-        headers={"Authorization": "Bearer dummy"},
         json={"groundtruth_project": "gt", "comparison_project": "cmp"},
     )
     assert res.status_code == 200
@@ -76,7 +64,6 @@ def test_evaluate_ai_contract_violated_returns_500(client, monkeypatch):
     )
     res = client.post(
         "/evaluate-ai",
-        headers={"Authorization": "Bearer dummy"},
         json={"groundtruth_project": "gt", "comparison_project": "cmp"},
     )
     assert res.status_code == 500
@@ -158,7 +145,7 @@ def test_save_as_gt_set_contract_violated_returns_500(client, monkeypatch):
     assert data["error"] == "RESPONSE_CONTRACT_VIOLATED"
 
 
-# --- groundtruth_qals ---
+# --- groundtruth-qals ---
 
 
 def test_groundtruth_qals_returns_200(client, monkeypatch):
@@ -168,28 +155,20 @@ def test_groundtruth_qals_returns_200(client, monkeypatch):
             "sets": {"Evaluation_Set": {"questions": ["Q1"], "labels": ["L1"]}}
         },
     )
-    res = client.get("/groundtruth_qals")
+    res = client.get("/groundtruth-qals")
     assert res.status_code == 200
     data = res.get_json()
     assert "sets" in data
 
 
-def test_groundtruth_qals_not_found_returns_404(client, monkeypatch):
-    from domain.errors import NotFound
-
+def test_groundtruth_qals_empty_returns_200_with_empty_sets(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.evaluation.get_groundtruth_qals",
-        lambda project_repo=None: (_ for _ in ()).throw(
-            NotFound(
-                code="GROUNDTRUTH_QAL_NOT_FOUND",
-                message="No groundtruth sets found.",
-            )
-        ),
+        lambda project_repo=None: {"sets": {}},
     )
-    res = client.get("/groundtruth_qals")
-    assert res.status_code == 404
-    data = res.get_json()
-    assert data["error"] == "GROUNDTRUTH_QAL_NOT_FOUND"
+    res = client.get("/groundtruth-qals")
+    assert res.status_code == 200
+    assert res.get_json() == {"sets": {}}
 
 
 def test_groundtruth_qals_contract_violated_returns_500(client, monkeypatch):
@@ -197,7 +176,7 @@ def test_groundtruth_qals_contract_violated_returns_500(client, monkeypatch):
         "api.routes.evaluation.get_groundtruth_qals",
         lambda project_repo=None: {"wrong_field": "oops"},
     )
-    res = client.get("/groundtruth_qals")
+    res = client.get("/groundtruth-qals")
     assert res.status_code == 500
     data = res.get_json()
     assert data["error"] == "RESPONSE_CONTRACT_VIOLATED"

@@ -2,7 +2,7 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { AppProvider } from "../context/AppContext";
-import PDFUploadAndConversion from "./PDFUploadandConversion.jsx";
+import PDFUploadAndConversion from "./PDFUploadAndConversion.jsx";
 
 describe("PDFUploadAndConversion page", () => {
   it("renders the upload form", () => {

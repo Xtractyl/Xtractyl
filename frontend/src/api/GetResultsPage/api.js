@@ -4,7 +4,7 @@ const ORCH_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001";
 const r = (path, opts) => request(ORCH_BASE, path, opts);
 
 export async function getProjectsReadyForResults() {
-  const data = await r(`/list_projects_ready_for_results`);
+  const data = await r(`/list-projects-ready-for-results`);
   return data.projects;
 }
 

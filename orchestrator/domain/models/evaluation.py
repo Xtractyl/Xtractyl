@@ -6,15 +6,13 @@ from domain.errors import ValidationFailed
 
 
 class EvaluateProjectsCommand(BaseModel):
-    token: str
     groundtruth_project: str
     comparison_project: str
 
     @classmethod
-    def from_contract(cls, groundtruth_project: str, comparison_project: str, token: str):
+    def from_contract(cls, groundtruth_project: str, comparison_project: str):
         try:
             return cls(
-                token=token,
                 groundtruth_project=groundtruth_project,
                 comparison_project=comparison_project,
             )

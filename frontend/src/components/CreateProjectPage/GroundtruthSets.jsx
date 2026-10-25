@@ -6,13 +6,16 @@ export default function GroundtruthSets() {
   const [groundtruthSets, setGroundtruthSets] = useState([]);
   const [groundtruthError, setGroundtruthError] = useState("");
   const [groundtruthLoading, setGroundtruthLoading] = useState(false);
+  const [groundtruthLoaded, setGroundtruthLoaded] = useState(false);
 
   const handleLoadGroundtruth = async () => {
     setGroundtruthError("");
+    setGroundtruthLoaded(false);
     setGroundtruthLoading(true);
     try {
       const data = await fetchGroundtruthQuestionsAndLabels();
       setGroundtruthSets(Object.entries(data).map(([name, qal]) => ({ name, qal })));
+      setGroundtruthLoaded(true);
     } catch (err) {
       console.error(err);
       setGroundtruthError(err.message || "Failed to load groundtruth questions and labels.");
@@ -35,6 +38,13 @@ export default function GroundtruthSets() {
       </button>
 
       {groundtruthError && <p className="mt-2 text-sm text-xtractyl-orange">{groundtruthError}</p>}
+
+      {groundtruthLoaded && groundtruthSets.length === 0 && (
+        <p className="mt-2 text-sm text-xtractyl-outline/70">
+          No ground truth sets exist yet. You can save a project as a ground truth set on the
+          Evaluate AI page.
+        </p>
+      )}
 
       {groundtruthSets.length > 0 && (
         <div className="mt-4 space-y-4">
