@@ -15,7 +15,7 @@
   - **Changed:** never
 - `label_studio_id` (nullable)
   - **Set:** `NULL` at creation (step 2) — actually populated in Create Project Pipeline, step 1 (`create_project_main_from_payload`), with the ID returned by Label Studio
-  - **Changed:** never afterward — a second `/create_project` call currently overwrites it unguarded; a planned guard will prevent this)
+  - **Changed:** never afterward — a second `/create-project` call currently overwrites it unguarded; a planned guard will prevent this)
 - `groundtruth` (Text, `CHECK` constraint on `('none', 'internal', 'external')`, default `'none'`) —
   replaces the old boolean `is_groundtruth`
   - **Set:** `'none'` at creation (step 2)
@@ -192,7 +192,7 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
   race each other
 
 - `id` (PK)
-  - **Set:** at creation — Prelabelling Pipeline, step 1 (`enqueue_prelabel_job`, `POST /prelabel_project`); automatically by Postgres (auto-increment)
+  - **Set:** at creation — Prelabelling Pipeline, step 1 (`enqueue-prelabel-job`, `POST /prelabel_project`); automatically by Postgres (auto-increment)
   - **Changed:** never
 - `project` (FK → `projects.name`)
   - **Set:** at creation — Prelabelling Pipeline, step 1
@@ -433,7 +433,7 @@ a failed discard call here is caught and ignored client-side (see the following 
 
 ## Create Project Pipeline
 
-### `create_project_main_from_payload` (`POST /create_project`)
+### `create_project_main_from_payload` (`POST /create-project`)
 - Checked in order, both backend-enforced (not just UI-level filtering via the frontend dropdown):
   1. `repo.project_exists(title)` — raises `PROJECT_NOT_FOUND` if the project doesn't exist at all
   2. `repo.is_conversion_done(title)` — raises `CONVERSION_NOT_DONE` if conversion hasn't finished
@@ -444,7 +444,7 @@ a failed discard call here is caught and ignored client-side (see the following 
 - `projects.label_studio_id` set to the returned Label Studio project ID
 - `projects.questions_and_labels` (JSONB) and `projects.labels_hash` set from the submitted questions/labels
 - No MinIO writes
-- The candidate list shown in the frontend dropdown (`ConvertedProjectSelect`, backed by `GET /list_projects_ready_for_creation`) requires both `label_studio_id IS NULL` **and** `conversion_jobs.status == "done"` — a project still `"converting"` or `"failed"`-but-not-yet-cleaned-up is excluded, so it can't be picked here while its HTML conversion is incomplete
+- The candidate list shown in the frontend dropdown (`ConvertedProjectSelect`, backed by `GET /list-projects-ready-for-creation`) requires both `label_studio_id IS NULL` **and** `conversion_jobs.status == "done"` — a project still `"converting"` or `"failed"`-but-not-yet-cleaned-up is excluded, so it can't be picked here while its HTML conversion is incomplete
 
 **Resolved finding:** previously, `set_label_studio_id`/`save_questions_and_labels` were silent no-ops if the `projects` row didn't exist — meaning a real Label Studio project (with ML backend attached) could be created while Xtractyl's own DB recorded nothing, with the API still reporting success. Fixed by the `project_exists` check above (step 1 in the ordered check list) — the frontend also now only lets the project name be chosen from a dropdown of projects that actually exist and don't have a `label_studio_id` yet (`ConvertedProjectSelect`), rather than free text.
 
@@ -463,14 +463,14 @@ is the fallback net.
 
 ## Upload Tasks Pipeline
 
-`upload_tasks_main_from_payload` (`POST /upload_tasks`)
+`upload_tasks_main_from_payload` (`POST /upload-tasks`)
  - Reads `projects.label_studio_id` (must already be set — see Create Project Pipeline above); raises `PROJECT_NOT_FOUND` if unset
  - Raises `TASKS_ALREADY_UPLOADED` if `projects.ls_tasks_uploaded` is already `true` — prevents duplicate task uploads to Label Studio on a repeated call
  - Reads all `files.html_key` for the project (only files that already have a non-null `html_key`, i.e. successfully converted ones); raises `NO_HTML_FILES` if none exist
  - Reads the HTML content for each file directly from MinIO (`storage.get_object`), builds one task per file, uploads them to Label Studio in a single batch call
  - `projects.ls_tasks_uploaded` set to `true` on success
  - No new MinIO writes (read-only against MinIO)
- - Frontend project selection is now a dropdown (`UploadReadyProjectSelect`, backed by `GET /list_projects_ready_for_upload`) instead of free text — structurally limits selection to projects that already have a `label_studio_id` and haven't been uploaded yet
+ - Frontend project selection is now a dropdown (`UploadReadyProjectSelect`, backed by `GET /list-projects-ready-for-upload`) instead of free text — structurally limits selection to projects that already have a `label_studio_id` and haven't been uploaded yet
 
 **On upload failure** — whether a later batch in the `BATCH_SIZE=50` sequence fails, or the
 subsequent DB commit (`ls_tasks_uploaded = true`) fails after all batches already succeeded — a
@@ -531,7 +531,7 @@ are (a) not under the `xtractyl-archive/` prefix, (b) whose digest is not in the
 the Label Studio sweep's margin above, since `reconcile_models()` only runs when *some* pull happens
 through the app at all, an event with no fixed upper bound on how long it might not occur). This
 closes the gap above, and specifically the risk of a model loaded directly against Ollama, bypassing
-the app, being selected by curl against `/prelabel_project` (though `enqueue_prelabel_job` already
+the app, being selected by curl against `/prelabel-project` (though `enqueue_prelabel_job` already
 independently guards against this specific case today by resolving strictly against the `models`
 table, never against Ollama directly — see Prelabelling Pipeline). If a user notices a model missing
 from the picker within that 24h window, simply re-pulling it triggers `reconcile_models()` again as
@@ -555,7 +555,7 @@ this ordinary user reflex already covers the case.
 
 ## Prelabelling Pipeline
 
-### 1. `enqueue_prelabel_job` (`POST /prelabel_project`)
+### 1. `enqueue_prelabel_job` (`POST /prelabel-project`)
 - Checked in order, all backend-enforced:
   1. `projects.label_studio_id` — `PROJECT_NOT_FOUND` if unset (covers both "project doesn't exist"
      and "project exists but has no `label_studio_id`" with a single ambiguous message; not
@@ -624,7 +624,7 @@ this ordinary user reflex already covers the case.
 > right after a successful push, and pushing after the commit would instead leave a `pending` run
 > without a job when the push fails, which blocks the project (enqueue guard)
 
-> `GET /list_projects_ready_for_prelabelling` feeds the frontend picker
+> `GET /list_projects-ready-for-prelabelling` feeds the frontend picker
 > (`PrelabellingReadyProjectSelect` on the Start Prelabelling page): projects with
 > `ls_tasks_uploaded = true` that have either no `prelabelling_runs` row, or a run whose status is
 > not `pending`, `running` or `done` — selecting a run in `failed`/`incomplete`/`cancelled`
