@@ -17,7 +17,7 @@ from api.contracts.results import (
 
 
 def register(app, spec, session_factory=None):
-    @app.route("/list_projects_ready_for_results", methods=["GET"])
+    @app.route("/list-projects-ready-for-results", methods=["GET"])
     @spec.validate(
         resp=Response(
             HTTP_200=ListProjectsReadyForResultsResponse,
