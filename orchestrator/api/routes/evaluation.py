@@ -43,7 +43,7 @@ from api.utils.auth import extract_token
 
 
 def register(app, spec, session_factory=None):
-    @app.route("/list_projects_ready_for_comparison", methods=["GET"])
+    @app.route("/list-projects-ready-for-comparison", methods=["GET"])
     @spec.validate(
         resp=Response(
             HTTP_200=ListProjectsReadyForComparisonResponse,
@@ -68,7 +68,7 @@ def register(app, spec, session_factory=None):
             )
         return jsonify(validated.model_dump()), 200
 
-    @app.route("/list_projects_ready_for_groundtruth", methods=["GET"])
+    @app.route("/list-projects-ready-for-groundtruth", methods=["GET"])
     @spec.validate(
         resp=Response(
             HTTP_200=ListProjectsReadyForGroundtruthResponse,
@@ -93,7 +93,7 @@ def register(app, spec, session_factory=None):
             )
         return jsonify(validated.model_dump()), 200
 
-    @app.route("/groundtruth_qals", methods=["GET"])
+    @app.route("/groundtruth-qals", methods=["GET"])
     @spec.validate(
         resp=Response(
             HTTP_200=GroundtruthQalsResponse,
@@ -119,7 +119,7 @@ def register(app, spec, session_factory=None):
             )
         return jsonify(validated.model_dump()), 200
 
-    @app.route("/list_groundtruth_projects_for_comparison", methods=["POST"])
+    @app.route("/list-groundtruth-projects-for-comparison", methods=["POST"])
     @spec.validate(
         body=Request(ListGroundtruthProjectsForComparisonRequest),
         resp=Response(
