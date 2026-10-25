@@ -1,4 +1,4 @@
-// src/components/PDFUploadAndConversionPage/UploadAndConversionCard.test.jsx
+// src/components/PDFUploadAndConversionPage/UploadAndConversionCard.emptyState.test.jsx
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { AppProvider } from "../../context/AppContext";
