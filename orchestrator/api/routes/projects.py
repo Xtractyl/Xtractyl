@@ -34,7 +34,7 @@ from api.utils.auth import extract_token
 
 
 def register(app, spec, session_factory, label_studio, storage):
-    @app.route("/create_project", methods=["POST"])
+    @app.route("/create-project", methods=["POST"])
     @spec.validate(
         body=Request(CreateProjectRequest),
         resp=Response(
@@ -83,7 +83,7 @@ def register(app, spec, session_factory, label_studio, storage):
             )
         return jsonify(validated.model_dump()), 200
 
-    @app.route("/upload_tasks", methods=["POST"])
+    @app.route("/upload-tasks", methods=["POST"])
     @spec.validate(
         body=Request(UploadTasksRequest),
         resp=Response(
@@ -126,7 +126,7 @@ def register(app, spec, session_factory, label_studio, storage):
             )
         return jsonify(validated.model_dump()), 200
 
-    @app.route("/project_exists", methods=["POST"])
+    @app.route("/project-exists", methods=["POST"])
     @spec.validate(
         body=Request(ProjectExistsRequest),
         resp=Response(
@@ -159,7 +159,7 @@ def register(app, spec, session_factory, label_studio, storage):
             )
         return jsonify(validated.model_dump()), 200
 
-    @app.route("/list_projects_ready_for_creation", methods=["GET"])
+    @app.route("/list-projects-ready-for-creation", methods=["GET"])
     @spec.validate(
         resp=Response(
             HTTP_200=ListProjectsReadyForCreationResponse,
@@ -188,7 +188,7 @@ def register(app, spec, session_factory, label_studio, storage):
             )
         return jsonify(validated.model_dump()), 200
 
-    @app.route("/list_projects_ready_for_upload", methods=["GET"])
+    @app.route("/list-projects-ready-for-upload", methods=["GET"])
     @spec.validate(
         resp=Response(
             HTTP_200=ListProjectsReadyForUploadResponse,
@@ -217,7 +217,7 @@ def register(app, spec, session_factory, label_studio, storage):
             )
         return jsonify(validated.model_dump()), 200
 
-    @app.route("/list_projects_ready_for_prelabelling", methods=["GET"])
+    @app.route("/list-projects-ready-for-prelabelling", methods=["GET"])
     @spec.validate(
         resp=Response(
             HTTP_200=ListProjectsReadyForPrelabellingResponse,
