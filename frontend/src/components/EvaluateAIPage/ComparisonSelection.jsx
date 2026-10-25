@@ -1,17 +1,17 @@
 // src/components/EvaluateAIPage/ComparisonSelection.jsx
 export default function ComparisonSelection({
   projects,
-  gtSets,
   loading,
   errorMsg,
+  compatibleGtSets,
+  compatibleLoading,
+  compatibleError,
   groundtruthProject,
   setGroundtruthProject,
   comparisonProject,
   setComparisonProject,
   onSubmit,
 }) {
-  const comparisonOptions = projects.filter((name) => !gtSets.includes(name));
-
   return (
     <div className="mt-8">
       <h2 className="text-sm font-medium mb-1">Select Groundtruth & Comparison Project</h2>
@@ -24,7 +24,7 @@ export default function ComparisonSelection({
         <p className="text-sm text-xtractyl-outline/70">No projects available for evaluation.</p>
       )}
 
-      {!loading && !errorMsg && (gtSets.length > 0 || projects.length > 0) && (
+      {!loading && !errorMsg && projects.length > 0 && (
         <>
           {/* Comparison Project */}
           <label className="block text-xs font-medium mt-4 mb-1">Comparison Project</label>
@@ -33,7 +33,7 @@ export default function ComparisonSelection({
             value={comparisonProject}
             onChange={(e) => setComparisonProject(e.target.value)}
           >
-            {comparisonOptions.map((name, idx) => (
+            {projects.map((name, idx) => (
               <option key={idx} value={name}>
                 {name}
               </option>
@@ -50,13 +50,24 @@ export default function ComparisonSelection({
             value={groundtruthProject}
             onChange={(e) => setGroundtruthProject(e.target.value)}
           >
-            {gtSets.map((name, idx) => (
+            {compatibleGtSets.map((name, idx) => (
               <option key={idx} value={name}>
                 {name}
               </option>
             ))}
           </select>
 
+          {compatibleLoading && <p className="mt-1 text-xs">Loading groundtruth projects…</p>}
+
+          {compatibleError && (
+            <p className="mt-1 text-xs text-xtractyl-orange">{compatibleError}</p>
+          )}
+
+          {!compatibleLoading && !compatibleError && compatibleGtSets.length === 0 && (
+            <p className="mt-1 text-xs text-xtractyl-outline/70">
+              No groundtruth project available for this comparison project.
+            </p>
+          )}
           <p className="mt-3 text-xs text-xtractyl-outline">
             Groundtruth: <b>{groundtruthProject}</b>
             <br />
