@@ -4,7 +4,7 @@ const ORCH_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001";
 const r = (path, opts) => request(ORCH_BASE, path, opts);
 
 export async function getProjectsReadyForGroundtruth() {
-  const data = await r(`/list_projects_ready_for_groundtruth`);
+  const data = await r(`/list-projects-ready-for-groundtruth`);
   return Array.isArray(data.projects) ? data.projects : [];
 }
 
@@ -17,12 +17,12 @@ export async function saveAsGtSet(apiToken, sourceProject, scope) {
 }
 
 export async function getProjectsReadyForComparison() {
-  const data = await r(`/list_projects_ready_for_comparison`);
+  const data = await r(`/list-projects-ready-for-comparison`);
   return Array.isArray(data.projects) ? data.projects : [];
 }
 
 export async function getGroundtruthProjectsForComparison(comparisonProject) {
-  const data = await r(`/list_groundtruth_projects_for_comparison`, {
+  const data = await r(`/list-groundtruth-projects-for-comparison`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ comparison_project: comparisonProject }),
