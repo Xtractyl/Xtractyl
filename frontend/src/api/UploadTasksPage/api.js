@@ -5,7 +5,7 @@ const r = (path, opts) => request(ORCH_BASE, path, opts);
 
 /** POST /upload_tasks -> { ...result } */
 export async function uploadTasks({ projectName, token }) {
-  return r(`/upload_tasks`, {
+  return r(`/upload-tasks`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify({ project: projectName }),
@@ -13,6 +13,6 @@ export async function uploadTasks({ projectName, token }) {
 }
 
 export async function getProjectsReadyForUpload() {
-  const data = await r(`/list_projects_ready_for_upload`);
+  const data = await r(`/list-projects-ready-for-upload`);
   return data.projects;
 }
