@@ -13,7 +13,7 @@ export async function request(baseUrl, path, { method = "GET", headers, body, ti
     const data = isJson ? await res.json().catch(() => ({})) : await res.text();
 
     if (!res.ok) {
-      const msg = (isJson && (data?.error || data?.message)) || `HTTP ${res.status}`;
+      const msg = (isJson && (data?.message || data?.error)) || `HTTP ${res.status}`;
       const err = new Error(msg);
       err.status = res.status;
       err.data = data;
