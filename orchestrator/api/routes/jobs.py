@@ -78,7 +78,7 @@ def register(app, spec, queue, session_factory):
             )
         return jsonify(validated.model_dump()), 200
 
-    @app.route("/prelabel_project", methods=["POST"])
+    @app.route("/prelabel-project", methods=["POST"])
     @spec.validate(
         body=Request(EnqueueJobRequest),
         resp=Response(
