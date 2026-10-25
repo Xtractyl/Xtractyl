@@ -160,8 +160,6 @@ def register(app, spec, session_factory=None):
         resp=Response(
             HTTP_200=EvaluateProjectsResponse,
             HTTP_404=ErrorResponse,  # project not found
-            HTTP_409=ErrorResponse,  # filename or label mismatch
-            HTTP_502=ErrorResponse,  # label studio unreachable
             HTTP_500=ErrorResponse,
         ),
         tags=["evaluation"],
