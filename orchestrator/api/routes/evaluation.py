@@ -97,7 +97,6 @@ def register(app, spec, session_factory=None):
     @spec.validate(
         resp=Response(
             HTTP_200=GroundtruthQalsResponse,
-            HTTP_404=ErrorResponse,  # no groundtruth sets found
             HTTP_500=ErrorResponse,
         ),
         tags=["evaluation"],

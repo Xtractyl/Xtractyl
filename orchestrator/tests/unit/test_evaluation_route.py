@@ -161,22 +161,14 @@ def test_groundtruth_qals_returns_200(client, monkeypatch):
     assert "sets" in data
 
 
-def test_groundtruth_qals_not_found_returns_404(client, monkeypatch):
-    from domain.errors import NotFound
-
+def test_groundtruth_qals_empty_returns_200_with_empty_sets(client, monkeypatch):
     monkeypatch.setattr(
         "api.routes.evaluation.get_groundtruth_qals",
-        lambda project_repo=None: (_ for _ in ()).throw(
-            NotFound(
-                code="GROUNDTRUTH_QAL_NOT_FOUND",
-                message="No groundtruth sets found.",
-            )
-        ),
+        lambda project_repo=None: {"sets": {}},
     )
     res = client.get("/groundtruth-qals")
-    assert res.status_code == 404
-    data = res.get_json()
-    assert data["error"] == "GROUNDTRUTH_QAL_NOT_FOUND"
+    assert res.status_code == 200
+    assert res.get_json() == {"sets": {}}
 
 
 def test_groundtruth_qals_contract_violated_returns_500(client, monkeypatch):

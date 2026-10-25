@@ -355,11 +355,6 @@ def sync_missing_evaluations(project_repo, run_repo, eval_repo) -> None:
 
 def get_groundtruth_qals(project_repo) -> dict:
     gt_projects = project_repo.list_groundtruth_projects()
-    if not gt_projects:
-        raise NotFound(
-            code="GROUNDTRUTH_QAL_NOT_FOUND",
-            message="No groundtruth sets found.",
-        )
     return {"sets": {p.name: p.questions_and_labels for p in gt_projects}}
 
 
