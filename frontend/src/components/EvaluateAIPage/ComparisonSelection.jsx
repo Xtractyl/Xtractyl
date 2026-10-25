@@ -78,7 +78,7 @@ export default function ComparisonSelection({
             type="button"
             onClick={onSubmit}
             className="mt-4 inline-flex items-center justify-center px-4 py-2 rounded bg-xtractyl-green text-xtractyl-white text-sm font-medium shadow hover:bg-xtractyl-green/80 transition disabled:opacity-60 disabled:cursor-not-allowed"
-            disabled={!groundtruthProject || !comparisonProject}
+            disabled={!groundtruthProject || !comparisonProject || compatibleLoading}
           >
             Show Evaluation
           </button>
