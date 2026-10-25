@@ -30,10 +30,10 @@ export async function getGroundtruthProjectsForComparison(comparisonProject) {
   return Array.isArray(data.projects) ? data.projects : [];
 }
 
-export async function evaluateAI(apiToken, groundtruthProject, comparisonProject) {
+export async function evaluateAI(groundtruthProject, comparisonProject) {
   return r(`/evaluate-ai`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiToken}` },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       groundtruth_project: groundtruthProject,
       comparison_project: comparisonProject,
