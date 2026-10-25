@@ -5,7 +5,6 @@ import {
   getGroundtruthProjectsForComparison,
   evaluateAI,
 } from "../../api/EvaluateAIPage/api.js";
-import { fetchGroundtruthQuestionsAndLabels } from "../../api/CreateProjectPage/api.js";
 import SaveAsGtSet from "./SaveAsGtSet.jsx";
 import ComparisonSelection from "./ComparisonSelection.jsx";
 import EvaluationResults from "./EvaluationResults.jsx";
@@ -14,7 +13,6 @@ import TokenInput from "../shared/TokenInput";
 
 export default function EvaluateAICard() {
   const { token } = useAppContext();
-  const [gtSets, setGtSets] = useState([]);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -28,13 +26,6 @@ export default function EvaluateAICard() {
   const [evalResult, setEvalResult] = useState(null);
   const [gtSetVersion, setGtSetVersion] = useState(0);
 
-  // Load GT sets from filesystem (independent of token)
-  useEffect(() => {
-    fetchGroundtruthQuestionsAndLabels()
-      .then((sets) => setGtSets(Object.keys(sets || {})))
-      .catch((e) => setErrorMsg(e.message || "Failed to load ground truth sets."));
-  }, [gtSetVersion]);
-
   // Load comparison-ready project names from Postgres — no Label Studio
   // call, no token needed
   useEffect(() => {
@@ -43,12 +34,8 @@ export default function EvaluateAICard() {
     getProjectsReadyForComparison()
       .then((projectList) => {
         setProjects(projectList);
-        const comparisonCandidates = projectList.filter((name) => !gtSets.includes(name));
-
-        if (comparisonCandidates.length > 0) {
-          setComparisonProject((prev) =>
-            comparisonCandidates.includes(prev) ? prev : comparisonCandidates[0]
-          );
+        if (projectList.length > 0) {
+          setComparisonProject((prev) => (projectList.includes(prev) ? prev : projectList[0]));
         } else {
           setComparisonProject("");
         }
@@ -58,7 +45,7 @@ export default function EvaluateAICard() {
         setComparisonProject("");
       })
       .finally(() => setLoading(false));
-  }, [gtSets]);
+  }, [comparisonProject, gtSetVersion]);
 
   // Load groundtruth sets that already have an evaluation for the
   // currently selected comparison project, a DB lookup against the evaluations table
@@ -91,7 +78,7 @@ export default function EvaluateAICard() {
     setEvalResult(null);
 
     try {
-      const result = await evaluateAI(token, groundtruthProject, comparisonProject);
+      const result = await evaluateAI(groundtruthProject, comparisonProject);
       setEvalResult(result);
     } catch (e) {
       if (e.data?.error === "EVALUATION_NOT_FOUND") {
@@ -128,7 +115,6 @@ export default function EvaluateAICard() {
       {/* === COMPARISON SELECTION === */}
       <ComparisonSelection
         projects={projects}
-        gtSets={gtSets}
         loading={loading}
         errorMsg={errorMsg}
         compatibleGtSets={compatibleGtSets}
@@ -142,9 +128,7 @@ export default function EvaluateAICard() {
       />
 
       {/* === EVALUATION RESULTS === */}
-      {token && (
-        <EvaluationResults loading={evalLoading} errorMsg={evalError} result={evalResult} />
-      )}
+      <EvaluationResults loading={evalLoading} errorMsg={evalError} result={evalResult} />
     </div>
   );
 }
