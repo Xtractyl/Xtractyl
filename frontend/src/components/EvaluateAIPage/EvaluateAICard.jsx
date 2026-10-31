@@ -4,7 +4,7 @@ import SaveAsGtSet from "./SaveAsGtSet.jsx";
 import ComparisonSelection from "./ComparisonSelection.jsx";
 import EvaluationResults from "./EvaluationResults.jsx";
 import { useAppContext } from "../../context/AppContext";
-import TokenInput from "../shared/TokenInput";
+import TokenInput from "../shared/TokenInput.jsx";
 import { useComparisonProjects } from "../../hooks/EvaluateAIPage/useComparisonProjects.js";
 import { useCompatibleGroundtruthSets } from "../../hooks/EvaluateAIPage/useCompatibleGroundtruthSets.js";
 import { useEvaluation } from "../../hooks/EvaluateAIPage/useEvaluation.js";
