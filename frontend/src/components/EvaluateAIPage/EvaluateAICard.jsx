@@ -1,23 +1,16 @@
 // src/components/EvaluateAIPage/EvaluateAICard.jsx
 import { useEffect, useState } from "react";
-import {
-  getProjectsReadyForComparison,
-  getGroundtruthProjectsForComparison,
-  evaluateAI,
-} from "../../api/EvaluateAIPage/api.js";
+import { getGroundtruthProjectsForComparison, evaluateAI } from "../../api/EvaluateAIPage/api.js";
 import SaveAsGtSet from "./SaveAsGtSet.jsx";
 import ComparisonSelection from "./ComparisonSelection.jsx";
 import EvaluationResults from "./EvaluationResults.jsx";
 import { useAppContext } from "../../context/AppContext";
 import TokenInput from "../shared/TokenInput";
+import { useComparisonProjects } from "../../hooks/EvaluateAIPage/useComparisonProjects.js";
 
 export default function EvaluateAICard() {
   const { token } = useAppContext();
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
   const [groundtruthProject, setGroundtruthProject] = useState("");
-  const [comparisonProject, setComparisonProject] = useState("");
   const [compatibleGtSets, setCompatibleGtSets] = useState([]);
   const [compatibleLoading, setCompatibleLoading] = useState(false);
   const [compatibleError, setCompatibleError] = useState("");
@@ -26,26 +19,8 @@ export default function EvaluateAICard() {
   const [evalResult, setEvalResult] = useState(null);
   const [gtSetVersion, setGtSetVersion] = useState(0);
 
-  // Load comparison-ready project names from Postgres — no Label Studio
-  // call, no token needed
-  useEffect(() => {
-    setLoading(true);
-    setErrorMsg("");
-    getProjectsReadyForComparison()
-      .then((projectList) => {
-        setProjects(projectList);
-        if (projectList.length > 0) {
-          setComparisonProject((prev) => (projectList.includes(prev) ? prev : projectList[0]));
-        } else {
-          setComparisonProject("");
-        }
-      })
-      .catch((e) => {
-        setErrorMsg(e.message || "Failed to load projects.");
-        setComparisonProject("");
-      })
-      .finally(() => setLoading(false));
-  }, [comparisonProject, gtSetVersion]);
+  const { projects, loading, errorMsg, comparisonProject, setComparisonProject } =
+    useComparisonProjects(gtSetVersion);
 
   // Load groundtruth sets that already have an evaluation for the
   // currently selected comparison project, a DB lookup against the evaluations table
