@@ -10,8 +10,9 @@ import { useCompatibleGroundtruthSets } from "../../hooks/EvaluateAIPage/useComp
 import { useEvaluation } from "../../hooks/EvaluateAIPage/useEvaluation.js";
 
 export default function EvaluateAICard() {
-  const { token } = useAppContext();
   const [gtSetVersion, setGtSetVersion] = useState(0);
+
+  const { token } = useAppContext();
 
   const { projects, loading, errorMsg, comparisonProject, setComparisonProject } =
     useComparisonProjects(gtSetVersion);
