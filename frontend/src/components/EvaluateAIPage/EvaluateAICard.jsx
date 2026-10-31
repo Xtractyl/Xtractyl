@@ -1,6 +1,5 @@
 // src/components/EvaluateAIPage/EvaluateAICard.jsx
 import { useState } from "react";
-import { evaluateAI } from "../../api/EvaluateAIPage/api.js";
 import SaveAsGtSet from "./SaveAsGtSet.jsx";
 import ComparisonSelection from "./ComparisonSelection.jsx";
 import EvaluationResults from "./EvaluationResults.jsx";
@@ -8,12 +7,10 @@ import { useAppContext } from "../../context/AppContext";
 import TokenInput from "../shared/TokenInput";
 import { useComparisonProjects } from "../../hooks/EvaluateAIPage/useComparisonProjects.js";
 import { useCompatibleGroundtruthSets } from "../../hooks/EvaluateAIPage/useCompatibleGroundtruthSets.js";
+import { useEvaluation } from "../../hooks/EvaluateAIPage/useEvaluation.js";
 
 export default function EvaluateAICard() {
   const { token } = useAppContext();
-  const [evalLoading, setEvalLoading] = useState(false);
-  const [evalError, setEvalError] = useState("");
-  const [evalResult, setEvalResult] = useState(null);
   const [gtSetVersion, setGtSetVersion] = useState(0);
 
   const { projects, loading, errorMsg, comparisonProject, setComparisonProject } =
@@ -27,20 +24,7 @@ export default function EvaluateAICard() {
     setGroundtruthProject,
   } = useCompatibleGroundtruthSets(comparisonProject, gtSetVersion);
 
-  const handleRunEvaluation = async () => {
-    setEvalLoading(true);
-    setEvalError("");
-    setEvalResult(null);
-
-    try {
-      const result = await evaluateAI(groundtruthProject, comparisonProject);
-      setEvalResult(result);
-    } catch (e) {
-      setEvalError(e.message || "Evaluation failed.");
-    } finally {
-      setEvalLoading(false);
-    }
-  };
+  const { evalLoading, evalError, evalResult, runEvaluation } = useEvaluation();
 
   return (
     <div className="p-8 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
@@ -71,7 +55,7 @@ export default function EvaluateAICard() {
         setGroundtruthProject={setGroundtruthProject}
         comparisonProject={comparisonProject}
         setComparisonProject={setComparisonProject}
-        onSubmit={handleRunEvaluation}
+        onSubmit={() => runEvaluation(groundtruthProject, comparisonProject)}
       />
 
       {/* === EVALUATION RESULTS === */}
