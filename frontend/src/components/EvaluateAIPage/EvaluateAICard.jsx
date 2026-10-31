@@ -1,19 +1,16 @@
 // src/components/EvaluateAIPage/EvaluateAICard.jsx
-import { useEffect, useState } from "react";
-import { getGroundtruthProjectsForComparison, evaluateAI } from "../../api/EvaluateAIPage/api.js";
+import { useState } from "react";
+import { evaluateAI } from "../../api/EvaluateAIPage/api.js";
 import SaveAsGtSet from "./SaveAsGtSet.jsx";
 import ComparisonSelection from "./ComparisonSelection.jsx";
 import EvaluationResults from "./EvaluationResults.jsx";
 import { useAppContext } from "../../context/AppContext";
 import TokenInput from "../shared/TokenInput";
 import { useComparisonProjects } from "../../hooks/EvaluateAIPage/useComparisonProjects.js";
+import { useCompatibleGroundtruthSets } from "../../hooks/EvaluateAIPage/useCompatibleGroundtruthSets.js";
 
 export default function EvaluateAICard() {
   const { token } = useAppContext();
-  const [groundtruthProject, setGroundtruthProject] = useState("");
-  const [compatibleGtSets, setCompatibleGtSets] = useState([]);
-  const [compatibleLoading, setCompatibleLoading] = useState(false);
-  const [compatibleError, setCompatibleError] = useState("");
   const [evalLoading, setEvalLoading] = useState(false);
   const [evalError, setEvalError] = useState("");
   const [evalResult, setEvalResult] = useState(null);
@@ -22,30 +19,13 @@ export default function EvaluateAICard() {
   const { projects, loading, errorMsg, comparisonProject, setComparisonProject } =
     useComparisonProjects(gtSetVersion);
 
-  // Load groundtruth sets that already have an evaluation for the
-  // currently selected comparison project, a DB lookup against the evaluations table
-  useEffect(() => {
-    if (!comparisonProject) {
-      setCompatibleGtSets([]);
-      setGroundtruthProject("");
-      return;
-    }
-
-    setCompatibleLoading(true);
-    setCompatibleError("");
-
-    getGroundtruthProjectsForComparison(comparisonProject)
-      .then((names) => {
-        setCompatibleGtSets(names);
-        setGroundtruthProject((prev) => (names.includes(prev) ? prev : names[0] || ""));
-      })
-      .catch((e) => {
-        setCompatibleGtSets([]);
-        setGroundtruthProject("");
-        setCompatibleError(e.message || "Failed to load compatible groundtruth sets.");
-      })
-      .finally(() => setCompatibleLoading(false));
-  }, [comparisonProject]);
+  const {
+    compatibleGtSets,
+    compatibleLoading,
+    compatibleError,
+    groundtruthProject,
+    setGroundtruthProject,
+  } = useCompatibleGroundtruthSets(comparisonProject, gtSetVersion);
 
   const handleRunEvaluation = async () => {
     setEvalLoading(true);
