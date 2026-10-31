@@ -1,5 +1,5 @@
 // src/api/UploadTasksPage/api.js
-import { request } from "../shared/request";
+import { request } from "../shared/request.js";
 const ORCH_BASE = import.meta.env.VITE_ORCH_BASE || "http://localhost:5001";
 const r = (path, opts) => request(ORCH_BASE, path, opts);
 
