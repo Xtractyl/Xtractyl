@@ -1,7 +1,7 @@
 // src/components/StartPrelabellingPage/StartPrelabellingCard.emptyState.test.jsx
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { AppProvider } from "../../context/AppContext";
+import { AppProvider } from "../../context/AppContext.jsx";
 import StartPrelabellingCard from "./StartPrelabellingCard.jsx";
 import {
   listModels,

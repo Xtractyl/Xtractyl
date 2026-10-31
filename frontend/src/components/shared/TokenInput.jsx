@@ -1,6 +1,6 @@
 //src/components/shared/TokenInput.jsx
-import { useAppContext } from "../../context/AppContext";
-import TokenLink from "./TokenLink";
+import { useAppContext } from "../../context/AppContext.jsx";
+import TokenLink from "./TokenLink.jsx";
 
 export default function TokenInput() {
   const { token, saveToken } = useAppContext();

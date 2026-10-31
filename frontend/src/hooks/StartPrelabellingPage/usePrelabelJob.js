@@ -1,6 +1,6 @@
 // frontend/src/hooks/StartPrelabellingPage/usePrelabelJob.js
 import { useReducer, useEffect } from "react";
-import { useLocalStorage } from "./useLocalStorage";
+import { useLocalStorage } from "./useLocalStorage.js";
 import {
   prelabelProject,
   cancelPrelabel,

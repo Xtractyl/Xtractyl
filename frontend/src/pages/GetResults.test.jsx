@@ -1,7 +1,7 @@
 // src/pages/GetResults.test.jsx
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { AppProvider } from "../context/AppContext";
+import { AppProvider } from "../context/AppContext.jsx";
 import GetResultsPage from "./GetResults.jsx";
 
 describe("GetResults page", () => {

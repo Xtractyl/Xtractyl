@@ -3,7 +3,7 @@ import { useState } from "react";
 import SaveAsGtSet from "./SaveAsGtSet.jsx";
 import ComparisonSelection from "./ComparisonSelection.jsx";
 import EvaluationResults from "./EvaluationResults.jsx";
-import { useAppContext } from "../../context/AppContext";
+import { useAppContext } from "../../context/AppContext.jsx";
 import TokenInput from "../shared/TokenInput.jsx";
 import { useComparisonProjects } from "../../hooks/EvaluateAIPage/useComparisonProjects.js";
 import { useCompatibleGroundtruthSets } from "../../hooks/EvaluateAIPage/useCompatibleGroundtruthSets.js";

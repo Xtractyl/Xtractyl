@@ -1,9 +1,9 @@
 // frontend/src/components/GetResultsPage/GetResultsCard.jsx
 import { useState } from "react";
 import ResultsTable from "./ResultsTable";
-import ResultsReadyProjectSelect from "./ResultsReadyProjectSelect";
-import { useResultsTable } from "../../hooks/GetResultsPage/useResultsTable";
-import { useAppContext } from "../../context/AppContext";
+import ResultsReadyProjectSelect from "./ResultsReadyProjectSelect.jsx";
+import { useResultsTable } from "../../hooks/GetResultsPage/useResultsTable.js";
+import { useAppContext } from "../../context/AppContext.jsx";
 
 export default function GetResultsCard() {
   const { projectName, saveProjectName } = useAppContext();

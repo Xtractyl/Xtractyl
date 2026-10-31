@@ -1,13 +1,13 @@
 // src/components/StartPrelabellingPage/StartPrelabellingCard.jsx
 import { useState } from "react";
-import ModelDownloadInput from "./ModelDownloadInput";
-import PrelabellingReadyProjectSelect from "./PrelabellingReadyProjectSelect";
-import ModelPicker from "./ModelPicker";
-import SystemPromptInput from "./SystemPromptInput";
-import TokenInput from "../shared/TokenInput";
-import { useAppContext } from "../../context/AppContext";
-import { usePrelabelConfig } from "../../hooks/StartPrelabellingPage/usePrelabelConfig";
-import { usePrelabelJob } from "../../hooks/StartPrelabellingPage/usePrelabelJob";
+import ModelDownloadInput from "./ModelDownloadInput.jsx";
+import PrelabellingReadyProjectSelect from "./PrelabellingReadyProjectSelect.jsx";
+import ModelPicker from "./ModelPicker.jsx";
+import SystemPromptInput from "./SystemPromptInput.jsx";
+import TokenInput from "../shared/TokenInput.jsx";
+import { useAppContext } from "../../context/AppContext.jsx";
+import { usePrelabelConfig } from "../../hooks/StartPrelabellingPage/usePrelabelConfig.js";
+import { usePrelabelJob } from "../../hooks/StartPrelabellingPage/usePrelabelJob.js";
 
 export default function StartPrelabellingCard() {
   const [refreshKey, setRefreshKey] = useState(0);

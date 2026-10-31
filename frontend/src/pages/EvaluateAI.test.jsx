@@ -1,7 +1,7 @@
 // src/pages/EvaluateAI.test.jsx
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { AppProvider } from "../context/AppContext";
+import { AppProvider } from "../context/AppContext.jsx";
 import EvaluateAIPage from "./EvaluateAI.jsx";
 
 describe("EvaluateAI page", () => {

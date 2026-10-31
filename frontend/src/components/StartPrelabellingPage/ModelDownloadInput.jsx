@@ -1,6 +1,6 @@
 // src/components/ModelDownloadInput.jsx
 import { useState } from "react";
-import { useAppContext } from "../../context/AppContext";
+import { useAppContext } from "../../context/AppContext.jsx";
 
 export default function ModelDownloadInput({ onDone }) {
   const [name, setName] = useState("");

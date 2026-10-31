@@ -1,5 +1,5 @@
 // frontend/src/components/EvaluationDriftPage/EvaluationDriftCard.jsx
-import EvaluationDriftView from "./EvaluationDriftView";
+import EvaluationDriftView from "./EvaluationDriftView.jsx";
 
 export default function EvaluationDriftCard() {
   return (

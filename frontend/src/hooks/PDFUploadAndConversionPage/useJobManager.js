@@ -7,7 +7,7 @@ import {
   uploadToMinio,
   startConversion,
   getConversionStatus,
-} from "../../api/PDFUploadAndConversionPage/api";
+} from "../../api/PDFUploadAndConversionPage/api.js";
 
 export default function useJobManager(projectName, files) {
   const [jobId, setJobId] = useState(() => localStorage.getItem("conversionJobId"));

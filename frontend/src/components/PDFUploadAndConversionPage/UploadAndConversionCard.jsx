@@ -1,7 +1,7 @@
 // src/components/PDFUploadAndConversionPage/UploadAndConversionCard.jsx
 import { useState } from "react";
-import useJobManager from "../../hooks/PDFUploadAndConversionPage/useJobManager";
-import { useAppContext } from "../../context/AppContext";
+import useJobManager from "../../hooks/PDFUploadAndConversionPage/useJobManager.js";
+import { useAppContext } from "../../context/AppContext.jsx";
 
 export default function UploadAndConversionCard() {
   const [files, setFiles] = useState([]);

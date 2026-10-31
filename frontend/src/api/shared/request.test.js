@@ -1,6 +1,6 @@
 // frontend/src/api/shared/request.test.js
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { request } from "./request";
+import { request } from "./request.js";
 
 const BASE = "http://example.test";
 
