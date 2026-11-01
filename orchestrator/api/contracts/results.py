@@ -8,7 +8,7 @@ class ListProjectsReadyForResultsResponse(BaseModel):
 
 
 class GetResultsTableRequest(BaseModel):
-    project_name: str = Field(..., min_length=1)
+    project_name: str = Field(..., min_length=3)
 
 
 class GetResultsTableResponse(BaseModel):

@@ -11,7 +11,7 @@ class ProjectNameRequest(BaseModel):
     """Shared by Regression and Drift — both now take a single project
     name, replacing the earlier four-field configuration-filter request."""
 
-    project_name: str = Field(..., min_length=1)
+    project_name: str = Field(..., min_length=3)
 
 
 class RegressionViewRequest(ProjectNameRequest):

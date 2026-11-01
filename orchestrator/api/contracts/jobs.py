@@ -19,7 +19,7 @@ class JobStatusResponse(BaseModel):
 
 
 class EnqueueJobRequest(BaseModel):
-    project_name: str = Field(..., min_length=1)
+    project_name: str = Field(..., min_length=3)
     model: str = Field(..., min_length=1)
     system_prompt: str = Field(..., min_length=1)
 
