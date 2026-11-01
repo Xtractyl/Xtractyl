@@ -21,9 +21,9 @@ def test_not_found_maps_to_404():
     assert code == "X_NOT_FOUND"
 
 
-def test_validation_failed_maps_to_400():
+def test_validation_failed_maps_to_422():
     status, code = map_domain_error(ValidationFailed(code="INVALID_COMMAND", message="bad"))
-    assert status == HTTPStatus.BAD_REQUEST
+    assert status == HTTPStatus.UNPROCESSABLE_ENTITY
     assert code == "INVALID_COMMAND"
 
 
