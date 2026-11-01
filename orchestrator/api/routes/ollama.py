@@ -59,7 +59,7 @@ def register(app, spec, session_factory, ollama_client, archive_prefix):
             raise ValidationFailed(
                 code="VALIDATION_FAILED",
                 message="Invalid request payload.",
-                meta={"details": e.errors()},
+                details=e.errors(),
             )
         cmd = PullModelCommand.from_contract(model=contract.model)
 
