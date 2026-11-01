@@ -59,18 +59,12 @@ def get_regression_view(
     if len(matching) < 2:
         return {"entries": []}
 
-    ordered = sorted(matching, key=lambda e: e.run_at or e.created_at)
+    ordered = sorted(matching, key=lambda e: e.run_at)
     entries = []
     for e in ordered:
         entry_run = run_repo.get_run(e.comparison_prelabelling_run_id)
-        entry_model = model_repo.get_by_id(entry_run.model_id) if entry_run else None
-        entries.append(
-            _entry_to_dict(
-                e,
-                entry_model.archived_name if entry_model else None,
-                entry_run.project if entry_run else None,
-            )
-        )
+        entry_model = model_repo.get_by_id(entry_run.model_id)
+        entries.append(_entry_to_dict(e, entry_model.archived_name, entry_run.project))
     return {"entries": entries}
 
 
@@ -204,14 +198,10 @@ def get_drift_view(
     for name in ordered_names:
         e = by_gt[name]
         entry_run = run_repo.get_run(e.comparison_prelabelling_run_id)
-        entry_model = model_repo.get_by_id(entry_run.model_id) if entry_run else None
+        entry_model = model_repo.get_by_id(entry_run.model_id)
         entries.append(
             {
-                **_entry_to_dict(
-                    e,
-                    entry_model.archived_name if entry_model else None,
-                    entry_run.project if entry_run else None,
-                ),
+                **_entry_to_dict(e, entry_model.archived_name, entry_run.project),
                 "groundtruth_project": name,
             }
         )
