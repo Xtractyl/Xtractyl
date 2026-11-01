@@ -26,8 +26,8 @@ class EvaluateProjectsResponse(BaseModel):
     groundtruth_project_id: int
     comparison_project: str
     comparison_project_id: int
-    model: str | None = None
-    run_at_raw: str | None
+    model: str
+    run_at_raw: str
     metrics: dict
     answer_comparison: list
     evaluation_output_path: str
@@ -55,9 +55,9 @@ class ComparisonEntry(BaseModel):
 
     groundtruth_project: str
     comparison_prelabelling_run_id: int
-    comparison_project: str | None = None
-    model: str | None = None
-    run_at_raw: str | None = None
+    comparison_project: str
+    model: str
+    run_at_raw: str
     metrics: dict
 
 
