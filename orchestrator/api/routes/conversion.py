@@ -8,7 +8,7 @@ from domain.conversion import (
     prepare_conversion,
     start_conversion,
 )
-from domain.errors import InternalError
+from domain.errors import InternalError, ValidationFailed
 from domain.models.conversion import (
     CancelConversionCommand,
     ConversionCallbackCommand,
@@ -53,7 +53,14 @@ def register(app, spec, storage, queue, session_factory):
         tags=["conversion"],
     )
     def conversion_prepare():
-        contract = PrepareConversionRequest.model_validate(request.get_json(silent=True) or {})
+        try:
+            contract = PrepareConversionRequest.model_validate(request.get_json(silent=True) or {})
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid request payload.",
+                details=e.errors(),
+            )
         cmd = PrepareConversionCommand.from_contract(
             project=contract.project, filenames=contract.filenames
         )
@@ -89,7 +96,14 @@ def register(app, spec, storage, queue, session_factory):
         tags=["conversion"],
     )
     def conversion_convert():
-        contract = ConvertRequest.model_validate(request.get_json(silent=True) or {})
+        try:
+            contract = ConvertRequest.model_validate(request.get_json(silent=True) or {})
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid request payload.",
+                details=e.errors(),
+            )
         cmd = ConvertCommand.from_contract(job_id=contract.job_id)
         db = session_factory()
         try:
@@ -123,7 +137,14 @@ def register(app, spec, storage, queue, session_factory):
         tags=["conversion"],
     )
     def conversion_cancel():
-        contract = CancelConversionRequest.model_validate(request.get_json(silent=True) or {})
+        try:
+            contract = CancelConversionRequest.model_validate(request.get_json(silent=True) or {})
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid request payload.",
+                details=e.errors(),
+            )
         cmd = CancelConversionCommand.from_contract(job_id=contract.job_id)
         db = session_factory()
         try:
@@ -156,7 +177,14 @@ def register(app, spec, storage, queue, session_factory):
         tags=["conversion"],
     )
     def conversion_discard():
-        contract = DiscardConversionRequest.model_validate(request.get_json(silent=True) or {})
+        try:
+            contract = DiscardConversionRequest.model_validate(request.get_json(silent=True) or {})
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid request payload.",
+                details=e.errors(),
+            )
         cmd = DiscardConversionCommand.from_contract(job_id=contract.job_id)
         db = session_factory()
         try:
@@ -212,7 +240,14 @@ def register(app, spec, storage, queue, session_factory):
         tags=["conversion"],
     )
     def conversion_callback():
-        contract = ConversionCallbackRequest.model_validate(request.get_json(silent=True) or {})
+        try:
+            contract = ConversionCallbackRequest.model_validate(request.get_json(silent=True) or {})
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid request payload.",
+                details=e.errors(),
+            )
         cmd = ConversionCallbackCommand.from_contract(
             job_id=contract.job_id,
             filename=contract.filename,

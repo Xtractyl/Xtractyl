@@ -34,7 +34,7 @@ def register(app, spec, session_factory=None):
             raise ValidationFailed(
                 code="VALIDATION_FAILED",
                 message="Invalid query parameters.",
-                meta={"details": e.errors()},
+                details=e.errors(),
             )
 
         db = session_factory()
@@ -76,7 +76,7 @@ def register(app, spec, session_factory=None):
             raise ValidationFailed(
                 code="VALIDATION_FAILED",
                 message="Invalid query parameters.",
-                meta={"details": e.errors()},
+                details=e.errors(),
             )
         db = session_factory()
         try:

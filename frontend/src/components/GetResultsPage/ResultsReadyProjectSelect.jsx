@@ -1,5 +1,5 @@
 //src/components/GetResultsPage/ResultsReadyProjectSelect.jsx
-import { useReadyProjects } from "../../hooks/GetResultsPage/useReadyProjects";
+import { useReadyProjects } from "../../hooks/GetResultsPage/useReadyProjects.js";
 
 export default function ResultsReadyProjectSelect({ selected, onChange }) {
   const { projects, err } = useReadyProjects();

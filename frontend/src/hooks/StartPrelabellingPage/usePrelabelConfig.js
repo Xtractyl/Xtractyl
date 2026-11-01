@@ -1,5 +1,5 @@
 // frontend/src/hooks/StartPrelabellingPage/usePrelabelConfig.js
-import { useLocalStorage } from "./useLocalStorage";
+import { useLocalStorage } from "./useLocalStorage.js";
 
 export function usePrelabelConfig() {
   const [model, setModel] = useLocalStorage("ollamaModel", "");

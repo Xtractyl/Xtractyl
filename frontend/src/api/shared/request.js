@@ -1,6 +1,10 @@
 // src/api/shared/request.js
 
-export async function request(baseUrl, path, { method = "GET", headers, body, timeoutMs = 15000 } = {}) {
+export async function request(
+  baseUrl,
+  path,
+  { method = "GET", headers, body, timeoutMs = 15000 } = {}
+) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
 

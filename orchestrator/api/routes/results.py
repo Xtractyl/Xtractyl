@@ -63,7 +63,7 @@ def register(app, spec, session_factory=None):
             raise ValidationFailed(
                 code="VALIDATION_FAILED",
                 message="Invalid request payload.",
-                meta={"details": e.errors()},
+                details=e.errors(),
             )
 
         cmd = GetResultsTableCommand.from_contract(

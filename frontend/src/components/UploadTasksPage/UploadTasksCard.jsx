@@ -2,8 +2,8 @@
 import { useState } from "react";
 import UploadReadyProjectSelect from "./UploadReadyProjectSelect";
 import { uploadTasks } from "../../api/UploadTasksPage/api.js";
-import { useAppContext } from "../../context/AppContext";
-import TokenInput from "../shared/TokenInput";
+import { useAppContext } from "../../context/AppContext.jsx";
+import TokenInput from "../shared/TokenInput.jsx";
 
 const LS_BASE = import.meta.env.VITE_LS_BASE || "http://localhost:8080";
 

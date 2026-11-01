@@ -1,91 +1,31 @@
 // src/components/EvaluateAIPage/EvaluateAICard.jsx
-import { useEffect, useState } from "react";
-import {
-  getProjectsReadyForComparison,
-  getGroundtruthProjectsForComparison,
-  evaluateAI,
-} from "../../api/EvaluateAIPage/api.js";
+import { useState } from "react";
 import SaveAsGtSet from "./SaveAsGtSet.jsx";
 import ComparisonSelection from "./ComparisonSelection.jsx";
 import EvaluationResults from "./EvaluationResults.jsx";
-import { useAppContext } from "../../context/AppContext";
-import TokenInput from "../shared/TokenInput";
+import { useAppContext } from "../../context/AppContext.jsx";
+import TokenInput from "../shared/TokenInput.jsx";
+import { useComparisonProjects } from "../../hooks/EvaluateAIPage/useComparisonProjects.js";
+import { useCompatibleGroundtruthSets } from "../../hooks/EvaluateAIPage/useCompatibleGroundtruthSets.js";
+import { useEvaluation } from "../../hooks/EvaluateAIPage/useEvaluation.js";
 
 export default function EvaluateAICard() {
-  const { token } = useAppContext();
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
-  const [groundtruthProject, setGroundtruthProject] = useState("");
-  const [comparisonProject, setComparisonProject] = useState("");
-  const [compatibleGtSets, setCompatibleGtSets] = useState([]);
-  const [compatibleLoading, setCompatibleLoading] = useState(false);
-  const [compatibleError, setCompatibleError] = useState("");
-  const [evalLoading, setEvalLoading] = useState(false);
-  const [evalError, setEvalError] = useState("");
-  const [evalResult, setEvalResult] = useState(null);
   const [gtSetVersion, setGtSetVersion] = useState(0);
 
-  // Load comparison-ready project names from Postgres — no Label Studio
-  // call, no token needed
-  useEffect(() => {
-    setLoading(true);
-    setErrorMsg("");
-    getProjectsReadyForComparison()
-      .then((projectList) => {
-        setProjects(projectList);
-        if (projectList.length > 0) {
-          setComparisonProject((prev) => (projectList.includes(prev) ? prev : projectList[0]));
-        } else {
-          setComparisonProject("");
-        }
-      })
-      .catch((e) => {
-        setErrorMsg(e.message || "Failed to load projects.");
-        setComparisonProject("");
-      })
-      .finally(() => setLoading(false));
-  }, [comparisonProject, gtSetVersion]);
+  const { token } = useAppContext();
 
-  // Load groundtruth sets that already have an evaluation for the
-  // currently selected comparison project, a DB lookup against the evaluations table
-  useEffect(() => {
-    if (!comparisonProject) {
-      setCompatibleGtSets([]);
-      setGroundtruthProject("");
-      return;
-    }
+  const { projects, loading, errorMsg, comparisonProject, setComparisonProject } =
+    useComparisonProjects(gtSetVersion);
 
-    setCompatibleLoading(true);
-    setCompatibleError("");
+  const {
+    compatibleGtSets,
+    compatibleLoading,
+    compatibleError,
+    groundtruthProject,
+    setGroundtruthProject,
+  } = useCompatibleGroundtruthSets(comparisonProject, gtSetVersion);
 
-    getGroundtruthProjectsForComparison(comparisonProject)
-      .then((names) => {
-        setCompatibleGtSets(names);
-        setGroundtruthProject((prev) => (names.includes(prev) ? prev : names[0] || ""));
-      })
-      .catch((e) => {
-        setCompatibleGtSets([]);
-        setGroundtruthProject("");
-        setCompatibleError(e.message || "Failed to load compatible groundtruth sets.");
-      })
-      .finally(() => setCompatibleLoading(false));
-  }, [comparisonProject]);
-
-  const handleRunEvaluation = async () => {
-    setEvalLoading(true);
-    setEvalError("");
-    setEvalResult(null);
-
-    try {
-      const result = await evaluateAI(groundtruthProject, comparisonProject);
-      setEvalResult(result);
-    } catch (e) {
-      setEvalError(e.message || "Evaluation failed.");
-    } finally {
-      setEvalLoading(false);
-    }
-  };
+  const { evalLoading, evalError, evalResult, runEvaluation } = useEvaluation();
 
   return (
     <div className="p-8 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
@@ -116,7 +56,7 @@ export default function EvaluateAICard() {
         setGroundtruthProject={setGroundtruthProject}
         comparisonProject={comparisonProject}
         setComparisonProject={setComparisonProject}
-        onSubmit={handleRunEvaluation}
+        onSubmit={() => runEvaluation(groundtruthProject, comparisonProject)}
       />
 
       {/* === EVALUATION RESULTS === */}

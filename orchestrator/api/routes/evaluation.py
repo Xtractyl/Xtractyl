@@ -129,9 +129,16 @@ def register(app, spec, session_factory=None):
         tags=["evaluation"],
     )
     def list_groundtruth_projects_for_comparison_route():
-        contract = ListGroundtruthProjectsForComparisonRequest.model_validate(
-            request.get_json(silent=True) or {}
-        )
+        try:
+            contract = ListGroundtruthProjectsForComparisonRequest.model_validate(
+                request.get_json(silent=True) or {}
+            )
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid request payload.",
+                details=e.errors(),
+            )
         cmd = ListGroundtruthProjectsForComparisonCommand.from_contract(
             comparison_project=contract.comparison_project
         )
@@ -165,8 +172,14 @@ def register(app, spec, session_factory=None):
         tags=["evaluation"],
     )
     def evaluate_ai():
-        payload = request.get_json(silent=True) or {}
-        contract = EvaluateProjectsRequest.model_validate(payload)
+        try:
+            contract = EvaluateProjectsRequest.model_validate(request.get_json(silent=True) or {})
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid request payload.",
+                details=e.errors(),
+            )
         cmd = EvaluateProjectsCommand.from_contract(
             groundtruth_project=contract.groundtruth_project,
             comparison_project=contract.comparison_project,
@@ -222,7 +235,6 @@ def register(app, spec, session_factory=None):
         tags=["evaluation"],
     )
     def save_as_gt_set_route():
-        payload = request.get_json(silent=True) or {}
         token = extract_token(request)
 
         if not token:
@@ -230,8 +242,14 @@ def register(app, spec, session_factory=None):
                 code="TOKEN_REQUIRED",
                 message="Authorization token is required.",
             )
-
-        contract = SaveAsGtSetRequest.model_validate(payload)
+        try:
+            contract = SaveAsGtSetRequest.model_validate(request.get_json(silent=True) or {})
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid request payload.",
+                details=e.errors(),
+            )
         cmd = SaveAsGtSetCommand.from_contract(
             source_project=contract.source_project,
             token=token,
@@ -277,7 +295,7 @@ def register(app, spec, session_factory=None):
             raise ValidationFailed(
                 code="VALIDATION_FAILED",
                 message="Invalid query parameters.",
-                meta={"details": e.errors()},
+                details=e.errors(),
             )
         db = session_factory()
         try:

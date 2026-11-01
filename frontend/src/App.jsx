@@ -1,6 +1,6 @@
 //src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Layout from "./components/shared/Layout";
+import Layout from "./components/shared/Layout.jsx";
 import PDFUploadAndConversionPage from "./pages/PDFUploadAndConversion.jsx";
 import CreateProjectPage from "./pages/CreateProject.jsx";
 import UploadTasksPage from "./pages/UploadTasks.jsx";
@@ -10,7 +10,7 @@ import GetResultsPage from "./pages/GetResults.jsx";
 import EvaluateAIPage from "./pages/EvaluateAI.jsx";
 import EvaluationDriftPage from "./pages/EvaluationDrift.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
-import { AppProvider } from "./context/AppContext";
+import { AppProvider } from "./context/AppContext.jsx";
 
 export default function App() {
   return (

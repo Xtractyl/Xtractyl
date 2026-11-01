@@ -1,5 +1,5 @@
 //src/components/shared/Layout.jsx
-import TopBar from "./TopBar";
+import TopBar from "./TopBar.jsx";
 
 export default function Layout({ children }) {
   return (

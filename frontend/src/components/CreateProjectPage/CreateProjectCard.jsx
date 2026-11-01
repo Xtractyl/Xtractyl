@@ -1,10 +1,10 @@
 // src/components/CreateProjectPage/CreateProjectCard.jsx
 import { useState } from "react";
 import { createProject } from "../../api/CreateProjectPage/api.js";
-import TokenInput from "../shared/TokenInput";
-import CreateProjectForm from "./CreateProjectForm";
-import GroundtruthSets from "./GroundtruthSets";
-import { useAppContext } from "../../context/AppContext";
+import TokenInput from "../shared/TokenInput.jsx";
+import CreateProjectForm from "./CreateProjectForm.jsx";
+import GroundtruthSets from "./GroundtruthSets.jsx";
+import { useAppContext } from "../../context/AppContext.jsx";
 
 export default function CreateProjectCard() {
   const { token, saveProjectName } = useAppContext();

@@ -10,11 +10,11 @@ class CreateProjectRequest(BaseModel):
 
 
 class UploadTasksRequest(BaseModel):
-    project: str = Field(..., min_length=1)
+    project: str = Field(..., min_length=3)
 
 
 class ProjectExistsRequest(BaseModel):
-    project: str = Field(..., min_length=1)
+    project: str = Field(..., min_length=3)
 
 
 class CreateProjectResponse(BaseModel):

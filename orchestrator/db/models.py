@@ -94,7 +94,7 @@ class Evaluation(Base):
     comparison_prelabelling_run_id = Column(
         Integer, ForeignKey("prelabelling_runs.id"), nullable=False
     )
-    run_at = Column(TIMESTAMP(timezone=True), nullable=True)
+    run_at = Column(TIMESTAMP(timezone=True), nullable=False)
     metrics_micro = Column(JSONB, nullable=True)
     metrics_per_label = Column(JSONB, nullable=True)
     filenames_count = Column(Integer, nullable=True)

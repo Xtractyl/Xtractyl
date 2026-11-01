@@ -1,5 +1,5 @@
 # orchestrator/api/routes/projects.py
-from domain.errors import InternalError, Unauthorized
+from domain.errors import InternalError, Unauthorized, ValidationFailed
 from domain.models.projects import (
     CreateProjectCommand,
     ProjectExistsCommand,
@@ -47,10 +47,15 @@ def register(app, spec, session_factory, label_studio, storage):
         tags=["projects"],
     )
     def create_project():
-        payload = request.get_json(silent=True) or {}
         token = extract_token(request)
-
-        contract = CreateProjectRequest.model_validate(payload)
+        try:
+            contract = CreateProjectRequest.model_validate(request.get_json(silent=True) or {})
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid request payload.",
+                details=e.errors(),
+            )
         if not token:
             raise Unauthorized(
                 code="TOKEN_REQUIRED",
@@ -102,7 +107,14 @@ def register(app, spec, session_factory, label_studio, storage):
                 code="TOKEN_REQUIRED",
                 message="Authorization token is required.",
             )
-        contract = UploadTasksRequest.model_validate(request.get_json(silent=True) or {})
+        try:
+            contract = UploadTasksRequest.model_validate(request.get_json(silent=True) or {})
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid request payload.",
+                details=e.errors(),
+            )
         cmd = UploadTasksCommand.from_contract(project=contract.project, token=token)
         db = session_factory()
         try:
@@ -137,7 +149,14 @@ def register(app, spec, session_factory, label_studio, storage):
         tags=["projects"],
     )
     def project_exists_route():
-        contract = ProjectExistsRequest.model_validate(request.get_json(silent=True) or {})
+        try:
+            contract = ProjectExistsRequest.model_validate(request.get_json(silent=True) or {})
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid request payload.",
+                details=e.errors(),
+            )
         cmd = ProjectExistsCommand.from_contract(project=contract.project)
         db = session_factory()
         try:

@@ -1,5 +1,5 @@
 // src/api/StartPrelabellingPage/api.js
-import { request } from "../shared/request";
+import { request } from "../shared/request.js";
 const ORCH_BASE = (import.meta.env.VITE_ORCH_BASE || "http://localhost:5001").replace(/\/$/, "");
 const orch = (path, opts) => request(ORCH_BASE, path, opts);
 

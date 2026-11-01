@@ -1,6 +1,6 @@
 // src/components/CreateProjectPage/GroundtruthSets.jsx
 import { useState } from "react";
-import { fetchGroundtruthQuestionsAndLabels } from "../../api/CreateProjectPage/api";
+import { fetchGroundtruthQuestionsAndLabels } from "../../api/CreateProjectPage/api.js";
 
 export default function GroundtruthSets() {
   const [groundtruthSets, setGroundtruthSets] = useState([]);

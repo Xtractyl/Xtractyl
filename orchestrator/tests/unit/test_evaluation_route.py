@@ -28,7 +28,7 @@ def test_evaluate_ai_missing_groundtruth_returns_422(client):
 def test_evaluate_ai_missing_comparison_returns_422(client):
     res = client.post(
         "/evaluate-ai",
-        json={"groundtruth_project": "gt"},
+        json={"groundtruth_project": "gtA"},
     )
     assert res.status_code == 422
 
@@ -41,8 +41,8 @@ def test_evaluate_ai_returns_200(client, monkeypatch):
             "groundtruth_project_id": 1,
             "comparison_project": "cmp",
             "comparison_project_id": 2,
-            "model": None,
-            "run_at_raw": None,
+            "model": "llama3.1:8b",
+            "run_at_raw": "2026-01-01T00:00:00+00:00",
             "metrics": {},
             "answer_comparison": [],
             "evaluation_output_path": "/dummy/path.json",
@@ -50,7 +50,7 @@ def test_evaluate_ai_returns_200(client, monkeypatch):
     )
     res = client.post(
         "/evaluate-ai",
-        json={"groundtruth_project": "gt", "comparison_project": "cmp"},
+        json={"groundtruth_project": "gtA", "comparison_project": "cmp"},
     )
     assert res.status_code == 200
 
@@ -64,7 +64,7 @@ def test_evaluate_ai_contract_violated_returns_500(client, monkeypatch):
     )
     res = client.post(
         "/evaluate-ai",
-        json={"groundtruth_project": "gt", "comparison_project": "cmp"},
+        json={"groundtruth_project": "gtA", "comparison_project": "cmp"},
     )
     assert res.status_code == 500
     data = res.get_json()

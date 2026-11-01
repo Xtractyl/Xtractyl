@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { AppProvider } from "../../context/AppContext";
+import { AppProvider } from "../../context/AppContext.jsx";
 import GetResultsCard from "./GetResultsCard.jsx";
 import { getProjectsReadyForResults, getResultsTable } from "../../api/GetResultsPage/api.js";
 

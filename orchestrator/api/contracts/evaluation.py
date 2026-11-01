@@ -4,12 +4,12 @@ from pydantic import BaseModel, Field
 
 
 class EvaluateProjectsRequest(BaseModel):
-    groundtruth_project: str = Field(..., min_length=1)
-    comparison_project: str = Field(..., min_length=1)
+    groundtruth_project: str = Field(..., min_length=3)
+    comparison_project: str = Field(..., min_length=3)
 
 
 class SaveAsGtSetRequest(BaseModel):
-    source_project: str = Field(min_length=1)
+    source_project: str = Field(min_length=3)
     scope: Literal["internal", "external"]
 
 
@@ -26,8 +26,8 @@ class EvaluateProjectsResponse(BaseModel):
     groundtruth_project_id: int
     comparison_project: str
     comparison_project_id: int
-    model: str | None = None
-    run_at_raw: str | None
+    model: str
+    run_at_raw: str
     metrics: dict
     answer_comparison: list
     evaluation_output_path: str
@@ -42,7 +42,7 @@ class GroundtruthQalsResponse(BaseModel):
 
 
 class ListGroundtruthProjectsForComparisonRequest(BaseModel):
-    comparison_project: str = Field(..., min_length=1)
+    comparison_project: str = Field(..., min_length=3)
 
 
 class ListGroundtruthProjectsForComparisonResponse(BaseModel):
@@ -55,14 +55,14 @@ class ComparisonEntry(BaseModel):
 
     groundtruth_project: str
     comparison_prelabelling_run_id: int
-    comparison_project: str | None = None
-    model: str | None = None
-    run_at_raw: str | None = None
+    comparison_project: str
+    model: str
+    run_at_raw: str
     metrics: dict
 
 
 class GetComparisonViewRequest(BaseModel):
-    project_name: str = Field(..., min_length=1)
+    project_name: str = Field(..., min_length=3)
     scope: Literal["internal", "external"] = "external"
 
 

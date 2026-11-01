@@ -18,7 +18,7 @@ def map_domain_error(err: DomainError) -> tuple[int, str]:
         return HTTPStatus.NOT_FOUND, err.code
 
     if isinstance(err, ValidationFailed):
-        return HTTPStatus.BAD_REQUEST, err.code
+        return HTTPStatus.UNPROCESSABLE_ENTITY, err.code
 
     if isinstance(err, InvalidState):
         return HTTPStatus.CONFLICT, err.code

@@ -262,14 +262,14 @@ def _serialize_existing_evaluation(existing, project_repo, run_repo, model_repo)
     """
     run = run_repo.get_run(existing.comparison_prelabelling_run_id)
     gt_project_record = project_repo.get_project(existing.groundtruth_project)
-    model = model_repo.get_by_id(run.model_id) if run else None
+    model = model_repo.get_by_id(run.model_id)
     return {
         "groundtruth_project": existing.groundtruth_project,
-        "groundtruth_project_id": gt_project_record.id if gt_project_record else None,
-        "comparison_project": run.project if run else None,
+        "groundtruth_project_id": gt_project_record.id,
+        "comparison_project": run.project,
         "comparison_project_id": existing.comparison_prelabelling_run_id,
-        "model": model.archived_name if model else None,
-        "run_at_raw": existing.run_at.isoformat() if existing.run_at else None,
+        "model": model.archived_name,
+        "run_at_raw": existing.run_at.isoformat(),
         "metrics": {
             "micro": existing.metrics_micro,
             "per_label": existing.metrics_per_label,
@@ -359,7 +359,7 @@ def get_groundtruth_qals(project_repo) -> dict:
 
 
 def list_groundtruth_projects_for_comparison(comparison_project: str, run_repo, eval_repo) -> dict:
-    """Backs POST /list_groundtruth_projects_for_comparison  the
+    """Backs POST /list-groundtruth-projects-for-comparison  the
     groundtruth project dropdown on Evaluate AI. Filters to groundtruth
     projects the comparison project has been evaluated against"""
     run = run_repo.get_run_for_project(comparison_project)
@@ -441,13 +441,13 @@ def list_evaluated_projects(project_repo, run_repo, eval_repo) -> list[str]:
     return eval_repo.list_projects_with_evaluations()
 
 
-def _entry_to_dict(evaluation, model_name: str | None, run_project: str | None) -> dict:
+def _entry_to_dict(evaluation, model_name: str, run_project: str) -> dict:
     return {
         "groundtruth_project": evaluation.groundtruth_project,
         "comparison_prelabelling_run_id": evaluation.comparison_prelabelling_run_id,
         "comparison_project": run_project,
         "model": model_name,
-        "run_at_raw": evaluation.run_at.isoformat() if evaluation.run_at else None,
+        "run_at_raw": evaluation.run_at.isoformat(),
         "metrics": {
             "micro": evaluation.metrics_micro,
             "per_label": evaluation.metrics_per_label,
@@ -482,8 +482,6 @@ def get_comparison_view(
     entries = []
     for e in evaluations:
         run = run_repo.get_run(e.comparison_prelabelling_run_id)
-        model = model_repo.get_by_id(run.model_id) if run else None
-        entries.append(
-            _entry_to_dict(e, model.archived_name if model else None, run.project if run else None)
-        )
+        model = model_repo.get_by_id(run.model_id)
+        entries.append(_entry_to_dict(e, model.archived_name, run.project))
     return {"entries": entries}

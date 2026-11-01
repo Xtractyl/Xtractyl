@@ -2,8 +2,8 @@
 import useFormState from "../../hooks/CreateProjectPage/useFormState.js";
 import useError from "../../hooks/CreateProjectPage/useError.js";
 import { splitLines } from "../../utils/CreateProjectPage/splitLines.js";
-import ConvertedProjectSelect from "./ConvertedProjectSelect";
-import QuestionsLabelsTable from "./QuestionsLabelsTable";
+import ConvertedProjectSelect from "./ConvertedProjectSelect.jsx";
+import QuestionsLabelsTable from "./QuestionsLabelsTable.jsx";
 
 export default function CreateProjectForm({ onCreateProject, busy }) {
   const { title, setTitle, questions, setQuestions, labels, setLabels, resetForm } = useFormState();

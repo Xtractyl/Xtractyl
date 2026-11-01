@@ -31,7 +31,14 @@ class SaveAsGtSetCommand(BaseModel):
 
     @classmethod
     def from_contract(cls, source_project: str, token: str, scope: str) -> "SaveAsGtSetCommand":
-        return cls(source_project=source_project, token=token, scope=scope)
+        try:
+            return cls(source_project=source_project, token=token, scope=scope)
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="INVALID_COMMAND",
+                message="Invalid command payload.",
+                details=e.errors(),
+            )
 
 
 class ListGroundtruthProjectsForComparisonCommand(BaseModel):
@@ -39,4 +46,11 @@ class ListGroundtruthProjectsForComparisonCommand(BaseModel):
 
     @classmethod
     def from_contract(cls, comparison_project: str):
-        return cls(comparison_project=comparison_project)
+        try:
+            return cls(comparison_project=comparison_project)
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="INVALID_COMMAND",
+                message="Invalid command payload.",
+                details=e.errors(),
+            )

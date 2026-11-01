@@ -39,7 +39,12 @@ class DiscardConversionCommand(BaseModel):
 
     @classmethod
     def from_contract(cls, job_id: int):
-        return cls(job_id=job_id)
+        try:
+            return cls(job_id=job_id)
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="INVALID_COMMAND", message="Invalid command payload.", details=e.errors()
+            )
 
 
 class ConvertCommand(BaseModel):
