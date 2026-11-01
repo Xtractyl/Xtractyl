@@ -359,7 +359,7 @@ def get_groundtruth_qals(project_repo) -> dict:
 
 
 def list_groundtruth_projects_for_comparison(comparison_project: str, run_repo, eval_repo) -> dict:
-    """Backs POST /list_groundtruth_projects_for_comparison  the
+    """Backs POST /list-groundtruth-projects-for-comparison  the
     groundtruth project dropdown on Evaluate AI. Filters to groundtruth
     projects the comparison project has been evaluated against"""
     run = run_repo.get_run_for_project(comparison_project)
