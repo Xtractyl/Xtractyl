@@ -54,7 +54,7 @@ def register(app, spec, queue, session_factory):
             raise ValidationFailed(
                 code="VALIDATION_FAILED",
                 message="Invalid job_id.",
-                meta={"details": e.errors()},
+                details=e.errors(),
             )
         cmd = JobStatusCommand.from_contract(job_id=contract.job_id)
         db = session_factory()
@@ -98,7 +98,14 @@ def register(app, spec, queue, session_factory):
                 code="TOKEN_REQUIRED",
                 message="Authorization token is required.",
             )
-        contract = EnqueueJobRequest.model_validate(request.get_json(silent=True) or {})
+        try:
+            contract = EnqueueJobRequest.model_validate(request.get_json(silent=True) or {})
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid request payload.",
+                details=e.errors(),
+            )
         cmd = EnqueueJobCommand.from_contract(contract=contract, token=token)
         db = session_factory()
         try:
@@ -168,7 +175,14 @@ def register(app, spec, queue, session_factory):
         tags=["jobs"],
     )
     def prelabel_job_failed():
-        contract = JobFailedRequest.model_validate(request.get_json(silent=True) or {})
+        try:
+            contract = JobFailedRequest.model_validate(request.get_json(silent=True) or {})
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid request payload.",
+                details=e.errors(),
+            )
         cmd = JobFailedCommand.from_contract(contract)
         db = session_factory()
         try:
@@ -203,7 +217,14 @@ def register(app, spec, queue, session_factory):
         tags=["jobs"],
     )
     def prelabel_task_result():
-        contract = TaskResultRequest.model_validate(request.get_json(silent=True) or {})
+        try:
+            contract = TaskResultRequest.model_validate(request.get_json(silent=True) or {})
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid request payload.",
+                details=e.errors(),
+            )
         cmd = TaskResultCommand.from_contract(contract)
         db = session_factory()
         try:
