@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { getProjectsReadyForCreation } from "../../api/CreateProjectPage/api.js";
 
-export default function ConvertedProjectSelect({ selected, onChange }) {
+export default function ConvertedProjectSelect({ selected, onChange, reloadKey = 0 }) {
   const [projects, setProjects] = useState([]);
   const [err, setErr] = useState("");
 
@@ -13,7 +13,7 @@ export default function ConvertedProjectSelect({ selected, onChange }) {
         setProjects([]);
         setErr(e.message || "Failed to load projects.");
       });
-  }, []);
+  }, [reloadKey]);
 
   return (
     <div>
