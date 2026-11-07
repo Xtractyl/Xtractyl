@@ -2,12 +2,16 @@
 from domain.errors import InternalError, Unauthorized, ValidationFailed
 from domain.models.projects import (
     CreateProjectCommand,
+    DiscardProjectCommand,
     ProjectExistsCommand,
+    ProjectLinksCommand,
     UploadTasksCommand,
 )
 from domain.projects import (
     check_project_exists,
     create_project_main_from_payload,
+    discard_project,
+    get_project_links,
     list_projects_ready_for_creation,
     list_projects_ready_for_prelabelling,
     list_projects_ready_for_upload,
@@ -15,6 +19,7 @@ from domain.projects import (
 )
 from flask import jsonify, request
 from flask_pydantic_spec import Request, Response
+from infrastructure.repository.conversion_repository import ConversionRepository
 from infrastructure.repository.project_repository import ProjectRepository
 from pydantic import ValidationError
 
@@ -22,11 +27,15 @@ from api.contracts.errors import ErrorResponse
 from api.contracts.projects import (
     CreateProjectRequest,
     CreateProjectResponse,
+    DiscardProjectRequest,
+    DiscardProjectResponse,
     ListProjectsReadyForCreationResponse,
     ListProjectsReadyForPrelabellingResponse,
     ListProjectsReadyForUploadResponse,
     ProjectExistsRequest,
     ProjectExistsResponse,
+    ProjectLinksRequest,
+    ProjectLinksResponse,
     UploadTasksRequest,
     UploadTasksResponse,
 )
@@ -80,6 +89,88 @@ def register(app, spec, session_factory, label_studio, storage):
             db.close()
         try:
             validated = CreateProjectResponse.model_validate(result)
+        except ValidationError as e:
+            raise InternalError(
+                code="RESPONSE_CONTRACT_VIOLATED",
+                message="Internal response did not match expected schema.",
+                meta={"details": e.errors()},
+            )
+        return jsonify(validated.model_dump()), 200
+
+    @app.route("/project-links", methods=["POST"])
+    @spec.validate(
+        body=Request(ProjectLinksRequest),
+        resp=Response(
+            HTTP_200=ProjectLinksResponse,
+            HTTP_404=ErrorResponse,  # project not found
+            HTTP_409=ErrorResponse,  # conversion not done / already has a Label Studio project
+            HTTP_500=ErrorResponse,
+        ),
+        tags=["projects"],
+    )
+    def project_links_route():
+        try:
+            contract = ProjectLinksRequest.model_validate(request.get_json(silent=True) or {})
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid request payload.",
+                details=e.errors(),
+            )
+        cmd = ProjectLinksCommand.from_contract(
+            title=contract.title, questions=contract.questions, labels=contract.labels
+        )
+        db = session_factory()
+        try:
+            repo = ProjectRepository(db)
+            result = get_project_links(cmd, repo=repo)
+        finally:
+            db.close()
+        try:
+            validated = ProjectLinksResponse.model_validate(result)
+        except ValidationError as e:
+            raise InternalError(
+                code="RESPONSE_CONTRACT_VIOLATED",
+                message="Internal response did not match expected schema.",
+                meta={"details": e.errors()},
+            )
+        return jsonify(validated.model_dump()), 200
+
+    @app.route("/discard-project", methods=["POST"])
+    @spec.validate(
+        body=Request(DiscardProjectRequest),
+        resp=Response(
+            HTTP_200=DiscardProjectResponse,
+            HTTP_409=ErrorResponse,  # conversion not done / already has a Label Studio project
+            HTTP_500=ErrorResponse,
+        ),
+        tags=["projects"],
+    )
+    def discard_project_route():
+        try:
+            contract = DiscardProjectRequest.model_validate(request.get_json(silent=True) or {})
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid request payload.",
+                details=e.errors(),
+            )
+        cmd = DiscardProjectCommand.from_contract(project=contract.project)
+        db = session_factory()
+        try:
+            project_repo = ProjectRepository(db)
+            conversion_repo = ConversionRepository(db)
+            result = discard_project(
+                cmd, project_repo=project_repo, conversion_repo=conversion_repo, storage=storage
+            )
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
+        try:
+            validated = DiscardProjectResponse.model_validate(result)
         except ValidationError as e:
             raise InternalError(
                 code="RESPONSE_CONTRACT_VIOLATED",
