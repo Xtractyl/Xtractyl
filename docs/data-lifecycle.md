@@ -155,6 +155,32 @@ Create Project Pipeline has run). Three mechanisms can trigger this:
   rows still reference cannot occur). Per-prefix error isolation: a failure on one prefix logs and
   continues, does not abort the rest of the sweep
 
+**This same cleanup container additionally sets stuck prelabelling runs to `"incomplete"`**
+(`sweep_stale_prelabelling_runs`) — covers a worker that crashed mid-run: neither `task-result` nor
+`job-failed` will ever arrive again, the run stays `"running"` and blocks its project (enqueue
+guard), and it cannot be resumed because `resume_run` only accepts `"failed"`, `"cancelled"` and
+`"incomplete"`. Runs in their own, shorter loop (`CLEANUP_STALE_RUN_INTERVAL_SECONDS`, default 10
+minutes) so the user does not wait for the hourly cleanup.
+- `updated_at` of the run is the heartbeat: `derive_run_status` bumps it with every task result, and
+  `"running"` is only set by the first task result, so a `"running"` run always has one
+- A single task cannot take longer than the worker's request timeout, `questions * (LLM_TIMEOUT +
+  LLM_OVERHEAD) + UPLOAD_MARGIN`. A run is stuck once it received no result for
+  `CLEANUP_STALE_RUN_FACTOR` (default 2) times that. The number of questions is read per run from
+  `projects.questions_and_labels`. `LLM_TIMEOUT`, `LLM_OVERHEAD` and `UPLOAD_MARGIN` must be the
+  same as for the worker, otherwise the threshold is wrong
+- Sets `"incomplete"` (not `"failed"`): the finished tasks are valid and the run is resumed like
+  any other incomplete run. `error` is set to `[WORKER_LOST] …` as a hint, because the cause is
+  presumed, not known
+- One UPDATE that checks `status = 'running'` again, so a task result arriving at the same moment
+  wins and the run is left alone. A run with `cancel_requested` is also set to `"incomplete"`
+  (cancelled and incomplete runs resume the same way); `resume_run` resets the flag
+- A swept run can fail on resume with `TASKS_OUT_OF_SYNC` (Prelabelling Pipeline, step 2): if the
+  worker died after ml_backend wrote a prediction to Label Studio but before `task-result` arrived,
+  Label Studio and Postgres disagree about that task. A crash during the LLM call itself leaves
+  nothing behind and resumes cleanly
+- `"pending"` runs are deliberately not swept: they have no heartbeat yet, and a job that waits
+  behind a long run is legitimate
+
 **This same cleanup container additionally sweeps orphaned Label Studio projects**
 (`sweep_orphaned_label_studio_projects`) — comparing Label Studio's project list against
 `projects.label_studio_id` in the DB and deleting anything unmatched and older than 30 minutes (default value). This is the fallback net for the synchronous compensating deletion in the Create Project Pipeline, for cases where that synchronous
@@ -231,11 +257,13 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
 
   - **Changed (cancel):** `"running"` → `"cancelled"` in `handle_task_result` (`run_repo.apply_cancel`), right after `derive_run_status`, if `cancel_requested` is set. A run the derivation just finished (`"done"`/`"incomplete"`) is not cancelled
   - **Note on `"running"` and `"failed"`:** `"running"` is first set by the first `task-result` of a run, not when the worker picks the job up. A failure before the first task result (e.g. the task list cannot be fetched) therefore goes `"pending"` → `"failed"` directly, skipping `"running"`
-  - **Changed (planned):** the stale-run sweep sets `"running"` → `"incomplete"` and `"pending"` → `"failed"` for runs that stopped receiving updates
+  - **Changed (stale-run sweep):** `"running"` → `"incomplete"` by the cleanup container (`sweep_stale_prelabelling_runs`) for a run whose `updated_at` is older than the stale threshold (see Cleanup container above). `"pending"` runs are not touched
+
   - **Note:** evaluation (`sync_missing_evaluations`) only ever triggers on `"done"` — neither `"incomplete"` nor `"cancelled"` trigger it, regardless of how many tasks happened to complete successfully before the run ended
 - `error` (nullable)
   - **Set:** `NULL` at creation — Prelabelling Pipeline, step 1
-  - **Changed (current):** set by `POST /prelabel/job-failed` together with `"failed"`, as a single value in the form `[CODE] message`
+  - **Changed (stale-run sweep):** set to `[WORKER_LOST] …` together with `"incomplete"` by the stale-run sweep, so a stopped run can be told apart from one the user or the worker ended. Cleared again by `resume_run`
+
   - Errors of single tasks are not stored here but in `prelabelling_run_tasks.error`; this column only holds the error of a job that failed as a whole
 
 - `cancel_requested` (bool, NOT NULL, default `false`)
@@ -749,6 +777,7 @@ is only used for this check.
 - Exception: `ORCHESTRATOR_UNAVAILABLE` (the orchestrator did not answer after all attempts) is only
   logged, there is nobody to report to. The run then keeps its status until the stale-run sweep
   exists (planned)
+  (cleanup container) sets a `"running"` run to `"incomplete"`
 - Calls to the orchestrator are repeated only if no answer came at all (`ORCH_MAX_ATTEMPTS`, default
   5; `ORCH_RETRY_DELAY_SECONDS`, default 10, doubling per attempt). An answer, even an error, is not
   repeated. Waiting for a job in Redis reconnects without an end (`REDIS_RETRY_DELAY_SECONDS`,
@@ -804,21 +833,6 @@ is only used for this check.
 > (see above). An error in the evaluation therefore rolls back that transaction as well, and the
 > result of the last task is lost. Decouple the evaluation from the `task-result` transaction, so a
 > failing evaluation cannot cost a task result
->
-> Covers runs that stop receiving updates because the worker crashed mid-loop or never picked the
-> job up: neither `task-result` nor `job-failed` will ever arrive for them again, and a run in
-> `"pending"` or `"running"` blocks its project (enqueue guard, dropdown). `updated_at` of the run
-> is the heartbeat; `derive_run_status` bumps it with every task result:
-> - `"running"` with a stale `updated_at` → `"incomplete"`, not `"failed"`: the tasks that did
->   finish are valid, and the run can be resumed like any other `"incomplete"` run
-> - `"pending"` with a stale `updated_at` → `"failed"`: the worker never started on it. The worker
->   processes jobs one at a time, so the age guard for `"pending"` must be longer than the longest
->   expected wait in the queue
->
-> By definition nothing is left executing to perform this check from inside a crashed run, so this
-> can only be a periodic sweep.
-
-> **[TODO 5]** Stale-run sweep in the cleanup container, mirroring Conversion's stale-job sweep (see
 
 
 ---
