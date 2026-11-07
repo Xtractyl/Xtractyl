@@ -34,6 +34,7 @@ def create_app() -> Flask:
         secret_key=os.getenv("MINIO_ROOT_PASSWORD", "yourpassword"),
         bucket=os.getenv("MINIO_BUCKET", "xtractyl"),
         presign_expiry_seconds=int(os.getenv("MINIO_PRESIGN_EXPIRY_SECONDS", "3600")),
+        public_endpoint=os.getenv("MINIO_PUBLIC_ENDPOINT"),
     )
     redis_host = os.getenv("REDIS_HOST", "job_queue")
     redis_port = int(os.getenv("REDIS_PORT", "6379"))

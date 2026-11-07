@@ -20,3 +20,19 @@ export async function getProjectsReadyForCreation() {
   const data = await r(`/list-projects-ready-for-creation`);
   return data.projects;
 }
+
+export async function getProjectLinks({ title, questions, labels }) {
+  return r(`/project-links`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title, questions, labels }),
+  });
+}
+
+export async function discardProject(project) {
+  return r(`/discard-project`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ project }),
+  });
+}

@@ -110,7 +110,7 @@
 
 These three tables are the only ones whose rows can be deleted outright rather than just updated —
 always together, never individually, and always before a `label_studio_id` exists (i.e. before
-Create Project Pipeline has run). Two mechanisms can trigger this:
+Create Project Pipeline has run). Three mechanisms can trigger this:
 
 **`discard_conversion` (`POST /conversion/discard`)**
 - Called automatically by the frontend on upload failure (step 3b), and also fired automatically
@@ -119,9 +119,23 @@ Create Project Pipeline has run). Two mechanisms can trigger this:
   swallowed client-side
 - Deletes the `projects`, `files`, and `conversion_jobs` rows for that project, but only if
   `conversion_jobs.status` is still `"pending"`, `"failed"`, or `"cancelled"` — a job that is
-  `"converting"` or already `"done"` is not touched by this endpoint
+  `"converting"` or already `"done"` is not touched by this endpoint (a `"done"` project that has no
+  Label Studio project yet is removed by `discard_project` below)
 - Also deletes any PDF bytes already uploaded to MinIO under that project's prefix — no orphaned
   objects remain
+
+**`discard_project` (`POST /discard-project`)**
+- Called by the frontend when the user decides not to continue after seeing the links their project
+  would get (see `get_project_links` in the Create Project Pipeline) — the only way to remove a
+  project whose conversion is already `"done"`
+- Refuses with `CONVERSION_NOT_DONE` unless `conversion_jobs.status` is `"done"` (running or failed
+  jobs belong to `discard_conversion` and the cleanup container) and with
+  `PROJECT_ALREADY_HAS_LABEL_STUDIO_ID` once a Label Studio project exists — so it can never leave
+  an orphaned Label Studio project behind. A project that no longer exists returns
+  `{"status": "already_gone"}`
+- Deletes the `projects`, `files`, and `conversion_jobs` rows, commits, and only then deletes the
+  PDF and HTML bytes under that project's MinIO prefix (same DB-first ordering as
+  `discard_conversion`; the orphaned-prefix sweep below is the safety net)
 
 **Cleanup container (scheduled, periodic)**
 - Fallback for cases where `discard_conversion` itself was never called (e.g. the abort call didn't
@@ -140,6 +154,32 @@ Create Project Pipeline has run). Two mechanisms can trigger this:
   failed (DB-first ordering means this is the only failure mode possible — a MinIO prefix that DB
   rows still reference cannot occur). Per-prefix error isolation: a failure on one prefix logs and
   continues, does not abort the rest of the sweep
+
+**This same cleanup container additionally sets stuck prelabelling runs to `"incomplete"`**
+(`sweep_stale_prelabelling_runs`) — covers a worker that crashed mid-run: neither `task-result` nor
+`job-failed` will ever arrive again, the run stays `"running"` and blocks its project (enqueue
+guard), and it cannot be resumed because `resume_run` only accepts `"failed"`, `"cancelled"` and
+`"incomplete"`. Runs in their own, shorter loop (`CLEANUP_STALE_RUN_INTERVAL_SECONDS`, default 10
+minutes) so the user does not wait for the hourly cleanup.
+- `updated_at` of the run is the heartbeat: `derive_run_status` bumps it with every task result, and
+  `"running"` is only set by the first task result, so a `"running"` run always has one
+- A single task cannot take longer than the worker's request timeout, `questions * (LLM_TIMEOUT +
+  LLM_OVERHEAD) + UPLOAD_MARGIN`. A run is stuck once it received no result for
+  `CLEANUP_STALE_RUN_FACTOR` (default 2) times that. The number of questions is read per run from
+  `projects.questions_and_labels`. `LLM_TIMEOUT`, `LLM_OVERHEAD` and `UPLOAD_MARGIN` must be the
+  same as for the worker, otherwise the threshold is wrong
+- Sets `"incomplete"` (not `"failed"`): the finished tasks are valid and the run is resumed like
+  any other incomplete run. `error` is set to `[WORKER_LOST] …` as a hint, because the cause is
+  presumed, not known
+- One UPDATE that checks `status = 'running'` again, so a task result arriving at the same moment
+  wins and the run is left alone. A run with `cancel_requested` is also set to `"incomplete"`
+  (cancelled and incomplete runs resume the same way); `resume_run` resets the flag
+- A swept run can fail on resume with `TASKS_OUT_OF_SYNC` (Prelabelling Pipeline, step 2): if the
+  worker died after ml_backend wrote a prediction to Label Studio but before `task-result` arrived,
+  Label Studio and Postgres disagree about that task. A crash during the LLM call itself leaves
+  nothing behind and resumes cleanly
+- `"pending"` runs are deliberately not swept: they have no heartbeat yet, and a job that waits
+  behind a long run is legitimate
 
 **This same cleanup container additionally sweeps orphaned Label Studio projects**
 (`sweep_orphaned_label_studio_projects`) — comparing Label Studio's project list against
@@ -217,11 +257,13 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
 
   - **Changed (cancel):** `"running"` → `"cancelled"` in `handle_task_result` (`run_repo.apply_cancel`), right after `derive_run_status`, if `cancel_requested` is set. A run the derivation just finished (`"done"`/`"incomplete"`) is not cancelled
   - **Note on `"running"` and `"failed"`:** `"running"` is first set by the first `task-result` of a run, not when the worker picks the job up. A failure before the first task result (e.g. the task list cannot be fetched) therefore goes `"pending"` → `"failed"` directly, skipping `"running"`
-  - **Changed (planned):** the stale-run sweep sets `"running"` → `"incomplete"` and `"pending"` → `"failed"` for runs that stopped receiving updates
+  - **Changed (stale-run sweep):** `"running"` → `"incomplete"` by the cleanup container (`sweep_stale_prelabelling_runs`) for a run whose `updated_at` is older than the stale threshold (see Cleanup container above). `"pending"` runs are not touched
+
   - **Note:** evaluation (`sync_missing_evaluations`) only ever triggers on `"done"` — neither `"incomplete"` nor `"cancelled"` trigger it, regardless of how many tasks happened to complete successfully before the run ended
 - `error` (nullable)
   - **Set:** `NULL` at creation — Prelabelling Pipeline, step 1
-  - **Changed (current):** set by `POST /prelabel/job-failed` together with `"failed"`, as a single value in the form `[CODE] message`
+  - **Changed (stale-run sweep):** set to `[WORKER_LOST] …` together with `"incomplete"` by the stale-run sweep, so a stopped run can be told apart from one the user or the worker ended. Cleared again by `resume_run`
+
   - Errors of single tasks are not stored here but in `prelabelling_run_tasks.error`; this column only holds the error of a job that failed as a whole
 
 - `cancel_requested` (bool, NOT NULL, default `false`)
@@ -431,15 +473,39 @@ a failed discard call here is caught and ignored client-side (see the following 
 
 ---
 
+### `get_project_links` (`POST /project-links`)
+- Read-only preview shown by the frontend between filling in the form and `POST /create-project`;
+  nothing is written. Takes `title`, `questions`, `labels` (no token — only Postgres is read) and
+  runs the same three checks as `create_project_main_from_payload`
+- Computes `labels_hash` / `questions_hash` from the submitted values exactly as
+  `save_questions_and_labels` will later, and takes `document_set_hash` and the HTML hashes from the
+  already converted project. Returns three lists of existing project names:
+  - `comparison`: same `labels_hash` and `document_set_hash` (what `sync_missing_evaluations` and
+    the comparison view match on)
+  - `regression`: same `labels_hash`, `questions_hash` and `document_set_hash`
+  - `drift`: same `labels_hash` and `questions_hash`, and no HTML hash in common
+- Model and system prompt are not known yet, so `regression` and `drift` are only possible if the
+  user later chooses the same ones; the frontend says so next to the lists. The actual grouping still
+  happens through evaluations (Evaluation Pipeline) — this endpoint only mirrors the matching rules
+  on projects
+- Because the hashes ignore label/question order and only strip surrounding whitespace, the
+  pairing of question and label per row is not part of the match; case matters
+- The frontend then offers: confirm (`POST /create-project`), go back and edit (nothing happens), or
+  cancel, which calls `POST /discard-project` (see Conversion Pipeline, deletion mechanisms)
+
+
 ## Create Project Pipeline
 
 ### `create_project_main_from_payload` (`POST /create-project`)
-- Checked in order, both backend-enforced (not just UI-level filtering via the frontend dropdown):
+- Checked in order via `_ensure_ready_for_creation` (shared with `get_project_links` below), all
+  backend-enforced (not just UI-level filtering via the frontend dropdown):
   1. `repo.project_exists(title)` — raises `PROJECT_NOT_FOUND` if the project doesn't exist at all
   2. `repo.is_conversion_done(title)` — raises `CONVERSION_NOT_DONE` if conversion hasn't finished
      successfully; necessary specifically because a project whose conversion failed gets removed
      entirely (see Conversion Pipeline, `discard_conversion`/cleanup), so this guard also implicitly
      covers "project no longer exists because conversion failed"
+  3. `repo.get_label_studio_id(title)` — raises `PROJECT_ALREADY_HAS_LABEL_STUDIO_ID` if a Label
+     Studio project was already created for it
 - Creates a real Label Studio project + attaches the ML backend (external side effects, in this order)
 - `projects.label_studio_id` set to the returned Label Studio project ID
 - `projects.questions_and_labels` (JSONB) and `projects.labels_hash` set from the submitted questions/labels
@@ -711,6 +777,7 @@ is only used for this check.
 - Exception: `ORCHESTRATOR_UNAVAILABLE` (the orchestrator did not answer after all attempts) is only
   logged, there is nobody to report to. The run then keeps its status until the stale-run sweep
   exists (planned)
+  (cleanup container) sets a `"running"` run to `"incomplete"`
 - Calls to the orchestrator are repeated only if no answer came at all (`ORCH_MAX_ATTEMPTS`, default
   5; `ORCH_RETRY_DELAY_SECONDS`, default 10, doubling per attempt). An answer, even an error, is not
   repeated. Waiting for a job in Redis reconnects without an end (`REDIS_RETRY_DELAY_SECONDS`,
@@ -766,21 +833,6 @@ is only used for this check.
 > (see above). An error in the evaluation therefore rolls back that transaction as well, and the
 > result of the last task is lost. Decouple the evaluation from the `task-result` transaction, so a
 > failing evaluation cannot cost a task result
->
-> Covers runs that stop receiving updates because the worker crashed mid-loop or never picked the
-> job up: neither `task-result` nor `job-failed` will ever arrive for them again, and a run in
-> `"pending"` or `"running"` blocks its project (enqueue guard, dropdown). `updated_at` of the run
-> is the heartbeat; `derive_run_status` bumps it with every task result:
-> - `"running"` with a stale `updated_at` → `"incomplete"`, not `"failed"`: the tasks that did
->   finish are valid, and the run can be resumed like any other `"incomplete"` run
-> - `"pending"` with a stale `updated_at` → `"failed"`: the worker never started on it. The worker
->   processes jobs one at a time, so the age guard for `"pending"` must be longer than the longest
->   expected wait in the queue
->
-> By definition nothing is left executing to perform this check from inside a crashed run, so this
-> can only be a periodic sweep.
-
-> **[TODO 5]** Stale-run sweep in the cleanup container, mirroring Conversion's stale-job sweep (see
 
 
 ---

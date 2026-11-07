@@ -38,6 +38,38 @@ class ProjectExistsCommand(BaseModel):
             )
 
 
+class ProjectLinksCommand(BaseModel):
+    title: str
+    questions: list[str]
+    labels: list[str]
+
+    @classmethod
+    def from_contract(cls, title: str, questions: list, labels: list):
+        try:
+            return cls(title=title, questions=questions, labels=labels)
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="INVALID_COMMAND",
+                message="Invalid command payload.",
+                details=e.errors(),
+            )
+
+
+class DiscardProjectCommand(BaseModel):
+    project: str
+
+    @classmethod
+    def from_contract(cls, project: str):
+        try:
+            return cls(project=project)
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="INVALID_COMMAND",
+                message="Invalid command payload.",
+                details=e.errors(),
+            )
+
+
 class UploadTasksCommand(BaseModel):
     project: str
     token: str

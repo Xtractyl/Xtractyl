@@ -171,7 +171,10 @@ class PrelabellingRunRepository(PrelabellingRunRepositoryInterface):
                 PrelabellingRun.id == job_id,
                 PrelabellingRun.status.in_(("failed", "cancelled", "incomplete")),
             )
-            .update({"status": "pending", "error": None}, synchronize_session=False)
+            .update(
+                {"status": "pending", "error": None, "cancel_requested": False},
+                synchronize_session=False,
+            )
         )
         if updated == 1:
             self._db.query(PrelabellingRunTask).filter(

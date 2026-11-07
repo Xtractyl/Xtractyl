@@ -161,3 +161,60 @@ def sweep_orphaned_label_studio_projects(
             continue
 
     return count
+
+
+STALE_RUN_ERROR = (
+    "[WORKER_LOST] No progress for longer than the task timeout allows; "
+    "the worker has probably crashed. Resume the run to continue."
+)
+
+
+def sweep_stale_prelabelling_runs(
+    db,
+    per_question_seconds: int,
+    margin_seconds: int,
+    factor: float = 2,
+) -> int:
+    """Sets prelabelling runs that stopped receiving task results from "running" to "incomplete".
+
+    updated_at of a run is bumped by every task result, so it is the heartbeat. One task cannot
+    take longer than the worker's request timeout (questions * (LLM_TIMEOUT + LLM_OVERHEAD) +
+    UPLOAD_MARGIN); a run silent for `factor` times that has no task left in flight (the worker
+    is gone). "incomplete" keeps the finished tasks and the run can be resumed like any other
+    incomplete run. Only "running" is touched: "pending" never had a heartbeat to compare with.
+
+    The status is checked again inside the UPDATE, so a task result arriving at the same moment
+    wins the row lock and the run is left alone.
+    """
+    try:
+        rows = db.execute(
+            text("""
+            UPDATE prelabelling_runs AS r
+            SET status = 'incomplete', error = :error, updated_at = now()
+            FROM projects AS p
+            WHERE p.name = r.project
+              AND r.status = 'running'
+              AND r.updated_at < now() - make_interval(
+                    secs => :factor * (
+                        GREATEST(1, COALESCE(jsonb_array_length(p.questions_and_labels->'questions'), 1))
+                        * :per_question + :margin
+                    )
+                  )
+            RETURNING r.id, r.project
+        """),
+            {
+                "error": STALE_RUN_ERROR,
+                "factor": factor,
+                "per_question": per_question_seconds,
+                "margin": margin_seconds,
+            },
+        ).all()
+        db.commit()
+    except Exception:
+        db.rollback()
+        safe_logger.error("stale_run_sweep_failed")
+        return 0
+
+    for run_id, project in rows:
+        safe_logger.warning("stale_run_set_incomplete | run=%s project=%s", run_id, project)
+    return len(rows)

@@ -16,8 +16,16 @@ class MinioStorage(StorageInterface):
         secret_key: str,
         bucket: str,
         presign_expiry_seconds: int,
+        public_endpoint: str | None = None,
     ):
         self._client = Minio(endpoint, access_key=access_key, secret_key=secret_key, secure=False)
+        # The browser uploads directly, so the presigned URL must be signed for an address it can
+        # reach. The region is fixed so signing needs no request to that address.
+        self._presign_client = (
+            Minio(public_endpoint, access_key, secret_key, secure=False, region="us-east-1")
+            if public_endpoint
+            else self._client
+        )
         self._bucket = bucket
         self._expiry = presign_expiry_seconds
 
@@ -34,7 +42,7 @@ class MinioStorage(StorageInterface):
     def presigned_put(self, key: str) -> str:
         try:
             # Returns a presigned URL string valid for self._expiry seconds
-            return self._client.presigned_put_object(
+            return self._presign_client.presigned_put_object(
                 self._bucket, key, expires=timedelta(seconds=self._expiry)
             )
         except S3Error as e:

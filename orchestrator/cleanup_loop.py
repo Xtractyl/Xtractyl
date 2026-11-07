@@ -1,11 +1,13 @@
 # orchestrator/cleanup_loop.py
 import os
+import threading
 import time
 
 from domain.cleanup import (
     cleanup_stale_conversion_jobs,
     sweep_orphaned_label_studio_projects,
     sweep_orphaned_storage_prefixes,
+    sweep_stale_prelabelling_runs,
     sweep_unarchived_ollama_models,
 )
 from infrastructure.label_studio.label_studio_client import LabelStudioClient
@@ -19,6 +21,12 @@ INTERVAL = int(os.getenv("CLEANUP_INTERVAL_SECONDS", "3600"))
 STALE_HOURS = int(os.getenv("CLEANUP_STALE_AFTER_HOURS", "2"))
 LABEL_STUDIO_USER_TOKEN = os.getenv("LABEL_STUDIO_USER_TOKEN", "")
 ARCHIVE_PREFIX = os.getenv("XTRACTYL_MODEL_ARCHIVE_PREFIX", "xtractyl-archive")
+
+RUN_SWEEP_INTERVAL = int(os.getenv("CLEANUP_STALE_RUN_INTERVAL_SECONDS", "600"))
+RUN_STALE_FACTOR = float(os.getenv("CLEANUP_STALE_RUN_FACTOR", "2"))
+LLM_TIMEOUT = int(os.getenv("LLM_TIMEOUT", "120"))
+LLM_OVERHEAD = int(os.getenv("LLM_OVERHEAD", "10"))
+UPLOAD_MARGIN = int(os.getenv("UPLOAD_MARGIN", "30"))
 
 
 DATABASE_URL = (
@@ -43,8 +51,31 @@ storage = MinioStorage(
 )
 
 
+def stale_run_loop():
+    """Runs on its own, shorter interval: a user cannot continue a project while its run is stuck,
+    so waiting for the hourly cleanup would be too slow."""
+    while True:
+        db = session_factory()
+        try:
+            r = sweep_stale_prelabelling_runs(
+                db,
+                per_question_seconds=LLM_TIMEOUT + LLM_OVERHEAD,
+                margin_seconds=UPLOAD_MARGIN,
+                factor=RUN_STALE_FACTOR,
+            )
+            if r:
+                safe_logger.info("stale_run_sweep_completed | set_incomplete=%s", r)
+        except Exception as e:
+            db.rollback()
+            safe_logger.error("stale_run_sweep_loop_failed", extra={"error_message": str(e)})
+        finally:
+            db.close()
+        time.sleep(RUN_SWEEP_INTERVAL)
+
+
 def main():
     safe_logger.info("cleanup_service_starting")
+    threading.Thread(target=stale_run_loop, daemon=True).start()
     while True:
         db = session_factory()
         try:
