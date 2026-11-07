@@ -110,7 +110,7 @@
 
 These three tables are the only ones whose rows can be deleted outright rather than just updated —
 always together, never individually, and always before a `label_studio_id` exists (i.e. before
-Create Project Pipeline has run). Two mechanisms can trigger this:
+Create Project Pipeline has run). Three mechanisms can trigger this:
 
 **`discard_conversion` (`POST /conversion/discard`)**
 - Called automatically by the frontend on upload failure (step 3b), and also fired automatically
@@ -119,9 +119,23 @@ Create Project Pipeline has run). Two mechanisms can trigger this:
   swallowed client-side
 - Deletes the `projects`, `files`, and `conversion_jobs` rows for that project, but only if
   `conversion_jobs.status` is still `"pending"`, `"failed"`, or `"cancelled"` — a job that is
-  `"converting"` or already `"done"` is not touched by this endpoint
+  `"converting"` or already `"done"` is not touched by this endpoint (a `"done"` project that has no
+  Label Studio project yet is removed by `discard_project` below)
 - Also deletes any PDF bytes already uploaded to MinIO under that project's prefix — no orphaned
   objects remain
+
+**`discard_project` (`POST /discard-project`)**
+- Called by the frontend when the user decides not to continue after seeing the links their project
+  would get (see `get_project_links` in the Create Project Pipeline) — the only way to remove a
+  project whose conversion is already `"done"`
+- Refuses with `CONVERSION_NOT_DONE` unless `conversion_jobs.status` is `"done"` (running or failed
+  jobs belong to `discard_conversion` and the cleanup container) and with
+  `PROJECT_ALREADY_HAS_LABEL_STUDIO_ID` once a Label Studio project exists — so it can never leave
+  an orphaned Label Studio project behind. A project that no longer exists returns
+  `{"status": "already_gone"}`
+- Deletes the `projects`, `files`, and `conversion_jobs` rows, commits, and only then deletes the
+  PDF and HTML bytes under that project's MinIO prefix (same DB-first ordering as
+  `discard_conversion`; the orphaned-prefix sweep below is the safety net)
 
 **Cleanup container (scheduled, periodic)**
 - Fallback for cases where `discard_conversion` itself was never called (e.g. the abort call didn't
@@ -431,15 +445,39 @@ a failed discard call here is caught and ignored client-side (see the following 
 
 ---
 
+### `get_project_links` (`POST /project-links`)
+- Read-only preview shown by the frontend between filling in the form and `POST /create-project`;
+  nothing is written. Takes `title`, `questions`, `labels` (no token — only Postgres is read) and
+  runs the same three checks as `create_project_main_from_payload`
+- Computes `labels_hash` / `questions_hash` from the submitted values exactly as
+  `save_questions_and_labels` will later, and takes `document_set_hash` and the HTML hashes from the
+  already converted project. Returns three lists of existing project names:
+  - `comparison`: same `labels_hash` and `document_set_hash` (what `sync_missing_evaluations` and
+    the comparison view match on)
+  - `regression`: same `labels_hash`, `questions_hash` and `document_set_hash`
+  - `drift`: same `labels_hash` and `questions_hash`, and no HTML hash in common
+- Model and system prompt are not known yet, so `regression` and `drift` are only possible if the
+  user later chooses the same ones; the frontend says so next to the lists. The actual grouping still
+  happens through evaluations (Evaluation Pipeline) — this endpoint only mirrors the matching rules
+  on projects
+- Because the hashes ignore label/question order and only strip surrounding whitespace, the
+  pairing of question and label per row is not part of the match; case matters
+- The frontend then offers: confirm (`POST /create-project`), go back and edit (nothing happens), or
+  cancel, which calls `POST /discard-project` (see Conversion Pipeline, deletion mechanisms)
+
+
 ## Create Project Pipeline
 
 ### `create_project_main_from_payload` (`POST /create-project`)
-- Checked in order, both backend-enforced (not just UI-level filtering via the frontend dropdown):
+- Checked in order via `_ensure_ready_for_creation` (shared with `get_project_links` below), all
+  backend-enforced (not just UI-level filtering via the frontend dropdown):
   1. `repo.project_exists(title)` — raises `PROJECT_NOT_FOUND` if the project doesn't exist at all
   2. `repo.is_conversion_done(title)` — raises `CONVERSION_NOT_DONE` if conversion hasn't finished
      successfully; necessary specifically because a project whose conversion failed gets removed
      entirely (see Conversion Pipeline, `discard_conversion`/cleanup), so this guard also implicitly
      covers "project no longer exists because conversion failed"
+  3. `repo.get_label_studio_id(title)` — raises `PROJECT_ALREADY_HAS_LABEL_STUDIO_ID` if a Label
+     Studio project was already created for it
 - Creates a real Label Studio project + attaches the ML backend (external side effects, in this order)
 - `projects.label_studio_id` set to the returned Label Studio project ID
 - `projects.questions_and_labels` (JSONB) and `projects.labels_hash` set from the submitted questions/labels
