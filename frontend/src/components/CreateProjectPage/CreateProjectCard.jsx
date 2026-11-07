@@ -1,6 +1,6 @@
 // src/components/CreateProjectPage/CreateProjectCard.jsx
 import { useState } from "react";
-import { createProject } from "../../api/CreateProjectPage/api.js";
+import { createProject, discardProject, getProjectLinks } from "../../api/CreateProjectPage/api.js";
 import TokenInput from "../shared/TokenInput.jsx";
 import CreateProjectForm from "./CreateProjectForm.jsx";
 import GroundtruthSets from "./GroundtruthSets.jsx";
@@ -10,6 +10,19 @@ export default function CreateProjectCard() {
   const { token, saveProjectName } = useAppContext();
   const [statusMsg, setStatusMsg] = useState("");
   const [busy, setBusy] = useState(false);
+
+  const handleCheckLinks = async (formData) => {
+    setBusy(true);
+    setStatusMsg("");
+    try {
+      return await getProjectLinks(formData);
+    } catch (error) {
+      setStatusMsg(error.message || "Something went wrong.");
+      return null;
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const handleCreateProject = async (formData) => {
     setBusy(true);
@@ -35,6 +48,21 @@ export default function CreateProjectCard() {
     }
   };
 
+  const handleDiscardProject = async (title) => {
+    setBusy(true);
+    setStatusMsg("");
+    try {
+      await discardProject(title);
+      setStatusMsg("Project discarded.");
+      return true;
+    } catch (error) {
+      setStatusMsg(error.message || "Something went wrong.");
+      return false;
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <div className="p-6 bg-xtractyl-background min-h-screen text-xtractyl-darktext">
       <h1 className="text-2xl font-semibold mb-4">Create Project</h1>
@@ -46,7 +74,12 @@ export default function CreateProjectCard() {
 
       {token && (
         <div>
-          <CreateProjectForm onCreateProject={handleCreateProject} busy={busy} />
+          <CreateProjectForm
+            onCheckLinks={handleCheckLinks}
+            onCreateProject={handleCreateProject}
+            onDiscardProject={handleDiscardProject}
+            busy={busy}
+          />
           {statusMsg && <div className="text-sm mt-2">{statusMsg}</div>}
         </div>
       )}
