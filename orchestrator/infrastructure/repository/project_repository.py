@@ -104,6 +104,34 @@ class ProjectRepository(ProjectRepositoryInterface):
         project.document_set_hash = compute_document_set_hash(html_hashes)
         self._db.flush()
 
+    def list_projects_by_labels_and_documents(
+        self, labels_hash: str, document_set_hash: str
+    ) -> list:
+        """Backs POST /project-links (comparison): every project with exactly this label
+        set and this document set."""
+        return (
+            self._db.query(Project)
+            .filter(
+                Project.labels_hash == labels_hash,
+                Project.document_set_hash == document_set_hash,
+            )
+            .order_by(Project.name.asc())
+            .all()
+        )
+
+    def list_projects_by_labels_and_questions(self, labels_hash: str, questions_hash: str) -> list:
+        """Backs POST /project-links (regression and drift): every project with exactly
+        this label set and this question set, whatever its documents."""
+        return (
+            self._db.query(Project)
+            .filter(
+                Project.labels_hash == labels_hash,
+                Project.questions_hash == questions_hash,
+            )
+            .order_by(Project.name.asc())
+            .all()
+        )
+
     def get_questions_and_labels(self, name: str) -> dict | None:
         project = self._db.query(Project).filter(Project.name == name).first()
         return project.questions_and_labels if project else None

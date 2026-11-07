@@ -9,12 +9,18 @@ class FakeProjectRepo(ProjectRepositoryInterface):
         questions_and_labels=None,
         tasks_uploaded=(),
         html_keys=None,
+        projects=None,
+        conversion_done=(),
+        html_hashes=None,
     ):
         self.document_set_hashes_set = []
         self._label_studio_ids = label_studio_ids or {}
         self._questions_and_labels = questions_and_labels or {}
         self._tasks_uploaded = set(tasks_uploaded)
         self._html_keys = html_keys or {}
+        self._projects = {p.name: p for p in (projects or [])}
+        self._conversion_done = set(conversion_done)
+        self._html_hashes = html_hashes or {}
 
     def set_document_set_hash(self, name):
         self.document_set_hashes_set.append(name)
@@ -32,10 +38,30 @@ class FakeProjectRepo(ProjectRepositoryInterface):
         return self._html_keys.get(name, [])
 
     def project_exists(self, name):
-        raise NotImplementedError("not needed by domain tests yet")
+        return name in self._projects
 
     def get_project(self, name):
-        raise NotImplementedError("not needed by domain tests yet")
+        return self._projects.get(name)
+
+    def is_conversion_done(self, name):
+        return name in self._conversion_done
+
+    def get_html_hashes_for_project(self, name):
+        return set(self._html_hashes.get(name, ()))
+
+    def list_projects_by_labels_and_documents(self, labels_hash, document_set_hash):
+        return [
+            p
+            for p in self._projects.values()
+            if p.labels_hash == labels_hash and p.document_set_hash == document_set_hash
+        ]
+
+    def list_projects_by_labels_and_questions(self, labels_hash, questions_hash):
+        return [
+            p
+            for p in self._projects.values()
+            if p.labels_hash == labels_hash and p.questions_hash == questions_hash
+        ]
 
     def set_label_studio_id(self, name, label_studio_id):
         raise NotImplementedError("not needed by domain tests yet")
@@ -47,9 +73,6 @@ class FakeProjectRepo(ProjectRepositoryInterface):
         raise NotImplementedError("not needed by domain tests yet")
 
     def get_projects_ready_for_prelabelling(self):
-        raise NotImplementedError("not needed by domain tests yet")
-
-    def is_conversion_done(self, name):
         raise NotImplementedError("not needed by domain tests yet")
 
     def set_ls_tasks_uploaded(self, name):
@@ -68,9 +91,6 @@ class FakeProjectRepo(ProjectRepositoryInterface):
         raise NotImplementedError("not needed by domain tests yet")
 
     def list_groundtruth_projects(self):
-        raise NotImplementedError("not needed by domain tests yet")
-
-    def get_html_hashes_for_project(self, name):
         raise NotImplementedError("not needed by domain tests yet")
 
     def get_groundtruth_annotations(self, project):

@@ -117,6 +117,16 @@ class ProjectRepositoryInterface(ABC):
     @abstractmethod
     def set_document_set_hash(self, name: str) -> None: ...
 
+    @abstractmethod
+    def list_projects_by_labels_and_documents(
+        self, labels_hash: str, document_set_hash: str
+    ) -> list: ...
+
+    @abstractmethod
+    def list_projects_by_labels_and_questions(
+        self, labels_hash: str, questions_hash: str
+    ) -> list: ...
+
 
 class PrelabellingRunRepositoryInterface(ABC):
     @abstractmethod
