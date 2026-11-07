@@ -25,13 +25,10 @@ def check_project_exists(cmd: ProjectExistsCommand, repo: ProjectRepositoryInter
     return {"exists": False}
 
 
-def create_project_main_from_payload(
-    cmd: CreateProjectCommand, repo: ProjectRepositoryInterface, label_studio: LabelStudioInterface
-):
-    title = cmd.title
-    questions = cmd.questions
-    labels = cmd.labels
-    token = cmd.token
+def _ensure_ready_for_creation(title: str, repo: ProjectRepositoryInterface) -> None:
+    """Shared by create_project_main_from_payload and get_project_links: both only make
+    sense for a project that exists, finished its PDF conversion and has no Label Studio
+    project yet."""
 
     if not repo.project_exists(title):
         raise NotFound(
@@ -52,6 +49,17 @@ def create_project_main_from_payload(
             code="PROJECT_ALREADY_HAS_LABEL_STUDIO_ID",
             message="A Label Studio project has already been created for this project.",
         )
+
+
+def create_project_main_from_payload(
+    cmd: CreateProjectCommand, repo: ProjectRepositoryInterface, label_studio: LabelStudioInterface
+):
+    title = cmd.title
+    questions = cmd.questions
+    labels = cmd.labels
+    token = cmd.token
+
+    _ensure_ready_for_creation(title, repo)
 
     # Label Studio label config
     label_tags = "\n    ".join([f'<Label value="{label}"/>' for label in labels])
