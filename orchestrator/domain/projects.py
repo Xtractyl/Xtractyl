@@ -2,8 +2,12 @@
 import os
 
 from infrastructure.interfaces.label_studio import LabelStudioInterface
-from infrastructure.interfaces.repository import ProjectRepositoryInterface
+from infrastructure.interfaces.repository import (
+    ConversionRepositoryInterface,
+    ProjectRepositoryInterface,
+)
 from infrastructure.interfaces.storage import StorageInterface
+from utils.hashing import compute_labels_hash, compute_questions_hash
 
 from domain.errors import (
     InvalidState,
@@ -11,7 +15,9 @@ from domain.errors import (
 )
 from domain.models.projects import (
     CreateProjectCommand,
+    DiscardProjectCommand,
     ProjectExistsCommand,
+    ProjectLinksCommand,
     UploadTasksCommand,
 )
 
@@ -130,3 +136,66 @@ def upload_tasks_main_from_payload(
     label_studio.upload_tasks(label_studio_id, tasks, cmd.token)
     repo.set_ls_tasks_uploaded(cmd.project)
     return {"status": "ok"}
+
+
+def get_project_links(cmd: ProjectLinksCommand, repo: ProjectRepositoryInterface) -> dict:
+    """Backs POST /project-links: tells the user, before the Label Studio project is
+    created, which existing projects the new one would be grouped with later. Read-only —
+    nothing is stored. Mirrors the matching used by sync_missing_evaluations (comparison)
+    and the regression/drift views, but only on labels, questions and documents: model
+    and system prompt are not known yet, so regression and drift are only possible if the
+    user later chooses the same ones.
+
+    - comparison: same labels and same documents
+    - regression: same labels, questions and documents
+    - drift: same labels and questions, but no document in common"""
+    _ensure_ready_for_creation(cmd.title, repo)
+
+    project = repo.get_project(cmd.title)
+    labels_hash = compute_labels_hash(cmd.labels)
+    questions_hash = compute_questions_hash(cmd.questions)
+    own_html_hashes = repo.get_html_hashes_for_project(cmd.title)
+
+    comparison = repo.list_projects_by_labels_and_documents(labels_hash, project.document_set_hash)
+    same_configuration = repo.list_projects_by_labels_and_questions(labels_hash, questions_hash)
+
+    regression = [p for p in same_configuration if p.document_set_hash == project.document_set_hash]
+    drift = [
+        p
+        for p in same_configuration
+        if not (repo.get_html_hashes_for_project(p.name) & own_html_hashes)
+    ]
+
+    return {
+        "comparison": sorted(p.name for p in comparison),
+        "regression": sorted(p.name for p in regression),
+        "drift": sorted(p.name for p in drift),
+    }
+
+
+def discard_project(
+    cmd: DiscardProjectCommand,
+    project_repo: ProjectRepositoryInterface,
+    conversion_repo: ConversionRepositoryInterface,
+    storage: StorageInterface,
+) -> dict:
+    """Backs POST /discard-project: the user looked at the links shown before creation and
+    decided not to continue. Removes a fully converted project that has no Label Studio
+    project yet (rows in Postgres, PDFs and HTML in MinIO). discard_conversion cannot do
+    this: it refuses jobs that are already 'done'."""
+    if not project_repo.project_exists(cmd.project):
+        return {"status": "already_gone"}
+    if not project_repo.is_conversion_done(cmd.project):
+        raise InvalidState(
+            code="CONVERSION_NOT_DONE",
+            message="Only a project with finished PDF conversion can be discarded here.",
+        )
+    if project_repo.get_label_studio_id(cmd.project):
+        raise InvalidState(
+            code="PROJECT_ALREADY_HAS_LABEL_STUDIO_ID",
+            message="A Label Studio project exists for this project; it cannot be discarded here.",
+        )
+    conversion_repo.delete_project_cascade(cmd.project)
+    conversion_repo.commit()  # make DB state persistent before making irreversible storage change
+    storage.delete_prefix(cmd.project)
+    return {"status": "discarded"}
