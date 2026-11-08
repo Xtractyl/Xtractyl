@@ -245,7 +245,7 @@ Once a configuration is validated, promote it to a locked, versioned extraction 
 - Label Studio requires a brief internet connection on startup, see github issue for a manual workaround ([upstream issue](https://github.com/HumanSignal/label-studio/issues/9086#issuecomment-3817949828))
 - Dev mode may log sensitive data — use default mode with real data
 - No authentication in Xtractyl itself: currently it is meant for on-premise use in a team that trusts each other (authentication will be added in future)
-- A prelabelling run interrupted by a crash of the worker or the orchestrator stays in `pending` or `running` and blocks its project until the planned stale-run sweep exists (see [`docs/data-lifecycle.md`](docs/data-lifecycle.md))
+
 - Open to-dos: see [`docs/data-lifecycle.md`](docs/data-lifecycle.md), "Open TODOs and later work"
  
 
