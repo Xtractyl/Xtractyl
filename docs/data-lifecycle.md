@@ -156,7 +156,7 @@ Create Project Pipeline has run). Three mechanisms can trigger this:
   continues, does not abort the rest of the sweep
 
 **This same cleanup container additionally sets stuck prelabelling runs to `"incomplete"`**
-(`sweep_stale_prelabelling_runs`) — covers a worker that crashed mid-run: neither `task-result` nor
+(`sweep_stale_prelabelling_runs`, `"running"` runs) — covers a worker that crashed mid-run: neither `task-result` nor
 `job-failed` will ever arrive again, the run stays `"running"` and blocks its project (enqueue
 guard), and it cannot be resumed because `resume_run` only accepts `"failed"`, `"cancelled"` and
 `"incomplete"`. Runs in their own, shorter loop (`CLEANUP_STALE_RUN_INTERVAL_SECONDS`, default 10
@@ -178,8 +178,15 @@ minutes) so the user does not wait for the hourly cleanup.
   worker died after ml_backend wrote a prediction to Label Studio but before `task-result` arrived,
   Label Studio and Postgres disagree about that task. A crash during the LLM call itself leaves
   nothing behind and resumes cleanly
-- `"pending"` runs are deliberately not swept: they have no heartbeat yet, and a job that waits
-  behind a long run is legitimate
+
+**Stuck `"pending"` runs** (`sweep_stale_pending_prelabelling_runs`, hourly loop): `"running"` is
+only set by the first `task-result`, so a worker that dies during the first task, or a job that is
+lost in the queue, leaves the run in `"pending"`. A pending run has no heartbeat and can wait long
+behind other runs (one worker, one job at a time), so only a generous age separates the two cases:
+a run still `"pending"` after `CLEANUP_STALE_PENDING_HOURS` (default 24) is set to `"failed"` with
+`error` `[JOB_NOT_STARTED] …`. `"failed"` is resumable, and resuming pushes the job again. The
+threshold must be longer than the longest wait in the queue; a job that is merely still waiting
+would otherwise often have to be actively resumed
 
 **This same cleanup container additionally sweeps orphaned Label Studio projects**
 (`sweep_orphaned_label_studio_projects`) — comparing Label Studio's project list against
@@ -257,12 +264,14 @@ pre-seeded service account (`LABEL_STUDIO_USER_TOKEN`, set on the `labelstudio` 
 
   - **Changed (cancel):** `"running"` → `"cancelled"` in `handle_task_result` (`run_repo.apply_cancel`), right after `derive_run_status`, if `cancel_requested` is set. A run the derivation just finished (`"done"`/`"incomplete"`) is not cancelled
   - **Note on `"running"` and `"failed"`:** `"running"` is first set by the first `task-result` of a run, not when the worker picks the job up. A failure before the first task result (e.g. the task list cannot be fetched) therefore goes `"pending"` → `"failed"` directly, skipping `"running"`
-  - **Changed (stale-run sweep):** `"running"` → `"incomplete"` by the cleanup container (`sweep_stale_prelabelling_runs`) for a run whose `updated_at` is older than the stale threshold (see Cleanup container above). `"pending"` runs are not touched
+   - **Changed (stale-run sweep):** `"running"` → `"incomplete"` by the cleanup container (`sweep_stale_prelabelling_runs`) for a run whose `updated_at` is older than the stale threshold (see Cleanup container above). `"pending"` → `"failed"` for a run that stayed pending for `CLEANUP_STALE_PENDING_HOURS`
+
 
   - **Note:** evaluation (`sync_missing_evaluations`) only ever triggers on `"done"` — neither `"incomplete"` nor `"cancelled"` trigger it, regardless of how many tasks happened to complete successfully before the run ended
 - `error` (nullable)
   - **Set:** `NULL` at creation — Prelabelling Pipeline, step 1
-  - **Changed (stale-run sweep):** set to `[WORKER_LOST] …` together with `"incomplete"` by the stale-run sweep, so a stopped run can be told apart from one the user or the worker ended. Cleared again by `resume_run`
+  - **Changed (stale-run sweep):** set to `[WORKER_LOST] …` together with `"incomplete"` (running) or `[JOB_NOT_STARTED] …` together with `"failed"` (pending) by the stale-run sweeps, so a stopped run can be told apart from one the user or the worker ended. Cleared again by `resume_run`
+
 
   - Errors of single tasks are not stored here but in `prelabelling_run_tasks.error`; this column only holds the error of a job that failed as a whole
 
