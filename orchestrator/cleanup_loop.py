@@ -7,6 +7,7 @@ from domain.cleanup import (
     cleanup_stale_conversion_jobs,
     sweep_orphaned_label_studio_projects,
     sweep_orphaned_storage_prefixes,
+    sweep_stale_pending_prelabelling_runs,
     sweep_stale_prelabelling_runs,
     sweep_unarchived_ollama_models,
 )
@@ -21,9 +22,10 @@ INTERVAL = int(os.getenv("CLEANUP_INTERVAL_SECONDS", "3600"))
 STALE_HOURS = int(os.getenv("CLEANUP_STALE_AFTER_HOURS", "2"))
 LABEL_STUDIO_USER_TOKEN = os.getenv("LABEL_STUDIO_USER_TOKEN", "")
 ARCHIVE_PREFIX = os.getenv("XTRACTYL_MODEL_ARCHIVE_PREFIX", "xtractyl-archive")
-
 RUN_SWEEP_INTERVAL = int(os.getenv("CLEANUP_STALE_RUN_INTERVAL_SECONDS", "600"))
 RUN_STALE_FACTOR = float(os.getenv("CLEANUP_STALE_RUN_FACTOR", "2"))
+# a pending run can wait long behind other runs (one worker, one job at a time)
+PENDING_STALE_HOURS = int(os.getenv("CLEANUP_STALE_PENDING_HOURS", "24"))
 LLM_TIMEOUT = int(os.getenv("LLM_TIMEOUT", "120"))
 LLM_OVERHEAD = int(os.getenv("LLM_OVERHEAD", "10"))
 UPLOAD_MARGIN = int(os.getenv("UPLOAD_MARGIN", "30"))
@@ -95,6 +97,9 @@ def main():
             o = sweep_unarchived_ollama_models(db, ollama_client, ARCHIVE_PREFIX)
             if o:
                 safe_logger.info("ollama_orphan_sweep_completed | cleaned=%s", o)
+            q = sweep_stale_pending_prelabelling_runs(db, PENDING_STALE_HOURS)
+            if q:
+                safe_logger.info("stale_pending_run_sweep_completed | set_failed=%s", q)
         except Exception as e:
             db.rollback()
             safe_logger.error("cleanup_run_failed", extra={"error_message": str(e)})
