@@ -1,33 +1,15 @@
 // /src/components/EvaluationDriftPage/EvaluationDriftView.jsx
-import { useEffect, useState } from "react";
-import { fetchEvaluatedProjects } from "../../api/EvaluationDriftPage/api.js";
+import { useState } from "react";
+import { useEvaluatedProjects } from "../../hooks/EvaluationDriftPage/useEvaluatedProjects.js";
 import ComparisonTab from "./ComparisonTab.jsx";
 import RegressionTab from "./RegressionTab.jsx";
 import DriftTab from "./DriftTab.jsx";
 
 export default function EvaluationDriftView() {
   const [activeTab, setActiveTab] = useState("comparison"); // "comparison" | "regression" | "drift"
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState("");
   const [selectedProject, setSelectedProject] = useState("");
   const [scope, setScope] = useState("external");
-
-  useEffect(() => {
-    async function run() {
-      try {
-        setLoading(true);
-        setErrorMsg("");
-        const names = await fetchEvaluatedProjects();
-        setProjects(names);
-      } catch (e) {
-        setErrorMsg(e?.message || "Failed to load evaluated projects");
-      } finally {
-        setLoading(false);
-      }
-    }
-    run();
-  }, []);
+  const { projects, loading, errorMsg } = useEvaluatedProjects();
 
   if (loading) return <div className="text-sm text-xtractyl-outline/70">Loading…</div>;
 

@@ -218,3 +218,39 @@ def sweep_stale_prelabelling_runs(
     for run_id, project in rows:
         safe_logger.warning("stale_run_set_incomplete | run=%s project=%s", run_id, project)
     return len(rows)
+
+
+STALE_PENDING_ERROR = (
+    "[JOB_NOT_STARTED] The job was never picked up by a worker "
+    "(the worker or the queue may have been lost). Resume the run to start it again."
+)
+
+
+def sweep_stale_pending_prelabelling_runs(db, stale_hours: int) -> int:
+    """Sets prelabelling runs that stayed "pending" for a long time to "failed".
+
+    A pending run waits in the queue for the worker, which processes jobs one at a time, so it can
+    legitimately wait long and has no heartbeat. Only a generous age (stale_hours) separates a lost
+    job from a waiting one, hence this runs in the slow cleanup loop. "failed" can be resumed,
+    which pushes the job again.
+    """
+    try:
+        rows = db.execute(
+            text("""
+            UPDATE prelabelling_runs
+            SET status = 'failed', error = :error, updated_at = now()
+            WHERE status = 'pending'
+              AND updated_at < now() - make_interval(hours => :h)
+            RETURNING id, project
+        """),
+            {"error": STALE_PENDING_ERROR, "h": stale_hours},
+        ).all()
+        db.commit()
+    except Exception:
+        db.rollback()
+        safe_logger.error("stale_pending_run_sweep_failed")
+        return 0
+
+    for run_id, project in rows:
+        safe_logger.warning("stale_pending_run_set_failed | run=%s project=%s", run_id, project)
+    return len(rows)
