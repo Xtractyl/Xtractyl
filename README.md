@@ -14,6 +14,8 @@
 ![Docker](https://img.shields.io/badge/docker-compose-2496ED)
 
 
+> **Click on the image below for a short youtube screener:** While the screener shows the overall concept see the documented workflow further below for a more detailed description with updated GUI elements. 
+
 [![Xtractyl Demo](assets/thumbnail_screener.png)](https://www.youtube.com/watch?v=ZyQJqWzFoLg)
 
 **Xtractyl** is a modular, local, human-in-the-loop framework for evaluating LLM-based extractive question answering (answering questions with exact text passages from the input). It helps you find the right model, system prompt, and question formulation before serving that exact configuration in production.
@@ -67,13 +69,12 @@ Any model can produce outputs. The hard part is knowing whether those outputs ar
 
 Xtractyl is built around this insight. The pipeline follows a deliberate cycle:
 
-1. **Build a ground truth** — human-validated annotations on a representative subset define what correct extraction looks like
-     for cases with no unique correct answer within the input document: review and correct a specific run's own raw LLM predictions within Label Studio (accept correct extractions when they answer the question to a sufficient degree, fix only the incorrect ones). This ground truth is anchored to that run's predictions and therefore slightly skewed; it cannot be reused to evaluate other runs, since there is no single correct answer and reruns don't need to be worded identically to be correct. But it allows for evaluating model for tasks that can be answered correctly using different passages.
+1. **Build a ground truth** — human-validated annotations on a representative subset define what correct extraction looks like. In cases with a unique correct answer this ground truth set can be reused. For cases with no unique correct answer within the input document: review and correct a specific run's own raw LLM predictions within Label Studio (accept correct extractions when they answer the question to a sufficient degree, fix only the incorrect ones). This ground truth is anchored to that run's predictions and therefore slightly skewed; it cannot be reused to evaluate other runs, since there is no single correct answer and reruns don't need to be worded identically to be correct. But it allows for evaluating model for tasks that can be answered correctly using different passages.
 2. **Optimize systematically** — system prompt, question formulation, and model selection are evaluated against the ground truth using precision, recall, F1, and latency metrics
 3. **Scale to the full dataset** — the optimized configuration runs on the complete document collection with human-in-the-loop review to evaluate performance on a broader data set
 4. **Host and monitor [not added yet]** — a validated configuration (model, system prompt, questions/labels, exact model hash) is promoted to a locked, versioned extraction endpoint with its validation results attached for provenance; automated reruns track drift over time and can withdraw a version if metrics fall below the established baseline
 5. **Evaluate and iterate** — metrics and drift monitoring ensure that performance is maintained over time and across document types (can currently be done manually but will be automated in future)
-
+6. **Connect with FHIR [not added yet]**
 This approach is designed for environments where data privacy is non-negotiable, ground truth matters, and black-box outputs are not acceptable — healthcare, life sciences, and other regulated domains.
 
 
@@ -217,16 +218,17 @@ style ZA8 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
 
 ## Current Status & Roadmap
 
+Vision: The main goal is to mainly read FHIR data not PDF files. Text is supposed to then reach Xtractyl from FHIR in several ways: as attachments of `DocumentReference` resources (PDF or HTML, linked via `url` or embedded as Base64 in `data`), as HTML narrative (`text.div`) inside resources such as`Composition` or `DiagnosticReport`, and as free-text fields. All of these are to be fed into the same extraction pipeline. After validating a specific model with a specific question for a specific dataset this configuration shall be hosted. This will allow a user to ask validated questions to "her" or "his" FHIR data receiving extracted answers linked back to the original and backed up by the quality metrics. Thereby the user will not only get an answer but will also get infomation about the certainty behind it.
+
 ### Phase 1 – Proof of Concept (completed)
 
-The core pipeline is functional end-to-end: PDF ingestion, HTML conversion via Docling, DOM extraction, LLM-based pre-labelling via Ollama, human review in Label Studio, and structured export of results and evaluation metrics.
+The core pipeline is functional end-to-end: PDF ingestion, HTML conversion via Docling, DOM extraction, LLM-based pre-labelling via Ollama, human review in Label Studio, and display of results and evaluation metrics.
 
-Current limitation: the pipeline has been validated on structurally simple PDFs. Complex layouts (multi-column, nested tables, non-standard formatting) are not yet reliably handled. Improving extraction quality is intentionally deferred — optimizing on top of an unstable foundation would be premature.
+Current limitation: the pipeline has been validated on structurally simple PDFs. Complex layouts (multi-column, nested tables, non-standard formatting) are not yet reliably handled. Allowing to work with complex PDFs is a longterm goal, but not the primary vision (see above) of the project.
 
 ### Phase 2 – Hardening (in progress)
 
-The focus is on building a consistent engineering foundation before scaling features. The orchestrator serves as the template; patterns established there are replicated across the containers, so far in worker_prelabel and ml_backend (contracts, typed errors, error handling, unit tests). Open items are listed in [`docs/data-lifecycle.md`](docs/data-lifecycle.md) under "Open TODOs and later work". The orchestrator is the central integration point of the pipeline and therefore the highest-leverage starting point. Hardening it first ensures that architectural decisions are validated before being replicated across the remaining containers. This phase will also include expansion of unit tests, addition of integration and E2E tests as well as Frontend TypeScript migration.
-
+An e2e review with refactoring and addition of missing tests is underway.
 
 ### Phase 3 – FHIR integration (starting)
 
@@ -243,11 +245,7 @@ Once a configuration is validated, promote it to a locked, versioned extraction 
 ## Known Limitations
 - Complex/long PDFs not yet reliably handled — see [Current Status & Roadmap](#️-current-status--roadmap)
 - Label Studio requires a brief internet connection on startup, see github issue for a manual workaround ([upstream issue](https://github.com/HumanSignal/label-studio/issues/9086#issuecomment-3817949828))
-- Dev mode may log sensitive data — use default mode with real data
-- No authentication in Xtractyl itself: currently it is meant for on-premise use in a team that trusts each other (authentication will be added in future)
-
-- Open to-dos: see [`docs/data-lifecycle.md`](docs/data-lifecycle.md), "Open TODOs and later work"
- 
+- No authentication in Xtractyl itself: currently it is meant for on-premise use in a team that trusts each other (authentication will be added in future) 
 
 ---
 
@@ -529,12 +527,13 @@ If you did not add any changes to the code, you can go back to the normal setup 
 2. **Upload your docs** (PDF → HTML conversion)  
 
    Page: **Import Docs** (`/`)  
-   - type a project name
+   - type in a project name
    - Browse PDFs and click **Upload & Convert**  
 
 ### Upload Page
 
-![Upload Page Running](assets/upload_and_convert_running.png)
+![Upload Tasks 0](assets/upload_tasks_0.png)
+![pload Tasks 1](assets/upload_tasks_1.png)
 
 
 3. **Create a new project** in Label Studio  
@@ -543,23 +542,35 @@ If you did not add any changes to the code, you can go back to the normal setup 
    - Save your Label Studio token:
       click on "Get your legacy token" and create a user account for label studio
       in label studio go to http://localhost:8080/organization and enable the legacy token via the API Tokens setting go on http://localhost:8080/user/account then and copy the legacy token to your xtractyl tab and click "Save Token"
-   - Enter project name, questions (one per line), and labels for each question (one per line
-      and in the same order as the questions)
+   - Select the project you uploaded PDFs to
+   - Type in questions (one per line), and labels for each question (one per line
+      and in the same order as the questions) OR copy them from a ground truth project you have created before
    - Create the project via the "Create project" button
-   - To see questions and labels from projects saved as ground truth (see below) click "Show ground truth questions and labels"
+   - You will then be informed with which prior projects your new project will be linked (if any). 
+      1. It will be automatically linked for Comparison with other projects with the exact same documents and labels (identical label names and identical combination of labels). 
+      2. It will be automatically linked for Regression with other projects with the exact same documents and labels (identical label names and identical combination of labels), identical questions and identical model and system prompt (model and system prompt will be chosen later by you, so the list of projects linked for Regression will include those prior projects that will be linked in case you choose the identical model and system prompt later on).
+      3. It will be automatically linked for Drift with other projects with NO overlap in documents but identical labels (identical label names and identical combination of labels), identical questions and identical model and system prompt (model and system prompt will be chosen later by you, so the list of projects linked for Drift will include those prior projects that will be linked in case you choose the identical model and system prompt later on).
+   - You can either "Confirm and create project" when you intended to link it with the projects shown, or go" Back to edit" or "Cancel and delete project" (this will remove the entire projects including the uploaded and converted PDFs) 
 
 ### Create Project Page
-![Create Project Page](assets/create_project.png)
+![Create Project Page 0](assets/create_project_0.png)
+![Create Project Page 1](assets/create_project_1.png)
+![Create Project Page 2](assets/create_project_2.png)
+![Create Project Page 3](assets/create_project_3.png)
+![Create Project Page 4](assets/create_project_4.png)
+![Create Project Page 5](assets/create_project_5.png)
+![Create Project Page 6](assets/create_project_6.png)
 
 4. **Upload your tasks into the project**  
 
    Page: **Upload Tasks** (`/tasks`)  
-   - Pick the project from the dropdown (it lists projects with uploaded tasks that have no run yet, or whose run was cancelled, failed or ended incomplete)
-   - Enter the label studio token
+   - Pick the project from the dropdown
+   - and click "Upload HTML Tasks"
 
 
 ### Upload Tasks Page
-![Upload Tasks Page](assets/upload_tasks.png)
+![Upload Tasks Page 0](assets/upload_tasks_0.png)
+![Upload Tasks Page 1](assets/upload_tasks_1.png)
 
 
 5. **Start AI prelabeling**  
@@ -567,8 +578,7 @@ If you did not add any changes to the code, you can go back to the normal setup 
    Page: **Start AI** (`/prelabelling`)  
    - Download an LLM (using the official model names from the linked ollama page)
    - After downloading a new model reload the page to make it available
-   - Pick the project name  (same name as in step 3)
-   - Enter the label studio token
+   - Select your project
    - Select a model from the dropdown list
    - Enter a system prompt to advise the model for literal extraction (you see a suggestions
       under "Show example")
@@ -580,7 +590,8 @@ If you did not add any changes to the code, you can go back to the normal setup 
 
 
 ### Start AI Page
-![Start AI Page](assets/start_AI.png)
+![Start AI Page 0](assets/start_AI_0.png)
+![Start AI Page 1](assets/start_AI_1.png)
 
 
 6. **Review the AI** 
@@ -608,15 +619,16 @@ If you did not add any changes to the code, you can go back to the normal setup 
 7. **Results Page** 
 
    Page: **Get Results** (`/results`)  
-   - Enter your project name 
+   - Pick your project 
    - Click "Submit" to get the results as a table. Results are only available for a run that finished successfully; a cancelled, failed or incomplete run has to be resumed first
 
 
 
 
 ### Get Results 
+![Get results 0](assets/get_results_0.png)
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-![Get results](assets/results.png)
+![Get results 1](assets/get_results_1.png)
 
 
 
@@ -635,31 +647,32 @@ If you did not add any changes to the code, you can go back to the normal setup 
 
 ### Evaluate the AI 
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-![Evaluate AI 1](assets/evaluation_0.png)
+![Evaluate AI 0](assets/evaluation_0.png)
 
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-![Evaluate AI 2](assets/evaluation_1.png)
+![Evaluate AI 1](assets/evaluation_1.png)
 
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-![Evaluate AI 3](assets/evaluation_2.png)
+![Evaluate AI 2](assets/evaluation_2.png)
 
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-![Evaluate AI 4](assets/evaluation_3.png)
+![Evaluate AI 3](assets/evaluation_3.png)
 
 
 9. **Monitor Evaluation Drift/Regression over Time for a Standard Set** (`/evaluationdrift`)  
-   - Show all ground truth sets or select a specific
-   - View Recall and Precision over Time for all runs evaluated against the ground truth set
-   - View Recall and Precision over Time per Label for all runs evaluated against the ground truth set
-   - Get the raw data as a table and match it to the data points in the plots (equal numbering)
-   - View Recall and Precision for Regression Monitoring for sets with same System Prompt, same Questions and same Labels
+   - Choose your project
+   - Use the tabs to either show evaluations against an "external" or "internal" ground truth
+   - Use the tabs to either show your project compared with  comparison projects (identical documents, identical labels [including identical combination of labels]) or compared with regression projects (identical document, identical labels [including identical combination of labels], identical questions, identical system prompt and identical model) or compared with drift projects (NO overlap in documents, identical labels [including identical combination of labels], identical questions, identical system prompt and identical model)
+   - Click on a row in the table to see the metrics separately for each label
 
 ### Evaluation Drift 
-> THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-![Evaluation Drift 1](assets/evaluation_drift_0.png)
+![Evaluation Drift 0](assets/evaluation_drift_0.png)
 
 > THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
-![Evaluation Drift 2](assets/evaluation_drift_1.png)
+![Evaluation Drift 1](assets/evaluation_drift_1.png)
+
+> THE FOLLOWING IMAGE SHOWS SYNTHETIC DATA ONLY AND IS AN EXAMPLE FOR RESEARCH USE 
+![Evaluation Drift 2](assets/evaluation_drift_2.png)
 
 
 ### Coming Soon
@@ -858,12 +871,15 @@ See the [LICENSE](LICENSE) file for full terms.
 This project is a private, non-commercial initiative developed independently during personal time.  
 It has no connection to any employer or professional affiliation and is provided as-is for research and experimentation.
 
-This project is released under the **Xtractyl Non-Commercial License v1.1**.  
-It incorporates the following open-source components:
+This project is released under the **Xtractyl Non-Commercial License v1.1**. Please refer to the [LICENSE](LICENSE) file for the full license text.
+Xtractyl incorporates the following open-source components:
 
 - [Label Studio](https://github.com/heartexlabs/label-studio) — Apache-2.0 License  
 - [Docling](https://github.com/docling/docling) — MIT License  
 - [Ollama](https://github.com/ollama/ollama) — MIT License  
 - Local LLMs such as Gemma, which are subject to their own license terms from the respective model providers (e.g., Google)
 
-Please refer to the [LICENSE](LICENSE) file for the full license text.
+Xtractyl will read FHIR® data in future. FHIR® is the registered trademark of Health Level Seven International (HL7). 
+Xtractyl is an independent project and is not affiliated with, or approved or sponsored by, HL7.
+
+
