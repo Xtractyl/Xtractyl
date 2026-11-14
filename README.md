@@ -21,7 +21,7 @@
 **Xtractyl** is a modular, local, human-in-the-loop framework for evaluating LLM-based extractive question answering (answering questions with exact text passages from the input). It helps you find the right model, system prompt, and question formulation before serving that exact configuration in production.
 
 
-It converts input documents → HTML/DOM → pre-labels them with an LLM → enables manual review via Label Studio → and evaluates the result against a human-validated ground truth (precision, recall, F1, latency). Once a configuration is validated, the next step (coming soon) is to promote it to a locked, monitored extraction endpoint.
+It converts input documents → HTML/DOM → pre-labels them with an LLM → enables manual review via Label Studio → and evaluates the result against a human-validated ground truth (precision, recall, F1, latency [confidence intervals and additional metrics will soon be added]). Once a configuration is validated, the next step (coming soon) is to promote it to a locked, monitored extraction endpoint.
 
 
 Designed for **privacy-first**, human-validated evaluation, with built-in comparison across models, prompts, and question formulations.
@@ -211,7 +211,7 @@ style ZA8 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
 - DOM-based XPath mapping and label matching
 - Human validation with Label Studio
 - Extract structured databases from previously unstructured data
-- Built-in evaluation of AI predictions (precision, recall, F1, accuracy)
+- Built-in evaluation of AI predictions (precision, recall, F1, accuracy [confidence intervals will soon be added])
 - Performance metrics (end-to-end runtime, per-document and per-question latency)
 - Speed–accuracy comparison across models, prompts, and question formulations
 - Modular, containerized Docker architecture
@@ -650,7 +650,7 @@ If you did not add any changes to the code, you can go back to the normal setup 
    - Select a project with your ground truth information
    - Select a project to compare against the ground truth 
    - Click "Run Evaluation"
-   - Get metrics (Precision, Recall, F1, Accuracy) on an overall basis and per question/label
+   - Get metrics (Precision, Recall, F1, Accuracy [confidence intervals will soon be added]) on an overall basis and per question/label
    - Get a per task (per PDF document) overview with ground truth answer, predicted answer and raw LLM answer
    - Get performance metrics (time per task [per PDF document], LLM time per tasks, time per question, LLM time per question etc.)
 
