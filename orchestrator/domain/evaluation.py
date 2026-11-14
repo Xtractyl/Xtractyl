@@ -124,7 +124,7 @@ def _tasks_to_rows(token: str, project_id: int, mode: str) -> list[dict]:
     unreviewed_filenames = []
     for t in tasks:
         data = t.get("data") or {}
-        filename = data.get("name", "")
+        filename = data["name"]
         if mode == "gt":
             anns = t.get("annotations") or []
             if not any(a and (a.get("result") or []) for a in anns):
