@@ -6,8 +6,8 @@ FROM eclipse-temurin:17-jre AS synthea
 
 WORKDIR /synthea
 
-ARG FHIR_SYNTHEA_PATIENT_COUNT=25
-ARG FHIR_SYNTHEA_SEED=12345
+ARG FHIR_SYNTHEA_PATIENT_COUNT
+ARG FHIR_SYNTHEA_SEED
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates \
