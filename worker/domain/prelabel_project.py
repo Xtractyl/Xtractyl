@@ -68,7 +68,7 @@ def prelabel_project(job: JobPayload) -> None:
         task_id = t["id"]
         data = t.get("data") or {}
         html = data.get("html")
-        filename = data.get("name", "")
+        filename = data["name"]
 
         start = time.time()
         task_error: DomainError | None = None
