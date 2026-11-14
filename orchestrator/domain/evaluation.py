@@ -219,7 +219,9 @@ def evaluate_run(run_id: int, groundtruth_project: str, project_repo, run_repo, 
     gt_rows = project_repo.get_groundtruth_annotations(groundtruth_project)
     pred_rows = _build_pred_rows(run_repo.get_successful_run_tasks(run.id))
 
-    overall = compute_metrics_from_rows(gt_rows, pred_rows)
+    labels = gt_project_record.questions_and_labels["labels"]
+
+    overall = compute_metrics_from_rows(gt_rows, pred_rows, labels)
     run_at = run.updated_at if run.updated_at else run.created_at
 
     eval_repo.save_evaluation(

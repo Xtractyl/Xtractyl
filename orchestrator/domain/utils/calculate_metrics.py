@@ -19,43 +19,46 @@ def _p95(xs: List[float]) -> float:
 def compute_metrics_from_rows(
     gt_rows: List[dict],
     pred_rows: List[dict],
+    labels: List[str],
     filename_key: str = "filename",
     labels_key: str = "labels",
 ) -> dict:
     """
-    Strict literal equality evaluation.
+     Strict literal equality evaluation.
 
-    Expects rows shaped like:
-      {"filename": "...", "labels": {"Patient": "John", "TNM": "T2", ...}}
+     Expects rows shaped like:
+       {"filename": "...", "labels": {"Patient": "John", "TNM": "T2", ...}}
 
-    For each (filename, label):
-      - TP if both present and identical
-      - FP+FN if both present but different (wrong extraction counts as both)
-      - FN if GT present, pred missing
-      - FP if pred present, GT missing
-      - TN if GT missing and pred is the literal <<<NO_MATCH>>> sentinel
-      - FP if GT missing and pred is falsy but NOT the sentinel (empty
-        string [seems currently impossible for an LLM to actively provide a blank answer],
-        None [seems currently impossible for an LLM to actively provide a blank answer without error],
-        missing key) — the model failed to signal no-match
-        via the required sentinel convention, which is itself a real,
-        countable error
-      - TIMEOUT if model timed out (does NOT count as FP/FN/TN/TP)
+    `labels` is the label set of the project (single source of truth). Every
+     label in it is evaluated for every file, even if it occurs in no row. A row
+     containing a label that is not in `labels` raises ValueError.
 
-    Returns:
-      {
-        "micro": {...},
-        "per_label": {label: {tp,fp,fn,tn}}
-        "filenames_count": len(all_filenames),
-        "task_metrics": [task_metrics_by_fn[fn] for fn in all_filenames],
-      }
+     For each (filename, label):
+       - TP if both present and identical
+       - FP+FN if both present but different (wrong extraction counts as both)
+       - FN if GT present, pred missing
+       - FP if pred present, GT missing
+       - TN if GT missing and pred is the literal <<<NO_MATCH>>> sentinel
+       - FP if GT missing and pred is falsy but NOT the sentinel (empty
+         string [seems currently impossible for an LLM to actively provide a blank answer],
+         None [seems currently impossible for an LLM to actively provide a blank answer without error],
+         missing key) — the model failed to signal no-match
+         via the required sentinel convention, which is itself a real,
+         countable error
+       - TIMEOUT if model timed out (does NOT count as FP/FN/TN/TP)
+
+     Returns:
+       {
+         "micro": {...},
+         "per_label": {label: {tp,fp,fn,tn}}
+         "filenames_count": len(all_filenames),
+         "task_metrics": [task_metrics_by_fn[fn] for fn in all_filenames],
+       }
     """
-    gt_by_fn = {r.get(filename_key): r for r in gt_rows if r.get(filename_key)}
-    pred_by_fn = {r.get(filename_key): r for r in pred_rows if r.get(filename_key)}
+    gt_by_fn = {r[filename_key]: r for r in gt_rows}
+    pred_by_fn = {r[filename_key]: r for r in pred_rows}
 
-    pred_meta_by_fn = {
-        r.get(filename_key): (r.get("meta") or {}) for r in pred_rows if r.get(filename_key)
-    }
+    pred_meta_by_fn = {r[filename_key]: (r.get("meta") or {}) for r in pred_rows}
 
     all_filenames = sorted(set(gt_by_fn.keys()) | set(pred_by_fn.keys()))
     all_labels = set()
@@ -63,7 +66,14 @@ def compute_metrics_from_rows(
         all_labels |= set((r.get(labels_key) or {}).keys())
     for r in pred_rows:
         all_labels |= set((r.get(labels_key) or {}).keys())
-    all_labels = sorted(all_labels)
+    all_labels = sorted(labels)
+
+    labels_in_rows = set()
+    for r in gt_rows + pred_rows:
+        labels_in_rows |= set((r.get(labels_key) or {}).keys())
+    unknown_labels = sorted(labels_in_rows - set(all_labels))
+    if unknown_labels:
+        raise ValueError(f"rows contain labels not defined for the project: {unknown_labels}")
 
     per_label: Dict[str, dict] = {}
     task_metrics_by_fn: Dict[str, dict] = {}
