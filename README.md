@@ -31,6 +31,36 @@ Designed for **privacy-first**, human-validated evaluation, with built-in compar
 
 ---
 
+## Not production-ready
+
+> **Disclaimer:** This repository is in active development and is not set up
+> for production. This is a deliberate prioritization, not an oversight: the
+> MVP feature scope comes first, hardening for production follows (see the
+> [roadmap](#-current-status--roadmap), Phase 4).
+>
+> **Do not use it with real patient data or in an untrusted network.** All
+> bundled test data is synthetic.
+
+Known gaps, all intentionally deferred:
+
+- **No authentication or authorization.** The Label Studio token is only
+  forwarded to Label Studio; it is not an access-control layer for Xtractyl.
+- **Ports of all major services are exposed for development**, including Postgres, Redis,
+  MinIO and Ollama, for development and debugging (locally and within the
+  network).
+- **Default credentials** in `.env.example` (for testing only).
+- **No TLS** between services or towards the browser.
+- **Development servers only:** Flask's built-in server (orchestrator,
+  ml_backend, docling), the Vite dev server for the frontend, no production
+  WSGI server, no reverse proxy.
+- **The job queue is not durable and not protected.** Redis runs without
+  persistence and without a password. Queued jobs are lost on a restart; an
+  interrupted run can be resumed from its last finished task. 
+- **No GPU configuration.** Ollama runs on CPU. A GPU setup only makes sense
+  for a production system.
+- **No resource limits, backup strategy or monitoring.**
+
+
 ## Why this matters
 Xtractyl runs fully locally and does not rely on external APIs or cloud services.
 
