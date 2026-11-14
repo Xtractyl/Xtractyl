@@ -66,29 +66,9 @@ Xtractyl runs fully locally and does not rely on external APIs or cloud services
 
 Getting an LLM to extract answers from an input document is not the hard part, any model can produce some answer. The hard part is knowing whether that answer is correct and the model can be trusted (not only with its answers, but also when it says that the text does not include the answer). The extraction has to be compared across models/prompts/questions, and the model has to be re-evaluated to detect potential drift (e.g. due to changes in the distribution of your data). That's the evaluation problem Xtractyl is built around.
 
-
 This matters most in regulated, data-intensive industries such as healthcare, life sciences, and public administration, where ground truth matters, black-box outputs aren't acceptable, and neither is a model whose performance is unknown.
 
 >**Note:** Xtractyl is a research-only tool, not intended for clinical or  commercial use. All included test data is fully synthetic. See [Current Status & Roadmap](#-current-status--roadmap) for current constraints.
-
-## Regulatory & Quality Documentation
-
-Xtractyl is developed with software quality and regulatory transparency 
-in mind. A Design History File (DHF) structured according to the principles 
-of IEC 62304 and ISO 14971 is maintained in a separate private repository.
-
-This documentation is intended to support organizations that wish to build 
-regulated AI systems on top of Xtractyl — for example under MDR or the 
-EU AI Act — by providing auditable documentation of the training 
-infrastructure.
-
-> The existence of this documentation does not imply that Xtractyl 
-> is a certified medical device or MDR-compliant product. Xtractyl 
-> remains a research-only tool. Organizations building regulated systems 
-> on top of Xtractyl are solely responsible for their own regulatory 
-> assessment and certification.
-
----
 
 
 ## Why Xtractyl — Design Philosophy
