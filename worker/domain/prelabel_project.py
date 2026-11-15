@@ -72,9 +72,9 @@ def prelabel_project(job: JobPayload) -> None:
 
         start = time.time()
         task_error: DomainError | None = None
-        meta = None
+        ml_response = None
         try:
-            meta = predict(task_id=task_id, html=html, filename=filename, job=job)
+            ml_response = predict(task_id=task_id, html=html, filename=filename, job=job)
         except (ExternalServiceError, ContractViolation) as e:
             # A problem with this one task: the task fails, the run goes on. The failed tasks are
             # tried again when the run is resumed.
@@ -87,7 +87,7 @@ def prelabel_project(job: JobPayload) -> None:
                 filename=filename,
                 success=True,
                 error=None,
-                result=meta.model_dump(),
+                result=ml_response.model_dump(),
             )
         else:
             safe_logger.warning(
