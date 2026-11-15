@@ -1,7 +1,7 @@
 # worker/contracts/orchestrator.py
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from contracts.ml_backend import PredictMeta
+from contracts.ml_backend import PredictResponse
 
 
 class TaskResultRequest(BaseModel):
@@ -10,7 +10,7 @@ class TaskResultRequest(BaseModel):
     filename: str = Field(..., min_length=1)
     success: bool
     error: str | None
-    result: PredictMeta | None
+    result: PredictResponse | None
 
     @model_validator(mode="after")
     def _success_matches_content(self) -> "TaskResultRequest":
