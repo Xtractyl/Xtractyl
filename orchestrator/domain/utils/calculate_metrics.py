@@ -26,8 +26,15 @@ def compute_metrics_from_rows(
     """
      Strict literal equality evaluation.
 
-     Expects rows shaped like:
-      {"html_hash": "...", "filename": "...", "labels": {"Patient": "John", "TNM": "T2", ...}}
+    Expects gt rows shaped like:
+       {"html_hash": "...", "filename": "...", "labels": {"Patient": "John", "TNM": "T2", ...}}
+
+    and pred rows shaped like:
+      {"html_hash": "...", "filename": "...", "labels": {"Patient": "John", "TNM": "T2", ...},
+       "dom_match_by_label": {"Patient": True, "TNM": None, ...},
+       "task_ms_total": 1200.0, "task_ms_llm_total": 900.0,
+       "task_ms_dom_extract": 200.0, "task_ms_dom_match": 100.0}
+
 
     Rows of gt_rows and pred_rows are matched by `html_hash` (the content of the
     document), not by filename. Both lists must contain exactly the same html_hash
@@ -63,8 +70,6 @@ def compute_metrics_from_rows(
     pred_by_hash = {r[hash_key]: r for r in pred_rows}
     if len(gt_by_hash) != len(gt_rows) or len(pred_by_hash) != len(pred_rows):
         raise ValueError("an html_hash occurs more than once in gt_rows or in pred_rows")
-
-    pred_meta_by_hash = {r[hash_key]: r["meta"] for r in pred_rows}
 
     if gt_by_hash.keys() != pred_by_hash.keys():
         raise ValueError(
@@ -103,20 +108,17 @@ def compute_metrics_from_rows(
             if html_hash not in task_metrics_by_hash:
                 task_metrics_by_hash[html_hash] = {
                     "filename": gt_by_hash[html_hash]["filename"],
-                    "meta": pred_meta_by_hash[html_hash],
                     "per_label": {},
                     "counts": {"tp": 0, "fp": 0, "fn": 0, "tn": 0},
                 }
 
-            meta = pred_meta_by_hash[html_hash]
-
             # collect perf once per task (not per label)
             if not task_metrics_by_hash[html_hash].get("_perf_collected"):
-                req = meta["performance"]["request"]
-                perf_task_ms_total.append(float(req["task_ms_total"]))
-                perf_task_ms_llm_total.append(float(req["task_ms_llm_total"]))
-                perf_task_ms_dom_extract.append(float(req["task_ms_dom_extract"]))
-                perf_task_ms_dom_match.append(float(req["task_ms_dom_match"]))
+                pred = pred_by_hash[html_hash]
+                perf_task_ms_total.append(float(pred["task_ms_total"]))
+                perf_task_ms_llm_total.append(float(pred["task_ms_llm_total"]))
+                perf_task_ms_dom_extract.append(float(pred["task_ms_dom_extract"]))
+                perf_task_ms_dom_match.append(float(pred["task_ms_dom_match"]))
                 n_tasks_with_perf += 1
                 task_metrics_by_hash[html_hash]["_perf_collected"] = True
 
@@ -167,6 +169,7 @@ def compute_metrics_from_rows(
             task_metrics_by_hash[html_hash]["per_label"][lab] = {
                 "gt": gt_val,
                 "pred": pr_val,
+                "dom_match": pred_by_hash[html_hash]["dom_match_by_label"][lab],
                 "status": status,
             }
 
