@@ -12,8 +12,6 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
   const perLabel = metrics.per_label || {};
   const taskMetrics = metrics.task_metrics || [];
 
-  const cmpMeta = taskMetrics.find((t) => t?.meta && Object.keys(t.meta).length > 0)?.meta || {};
-
   function Metric({ label, value }) {
     return (
       <div className="p-3 bg-xtractyl-white rounded border border-xtractyl-outline/20">
@@ -50,20 +48,11 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
               <br />
               ID: {payload.comparison_project_id}
               <br />
-              Model: {cmpMeta.model ?? "—"}
-              <br />
               Run time: {payload.run_at_raw ? new Date(payload.run_at_raw).toLocaleString() : "—"}
             </div>
           </div>
         </div>
       </div>
-
-      {cmpMeta.system_prompt && (
-        <div className="p-3 bg-xtractyl-white rounded border">
-          <div className="font-semibold text-sm mb-1">System Prompt</div>
-          <pre className="text-xs whitespace-pre-wrap">{cmpMeta.system_prompt}</pre>
-        </div>
-      )}
 
       {/* ---------- Overall Metrics ---------- */}
       <div>
@@ -105,15 +94,6 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
 
         <div className="mt-4 space-y-4">
           {taskMetrics.map((t) => {
-            const llmCalls = (t.meta?.performance?.events || [])
-              .filter((e) => e?.name === "llm.call")
-              .map((e, idx) => ({
-                idx,
-                ms: e.ms,
-                label: e.tags?.label,
-                status: e.tags?.status,
-              }));
-
             return (
               <div key={t.filename} className="p-3 bg-xtractyl-white rounded border">
                 <div className="font-semibold text-sm mb-2">{t.filename}</div>
@@ -124,8 +104,6 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
                       <th className="border px-2 py-1">Label</th>
                       <th className="border px-2 py-1">GT</th>
                       <th className="border px-2 py-1">Pred</th>
-                      <th className="border px-2 py-1">Raw</th>
-                      <th className="border px-2 py-1">DOM</th>
                       <th className="border px-2 py-1">Status</th>
                     </tr>
                   </thead>
@@ -135,40 +113,11 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
                         <td className="border px-2 py-1">{lab}</td>
                         <td className="border px-2 py-1">{v.gt ?? "—"}</td>
                         <td className="border px-2 py-1">{v.pred ?? "—"}</td>
-                        <td className="border px-2 py-1 whitespace-pre-wrap">
-                          {t.meta?.raw_llm_answers?.[lab]?.answer ?? "—"}
-                        </td>
-                        <td className="border px-2 py-1 text-xtractyl-outline/70">
-                          {t.meta?.dom_match_by_label?.[lab] === true
-                            ? "ok"
-                            : t.meta?.dom_match_by_label?.[lab] === false
-                              ? "x"
-                              : "—"}
-                        </td>
                         <td className="border px-2 py-1">{v.status}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-
-                {/* ---------- LLM Calls ---------- */}
-                {llmCalls.length > 0 && (
-                  <div className="p-3 bg-xtractyl-white rounded border">
-                    <div className="text-sm font-semibold mb-2">LLM call durations (ms)</div>
-                    <div className="space-y-1 text-xs">
-                      {llmCalls.map((c) => (
-                        <div key={c.idx} className="flex justify-between">
-                          <div>
-                            {c.label ?? "—"} {c.status ? `(${c.status})` : ""}
-                          </div>
-                          <div className="font-mono">
-                            {typeof c.ms === "number" ? c.ms.toFixed(1) : "—"}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             );
           })}
