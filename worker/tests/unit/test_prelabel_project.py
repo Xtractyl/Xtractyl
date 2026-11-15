@@ -3,10 +3,10 @@ from unittest.mock import patch
 
 import pytest
 from contracts.jobs import JobPayload
-from contracts.ml_backend import PredictMeta
+from contracts.ml_backend import PredictResponse
 from domain.errors import ContractViolation, ExternalServiceError, InvalidState
 
-META = PredictMeta.model_validate(
+ML_RESPONSE = PredictResponse.model_validate(
     {
         "predictions": [],
         "raw_llm_answers": {},
@@ -59,7 +59,7 @@ def _run(job, tasks, predict, send):
 
 
 def test_successful_tasks_are_reported_with_their_result(job):
-    send = _run(job, _tasks(), predict=[META, META], send=[True, True])
+    send = _run(job, _tasks(), predict=[ML_RESPONSE, ML_RESPONSE], send=[True, True])
 
     assert send.call_count == 2
     first = send.call_args_list[0].kwargs
@@ -69,7 +69,7 @@ def test_successful_tasks_are_reported_with_their_result(job):
 
 def test_a_failing_task_fails_only_that_task(job):
     error = ExternalServiceError(code="ML_BACKEND_TIMEOUT", message="ML backend did not answer.")
-    send = _run(job, _tasks(), predict=[error, META], send=[True, True])
+    send = _run(job, _tasks(), predict=[error, ML_RESPONSE], send=[True, True])
 
     first, second = (c.kwargs for c in send.call_args_list)
     assert first["success"] is False
@@ -80,7 +80,7 @@ def test_a_failing_task_fails_only_that_task(job):
 
 def test_a_contract_violation_fails_only_that_task(job):
     error = ContractViolation(code="ML_RESPONSE_INVALID", message="Bad answer.")
-    send = _run(job, _tasks(), predict=[error, META], send=[True, True])
+    send = _run(job, _tasks(), predict=[error, ML_RESPONSE], send=[True, True])
 
     assert send.call_args_list[0].kwargs["error"] == "[ML_RESPONSE_INVALID] Bad answer."
     assert send.call_args_list[1].kwargs["success"] is True
@@ -96,7 +96,7 @@ def test_task_without_html_is_sent_to_predict_and_fails_there(job):
 
 
 def test_cancelled_run_stops_after_the_current_task(job):
-    send = _run(job, _tasks(), predict=[META, META], send=[False, True])
+    send = _run(job, _tasks(), predict=[ML_RESPONSE, ML_RESPONSE], send=[False, True])
 
     assert send.call_count == 1
 
@@ -104,7 +104,7 @@ def test_cancelled_run_stops_after_the_current_task(job):
 def test_error_while_reporting_a_task_ends_the_run(job):
     error = ExternalServiceError(code="TASK_RESULT_REJECTED", message="Rejected.")
     with pytest.raises(ExternalServiceError) as exc:
-        _run(job, _tasks(), predict=[META, META], send=error)
+        _run(job, _tasks(), predict=[ML_RESPONSE, ML_RESPONSE], send=error)
 
     assert exc.value.code == "TASK_RESULT_REJECTED"
 
