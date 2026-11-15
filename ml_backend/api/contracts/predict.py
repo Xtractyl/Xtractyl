@@ -28,7 +28,7 @@ class PredictRequest(BaseModel):
     label_studio_config: LabelStudioConfig
 
 
-class PredictMeta(BaseModel):
+class PredictResponse(BaseModel):
     predictions: List[Dict[str, Any]]
     raw_llm_answers: Dict[str, Any]
     dom_match_diagnostics: List[Dict[str, Any]]
@@ -40,10 +40,3 @@ class PredictMeta(BaseModel):
     n_llm_calls: int
     avg_llm_call_ms: float
     median_llm_call_ms: float
-
-
-class PredictResponse(BaseModel):
-    model_version: str
-    score: float
-    result: List[Dict[str, Any]]
-    meta: PredictMeta

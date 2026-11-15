@@ -280,6 +280,30 @@ def test_handle_conversion_callback_continues_when_more_files_remain():
     assert result == {"status": "ok", "continue": True}
 
 
+def test_handle_conversion_callback_fails_job_when_html_hash_already_in_project():
+    repo = FakeConversionRepo(existing_projects={"my-project"})
+    repo.files.append(File(project="my-project", filename="b.pdf", pdf_key="k/b.pdf"))
+    repo.conversion_jobs[1] = ConversionJob(
+        id=1, project="my-project", status="converting", total_files=3, converted_files=1
+    )
+    project_repo = FakeProjectRepo(html_hashes={"my-project": {"h1"}})
+    cmd = ConversionCallbackCommand(
+        job_id=1, filename="b.pdf", html_key="html/b.html", success=True, html_hash="h1"
+    )
+
+    result = handle_conversion_callback(cmd, repo=repo, project_repo=project_repo)
+
+    assert repo.files[0].html_key is None
+    assert repo.files[0].error == "identical document content as another file in this project"
+    assert repo.conversion_jobs[1].status == "failed"
+    assert (
+        repo.conversion_jobs[1].error
+        == "b.pdf: identical document content as another file in this project"
+    )
+    assert project_repo.document_set_hashes_set == []
+    assert result == {"status": "ok", "continue": False}
+
+
 def test_handle_conversion_callback_completes_job_and_sets_document_set_hash():
     repo = FakeConversionRepo(existing_projects={"my-project"})
     repo.files.append(File(project="my-project", filename="a.pdf", pdf_key="my-project/pdfs/a.pdf"))

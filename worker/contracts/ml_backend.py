@@ -23,7 +23,7 @@ class PredictRequest(BaseModel):
     label_studio_config: LabelStudioConfig
 
 
-class PredictMeta(BaseModel):
+class PredictResponse(BaseModel):
     predictions: list
     raw_llm_answers: dict
     dom_match_diagnostics: list
@@ -35,13 +35,6 @@ class PredictMeta(BaseModel):
     n_llm_calls: int
     avg_llm_call_ms: float
     median_llm_call_ms: float
-
-
-class PredictResponse(BaseModel):
-    model_version: str
-    score: float
-    result: list[dict]
-    meta: PredictMeta
 
 
 class ErrorResponse(BaseModel):

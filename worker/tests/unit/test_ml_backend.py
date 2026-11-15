@@ -23,7 +23,7 @@ def job():
     )
 
 
-META = {
+ML_RESPONSE = {
     "predictions": [],
     "raw_llm_answers": {},
     "dom_match_diagnostics": [],
@@ -56,15 +56,15 @@ def _predict(job, html="<p>x</p>"):
     return predict(task_id=5, html=html, filename="a.html", job=job)
 
 
-def test_predict_returns_meta(job):
-    body = {"model_version": "m", "score": 1.0, "result": [], "meta": {**META, "extra": 1}}
+def test_predict_returns_ml_response(job):
+    body = {**ML_RESPONSE, "extra": 1}
     with patch("infrastructure.ml_backend.requests.post", return_value=_response(200, body)):
-        meta = _predict(job)
-    assert meta.n_llm_calls == 1
+        ml_response = _predict(job)
+    assert ml_response.n_llm_calls == 1
 
 
 def test_predict_sends_no_infrastructure_config(job):
-    body = {"model_version": "m", "score": 1.0, "result": [], "meta": META}
+    body = ML_RESPONSE
     with patch(
         "infrastructure.ml_backend.requests.post", return_value=_response(200, body)
     ) as post:
@@ -128,11 +128,11 @@ def test_predict_answer_that_is_not_json_is_a_contract_violation(job):
     assert exc.value.code == "ML_RESPONSE_INVALID"
 
 
-def test_predict_answer_with_missing_meta_field_is_a_contract_violation(job):
-    meta = {k: v for k, v in META.items() if k != "n_llm_calls"}
-    body = {"model_version": "m", "score": 1.0, "result": [], "meta": meta}
+def test_predict_answer_with_missing_response_field_is_a_contract_violation(job):
+    ml_response = {k: v for k, v in ML_RESPONSE.items() if k != "n_llm_calls"}
+    body = ml_response
     with patch("infrastructure.ml_backend.requests.post", return_value=_response(200, body)):
         with pytest.raises(ContractViolation) as exc:
             _predict(job)
     assert exc.value.code == "ML_RESPONSE_INVALID"
-    assert exc.value.meta["errors"][0]["loc"] == ["meta", "n_llm_calls"]
+    assert exc.value.meta["errors"][0]["loc"] == ["n_llm_calls"]

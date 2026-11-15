@@ -19,54 +19,76 @@ def _p95(xs: List[float]) -> float:
 def compute_metrics_from_rows(
     gt_rows: List[dict],
     pred_rows: List[dict],
-    filename_key: str = "filename",
+    labels: List[str],
+    hash_key: str = "html_hash",
     labels_key: str = "labels",
 ) -> dict:
     """
-    Strict literal equality evaluation.
+     Strict literal equality evaluation.
 
-    Expects rows shaped like:
-      {"filename": "...", "labels": {"Patient": "John", "TNM": "T2", ...}}
+     Expects rows shaped like:
+      {"html_hash": "...", "filename": "...", "labels": {"Patient": "John", "TNM": "T2", ...}}
 
-    For each (filename, label):
-      - TP if both present and identical
-      - FP+FN if both present but different (wrong extraction counts as both)
-      - FN if GT present, pred missing
-      - FP if pred present, GT missing
-      - TN if GT missing and pred is the literal <<<NO_MATCH>>> sentinel
-      - FP if GT missing and pred is falsy but NOT the sentinel (empty
-        string [seems currently impossible for an LLM to actively provide a blank answer],
-        None [seems currently impossible for an LLM to actively provide a blank answer without error],
-        missing key) — the model failed to signal no-match
-        via the required sentinel convention, which is itself a real,
-        countable error
-      - TIMEOUT if model timed out (does NOT count as FP/FN/TN/TP)
+    Rows of gt_rows and pred_rows are matched by `html_hash` (the content of the
+    document), not by filename. Both lists must contain exactly the same html_hash
+    values, each at most once per list, otherwise ValueError. `filename` is only
+    used for display and is taken from the gt row.
 
-    Returns:
-      {
-        "micro": {...},
-        "per_label": {label: {tp,fp,fn,tn}}
-        "filenames_count": len(all_filenames),
-        "task_metrics": [task_metrics_by_fn[fn] for fn in all_filenames],
-      }
+    `labels` is the label set of the project (single source of truth). Every
+     label in it is evaluated for every file, even if it occurs in no row. A row
+     containing a label that is not in `labels` raises ValueError.
+
+    For each (html_hash, label):
+       - TP if both present and identical
+       - FP+FN if both present but different (wrong extraction counts as both)
+       - FN if GT present, pred missing
+       - FP if pred present, GT missing
+       - TN if GT missing and pred is the literal <<<NO_MATCH>>> sentinel
+       - FP if GT missing and pred is falsy but NOT the sentinel (empty
+         string [seems currently impossible for an LLM to actively provide a blank answer],
+         None [seems currently impossible for an LLM to actively provide a blank answer without error],
+         missing key) — the model failed to signal no-match
+         via the required sentinel convention, which is itself a real,
+         countable error
+
+     Returns:
+       {
+         "micro": {...},
+         "per_label": {label: {tp,fp,fn,tn}}
+         "filenames_count": len(all_hashes),
+         "task_metrics": [task_metrics_by_hash[h] for h in all_hashes],
+       }
     """
-    gt_by_fn = {r.get(filename_key): r for r in gt_rows if r.get(filename_key)}
-    pred_by_fn = {r.get(filename_key): r for r in pred_rows if r.get(filename_key)}
+    gt_by_hash = {r[hash_key]: r for r in gt_rows}
+    pred_by_hash = {r[hash_key]: r for r in pred_rows}
+    if len(gt_by_hash) != len(gt_rows) or len(pred_by_hash) != len(pred_rows):
+        raise ValueError("an html_hash occurs more than once in gt_rows or in pred_rows")
 
-    pred_meta_by_fn = {
-        r.get(filename_key): (r.get("meta") or {}) for r in pred_rows if r.get(filename_key)
-    }
+    pred_meta_by_hash = {r[hash_key]: r["meta"] for r in pred_rows}
 
-    all_filenames = sorted(set(gt_by_fn.keys()) | set(pred_by_fn.keys()))
+    if gt_by_hash.keys() != pred_by_hash.keys():
+        raise ValueError(
+            "gt_rows and pred_rows must contain the same html_hash values: "
+            f"only in gt: {sorted(gt_by_hash.keys() - pred_by_hash.keys())}, "
+            f"only in pred: {sorted(pred_by_hash.keys() - gt_by_hash.keys())}"
+        )
+    all_hashes = sorted(gt_by_hash, key=lambda h: gt_by_hash[h]["filename"])
     all_labels = set()
     for r in gt_rows:
         all_labels |= set((r.get(labels_key) or {}).keys())
     for r in pred_rows:
         all_labels |= set((r.get(labels_key) or {}).keys())
-    all_labels = sorted(all_labels)
+    all_labels = sorted(labels)
+
+    labels_in_rows = set()
+    for r in gt_rows + pred_rows:
+        labels_in_rows |= set((r.get(labels_key) or {}).keys())
+    unknown_labels = sorted(labels_in_rows - set(all_labels))
+    if unknown_labels:
+        raise ValueError(f"rows contain labels not defined for the project: {unknown_labels}")
 
     per_label: Dict[str, dict] = {}
-    task_metrics_by_fn: Dict[str, dict] = {}
+    task_metrics_by_hash: Dict[str, dict] = {}
 
     TP = FP = FN = TN = 0
     perf_task_ms_total: List[float] = []
@@ -76,79 +98,61 @@ def compute_metrics_from_rows(
     n_tasks_with_perf = 0
 
     for lab in all_labels:
-        tp = fp = fn = tn = timeout = 0
-        for fnm in all_filenames:
-            if fnm not in task_metrics_by_fn:
-                task_metrics_by_fn[fnm] = {
-                    "filename": fnm,
-                    "meta": pred_meta_by_fn.get(fnm, {}),
+        tp = fp = fn = tn = 0
+        for html_hash in all_hashes:
+            if html_hash not in task_metrics_by_hash:
+                task_metrics_by_hash[html_hash] = {
+                    "filename": gt_by_hash[html_hash]["filename"],
+                    "meta": pred_meta_by_hash[html_hash],
                     "per_label": {},
-                    "counts": {"tp": 0, "fp": 0, "fn": 0, "tn": 0, "timeout": 0},
+                    "counts": {"tp": 0, "fp": 0, "fn": 0, "tn": 0},
                 }
 
-            meta = pred_meta_by_fn.get(fnm, {}) or {}
+            meta = pred_meta_by_hash[html_hash]
 
             # collect perf once per task (not per label)
-            if not task_metrics_by_fn[fnm].get("_perf_collected"):
-                req = (meta.get("performance") or {}).get("request") or {}
-                has_any_perf = False
-                if isinstance(req.get("task_ms_total"), (int, float)):
-                    perf_task_ms_total.append(float(req["task_ms_total"]))
-                    has_any_perf = True
-                if isinstance(req.get("task_ms_llm_total"), (int, float)):
-                    perf_task_ms_llm_total.append(float(req["task_ms_llm_total"]))
-                    has_any_perf = True
-                if isinstance(req.get("task_ms_dom_extract"), (int, float)):
-                    perf_task_ms_dom_extract.append(float(req["task_ms_dom_extract"]))
-                    has_any_perf = True
-                if isinstance(req.get("task_ms_dom_match"), (int, float)):
-                    perf_task_ms_dom_match.append(float(req["task_ms_dom_match"]))
-                    has_any_perf = True
-                if has_any_perf:
-                    n_tasks_with_perf += 1
-                task_metrics_by_fn[fnm]["_perf_collected"] = True
-            raw = meta.get("raw_llm_answers") or {}
-            ans = raw.get(str(lab)) or raw.get(lab) or {}
-            timed_out = ans.get("error") == "timeout"
+            if not task_metrics_by_hash[html_hash].get("_perf_collected"):
+                req = meta["performance"]["request"]
+                perf_task_ms_total.append(float(req["task_ms_total"]))
+                perf_task_ms_llm_total.append(float(req["task_ms_llm_total"]))
+                perf_task_ms_dom_extract.append(float(req["task_ms_dom_extract"]))
+                perf_task_ms_dom_match.append(float(req["task_ms_dom_match"]))
+                n_tasks_with_perf += 1
+                task_metrics_by_hash[html_hash]["_perf_collected"] = True
 
-            gt_val = ((gt_by_fn.get(fnm, {}) or {}).get(labels_key) or {}).get(lab, "")
-            pr_val = ((pred_by_fn.get(fnm, {}) or {}).get(labels_key) or {}).get(lab, "")
+            gt_val = (gt_by_hash[html_hash].get(labels_key) or {}).get(lab, "")
+            pr_val = (pred_by_hash[html_hash].get(labels_key) or {}).get(lab, "")
 
             gt_present = bool(gt_val)
             pr_no_match = pr_val == "<<<NO_MATCH>>>"
             pr_present = bool(pr_val) and not pr_no_match
 
-            if timed_out:
-                status = "timeout"
-                task_metrics_by_fn[fnm]["counts"]["timeout"] += 1
-                timeout += 1
-
-            elif gt_present and pr_present:
+            if gt_present and pr_present:
                 if gt_val == pr_val:
                     tp += 1
                     status = "tp"
-                    task_metrics_by_fn[fnm]["counts"]["tp"] += 1
+                    task_metrics_by_hash[html_hash]["counts"]["tp"] += 1
                 else:
                     fp += 1
                     fn += 1
                     status = "fp_fn"
-                    task_metrics_by_fn[fnm]["counts"]["fp"] += 1
-                    task_metrics_by_fn[fnm]["counts"]["fn"] += 1
+                    task_metrics_by_hash[html_hash]["counts"]["fp"] += 1
+                    task_metrics_by_hash[html_hash]["counts"]["fn"] += 1
 
             elif gt_present and not pr_present:
                 fn += 1
                 status = "fn"
-                task_metrics_by_fn[fnm]["counts"]["fn"] += 1
+                task_metrics_by_hash[html_hash]["counts"]["fn"] += 1
 
             elif (not gt_present) and pr_present:
                 fp += 1
                 status = "fp"
-                task_metrics_by_fn[fnm]["counts"]["fp"] += 1
+                task_metrics_by_hash[html_hash]["counts"]["fp"] += 1
 
             elif (not gt_present) and pr_no_match:
                 tn += 1
                 status = "tn"
-                task_metrics_by_fn[fnm]["counts"]["tn"] += 1
+                task_metrics_by_hash[html_hash]["counts"]["tn"] += 1
 
             else:
                 # not gt_present, and pr_val is falsy but NOT the literal
@@ -158,9 +162,9 @@ def compute_metrics_from_rows(
                 # so it is a secuirty measure for something that seems impossible
                 fp += 1
                 status = "fp"
-                task_metrics_by_fn[fnm]["counts"]["fp"] += 1
+                task_metrics_by_hash[html_hash]["counts"]["fp"] += 1
 
-            task_metrics_by_fn[fnm]["per_label"][lab] = {
+            task_metrics_by_hash[html_hash]["per_label"][lab] = {
                 "gt": gt_val,
                 "pred": pr_val,
                 "status": status,
@@ -180,7 +184,6 @@ def compute_metrics_from_rows(
             "fp": fp,
             "fn": fn,
             "tn": tn,
-            "timeout": timeout,
             "precision": precision,
             "recall": recall,
             "f1": f1,
@@ -206,7 +209,7 @@ def compute_metrics_from_rows(
     }
 
     # remove internal guard flags from output
-    for t in task_metrics_by_fn.values():
+    for t in task_metrics_by_hash.values():
         t.pop("_perf_collected", None)
 
     return {
@@ -222,7 +225,7 @@ def compute_metrics_from_rows(
         },
         "per_label": per_label,
         "labels": all_labels,
-        "filenames_count": len(all_filenames),
-        "task_metrics": [task_metrics_by_fn[fn] for fn in all_filenames],
+        "filenames_count": len(all_hashes),
+        "task_metrics": [task_metrics_by_hash[h] for h in all_hashes],
         "performance": performance,
     }

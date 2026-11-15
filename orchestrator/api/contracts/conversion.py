@@ -1,6 +1,7 @@
 # orchestrator/api/contracts/conversion.py
 
 import re
+from collections import Counter
 from typing import List, Optional
 
 from pydantic import BaseModel, field_validator
@@ -22,9 +23,17 @@ class PrepareConversionRequest(BaseModel):
 
     @field_validator("filenames")
     @classmethod
-    def filenames_not_empty(cls, v: List[str]) -> List[str]:
+    def validate_filenames(cls, v: List[str]) -> List[str]:
         if not v:
             raise ValueError("filenames must not be empty")
+        if any(name == "" for name in v):
+            raise ValueError("filenames must not contain an empty name")
+        with_slash = [name for name in v if "/" in name]
+        if with_slash:
+            raise ValueError(f"filenames must not contain '/': {', '.join(with_slash)}")
+        duplicates = sorted(name for name, count in Counter(v).items() if count > 1)
+        if duplicates:
+            raise ValueError(f"filenames must be unique: {', '.join(duplicates)}")
         return v
 
 

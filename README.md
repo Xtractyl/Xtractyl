@@ -21,7 +21,7 @@
 **Xtractyl** is a modular, local, human-in-the-loop framework for evaluating LLM-based extractive question answering (answering questions with exact text passages from the input). It helps you find the right model, system prompt, and question formulation before serving that exact configuration in production.
 
 
-It converts input documents → HTML/DOM → pre-labels them with an LLM → enables manual review via Label Studio → and evaluates the result against a human-validated ground truth (precision, recall, F1, latency). Once a configuration is validated, the next step (coming soon) is to promote it to a locked, monitored extraction endpoint.
+It converts input documents → HTML/DOM → pre-labels them with an LLM → enables manual review via Label Studio → and evaluates the result against a human-validated ground truth (precision, recall, F1, latency [confidence intervals and additional metrics will soon be added]). Once a configuration is validated, the next step (coming soon) is to promote it to a locked, monitored extraction endpoint.
 
 
 Designed for **privacy-first**, human-validated evaluation, with built-in comparison across models, prompts, and question formulations.
@@ -31,34 +31,44 @@ Designed for **privacy-first**, human-validated evaluation, with built-in compar
 
 ---
 
+## Not production-ready
+
+> **Disclaimer:** This repository is in active development and is not set up
+> for production. This is a deliberate prioritization, not an oversight: the
+> MVP feature scope comes first, hardening for production follows (see the
+> [roadmap](#-current-status--roadmap), Phase 4).
+>
+> **Do not use it with real patient data or in an untrusted network.** All
+> bundled test data is synthetic.
+
+Known gaps, all intentionally deferred:
+
+- **No authentication or authorization.** The Label Studio token is only
+  forwarded to Label Studio; it is not an access-control layer for Xtractyl.
+- **Ports of all major services are exposed for development**, including Postgres, Redis,
+  MinIO and Ollama, for development and debugging (locally and within the
+  network).
+- **Default credentials** in `.env.example` (for testing only).
+- **No TLS** between services or towards the browser.
+- **Development servers only:** Flask's built-in server (orchestrator,
+  ml_backend, docling), the Vite dev server for the frontend, no production
+  WSGI server, no reverse proxy.
+- **The job queue is not durable and not protected.** Redis runs without
+  persistence and without a password. Queued jobs are lost on a restart; an
+  interrupted run can be resumed from its last finished task. 
+- **No GPU configuration.** Ollama runs on CPU. A GPU setup only makes sense
+  for a production system.
+- **No resource limits, backup strategy or monitoring.**
+
+
 ## Why this matters
 Xtractyl runs fully locally and does not rely on external APIs or cloud services.
 
 Getting an LLM to extract answers from an input document is not the hard part, any model can produce some answer. The hard part is knowing whether that answer is correct and the model can be trusted (not only with its answers, but also when it says that the text does not include the answer). The extraction has to be compared across models/prompts/questions, and the model has to be re-evaluated to detect potential drift (e.g. due to changes in the distribution of your data). That's the evaluation problem Xtractyl is built around.
 
-
 This matters most in regulated, data-intensive industries such as healthcare, life sciences, and public administration, where ground truth matters, black-box outputs aren't acceptable, and neither is a model whose performance is unknown.
 
 >**Note:** Xtractyl is a research-only tool, not intended for clinical or  commercial use. All included test data is fully synthetic. See [Current Status & Roadmap](#-current-status--roadmap) for current constraints.
-
-## Regulatory & Quality Documentation
-
-Xtractyl is developed with software quality and regulatory transparency 
-in mind. A Design History File (DHF) structured according to the principles 
-of IEC 62304 and ISO 14971 is maintained in a separate private repository.
-
-This documentation is intended to support organizations that wish to build 
-regulated AI systems on top of Xtractyl — for example under MDR or the 
-EU AI Act — by providing auditable documentation of the training 
-infrastructure.
-
-> The existence of this documentation does not imply that Xtractyl 
-> is a certified medical device or MDR-compliant product. Xtractyl 
-> remains a research-only tool. Organizations building regulated systems 
-> on top of Xtractyl are solely responsible for their own regulatory 
-> assessment and certification.
-
----
 
 
 ## Why Xtractyl — Design Philosophy
@@ -201,7 +211,7 @@ style ZA8 fill:#A7F3D0,stroke:#88a,stroke-width:1px;
 - DOM-based XPath mapping and label matching
 - Human validation with Label Studio
 - Extract structured databases from previously unstructured data
-- Built-in evaluation of AI predictions (precision, recall, F1, accuracy)
+- Built-in evaluation of AI predictions (precision, recall, F1, accuracy [confidence intervals will soon be added])
 - Performance metrics (end-to-end runtime, per-document and per-question latency)
 - Speed–accuracy comparison across models, prompts, and question formulations
 - Modular, containerized Docker architecture
@@ -640,7 +650,7 @@ If you did not add any changes to the code, you can go back to the normal setup 
    - Select a project with your ground truth information
    - Select a project to compare against the ground truth 
    - Click "Run Evaluation"
-   - Get metrics (Precision, Recall, F1, Accuracy) on an overall basis and per question/label
+   - Get metrics (Precision, Recall, F1, Accuracy [confidence intervals will soon be added]) on an overall basis and per question/label
    - Get a per task (per PDF document) overview with ground truth answer, predicted answer and raw LLM answer
    - Get performance metrics (time per task [per PDF document], LLM time per tasks, time per question, LLM time per question etc.)
 

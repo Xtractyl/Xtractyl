@@ -5,7 +5,7 @@ import os
 
 import requests
 from contracts.jobs import JobPayload
-from contracts.ml_backend import ErrorResponse, PredictMeta, PredictRequest, PredictResponse
+from contracts.ml_backend import ErrorResponse, PredictRequest, PredictResponse
 from domain.errors import ContractViolation, ExternalServiceError
 from pydantic import ValidationError
 
@@ -60,7 +60,7 @@ def _error_from_response(resp: requests.Response) -> ExternalServiceError:
     )
 
 
-def predict(*, task_id: int, html: str | None, filename: str, job: JobPayload) -> PredictMeta:
+def predict(*, task_id: int, html: str | None, filename: str, job: JobPayload) -> PredictResponse:
     """Asks the ml_backend to prelabel one task. Raises a DomainError for everything that goes
     wrong with this one task; the caller decides what that means for the task and the run."""
     payload = _build_request(task_id=task_id, html=html, filename=filename, job=job)
@@ -93,7 +93,7 @@ def predict(*, task_id: int, html: str | None, filename: str, job: JobPayload) -
         raise _error_from_response(resp)
 
     try:
-        return PredictResponse.model_validate(resp.json()).meta
+        return PredictResponse.model_validate(resp.json())
     except ValueError as e:  # invalid JSON or a ValidationError (a ValueError subclass)
         if isinstance(e, ValidationError):
             raise ContractViolation.from_validation_error(

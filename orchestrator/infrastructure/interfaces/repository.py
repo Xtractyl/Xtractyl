@@ -106,6 +106,9 @@ class ProjectRepositoryInterface(ABC):
     def get_html_hashes_for_project(self, name: str) -> set[str]: ...
 
     @abstractmethod
+    def get_html_hash_by_html_filename(self, name: str) -> dict[str, str | None]: ...
+
+    @abstractmethod
     def get_groundtruth_annotations(self, project: str) -> list: ...
 
     @abstractmethod

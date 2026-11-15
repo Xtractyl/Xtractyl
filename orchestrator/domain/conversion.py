@@ -121,18 +121,23 @@ def handle_conversion_callback(
         # avoids writing to a file/job
         # row that's about to be deleted
         return {"status": "ok", "continue": False}
-    if not cmd.success:
+    error = None if cmd.success else (cmd.error or "conversion failed")
+    if cmd.success and cmd.html_hash in project_repo.get_html_hashes_for_project(job.project):
+        # Evaluation matches ground truth and predictions by html_hash, so within one project
+        # a document must not occur twice (under two filenames).
+        error = "identical document content as another file in this project"
+    if error:
         repo.set_file_error(
             project=job.project,
             filename=cmd.filename,
-            error=cmd.error or "Conversion failed for unknown reason.",
+            error=error,
         )
         repo.increment_converted_files(job.id)
         if job.status != "failed":
             repo.set_conversion_job_status(
                 job.id,
                 "failed",
-                error=f"{cmd.filename}: {cmd.error or 'conversion failed'}",
+                error=f"{cmd.filename}: {error}",
             )
         return {"status": "ok", "continue": False}
 

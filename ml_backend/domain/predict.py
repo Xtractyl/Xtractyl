@@ -84,14 +84,9 @@ def run_predict(cmd: PredictCommand) -> dict:
     )
 
     return {
-        "model_version": llm.ollama_model,
-        "score": 1.0 if prelabels else 0.0,
-        "result": prelabels,
-        "meta": {
-            "predictions": prelabels,
-            "raw_llm_answers": answers_by_label,
-            "dom_match_diagnostics": diagnostics,
-            "dom_match_by_label": dom_match_by_label,
-            **perf.to_dict()["request"],
-        },
+        "predictions": prelabels,
+        "raw_llm_answers": answers_by_label,
+        "dom_match_diagnostics": diagnostics,
+        "dom_match_by_label": dom_match_by_label,
+        **perf.to_dict()["request"],
     }

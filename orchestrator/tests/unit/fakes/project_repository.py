@@ -47,7 +47,7 @@ class FakeProjectRepo(ProjectRepositoryInterface):
         return name in self._conversion_done
 
     def get_html_hashes_for_project(self, name):
-        return set(self._html_hashes.get(name, ()))
+        return self._html_hashes.get(name, set())
 
     def list_projects_by_labels_and_documents(self, labels_hash, document_set_hash):
         return [
@@ -91,6 +91,9 @@ class FakeProjectRepo(ProjectRepositoryInterface):
         raise NotImplementedError("not needed by domain tests yet")
 
     def list_groundtruth_projects(self):
+        raise NotImplementedError("not needed by domain tests yet")
+
+    def get_html_hash_by_html_filename(self, name):
         raise NotImplementedError("not needed by domain tests yet")
 
     def get_groundtruth_annotations(self, project):
