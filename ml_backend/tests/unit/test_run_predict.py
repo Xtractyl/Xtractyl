@@ -1,6 +1,6 @@
 # ml_backend/tests/unit/test_run_predict.py
 import pytest
-from api.contracts.predict import PredictMeta
+from api.contracts.predict import PredictResponse
 from domain.errors import ExternalServiceError
 from domain.models.predict import (
     LabelStudioConfig,
@@ -38,20 +38,20 @@ def saved(monkeypatch):
     return calls
 
 
-def test_happy_path_returns_meta_that_matches_the_contract(cmd, saved, monkeypatch):
+def test_happy_path_returns_response_that_matches_the_contract(cmd, saved, monkeypatch):
     monkeypatch.setattr("domain.predict.ask_llm_with_timeout", lambda prompt, model_name: "answer")
     result = run_predict(cmd)
-    meta = PredictMeta.model_validate(result["meta"])
-    assert meta.n_llm_calls == 2
-    assert meta.dom_match_by_label == {"L1": True, "L2": True}
-    assert meta.raw_llm_answers["L1"]["answer"] == "answer"
+    ml_response = PredictResponse.model_validate(result)
+    assert ml_response.n_llm_calls == 2
+    assert ml_response.dom_match_by_label == {"L1": True, "L2": True}
+    assert ml_response.raw_llm_answers["L1"]["answer"] == "answer"
     assert len(saved) == 1
 
 
 def test_empty_answer_has_no_dom_match(cmd, saved, monkeypatch):
     monkeypatch.setattr("domain.predict.ask_llm_with_timeout", lambda prompt, model_name: None)
     result = run_predict(cmd)
-    assert result["meta"]["dom_match_by_label"] == {"L1": None, "L2": None}
+    assert result["dom_match_by_label"] == {"L1": None, "L2": None}
 
 
 def test_failed_question_fails_the_task_with_its_own_code_and_writes_nothing(
