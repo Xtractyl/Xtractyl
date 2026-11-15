@@ -104,6 +104,7 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
                       <th className="border px-2 py-1">Label</th>
                       <th className="border px-2 py-1">GT</th>
                       <th className="border px-2 py-1">Pred</th>
+                      <th className="border px-2 py-1">DOM</th>
                       <th className="border px-2 py-1">Status</th>
                     </tr>
                   </thead>
@@ -113,6 +114,9 @@ export default function EvaluationResults({ loading, errorMsg, result }) {
                         <td className="border px-2 py-1">{lab}</td>
                         <td className="border px-2 py-1">{v.gt ?? "—"}</td>
                         <td className="border px-2 py-1">{v.pred ?? "—"}</td>
+                        <td className="border px-2 py-1 text-xtractyl-outline/70">
+                          {v.dom_match === true ? "ok" : v.dom_match === false ? "x" : "—"}
+                        </td>
                         <td className="border px-2 py-1">{v.status}</td>
                       </tr>
                     ))}
