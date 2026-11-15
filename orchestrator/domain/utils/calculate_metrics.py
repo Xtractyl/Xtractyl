@@ -31,6 +31,7 @@ def compute_metrics_from_rows(
 
     and pred rows shaped like:
       {"html_hash": "...", "filename": "...", "labels": {"Patient": "John", "TNM": "T2", ...},
+       "dom_match_by_label": {"Patient": True, "TNM": None, ...},
        "task_ms_total": 1200.0, "task_ms_llm_total": 900.0,
        "task_ms_dom_extract": 200.0, "task_ms_dom_match": 100.0}
 
@@ -168,6 +169,7 @@ def compute_metrics_from_rows(
             task_metrics_by_hash[html_hash]["per_label"][lab] = {
                 "gt": gt_val,
                 "pred": pr_val,
+                "dom_match": pred_by_hash[html_hash]["dom_match_by_label"][lab],
                 "status": status,
             }
 

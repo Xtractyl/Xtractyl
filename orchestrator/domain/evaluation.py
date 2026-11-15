@@ -27,6 +27,7 @@ def _build_pred_rows(tasks: list) -> list:
             {
                 "filename": t.filename,
                 "labels": labels,
+                "dom_match_by_label": t.dom_match_by_label,
                 "task_ms_total": t.task_ms_total,
                 "task_ms_llm_total": t.task_ms_llm_total,
                 "task_ms_dom_extract": t.task_ms_dom_extract,
