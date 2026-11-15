@@ -27,17 +27,10 @@ def _build_pred_rows(tasks: list) -> list:
             {
                 "filename": t.filename,
                 "labels": labels,
-                "meta": {
-                    "raw_llm_answers": t.raw_llm_answers,
-                    "performance": {
-                        "request": {
-                            "task_ms_total": t.task_ms_total,
-                            "task_ms_llm_total": t.task_ms_llm_total,
-                            "task_ms_dom_extract": t.task_ms_dom_extract,
-                            "task_ms_dom_match": t.task_ms_dom_match,
-                        }
-                    },
-                },
+                "task_ms_total": t.task_ms_total,
+                "task_ms_llm_total": t.task_ms_llm_total,
+                "task_ms_dom_extract": t.task_ms_dom_extract,
+                "task_ms_dom_match": t.task_ms_dom_match,
             }
         )
     return rows
