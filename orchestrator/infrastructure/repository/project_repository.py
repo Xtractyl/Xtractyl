@@ -1,5 +1,7 @@
 # orchestrator/infrastructure/repository/project_repository.py
 
+import os
+
 from db.models import ConversionJob, File, PrelabellingRun, Project, TaskGroundtruthAnnotation
 from infrastructure.interfaces.repository import ProjectRepositoryInterface
 from sqlalchemy import or_
@@ -180,6 +182,12 @@ class ProjectRepository(ProjectRepositoryInterface):
     def get_html_hashes_for_project(self, name: str) -> set[str]:
         files = self._db.query(File).filter(File.project == name).all()
         return {f.html_hash for f in files}
+
+    def get_html_hash_by_html_filename(self, name: str) -> dict[str, str | None]:
+        """Keyed by the name of the html file (the name of the Label Studio task), not by the
+        name of the uploaded pdf."""
+        files = self._db.query(File).filter(File.project == name, File.html_key.isnot(None)).all()
+        return {os.path.basename(f.html_key): f.html_hash for f in files}
 
     def get_groundtruth_annotations(self, project: str) -> list:
         rows = (

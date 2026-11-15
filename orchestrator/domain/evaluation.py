@@ -43,6 +43,18 @@ def _build_pred_rows(tasks: list) -> list:
     return rows
 
 
+def _add_html_hash(rows: list, html_hash_by_filename: dict) -> list:
+    """compute_metrics_from_rows matches gt and pred rows by html_hash. The rows only know their
+    filename, the hash comes from the files of the project the rows belong to."""
+    rows_with_hash = []
+    for row in rows:
+        html_hash = html_hash_by_filename[row["filename"]]
+        if not html_hash:
+            raise ValueError(f"file '{row['filename']}' has no html_hash")
+        rows_with_hash.append({**row, "html_hash": html_hash})
+    return rows_with_hash
+
+
 def list_projects_ready_for_comparison(eval_repo) -> dict:
     """Backs GET /list_projects_ready_for_comparison, the comparison
     project dropdown on the EvaluateAIPage. Filters to projects that
@@ -216,8 +228,14 @@ def evaluate_run(run_id: int, groundtruth_project: str, project_repo, run_repo, 
             },
         )
 
-    gt_rows = project_repo.get_groundtruth_annotations(groundtruth_project)
-    pred_rows = _build_pred_rows(run_repo.get_successful_run_tasks(run.id))
+    gt_rows = _add_html_hash(
+        project_repo.get_groundtruth_annotations(groundtruth_project),
+        project_repo.get_html_hash_by_html_filename(groundtruth_project),
+    )
+    pred_rows = _add_html_hash(
+        _build_pred_rows(run_repo.get_successful_run_tasks(run.id)),
+        project_repo.get_html_hash_by_html_filename(run.project),
+    )
 
     labels = gt_project_record.questions_and_labels["labels"]
 
