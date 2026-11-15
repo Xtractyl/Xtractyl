@@ -24,7 +24,9 @@ const result = {
     task_metrics: [
       {
         filename: "a.html",
-        per_label: { name: { gt: "gt-value", pred: "pred-value", status: "mismatch" } },
+        per_label: {
+          name: { gt: "gt-value", pred: "pred-value", dom_match: true, status: "mismatch" },
+        },
       },
     ],
     performance: {
@@ -85,7 +87,7 @@ describe("EvaluationResults", () => {
     expect(screen.getByText("0.700")).toBeInTheDocument();
   });
 
-  it("shows the per-task details with GT, prediction and status", () => {
+  it("shows the per-task details with GT, prediction, DOM match and status", () => {
     render(<EvaluationResults loading={false} errorMsg="" result={result} />);
 
     expect(screen.getByText("a.html")).toBeInTheDocument();
