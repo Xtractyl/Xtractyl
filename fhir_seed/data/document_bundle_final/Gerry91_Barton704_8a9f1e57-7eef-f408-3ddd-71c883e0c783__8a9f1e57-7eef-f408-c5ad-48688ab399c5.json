@@ -1,0 +1,5473 @@
+{
+  "resourceType": "Bundle",
+  "identifier": {
+    "system": "urn:ietf:rfc:3986",
+    "value": "urn:uuid:b48a1b15-1d55-558d-b88a-708e597c184a"
+  },
+  "type": "document",
+  "timestamp": "2022-06-27T02:18:16+00:00",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:d94e452e-1089-5873-bf27-955a55b3050c",
+      "resource": {
+        "resourceType": "Composition",
+        "language": "en",
+        "text": {
+          "status": "additional",
+          "div": "<div xmlns='http://www.w3.org/1999/xhtml'><p>TODO header</p></div>"
+        },
+        "status": "preliminary",
+        "type": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "18842-5",
+              "display": "Discharge summary"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "date": "2022-06-27T02:18:16+00:00",
+        "author": [
+          {
+            "reference": "urn:uuid:02839ebb-8f7b-3b92-8ae7-e3684e4e6017"
+          }
+        ],
+        "title": "Discharge summary",
+        "custodian": {
+          "reference": "urn:uuid:74ab949d-17ac-3309-83a0-13b4405c66aa"
+        },
+        "section": [
+          {
+            "title": "Reason for admission",
+            "text": {
+              "status": "additional",
+              "div": "<div xmlns='http://www.w3.org/1999/xhtml'><p>TODO</p></div>"
+            }
+          },
+          {
+            "title": "Diagnoses",
+            "text": {
+              "status": "additional",
+              "div": "<div xmlns='http://www.w3.org/1999/xhtml'><p>TODO</p></div>"
+            },
+            "entry": [
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-adf0-6d032e4a2b3f"
+              }
+            ]
+          },
+          {
+            "title": "Hospital course",
+            "text": {
+              "status": "additional",
+              "div": "<div xmlns='http://www.w3.org/1999/xhtml'><p>TODO</p></div>"
+            }
+          },
+          {
+            "title": "Results",
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns='http://www.w3.org/1999/xhtml'><p>TODO</p></div>"
+            },
+            "entry": [
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-04d6-776c2222f23a"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-05e9-123aee725d73"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-0b72-f1df90aaa83b"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-1423-189f541d0705"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-14bc-a40b2209c180"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-17fe-4814f3ab9a21"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-1d4b-a3d7552d8ad5"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-1f82-f5948983144e"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-2f2c-6c24510ec910"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-31db-69e09de5dade"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-326e-e9f174193de3"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-384e-771bd4f530f7"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-38d9-1758a4d69f5a"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-3907-7cfbddead898"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-424b-ac13222b7b77"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-42f6-0821db6fde99"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-45bc-613776403aff"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-4841-0b3623f0998c"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-4957-d15d06e07ee7"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-53a7-06ff0498a392"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-5724-03212464ecd6"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-5d0d-c2855fa87268"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-5d64-1055bfff4a75"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-5f7b-a1eb15c65102"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-65f7-0dd1c3d14e3e"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-67fd-84621170a2f6"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-72eb-a250ec57fa7e"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-741e-0efc95d77938"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-77b0-548fc51322db"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-7812-63ff6ae6d2f5"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-826b-aa4a272613b4"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-82d8-22f27669d622"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-8edc-99bdcabd4462"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-9c7f-c70344f0c075"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-9cac-d38cc0ac9d63"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-a42c-474c9b610da7"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-a8e3-22f9018daf5e"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-b396-fdbe319906c6"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-b924-e8fcc39925f0"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-ba22-5e48aff2e1ad"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-bd3b-263852b1f5c4"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-c490-74b378b39c5c"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-c675-968667512524"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-c6d4-532bd65af240"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-cb13-a045e3423198"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-cfb7-f8091408aa7c"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-d2a8-73c69eca7ef0"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-d922-ddd5e5192e55"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-db7b-9f59c77bea66"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-df0f-74cac8298a5e"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-e414-37bf3e1d6d47"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-e5ef-dc8604c797e2"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-ea44-cd43077a0ccf"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-f47d-44aee05cfb17"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-f47d-e853dfc5916d"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-f5d9-8cdfcf8a8632"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-f697-a714f9e544e8"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-f838-47d672930735"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-f924-2277de1d243c"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-fc20-23a8ba1dc5ba"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-fcdc-95c92868992f"
+              }
+            ]
+          },
+          {
+            "title": "Medications at discharge",
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns='http://www.w3.org/1999/xhtml'><p>TODO</p></div>"
+            },
+            "entry": [
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-09e9-5b960f4ea597"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-1d82-8c5046317ae6"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-29bd-3287079cfe66"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-715b-29a466ebd1a3"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-74e0-3a5dbbe47719"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-98dc-f3f2a2e890f3"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-b996-c9abc2480707"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-d87f-4087ce00d967"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-fade-34abb5acdb6e"
+              }
+            ]
+          },
+          {
+            "title": "Procedures",
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns='http://www.w3.org/1999/xhtml'><p>TODO</p></div>"
+            },
+            "entry": [
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-07a8-ab0e173540f9"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-1688-88e2fc0212c9"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-2128-0b34b0cf30c3"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-303f-c4ee4129e9f8"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-4e7a-9714c3f8c41d"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-5044-20e4575ecae4"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-51a9-24ec8e4a0474"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-7630-7f0df1e8140b"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-8864-e05a6cc54cf5"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-9a4d-43c2034b736a"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-9b3f-647ce74cf678"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-a2ab-d19b30eb5e50"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-acf0-0b9bd2fbae44"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-c0b9-b979705a7338"
+              },
+              {
+                "reference": "urn:uuid:8a9f1e57-7eef-f408-f366-b56445e6524f"
+              }
+            ]
+          },
+          {
+            "title": "Follow-up",
+            "text": {
+              "status": "additional",
+              "div": "<div xmlns='http://www.w3.org/1999/xhtml'><p>TODO</p></div>"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "8a9f1e57-7eef-f408-3ddd-71c883e0c783",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Generated by <a href=\"https://github.com/synthetichealth/synthea\">Synthea</a>.Version identifier: v3.4.0-18-ga07a65555\n .   Person seed: -8458008214037859320  Population seed: 12345</div>"
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2106-3",
+                  "display": "White"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "White"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2186-5",
+                  "display": "Not Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Not Hispanic or Latino"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/patient-mothersMaidenName",
+            "valueString": "Lettie611 Hoppe518"
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex",
+            "valueCode": "M"
+          },
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
+            "valueAddress": {
+              "city": "Dracut",
+              "state": "Massachusetts",
+              "country": "US"
+            }
+          },
+          {
+            "url": "http://synthetichealth.github.io/synthea/disability-adjusted-life-years",
+            "valueDecimal": 0.3480594327156715
+          },
+          {
+            "url": "http://synthetichealth.github.io/synthea/quality-adjusted-life-years",
+            "valueDecimal": 64.65194056728433
+          }
+        ],
+        "identifier": [
+          {
+            "system": "https://github.com/synthetichealth/synthea",
+            "value": "8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+          },
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "MR",
+                  "display": "Medical Record Number"
+                }
+              ],
+              "text": "Medical Record Number"
+            },
+            "system": "http://hospital.smarthealthit.org",
+            "value": "8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+          },
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "SS",
+                  "display": "Social Security Number"
+                }
+              ],
+              "text": "Social Security Number"
+            },
+            "system": "http://hl7.org/fhir/sid/us-ssn",
+            "value": "999-99-2730"
+          },
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "DL",
+                  "display": "Driver's license number"
+                }
+              ],
+              "text": "Driver's license number"
+            },
+            "system": "urn:oid:2.16.840.1.113883.4.3.25",
+            "value": "S99953933"
+          },
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "PPN",
+                  "display": "Passport Number"
+                }
+              ],
+              "text": "Passport Number"
+            },
+            "system": "http://hl7.org/fhir/sid/passport-USA",
+            "value": "X51366709X"
+          }
+        ],
+        "name": [
+          {
+            "use": "official",
+            "family": "Barton704",
+            "given": [
+              "Gerry91",
+              "Micah422"
+            ],
+            "prefix": [
+              "Mr."
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "555-511-6297",
+            "use": "home"
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1960-09-26",
+        "address": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/geolocation",
+                "extension": [
+                  {
+                    "url": "latitude",
+                    "valueDecimal": 41.93060798294641
+                  },
+                  {
+                    "url": "longitude",
+                    "valueDecimal": -70.64576774294457
+                  }
+                ]
+              }
+            ],
+            "line": [
+              "901 Nicolas Trace Unit 88"
+            ],
+            "city": "Plymouth",
+            "state": "MA",
+            "postalCode": "02360",
+            "country": "US"
+          }
+        ],
+        "maritalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+              "code": "M",
+              "display": "Married"
+            }
+          ],
+          "text": "Married"
+        },
+        "multipleBirthBoolean": false,
+        "communication": [
+          {
+            "language": {
+              "coding": [
+                {
+                  "system": "urn:ietf:bcp:47",
+                  "code": "en-US",
+                  "display": "English (United States)"
+                }
+              ],
+              "text": "English (United States)"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-01af-0646d9d8a5d2",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "8a9f1e57-7eef-f408-01af-0646d9d8a5d2",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter"
+          ]
+        },
+        "identifier": [
+          {
+            "use": "official",
+            "system": "https://github.com/synthetichealth/synthea",
+            "value": "8a9f1e57-7eef-f408-01af-0646d9d8a5d2"
+          }
+        ],
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "162673000",
+                "display": "General examination of patient (procedure)"
+              }
+            ],
+            "text": "General examination of patient (procedure)"
+          }
+        ],
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783",
+          "display": "Mr. Gerry91 Micah422 Barton704"
+        },
+        "participant": [
+          {
+            "type": [
+              {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                    "code": "PPRF",
+                    "display": "primary performer"
+                  }
+                ],
+                "text": "primary performer"
+              }
+            ],
+            "period": {
+              "start": "2022-06-13T13:34:14+00:00",
+              "end": "2022-06-13T14:33:39+00:00"
+            },
+            "individual": {
+              "reference": "urn:uuid:9dae393f-1cb8-3f18-a51c-11dd1a184c6c",
+              "display": "Dr. Chris95 Kub800"
+            }
+          }
+        ],
+        "period": {
+          "start": "2022-06-13T13:34:14+00:00",
+          "end": "2022-06-13T14:33:39+00:00"
+        },
+        "location": [
+          {
+            "location": {
+              "reference": "urn:uuid:b36746ab-80dd-321d-80d2-ccb8baeb3121",
+              "display": "PLYMOUTH CARVER PRIMARY CARE, P.C."
+            }
+          }
+        ],
+        "serviceProvider": {
+          "reference": "urn:uuid:e69e7cbb-8362-30d1-83f2-3a0c492fe2b1",
+          "display": "PLYMOUTH CARVER PRIMARY CARE, P.C."
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-c549-9f40358f0897",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "8a9f1e57-7eef-f408-c549-9f40358f0897",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter"
+          ]
+        },
+        "identifier": [
+          {
+            "use": "official",
+            "system": "https://github.com/synthetichealth/synthea",
+            "value": "8a9f1e57-7eef-f408-c549-9f40358f0897"
+          }
+        ],
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "185347001",
+                "display": "Encounter for problem (procedure)"
+              }
+            ],
+            "text": "Encounter for problem (procedure)"
+          }
+        ],
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783",
+          "display": "Mr. Gerry91 Micah422 Barton704"
+        },
+        "participant": [
+          {
+            "type": [
+              {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                    "code": "PPRF",
+                    "display": "primary performer"
+                  }
+                ],
+                "text": "primary performer"
+              }
+            ],
+            "period": {
+              "start": "2022-06-21T19:20:35+00:00",
+              "end": "2022-06-22T01:18:16+00:00"
+            },
+            "individual": {
+              "reference": "urn:uuid:02839ebb-8f7b-3b92-8ae7-e3684e4e6017",
+              "display": "Dr. Ted955 Reilly981"
+            }
+          }
+        ],
+        "period": {
+          "start": "2022-06-21T19:20:35+00:00",
+          "end": "2022-06-22T01:18:16+00:00"
+        },
+        "reasonCode": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "414545008",
+                "display": "Ischemic heart disease (disorder)"
+              }
+            ]
+          }
+        ],
+        "location": [
+          {
+            "location": {
+              "reference": "urn:uuid:81c75a54-2b95-3fdf-9327-b74df8630869",
+              "display": "Fitchburg Outpatient Clinic"
+            }
+          }
+        ],
+        "serviceProvider": {
+          "reference": "urn:uuid:74ab949d-17ac-3309-83a0-13b4405c66aa",
+          "display": "Fitchburg Outpatient Clinic"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "8a9f1e57-7eef-f408-c5ad-48688ab399c5",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter"
+          ]
+        },
+        "identifier": [
+          {
+            "use": "official",
+            "system": "https://github.com/synthetichealth/synthea",
+            "value": "8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+          }
+        ],
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "IMP"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "32485007",
+                "display": "Hospital admission (procedure)"
+              }
+            ],
+            "text": "Hospital admission (procedure)"
+          }
+        ],
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783",
+          "display": "Mr. Gerry91 Micah422 Barton704"
+        },
+        "participant": [
+          {
+            "type": [
+              {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                    "code": "PPRF",
+                    "display": "primary performer"
+                  }
+                ],
+                "text": "primary performer"
+              }
+            ],
+            "period": {
+              "start": "2022-06-26T02:18:16+00:00",
+              "end": "2022-06-27T02:18:16+00:00"
+            },
+            "individual": {
+              "reference": "urn:uuid:02839ebb-8f7b-3b92-8ae7-e3684e4e6017",
+              "display": "Dr. Ted955 Reilly981"
+            }
+          }
+        ],
+        "period": {
+          "start": "2022-06-26T02:18:16+00:00",
+          "end": "2022-06-27T02:18:16+00:00"
+        },
+        "reasonCode": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "274531002",
+                "display": "Abnormal findings diagnostic imaging heart+coronary circulat (finding)"
+              }
+            ]
+          }
+        ],
+        "location": [
+          {
+            "location": {
+              "reference": "urn:uuid:81c75a54-2b95-3fdf-9327-b74df8630869",
+              "display": "Fitchburg Outpatient Clinic"
+            }
+          }
+        ],
+        "serviceProvider": {
+          "reference": "urn:uuid:74ab949d-17ac-3309-83a0-13b4405c66aa",
+          "display": "Fitchburg Outpatient Clinic"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-08b3-970e9ef22ac5",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "8a9f1e57-7eef-f408-08b3-970e9ef22ac5",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis"
+          ]
+        },
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "encounter-diagnosis",
+                "display": "Encounter Diagnosis"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "414545008",
+              "display": "Ischemic heart disease (disorder)"
+            }
+          ],
+          "text": "Ischemic heart disease (disorder)"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-01af-0646d9d8a5d2"
+        },
+        "onsetDateTime": "2022-06-13T13:34:14+00:00",
+        "recordedDate": "2022-06-13T13:34:14+00:00"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-3923-f4550c0e6342",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "8a9f1e57-7eef-f408-3923-f4550c0e6342",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis"
+          ]
+        },
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "encounter-diagnosis",
+                "display": "Encounter Diagnosis"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "274531002",
+              "display": "Abnormal findings diagnostic imaging heart+coronary circulat (finding)"
+            }
+          ],
+          "text": "Abnormal findings diagnostic imaging heart+coronary circulat (finding)"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c549-9f40358f0897"
+        },
+        "onsetDateTime": "2022-06-21T21:41:36+00:00",
+        "recordedDate": "2022-06-21T21:41:36+00:00"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-adf0-6d032e4a2b3f",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "8a9f1e57-7eef-f408-adf0-6d032e4a2b3f",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis"
+          ]
+        },
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "encounter-diagnosis",
+                "display": "Encounter Diagnosis"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "399261000",
+              "display": "History of coronary artery bypass grafting (situation)"
+            }
+          ],
+          "text": "History of coronary artery bypass grafting (situation)"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "onsetDateTime": "2022-06-26T08:45:43+00:00",
+        "recordedDate": "2022-06-26T08:45:43+00:00"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-04d6-776c2222f23a",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-04d6-776c2222f23a",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "1960-4",
+              "display": "Bicarbonate [Moles/volume] in Arterial blood"
+            }
+          ],
+          "text": "Bicarbonate [Moles/volume] in Arterial blood"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 24.198,
+          "unit": "mmol/L",
+          "system": "http://unitsofmeasure.org",
+          "code": "mmol/L"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-05e9-123aee725d73",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-05e9-123aee725d73",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "18262-6",
+              "display": "Cholesterol in LDL [Mass/volume] in Serum or Plasma by Direct assay"
+            }
+          ],
+          "text": "Cholesterol in LDL [Mass/volume] in Serum or Plasma by Direct assay"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 43.07,
+          "unit": "mg/dL",
+          "system": "http://unitsofmeasure.org",
+          "code": "mg/dL"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-0b72-f1df90aaa83b",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-0b72-f1df90aaa83b",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2777-1",
+              "display": "Phosphate [Mass/volume] in Serum or Plasma"
+            }
+          ],
+          "text": "Phosphate [Mass/volume] in Serum or Plasma"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 3.3379,
+          "unit": "mg/dL",
+          "system": "http://unitsofmeasure.org",
+          "code": "mg/dL"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-1423-189f541d0705",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-1423-189f541d0705",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2703-7",
+              "display": "Oxygen [Partial pressure] in Arterial blood"
+            }
+          ],
+          "text": "Oxygen [Partial pressure] in Arterial blood"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:49:18+00:00",
+        "issued": "2022-06-26T03:49:18.188+00:00",
+        "valueQuantity": {
+          "value": 80.715,
+          "unit": "mm[Hg]",
+          "system": "http://unitsofmeasure.org",
+          "code": "mm[Hg]"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-14bc-a40b2209c180",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-14bc-a40b2209c180",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "1751-7",
+              "display": "Albumin [Mass/volume] in Serum or Plasma"
+            }
+          ],
+          "text": "Albumin [Mass/volume] in Serum or Plasma"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 4.9486,
+          "unit": "g/dL",
+          "system": "http://unitsofmeasure.org",
+          "code": "g/dL"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-17fe-4814f3ab9a21",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-17fe-4814f3ab9a21",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2746-6",
+              "display": "pH of Venous blood"
+            }
+          ],
+          "text": "pH of Venous blood"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:49:18+00:00",
+        "issued": "2022-06-26T03:49:18.188+00:00",
+        "valueQuantity": {
+          "value": 7.384,
+          "unit": "[pH]",
+          "system": "http://unitsofmeasure.org",
+          "code": "[pH]"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-1d4b-a3d7552d8ad5",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-1d4b-a3d7552d8ad5",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "5799-2",
+              "display": "Leukocyte esterase [Presence] in Urine by Test strip"
+            }
+          ],
+          "text": "Leukocyte esterase [Presence] in Urine by Test strip"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 0,
+          "unit": "{presence}",
+          "system": "http://unitsofmeasure.org",
+          "code": "{presence}"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-1f82-f5948983144e",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-1f82-f5948983144e",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "3016-3",
+              "display": "Thyrotropin [Units/volume] in Serum or Plasma"
+            }
+          ],
+          "text": "Thyrotropin [Units/volume] in Serum or Plasma"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 2.6449,
+          "unit": "m[IU]/L",
+          "system": "http://unitsofmeasure.org",
+          "code": "m[IU]/L"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-2f2c-6c24510ec910",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-2f2c-6c24510ec910",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2703-7",
+              "display": "Oxygen [Partial pressure] in Arterial blood"
+            }
+          ],
+          "text": "Oxygen [Partial pressure] in Arterial blood"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 84.902,
+          "unit": "mm[Hg]",
+          "system": "http://unitsofmeasure.org",
+          "code": "mm[Hg]"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-31db-69e09de5dade",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-31db-69e09de5dade",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "6301-6",
+              "display": "INR in Platelet poor plasma by Coagulation assay"
+            }
+          ],
+          "text": "INR in Platelet poor plasma by Coagulation assay"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 1.0597,
+          "unit": "{INR}",
+          "system": "http://unitsofmeasure.org",
+          "code": "{INR}"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-326e-e9f174193de3",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-326e-e9f174193de3",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2028-9",
+              "display": "Carbon dioxide, total [Moles/volume] in Serum or Plasma"
+            }
+          ],
+          "text": "Carbon dioxide, total [Moles/volume] in Serum or Plasma"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 23.45,
+          "unit": "mmol/L",
+          "system": "http://unitsofmeasure.org",
+          "code": "mmol/L"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-384e-771bd4f530f7",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-384e-771bd4f530f7",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "17861-6",
+              "display": "Calcium [Mass/volume] in Serum or Plasma"
+            }
+          ],
+          "text": "Calcium [Mass/volume] in Serum or Plasma"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 9.38,
+          "unit": "mg/dL",
+          "system": "http://unitsofmeasure.org",
+          "code": "mg/dL"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-38d9-1758a4d69f5a",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-38d9-1758a4d69f5a",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "25428-4",
+              "display": "Glucose [Presence] in Urine by Test strip"
+            }
+          ],
+          "text": "Glucose [Presence] in Urine by Test strip"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 1,
+          "unit": "{presence}",
+          "system": "http://unitsofmeasure.org",
+          "code": "{presence}"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-3907-7cfbddead898",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-3907-7cfbddead898",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "5902-2",
+              "display": "Prothrombin time (PT)"
+            }
+          ],
+          "text": "Prothrombin time (PT)"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 10.709,
+          "unit": "s",
+          "system": "http://unitsofmeasure.org",
+          "code": "s"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-424b-ac13222b7b77",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-424b-ac13222b7b77",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "718-7",
+              "display": "Hemoglobin [Mass/volume] in Blood"
+            }
+          ],
+          "text": "Hemoglobin [Mass/volume] in Blood"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 15.865,
+          "unit": "g/dL",
+          "system": "http://unitsofmeasure.org",
+          "code": "g/dL"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-42f6-0821db6fde99",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-42f6-0821db6fde99",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2705-2",
+              "display": "Oxygen [Partial pressure] in Venous blood"
+            }
+          ],
+          "text": "Oxygen [Partial pressure] in Venous blood"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:49:18+00:00",
+        "issued": "2022-06-26T03:49:18.188+00:00",
+        "valueQuantity": {
+          "value": 44.802,
+          "unit": "mm[Hg]",
+          "system": "http://unitsofmeasure.org",
+          "code": "mm[Hg]"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-45bc-613776403aff",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-45bc-613776403aff",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "4544-3",
+              "display": "Hematocrit [Volume Fraction] of Blood by Automated count"
+            }
+          ],
+          "text": "Hematocrit [Volume Fraction] of Blood by Automated count"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 50.492,
+          "unit": "%",
+          "system": "http://unitsofmeasure.org",
+          "code": "%"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-4841-0b3623f0998c",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-4841-0b3623f0998c",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "777-3",
+              "display": "Platelets [#/volume] in Blood by Automated count"
+            }
+          ],
+          "text": "Platelets [#/volume] in Blood by Automated count"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 280.17,
+          "unit": "10*3/uL",
+          "system": "http://unitsofmeasure.org",
+          "code": "10*3/uL"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-4957-d15d06e07ee7",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-4957-d15d06e07ee7",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "1742-6",
+              "display": "Alanine aminotransferase [Enzymatic activity/volume] in Serum or Plasma"
+            }
+          ],
+          "text": "Alanine aminotransferase [Enzymatic activity/volume] in Serum or Plasma"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 2.0545,
+          "unit": "U/L",
+          "system": "http://unitsofmeasure.org",
+          "code": "U/L"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-53a7-06ff0498a392",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-53a7-06ff0498a392",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2823-3",
+              "display": "Potassium [Moles/volume] in Serum or Plasma"
+            }
+          ],
+          "text": "Potassium [Moles/volume] in Serum or Plasma"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 4.53,
+          "unit": "mmol/L",
+          "system": "http://unitsofmeasure.org",
+          "code": "mmol/L"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-5724-03212464ecd6",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-5724-03212464ecd6",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "5770-3",
+              "display": "Bilirubin.total [Presence] in Urine by Test strip"
+            }
+          ],
+          "text": "Bilirubin.total [Presence] in Urine by Test strip"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 1,
+          "unit": "{presence}",
+          "system": "http://unitsofmeasure.org",
+          "code": "{presence}"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-5d0d-c2855fa87268",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-5d0d-c2855fa87268",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "3184-9",
+              "display": "Activated clotting time (ACT) of Blood by Coagulation assay"
+            }
+          ],
+          "text": "Activated clotting time (ACT) of Blood by Coagulation assay"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:49:18+00:00",
+        "issued": "2022-06-26T03:49:18.188+00:00",
+        "valueQuantity": {
+          "value": 116,
+          "unit": "s",
+          "system": "http://unitsofmeasure.org",
+          "code": "s"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-5d64-1055bfff4a75",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-5d64-1055bfff4a75",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "89579-7",
+              "display": "Troponin I.cardiac [Mass/volume] in Serum or Plasma by High sensitivity method"
+            }
+          ],
+          "text": "Troponin I.cardiac [Mass/volume] in Serum or Plasma by High sensitivity method"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 0.029529,
+          "unit": "pg/mL",
+          "system": "http://unitsofmeasure.org",
+          "code": "pg/mL"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-5f7b-a1eb15c65102",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-5f7b-a1eb15c65102",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "1960-4",
+              "display": "Bicarbonate [Moles/volume] in Arterial blood"
+            }
+          ],
+          "text": "Bicarbonate [Moles/volume] in Arterial blood"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:49:18+00:00",
+        "issued": "2022-06-26T03:49:18.188+00:00",
+        "valueQuantity": {
+          "value": 24.71,
+          "unit": "mmol/L",
+          "system": "http://unitsofmeasure.org",
+          "code": "mmol/L"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-65f7-0dd1c3d14e3e",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-65f7-0dd1c3d14e3e",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2571-8",
+              "display": "Triglyceride [Mass/volume] in Serum or Plasma"
+            }
+          ],
+          "text": "Triglyceride [Mass/volume] in Serum or Plasma"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 139.2,
+          "unit": "mg/dL",
+          "system": "http://unitsofmeasure.org",
+          "code": "mg/dL"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-67fd-84621170a2f6",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-67fd-84621170a2f6",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2160-0",
+              "display": "Creatinine [Mass/volume] in Serum or Plasma"
+            }
+          ],
+          "text": "Creatinine [Mass/volume] in Serum or Plasma"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 2.8613,
+          "unit": "mg/dL",
+          "system": "http://unitsofmeasure.org",
+          "code": "mg/dL"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-72eb-a250ec57fa7e",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-72eb-a250ec57fa7e",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "785-6",
+              "display": "MCH [Entitic mass] by Automated count"
+            }
+          ],
+          "text": "MCH [Entitic mass] by Automated count"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 31.863,
+          "unit": "pg",
+          "system": "http://unitsofmeasure.org",
+          "code": "pg"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-741e-0efc95d77938",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-741e-0efc95d77938",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "6768-6",
+              "display": "Alkaline phosphatase [Enzymatic activity/volume] in Serum or Plasma"
+            }
+          ],
+          "text": "Alkaline phosphatase [Enzymatic activity/volume] in Serum or Plasma"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 65.02,
+          "unit": "U/L",
+          "system": "http://unitsofmeasure.org",
+          "code": "U/L"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-77b0-548fc51322db",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-77b0-548fc51322db",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2019-8",
+              "display": "Carbon dioxide [Partial pressure] in Arterial blood"
+            }
+          ],
+          "text": "Carbon dioxide [Partial pressure] in Arterial blood"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 38.511,
+          "unit": "mm[Hg]",
+          "system": "http://unitsofmeasure.org",
+          "code": "mm[Hg]"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-7812-63ff6ae6d2f5",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-7812-63ff6ae6d2f5",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "5803-2",
+              "display": "pH of Urine by Test strip"
+            }
+          ],
+          "text": "pH of Urine by Test strip"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 7.1805,
+          "unit": "[pH]",
+          "system": "http://unitsofmeasure.org",
+          "code": "[pH]"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-826b-aa4a272613b4",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-826b-aa4a272613b4",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2021-4",
+              "display": "Carbon dioxide [Partial pressure] in Venous blood"
+            }
+          ],
+          "text": "Carbon dioxide [Partial pressure] in Venous blood"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:49:18+00:00",
+        "issued": "2022-06-26T03:49:18.188+00:00",
+        "valueQuantity": {
+          "value": 43.555,
+          "unit": "mm[Hg]",
+          "system": "http://unitsofmeasure.org",
+          "code": "mm[Hg]"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-82d8-22f27669d622",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-82d8-22f27669d622",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2744-1",
+              "display": "pH of Arterial blood"
+            }
+          ],
+          "text": "pH of Arterial blood"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 7.1143,
+          "unit": "[pH]",
+          "system": "http://unitsofmeasure.org",
+          "code": "[pH]"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-8edc-99bdcabd4462",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-8edc-99bdcabd4462",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "789-8",
+              "display": "Erythrocytes [#/volume] in Blood by Automated count"
+            }
+          ],
+          "text": "Erythrocytes [#/volume] in Blood by Automated count"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 3.8086,
+          "unit": "10*6/uL",
+          "system": "http://unitsofmeasure.org",
+          "code": "10*6/uL"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-9c7f-c70344f0c075",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-9c7f-c70344f0c075",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "14627-4",
+              "display": "Bicarbonate [Moles/volume] in Venous blood"
+            }
+          ],
+          "text": "Bicarbonate [Moles/volume] in Venous blood"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:49:18+00:00",
+        "issued": "2022-06-26T03:49:18.188+00:00",
+        "valueQuantity": {
+          "value": 26.223,
+          "unit": "mmol/L",
+          "system": "http://unitsofmeasure.org",
+          "code": "mmol/L"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-9cac-d38cc0ac9d63",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-9cac-d38cc0ac9d63",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2951-2",
+              "display": "Sodium [Moles/volume] in Serum or Plasma"
+            }
+          ],
+          "text": "Sodium [Moles/volume] in Serum or Plasma"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 137.87,
+          "unit": "mmol/L",
+          "system": "http://unitsofmeasure.org",
+          "code": "mmol/L"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-a42c-474c9b610da7",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-a42c-474c9b610da7",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "1920-8",
+              "display": "Aspartate aminotransferase [Enzymatic activity/volume] in Serum or Plasma"
+            }
+          ],
+          "text": "Aspartate aminotransferase [Enzymatic activity/volume] in Serum or Plasma"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 8.5067,
+          "unit": "U/L",
+          "system": "http://unitsofmeasure.org",
+          "code": "U/L"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-a8e3-22f9018daf5e",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-a8e3-22f9018daf5e",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "787-2",
+              "display": "MCV [Entitic mean volume] in Red Blood Cells by Automated count"
+            }
+          ],
+          "text": "MCV [Entitic mean volume] in Red Blood Cells by Automated count"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 85.411,
+          "unit": "fL",
+          "system": "http://unitsofmeasure.org",
+          "code": "fL"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-b396-fdbe319906c6",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-b396-fdbe319906c6",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "20454-5",
+              "display": "Protein [Presence] in Urine by Test strip"
+            }
+          ],
+          "text": "Protein [Presence] in Urine by Test strip"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 1,
+          "unit": "{presence}",
+          "system": "http://unitsofmeasure.org",
+          "code": "{presence}"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-b924-e8fcc39925f0",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-b924-e8fcc39925f0",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "3094-0",
+              "display": "Urea nitrogen [Mass/volume] in Serum or Plasma"
+            }
+          ],
+          "text": "Urea nitrogen [Mass/volume] in Serum or Plasma"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 12.08,
+          "unit": "mg/dL",
+          "system": "http://unitsofmeasure.org",
+          "code": "mg/dL"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-ba22-5e48aff2e1ad",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-ba22-5e48aff2e1ad",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "786-4",
+              "display": "MCHC [Entitic Mass/volume] in Red Blood Cells by Automated count"
+            }
+          ],
+          "text": "MCHC [Entitic Mass/volume] in Red Blood Cells by Automated count"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 35.415,
+          "unit": "g/dL",
+          "system": "http://unitsofmeasure.org",
+          "code": "g/dL"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-bd3b-263852b1f5c4",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-bd3b-263852b1f5c4",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "788-0",
+              "display": "Erythrocyte [DistWidth] in Blood by Automated count"
+            }
+          ],
+          "text": "Erythrocyte [DistWidth] in Blood by Automated count"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 13.435,
+          "unit": "%",
+          "system": "http://unitsofmeasure.org",
+          "code": "%"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-c490-74b378b39c5c",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-c490-74b378b39c5c",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2093-3",
+              "display": "Cholesterol [Mass/volume] in Serum or Plasma"
+            }
+          ],
+          "text": "Cholesterol [Mass/volume] in Serum or Plasma"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 127.68,
+          "unit": "mg/dL",
+          "system": "http://unitsofmeasure.org",
+          "code": "mg/dL"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-c675-968667512524",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-c675-968667512524",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "4548-4",
+              "display": "Hemoglobin A1c/Hemoglobin.total in Blood"
+            }
+          ],
+          "text": "Hemoglobin A1c/Hemoglobin.total in Blood"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 6.18,
+          "unit": "%",
+          "system": "http://unitsofmeasure.org",
+          "code": "%"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-c6d4-532bd65af240",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-c6d4-532bd65af240",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2085-9",
+              "display": "Cholesterol in HDL [Mass/volume] in Serum or Plasma"
+            }
+          ],
+          "text": "Cholesterol in HDL [Mass/volume] in Serum or Plasma"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 56.77,
+          "unit": "mg/dL",
+          "system": "http://unitsofmeasure.org",
+          "code": "mg/dL"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-cb13-a045e3423198",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-cb13-a045e3423198",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2885-2",
+              "display": "Protein [Mass/volume] in Serum or Plasma"
+            }
+          ],
+          "text": "Protein [Mass/volume] in Serum or Plasma"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 6.2974,
+          "unit": "g/dL",
+          "system": "http://unitsofmeasure.org",
+          "code": "g/dL"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-cfb7-f8091408aa7c",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-cfb7-f8091408aa7c",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "33914-3",
+              "display": "Glomerular filtration rate [Volume Rate/Area] in Serum or Plasma by Creatinine-based formula (MDRD)/1.73 sq M"
+            }
+          ],
+          "text": "Glomerular filtration rate [Volume Rate/Area] in Serum or Plasma by Creatinine-based formula (MDRD)/1.73 sq M"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 8.9985,
+          "unit": "mL/min",
+          "system": "http://unitsofmeasure.org",
+          "code": "mL/min"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-d2a8-73c69eca7ef0",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-d2a8-73c69eca7ef0",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2075-0",
+              "display": "Chloride [Moles/volume] in Serum or Plasma"
+            }
+          ],
+          "text": "Chloride [Moles/volume] in Serum or Plasma"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 110.4,
+          "unit": "mmol/L",
+          "system": "http://unitsofmeasure.org",
+          "code": "mmol/L"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-d922-ddd5e5192e55",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-d922-ddd5e5192e55",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "5811-5",
+              "display": "Specific gravity of Urine by Test strip"
+            }
+          ],
+          "text": "Specific gravity of Urine by Test strip"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 1.02,
+          "unit": "{SG}",
+          "system": "http://unitsofmeasure.org",
+          "code": "{SG}"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-db7b-9f59c77bea66",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-db7b-9f59c77bea66",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "5794-3",
+              "display": "Hemoglobin [Presence] in Urine by Test strip"
+            }
+          ],
+          "text": "Hemoglobin [Presence] in Urine by Test strip"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 0,
+          "unit": "{presence}",
+          "system": "http://unitsofmeasure.org",
+          "code": "{presence}"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-df0f-74cac8298a5e",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-df0f-74cac8298a5e",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2345-7",
+              "display": "Glucose [Mass/volume] in Serum or Plasma"
+            }
+          ],
+          "text": "Glucose [Mass/volume] in Serum or Plasma"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 82.56,
+          "unit": "mg/dL",
+          "system": "http://unitsofmeasure.org",
+          "code": "mg/dL"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-e414-37bf3e1d6d47",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-e414-37bf3e1d6d47",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "19123-9",
+              "display": "Magnesium [Mass/volume] in Serum or Plasma"
+            }
+          ],
+          "text": "Magnesium [Mass/volume] in Serum or Plasma"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:49:18+00:00",
+        "issued": "2022-06-26T03:49:18.188+00:00",
+        "valueQuantity": {
+          "value": 2.0259,
+          "unit": "mg/dL",
+          "system": "http://unitsofmeasure.org",
+          "code": "mg/dL"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-e5ef-dc8604c797e2",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-e5ef-dc8604c797e2",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2744-1",
+              "display": "pH of Arterial blood"
+            }
+          ],
+          "text": "pH of Arterial blood"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:49:18+00:00",
+        "issued": "2022-06-26T03:49:18.188+00:00",
+        "valueQuantity": {
+          "value": 7.0693,
+          "unit": "[pH]",
+          "system": "http://unitsofmeasure.org",
+          "code": "[pH]"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-ea44-cd43077a0ccf",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-ea44-cd43077a0ccf",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "5802-4",
+              "display": "Nitrite [Presence] in Urine by Test strip"
+            }
+          ],
+          "text": "Nitrite [Presence] in Urine by Test strip"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 1,
+          "unit": "{presence}",
+          "system": "http://unitsofmeasure.org",
+          "code": "{presence}"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-f47d-44aee05cfb17",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-f47d-44aee05cfb17",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2514-8",
+              "display": "Ketones [Presence] in Urine by Test strip"
+            }
+          ],
+          "text": "Ketones [Presence] in Urine by Test strip"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 1,
+          "unit": "{presence}",
+          "system": "http://unitsofmeasure.org",
+          "code": "{presence}"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-f47d-e853dfc5916d",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-f47d-e853dfc5916d",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "10230-1",
+              "display": "Left ventricular Ejection fraction"
+            }
+          ],
+          "text": "Left ventricular Ejection fraction"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:49:18+00:00",
+        "issued": "2022-06-26T03:49:18.188+00:00",
+        "valueQuantity": {
+          "value": 41.202,
+          "unit": "%",
+          "system": "http://unitsofmeasure.org",
+          "code": "%"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-f5d9-8cdfcf8a8632",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-f5d9-8cdfcf8a8632",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2019-8",
+              "display": "Carbon dioxide [Partial pressure] in Arterial blood"
+            }
+          ],
+          "text": "Carbon dioxide [Partial pressure] in Arterial blood"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:49:18+00:00",
+        "issued": "2022-06-26T03:49:18.188+00:00",
+        "valueQuantity": {
+          "value": 35.816,
+          "unit": "mm[Hg]",
+          "system": "http://unitsofmeasure.org",
+          "code": "mm[Hg]"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-f697-a714f9e544e8",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-f697-a714f9e544e8",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "19123-9",
+              "display": "Magnesium [Mass/volume] in Serum or Plasma"
+            }
+          ],
+          "text": "Magnesium [Mass/volume] in Serum or Plasma"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 1.8467,
+          "unit": "mg/dL",
+          "system": "http://unitsofmeasure.org",
+          "code": "mg/dL"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-f838-47d672930735",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-f838-47d672930735",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "6690-2",
+              "display": "Leukocytes [#/volume] in Blood by Automated count"
+            }
+          ],
+          "text": "Leukocytes [#/volume] in Blood by Automated count"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 6.3219,
+          "unit": "10*3/uL",
+          "system": "http://unitsofmeasure.org",
+          "code": "10*3/uL"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-f924-2277de1d243c",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-f924-2277de1d243c",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "3173-2",
+              "display": "aPTT in Blood by Coagulation assay"
+            }
+          ],
+          "text": "aPTT in Blood by Coagulation assay"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 38.309,
+          "unit": "s",
+          "system": "http://unitsofmeasure.org",
+          "code": "s"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-fc20-23a8ba1dc5ba",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-fc20-23a8ba1dc5ba",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "2027-1",
+              "display": "Carbon dioxide, total [Moles/volume] in Venous blood"
+            }
+          ],
+          "text": "Carbon dioxide, total [Moles/volume] in Venous blood"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:49:18+00:00",
+        "issued": "2022-06-26T03:49:18.188+00:00",
+        "valueQuantity": {
+          "value": 0.80366,
+          "unit": "mmol/L",
+          "system": "http://unitsofmeasure.org",
+          "code": "mmol/L"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-fcdc-95c92868992f",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "8a9f1e57-7eef-f408-fcdc-95c92868992f",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "1975-2",
+              "display": "Bilirubin.total [Mass/volume] in Serum or Plasma"
+            }
+          ],
+          "text": "Bilirubin.total [Mass/volume] in Serum or Plasma"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "effectiveDateTime": "2022-06-26T03:41:15+00:00",
+        "issued": "2022-06-26T03:41:15.188+00:00",
+        "valueQuantity": {
+          "value": 11.352,
+          "unit": "mg/dL",
+          "system": "http://unitsofmeasure.org",
+          "code": "mg/dL"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-09e9-5b960f4ea597",
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "8a9f1e57-7eef-f408-09e9-5b960f4ea597",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest"
+          ]
+        },
+        "status": "completed",
+        "intent": "order",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
+                "code": "inpatient",
+                "display": "Inpatient"
+              }
+            ],
+            "text": "Inpatient"
+          }
+        ],
+        "medicationReference": {
+          "reference": "urn:uuid:3e702ee7-e576-8a36-ec39-19a9abcac897"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "authoredOn": "2022-06-26T03:49:18+00:00",
+        "requester": {
+          "reference": "urn:uuid:02839ebb-8f7b-3b92-8ae7-e3684e4e6017",
+          "display": "Dr. Ted955 Reilly981"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-1d82-8c5046317ae6",
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "8a9f1e57-7eef-f408-1d82-8c5046317ae6",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest"
+          ]
+        },
+        "status": "completed",
+        "intent": "order",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
+                "code": "inpatient",
+                "display": "Inpatient"
+              }
+            ],
+            "text": "Inpatient"
+          }
+        ],
+        "medicationReference": {
+          "reference": "urn:uuid:c8c8f053-c1eb-51cf-d888-c59dfc9bc364"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "authoredOn": "2022-06-26T05:15:24+00:00",
+        "requester": {
+          "reference": "urn:uuid:02839ebb-8f7b-3b92-8ae7-e3684e4e6017",
+          "display": "Dr. Ted955 Reilly981"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-29bd-3287079cfe66",
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "8a9f1e57-7eef-f408-29bd-3287079cfe66",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest"
+          ]
+        },
+        "status": "completed",
+        "intent": "order",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
+                "code": "inpatient",
+                "display": "Inpatient"
+              }
+            ],
+            "text": "Inpatient"
+          }
+        ],
+        "medicationReference": {
+          "reference": "urn:uuid:cdf89a3a-ce99-c0fd-788c-0f9bb1c3e07d"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "authoredOn": "2022-06-26T05:15:24+00:00",
+        "requester": {
+          "reference": "urn:uuid:02839ebb-8f7b-3b92-8ae7-e3684e4e6017",
+          "display": "Dr. Ted955 Reilly981"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-715b-29a466ebd1a3",
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "8a9f1e57-7eef-f408-715b-29a466ebd1a3",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest"
+          ]
+        },
+        "status": "completed",
+        "intent": "order",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
+                "code": "inpatient",
+                "display": "Inpatient"
+              }
+            ],
+            "text": "Inpatient"
+          }
+        ],
+        "medicationReference": {
+          "reference": "urn:uuid:0b9c6652-2ead-7949-5971-e9ded72b77f3"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "authoredOn": "2022-06-26T05:15:24+00:00",
+        "requester": {
+          "reference": "urn:uuid:02839ebb-8f7b-3b92-8ae7-e3684e4e6017",
+          "display": "Dr. Ted955 Reilly981"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-74e0-3a5dbbe47719",
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "8a9f1e57-7eef-f408-74e0-3a5dbbe47719",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest"
+          ]
+        },
+        "status": "completed",
+        "intent": "order",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
+                "code": "inpatient",
+                "display": "Inpatient"
+              }
+            ],
+            "text": "Inpatient"
+          }
+        ],
+        "medicationReference": {
+          "reference": "urn:uuid:df3c2e30-388b-9958-5176-dea1cd9b31c4"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "authoredOn": "2022-06-26T03:49:18+00:00",
+        "requester": {
+          "reference": "urn:uuid:02839ebb-8f7b-3b92-8ae7-e3684e4e6017",
+          "display": "Dr. Ted955 Reilly981"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-98dc-f3f2a2e890f3",
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "8a9f1e57-7eef-f408-98dc-f3f2a2e890f3",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest"
+          ]
+        },
+        "status": "completed",
+        "intent": "order",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
+                "code": "inpatient",
+                "display": "Inpatient"
+              }
+            ],
+            "text": "Inpatient"
+          }
+        ],
+        "medicationReference": {
+          "reference": "urn:uuid:d6dd4061-7e2f-4952-0c96-5db9b6f9d11f"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "authoredOn": "2022-06-26T03:49:18+00:00",
+        "requester": {
+          "reference": "urn:uuid:02839ebb-8f7b-3b92-8ae7-e3684e4e6017",
+          "display": "Dr. Ted955 Reilly981"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-b996-c9abc2480707",
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "8a9f1e57-7eef-f408-b996-c9abc2480707",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest"
+          ]
+        },
+        "status": "completed",
+        "intent": "order",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
+                "code": "inpatient",
+                "display": "Inpatient"
+              }
+            ],
+            "text": "Inpatient"
+          }
+        ],
+        "medicationReference": {
+          "reference": "urn:uuid:9b708804-1c2b-3e60-0d05-97c3f1757911"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "authoredOn": "2022-06-26T05:15:24+00:00",
+        "requester": {
+          "reference": "urn:uuid:02839ebb-8f7b-3b92-8ae7-e3684e4e6017",
+          "display": "Dr. Ted955 Reilly981"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-d87f-4087ce00d967",
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "8a9f1e57-7eef-f408-d87f-4087ce00d967",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest"
+          ]
+        },
+        "status": "completed",
+        "intent": "order",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
+                "code": "inpatient",
+                "display": "Inpatient"
+              }
+            ],
+            "text": "Inpatient"
+          }
+        ],
+        "medicationReference": {
+          "reference": "urn:uuid:5a5b8813-1328-7cfc-ab57-8567b6d38415"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "authoredOn": "2022-06-26T05:15:24+00:00",
+        "requester": {
+          "reference": "urn:uuid:02839ebb-8f7b-3b92-8ae7-e3684e4e6017",
+          "display": "Dr. Ted955 Reilly981"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-fade-34abb5acdb6e",
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "8a9f1e57-7eef-f408-fade-34abb5acdb6e",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest"
+          ]
+        },
+        "status": "completed",
+        "intent": "order",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
+                "code": "inpatient",
+                "display": "Inpatient"
+              }
+            ],
+            "text": "Inpatient"
+          }
+        ],
+        "medicationReference": {
+          "reference": "urn:uuid:a65a6ac4-4ed2-b241-bfab-66c1a3765d48"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "authoredOn": "2022-06-26T05:15:24+00:00",
+        "requester": {
+          "reference": "urn:uuid:02839ebb-8f7b-3b92-8ae7-e3684e4e6017",
+          "display": "Dr. Ted955 Reilly981"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:0b9c6652-2ead-7949-5971-e9ded72b77f3",
+      "resource": {
+        "resourceType": "Medication",
+        "id": "0b9c6652-2ead-7949-5971-e9ded72b77f3",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication"
+          ]
+        },
+        "code": {
+          "coding": [
+            {
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+              "code": "1740467",
+              "display": "2 ML Ondansetron 2 MG/ML Injection"
+            }
+          ],
+          "text": "2 ML Ondansetron 2 MG/ML Injection"
+        },
+        "status": "active"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:3e702ee7-e576-8a36-ec39-19a9abcac897",
+      "resource": {
+        "resourceType": "Medication",
+        "id": "3e702ee7-e576-8a36-ec39-19a9abcac897",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication"
+          ]
+        },
+        "code": {
+          "coding": [
+            {
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+              "code": "1665060",
+              "display": "cefazolin 2000 MG Injection"
+            }
+          ],
+          "text": "cefazolin 2000 MG Injection"
+        },
+        "status": "active"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:5a5b8813-1328-7cfc-ab57-8567b6d38415",
+      "resource": {
+        "resourceType": "Medication",
+        "id": "5a5b8813-1328-7cfc-ab57-8567b6d38415",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication"
+          ]
+        },
+        "code": {
+          "coding": [
+            {
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+              "code": "1234995",
+              "display": "Rocuronium bromide 10 MG/ML Injectable Solution"
+            }
+          ],
+          "text": "Rocuronium bromide 10 MG/ML Injectable Solution"
+        },
+        "status": "active"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:9b708804-1c2b-3e60-0d05-97c3f1757911",
+      "resource": {
+        "resourceType": "Medication",
+        "id": "9b708804-1c2b-3e60-0d05-97c3f1757911",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication"
+          ]
+        },
+        "code": {
+          "coding": [
+            {
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+              "code": "1723208",
+              "display": "10 ML Alfentanil 0.5 MG/ML Injection"
+            }
+          ],
+          "text": "10 ML Alfentanil 0.5 MG/ML Injection"
+        },
+        "status": "active"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:a65a6ac4-4ed2-b241-bfab-66c1a3765d48",
+      "resource": {
+        "resourceType": "Medication",
+        "id": "a65a6ac4-4ed2-b241-bfab-66c1a3765d48",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication"
+          ]
+        },
+        "code": {
+          "coding": [
+            {
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+              "code": "542347",
+              "display": "isoflurane 999 MG/ML Inhalation Solution"
+            }
+          ],
+          "text": "isoflurane 999 MG/ML Inhalation Solution"
+        },
+        "status": "active"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:c8c8f053-c1eb-51cf-d888-c59dfc9bc364",
+      "resource": {
+        "resourceType": "Medication",
+        "id": "c8c8f053-c1eb-51cf-d888-c59dfc9bc364",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication"
+          ]
+        },
+        "code": {
+          "coding": [
+            {
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+              "code": "311700",
+              "display": "Midazolam 1 MG/ML Injectable Solution"
+            }
+          ],
+          "text": "Midazolam 1 MG/ML Injectable Solution"
+        },
+        "status": "active"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:cdf89a3a-ce99-c0fd-788c-0f9bb1c3e07d",
+      "resource": {
+        "resourceType": "Medication",
+        "id": "cdf89a3a-ce99-c0fd-788c-0f9bb1c3e07d",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication"
+          ]
+        },
+        "code": {
+          "coding": [
+            {
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+              "code": "1808217",
+              "display": "100 ML Propofol 10 MG/ML Injection"
+            }
+          ],
+          "text": "100 ML Propofol 10 MG/ML Injection"
+        },
+        "status": "active"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:d6dd4061-7e2f-4952-0c96-5db9b6f9d11f",
+      "resource": {
+        "resourceType": "Medication",
+        "id": "d6dd4061-7e2f-4952-0c96-5db9b6f9d11f",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication"
+          ]
+        },
+        "code": {
+          "coding": [
+            {
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+              "code": "1659263",
+              "display": "1 ML heparin sodium, porcine 5000 UNT/ML Injection"
+            }
+          ],
+          "text": "1 ML heparin sodium, porcine 5000 UNT/ML Injection"
+        },
+        "status": "active"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:df3c2e30-388b-9958-5176-dea1cd9b31c4",
+      "resource": {
+        "resourceType": "Medication",
+        "id": "df3c2e30-388b-9958-5176-dea1cd9b31c4",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication"
+          ]
+        },
+        "code": {
+          "coding": [
+            {
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+              "code": "1796676",
+              "display": "25 ML protamine sulfate (USP) 10 MG/ML Injection"
+            }
+          ],
+          "text": "25 ML protamine sulfate (USP) 10 MG/ML Injection"
+        },
+        "status": "active"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-07a8-ab0e173540f9",
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "8a9f1e57-7eef-f408-07a8-ab0e173540f9",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure"
+          ]
+        },
+        "status": "completed",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "223495004",
+              "display": "Preparation of patient for procedure (regime/therapy)"
+            }
+          ],
+          "text": "Preparation of patient for procedure (regime/therapy)"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "performedPeriod": {
+          "start": "2022-06-26T05:25:04+00:00",
+          "end": "2022-06-26T05:32:13+00:00"
+        },
+        "location": {
+          "reference": "urn:uuid:81c75a54-2b95-3fdf-9327-b74df8630869",
+          "display": "Fitchburg Outpatient Clinic"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-1688-88e2fc0212c9",
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "8a9f1e57-7eef-f408-1688-88e2fc0212c9",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure"
+          ]
+        },
+        "status": "completed",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "709138001",
+              "display": "Notification of treatment plan (procedure)"
+            }
+          ],
+          "text": "Notification of treatment plan (procedure)"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "performedPeriod": {
+          "start": "2022-06-26T03:49:18+00:00",
+          "end": "2022-06-26T04:04:18+00:00"
+        },
+        "location": {
+          "reference": "urn:uuid:81c75a54-2b95-3fdf-9327-b74df8630869",
+          "display": "Fitchburg Outpatient Clinic"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-2128-0b34b0cf30c3",
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "8a9f1e57-7eef-f408-2128-0b34b0cf30c3",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure"
+          ]
+        },
+        "status": "completed",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "65677008",
+              "display": "Pulmonary catheterization with Swan-Ganz catheter (procedure)"
+            }
+          ],
+          "text": "Pulmonary catheterization with Swan-Ganz catheter (procedure)"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "performedPeriod": {
+          "start": "2022-06-26T05:15:24+00:00",
+          "end": "2022-06-26T05:25:04+00:00"
+        },
+        "location": {
+          "reference": "urn:uuid:81c75a54-2b95-3fdf-9327-b74df8630869",
+          "display": "Fitchburg Outpatient Clinic"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-303f-c4ee4129e9f8",
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "8a9f1e57-7eef-f408-303f-c4ee4129e9f8",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure"
+          ]
+        },
+        "status": "completed",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "23745001",
+              "display": "Documentation procedure (procedure)"
+            }
+          ],
+          "text": "Documentation procedure (procedure)"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "performedPeriod": {
+          "start": "2022-06-26T08:45:43+00:00",
+          "end": "2022-06-26T09:00:42+00:00"
+        },
+        "location": {
+          "reference": "urn:uuid:81c75a54-2b95-3fdf-9327-b74df8630869",
+          "display": "Fitchburg Outpatient Clinic"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-4e7a-9714c3f8c41d",
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "8a9f1e57-7eef-f408-4e7a-9714c3f8c41d",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure"
+          ]
+        },
+        "status": "completed",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "110467000",
+              "display": "Pre-surgery testing (procedure)"
+            }
+          ],
+          "text": "Pre-surgery testing (procedure)"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "performedPeriod": {
+          "start": "2022-06-26T02:18:16+00:00",
+          "end": "2022-06-26T03:41:15+00:00"
+        },
+        "location": {
+          "reference": "urn:uuid:81c75a54-2b95-3fdf-9327-b74df8630869",
+          "display": "Fitchburg Outpatient Clinic"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-5044-20e4575ecae4",
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "8a9f1e57-7eef-f408-5044-20e4575ecae4",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure"
+          ]
+        },
+        "status": "completed",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "399208008",
+              "display": "Plain X-ray of chest (procedure)"
+            }
+          ],
+          "text": "Plain X-ray of chest (procedure)"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "performedPeriod": {
+          "start": "2022-06-26T03:49:18+00:00",
+          "end": "2022-06-26T04:19:18+00:00"
+        },
+        "location": {
+          "reference": "urn:uuid:81c75a54-2b95-3fdf-9327-b74df8630869",
+          "display": "Fitchburg Outpatient Clinic"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-51a9-24ec8e4a0474",
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "8a9f1e57-7eef-f408-51a9-24ec8e4a0474",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure"
+          ]
+        },
+        "status": "completed",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "392247006",
+              "display": "Insertion of catheter into artery (procedure)"
+            }
+          ],
+          "text": "Insertion of catheter into artery (procedure)"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "performedPeriod": {
+          "start": "2022-06-26T03:49:18+00:00",
+          "end": "2022-06-26T03:58:51+00:00"
+        },
+        "location": {
+          "reference": "urn:uuid:81c75a54-2b95-3fdf-9327-b74df8630869",
+          "display": "Fitchburg Outpatient Clinic"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-7630-7f0df1e8140b",
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "8a9f1e57-7eef-f408-7630-7f0df1e8140b",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure"
+          ]
+        },
+        "status": "completed",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "40701008",
+              "display": "Echocardiography (procedure)"
+            }
+          ],
+          "text": "Echocardiography (procedure)"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "performedPeriod": {
+          "start": "2022-06-26T03:49:18+00:00",
+          "end": "2022-06-26T04:19:18+00:00"
+        },
+        "location": {
+          "reference": "urn:uuid:81c75a54-2b95-3fdf-9327-b74df8630869",
+          "display": "Fitchburg Outpatient Clinic"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-8864-e05a6cc54cf5",
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "8a9f1e57-7eef-f408-8864-e05a6cc54cf5",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure"
+          ]
+        },
+        "status": "completed",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "359672006",
+              "display": "Median sternotomy (procedure)"
+            }
+          ],
+          "text": "Median sternotomy (procedure)"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "performedPeriod": {
+          "start": "2022-06-26T05:32:13+00:00",
+          "end": "2022-06-26T05:38:13+00:00"
+        },
+        "location": {
+          "reference": "urn:uuid:81c75a54-2b95-3fdf-9327-b74df8630869",
+          "display": "Fitchburg Outpatient Clinic"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-9a4d-43c2034b736a",
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "8a9f1e57-7eef-f408-9a4d-43c2034b736a",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure"
+          ]
+        },
+        "status": "completed",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "418824004",
+              "display": "Off-pump coronary artery bypass (procedure)"
+            }
+          ],
+          "text": "Off-pump coronary artery bypass (procedure)"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "performedPeriod": {
+          "start": "2022-06-26T05:38:13+00:00",
+          "end": "2022-06-26T08:45:43+00:00"
+        },
+        "location": {
+          "reference": "urn:uuid:81c75a54-2b95-3fdf-9327-b74df8630869",
+          "display": "Fitchburg Outpatient Clinic"
+        },
+        "reasonReference": [
+          {
+            "reference": "urn:uuid:8a9f1e57-7eef-f408-08b3-970e9ef22ac5",
+            "display": "Ischemic heart disease (disorder)"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-9b3f-647ce74cf678",
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "8a9f1e57-7eef-f408-9b3f-647ce74cf678",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure"
+          ]
+        },
+        "status": "completed",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "29303009",
+              "display": "Electrocardiographic procedure (procedure)"
+            }
+          ],
+          "text": "Electrocardiographic procedure (procedure)"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "performedPeriod": {
+          "start": "2022-06-26T03:41:15+00:00",
+          "end": "2022-06-26T03:49:18+00:00"
+        },
+        "location": {
+          "reference": "urn:uuid:81c75a54-2b95-3fdf-9327-b74df8630869",
+          "display": "Fitchburg Outpatient Clinic"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-a2ab-d19b30eb5e50",
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "8a9f1e57-7eef-f408-a2ab-d19b30eb5e50",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure"
+          ]
+        },
+        "status": "completed",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "44608003",
+              "display": "Blood group typing (procedure)"
+            }
+          ],
+          "text": "Blood group typing (procedure)"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "performedPeriod": {
+          "start": "2022-06-26T03:41:15+00:00",
+          "end": "2022-06-26T03:56:15+00:00"
+        },
+        "location": {
+          "reference": "urn:uuid:81c75a54-2b95-3fdf-9327-b74df8630869",
+          "display": "Fitchburg Outpatient Clinic"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-acf0-0b9bd2fbae44",
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "8a9f1e57-7eef-f408-acf0-0b9bd2fbae44",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure"
+          ]
+        },
+        "status": "completed",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "410538000",
+              "display": "Scheduling (procedure)"
+            }
+          ],
+          "text": "Scheduling (procedure)"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "performedPeriod": {
+          "start": "2022-06-26T03:49:18+00:00",
+          "end": "2022-06-26T04:04:18+00:00"
+        },
+        "location": {
+          "reference": "urn:uuid:81c75a54-2b95-3fdf-9327-b74df8630869",
+          "display": "Fitchburg Outpatient Clinic"
+        },
+        "reasonReference": [
+          {
+            "reference": "urn:uuid:8a9f1e57-7eef-f408-3923-f4550c0e6342",
+            "display": "Abnormal findings diagnostic imaging heart+coronary circulat (finding)"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-c0b9-b979705a7338",
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "8a9f1e57-7eef-f408-c0b9-b979705a7338",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure"
+          ]
+        },
+        "status": "completed",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "52765003",
+              "display": "Intubation (procedure)"
+            }
+          ],
+          "text": "Intubation (procedure)"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "performedPeriod": {
+          "start": "2022-06-26T05:15:24+00:00",
+          "end": "2022-06-26T05:30:24+00:00"
+        },
+        "location": {
+          "reference": "urn:uuid:81c75a54-2b95-3fdf-9327-b74df8630869",
+          "display": "Fitchburg Outpatient Clinic"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:8a9f1e57-7eef-f408-f366-b56445e6524f",
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "8a9f1e57-7eef-f408-f366-b56445e6524f",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure"
+          ]
+        },
+        "status": "completed",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "410770002",
+              "display": "Administration of anesthesia for procedure (procedure)"
+            }
+          ],
+          "text": "Administration of anesthesia for procedure (procedure)"
+        },
+        "subject": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-3ddd-71c883e0c783"
+        },
+        "encounter": {
+          "reference": "urn:uuid:8a9f1e57-7eef-f408-c5ad-48688ab399c5"
+        },
+        "performedPeriod": {
+          "start": "2022-06-26T03:58:51+00:00",
+          "end": "2022-06-26T05:15:24+00:00"
+        },
+        "location": {
+          "reference": "urn:uuid:81c75a54-2b95-3fdf-9327-b74df8630869",
+          "display": "Fitchburg Outpatient Clinic"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:02839ebb-8f7b-3b92-8ae7-e3684e4e6017",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "02839ebb-8f7b-3b92-8ae7-e3684e4e6017",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://synthetichealth.github.io/synthea/utilization-encounters-extension",
+            "valueInteger": 645
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hl7.org/fhir/sid/us-npi",
+            "value": "9999984591"
+          }
+        ],
+        "active": true,
+        "name": [
+          {
+            "family": "Reilly981",
+            "given": [
+              "Ted955"
+            ],
+            "prefix": [
+              "Dr."
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-direct",
+                "valueBoolean": true
+              }
+            ],
+            "system": "email",
+            "value": "Ted955.Reilly981@example.com",
+            "use": "work"
+          }
+        ],
+        "address": [
+          {
+            "line": [
+              "881 Main Street"
+            ],
+            "city": "Fitchburg",
+            "state": "MA",
+            "postalCode": "01420",
+            "country": "US"
+          }
+        ],
+        "gender": "male"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:9dae393f-1cb8-3f18-a51c-11dd1a184c6c",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "9dae393f-1cb8-3f18-a51c-11dd1a184c6c",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://synthetichealth.github.io/synthea/utilization-encounters-extension",
+            "valueInteger": 302
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hl7.org/fhir/sid/us-npi",
+            "value": "9999965897"
+          }
+        ],
+        "active": true,
+        "name": [
+          {
+            "family": "Kub800",
+            "given": [
+              "Chris95"
+            ],
+            "prefix": [
+              "Dr."
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-direct",
+                "valueBoolean": true
+              }
+            ],
+            "system": "email",
+            "value": "Chris95.Kub800@example.com",
+            "use": "work"
+          }
+        ],
+        "address": [
+          {
+            "line": [
+              "110 LONG POND RD"
+            ],
+            "city": "PLYMOUTH",
+            "state": "MA",
+            "postalCode": "023602642",
+            "country": "US"
+          }
+        ],
+        "gender": "female"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:74ab949d-17ac-3309-83a0-13b4405c66aa",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "74ab949d-17ac-3309-83a0-13b4405c66aa",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://synthetichealth.github.io/synthea/utilization-encounters-extension",
+            "valueInteger": 645
+          },
+          {
+            "url": "http://synthetichealth.github.io/synthea/utilization-procedures-extension",
+            "valueInteger": 616
+          },
+          {
+            "url": "http://synthetichealth.github.io/synthea/utilization-labs-extension",
+            "valueInteger": 170
+          },
+          {
+            "url": "http://synthetichealth.github.io/synthea/utilization-prescriptions-extension",
+            "valueInteger": 538
+          }
+        ],
+        "identifier": [
+          {
+            "system": "https://github.com/synthetichealth/synthea",
+            "value": "74ab949d-17ac-3309-83a0-13b4405c66aa"
+          }
+        ],
+        "active": true,
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/organization-type",
+                "code": "prov",
+                "display": "Healthcare Provider"
+              }
+            ],
+            "text": "Healthcare Provider"
+          }
+        ],
+        "name": "Fitchburg Outpatient Clinic",
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "978-342-9781 Or 978-342-9781"
+          }
+        ],
+        "address": [
+          {
+            "line": [
+              "881 Main Street"
+            ],
+            "city": "Fitchburg",
+            "state": "MA",
+            "postalCode": "01420",
+            "country": "US"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:e69e7cbb-8362-30d1-83f2-3a0c492fe2b1",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "e69e7cbb-8362-30d1-83f2-3a0c492fe2b1",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://synthetichealth.github.io/synthea/utilization-encounters-extension",
+            "valueInteger": 302
+          },
+          {
+            "url": "http://synthetichealth.github.io/synthea/utilization-procedures-extension",
+            "valueInteger": 2357
+          },
+          {
+            "url": "http://synthetichealth.github.io/synthea/utilization-labs-extension",
+            "valueInteger": 698
+          },
+          {
+            "url": "http://synthetichealth.github.io/synthea/utilization-prescriptions-extension",
+            "valueInteger": 283
+          }
+        ],
+        "identifier": [
+          {
+            "system": "https://github.com/synthetichealth/synthea",
+            "value": "e69e7cbb-8362-30d1-83f2-3a0c492fe2b1"
+          }
+        ],
+        "active": true,
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/organization-type",
+                "code": "prov",
+                "display": "Healthcare Provider"
+              }
+            ],
+            "text": "Healthcare Provider"
+          }
+        ],
+        "name": "PLYMOUTH CARVER PRIMARY CARE, P.C.",
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "5087467272"
+          }
+        ],
+        "address": [
+          {
+            "line": [
+              "110 LONG POND RD"
+            ],
+            "city": "PLYMOUTH",
+            "state": "MA",
+            "postalCode": "023602642",
+            "country": "US"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:81c75a54-2b95-3fdf-9327-b74df8630869",
+      "resource": {
+        "resourceType": "Location",
+        "id": "81c75a54-2b95-3fdf-9327-b74df8630869",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-location"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://github.com/synthetichealth/synthea",
+            "value": "81c75a54-2b95-3fdf-9327-b74df8630869"
+          }
+        ],
+        "status": "active",
+        "name": "Fitchburg Outpatient Clinic",
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "978-342-9781 Or 978-342-9781"
+          }
+        ],
+        "address": {
+          "line": [
+            "881 Main Street"
+          ],
+          "city": "Fitchburg",
+          "state": "MA",
+          "postalCode": "01420",
+          "country": "US"
+        },
+        "position": {
+          "longitude": -71.80521,
+          "latitude": 42.586487
+        },
+        "managingOrganization": {
+          "identifier": {
+            "system": "https://github.com/synthetichealth/synthea",
+            "value": "74ab949d-17ac-3309-83a0-13b4405c66aa"
+          },
+          "display": "Fitchburg Outpatient Clinic"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:b36746ab-80dd-321d-80d2-ccb8baeb3121",
+      "resource": {
+        "resourceType": "Location",
+        "id": "b36746ab-80dd-321d-80d2-ccb8baeb3121",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-location"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://github.com/synthetichealth/synthea",
+            "value": "b36746ab-80dd-321d-80d2-ccb8baeb3121"
+          }
+        ],
+        "status": "active",
+        "name": "PLYMOUTH CARVER PRIMARY CARE, P.C.",
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "5087467272"
+          }
+        ],
+        "address": {
+          "line": [
+            "110 LONG POND RD"
+          ],
+          "city": "PLYMOUTH",
+          "state": "MA",
+          "postalCode": "023602642",
+          "country": "US"
+        },
+        "position": {
+          "longitude": -70.65514326847389,
+          "latitude": 41.9255829
+        },
+        "managingOrganization": {
+          "identifier": {
+            "system": "https://github.com/synthetichealth/synthea",
+            "value": "e69e7cbb-8362-30d1-83f2-3a0c492fe2b1"
+          },
+          "display": "PLYMOUTH CARVER PRIMARY CARE, P.C."
+        }
+      }
+    }
+  ]
+}

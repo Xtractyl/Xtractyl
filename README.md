@@ -791,16 +791,6 @@ To create a new migration (when you do not want to install alembic outside the c
 
  ---
 
- ## Data Lifecycle Reference
-
-For a detailed breakdown of what gets written to Postgres and MinIO at each 
-step of each pipeline (conversion, prelabelling, evaluation, ...), see 
-[`docs/data-lifecycle.md`](docs/data-lifecycle.md). Useful for debugging 
-stuck jobs or verifying data provenance.
-
----
-
-
 ## Versioning (SemVer)
 
 This project uses Semantic Versioning (SemVer) with the format:
