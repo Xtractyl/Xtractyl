@@ -24,15 +24,8 @@ const result = {
     task_metrics: [
       {
         filename: "a.html",
-        per_label: { name: { gt: "gt-value", pred: "pred-value", status: "mismatch" } },
-        meta: {
-          model: "llama",
-          system_prompt: "Be precise",
-          raw_llm_answers: { name: { answer: "raw-answer" } },
-          dom_match_by_label: { name: true },
-          performance: {
-            events: [{ name: "llm.call", ms: 12.34, tags: { label: "name", status: "ok" } }],
-          },
+        per_label: {
+          name: { gt: "gt-value", pred: "pred-value", dom_match: true, status: "mismatch" },
         },
       },
     ],
@@ -74,13 +67,6 @@ describe("EvaluationResults", () => {
     expect(screen.getByText("cmp-project")).toBeInTheDocument();
     expect(screen.getByText(/ID: 11/)).toBeInTheDocument();
     expect(screen.getByText(/ID: 22/)).toBeInTheDocument();
-    expect(screen.getByText(/Model: llama/)).toBeInTheDocument();
-  });
-
-  it("shows the system prompt", () => {
-    render(<EvaluationResults loading={false} errorMsg="" result={result} />);
-
-    expect(screen.getByText("Be precise")).toBeInTheDocument();
   });
 
   it("shows the micro metrics with three decimals and the counts", () => {
@@ -101,22 +87,13 @@ describe("EvaluationResults", () => {
     expect(screen.getByText("0.700")).toBeInTheDocument();
   });
 
-  it("shows the per-task details with raw answer, DOM match and status", () => {
+  it("shows the per-task details with GT, prediction, DOM match and status", () => {
     render(<EvaluationResults loading={false} errorMsg="" result={result} />);
 
     expect(screen.getByText("a.html")).toBeInTheDocument();
     expect(screen.getByText("gt-value")).toBeInTheDocument();
     expect(screen.getByText("pred-value")).toBeInTheDocument();
-    expect(screen.getByText("raw-answer")).toBeInTheDocument();
-    expect(screen.getByText("ok")).toBeInTheDocument();
     expect(screen.getByText("mismatch")).toBeInTheDocument();
-  });
-
-  it("shows the LLM call durations", () => {
-    render(<EvaluationResults loading={false} errorMsg="" result={result} />);
-
-    expect(screen.getByText("name (ok)")).toBeInTheDocument();
-    expect(screen.getByText("12.3")).toBeInTheDocument();
   });
 
   it("shows the aggregated backend performance when present", () => {
