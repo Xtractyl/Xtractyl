@@ -2,6 +2,7 @@
 
 from itertools import combinations
 
+from domain.errors import InternalError, NotFound
 from domain.evaluation import _entry_to_dict
 
 
@@ -17,13 +18,22 @@ def get_regression_view(
     groundtruth set over time" the way external regression traditionally
     worked, but "how this configuration performed across independent
     internal reviews over time"."""
+    own_project = project_repo.get_project(project_name)
+    if not own_project:
+        raise NotFound(
+            code="PROJECT_NOT_FOUND",
+            message=f"Project '{project_name}' not found.",
+        )
     run = run_repo.get_run_for_project(project_name)
     if not run:
         return {"entries": []}
 
     model = model_repo.get_by_id(run.model_id)
     if not model:
-        return {"entries": []}
+        raise InternalError(
+            code="MODEL_NOT_FOUND",
+            message=f"Run '{run.id}' references model '{run.model_id}', which does not exist.",
+        )
 
     own_project = project_repo.get_project(project_name)
     if not own_project:
@@ -109,13 +119,22 @@ def get_drift_view(
     "the" group once more than two document sets share a configuration —
     this returns the one true, longest overlap-free chain containing the
     picked project's own document set."""
+    own_project = project_repo.get_project(project_name)
+    if not own_project:
+        raise NotFound(
+            code="PROJECT_NOT_FOUND",
+            message=f"Project '{project_name}' not found.",
+        )
     run = run_repo.get_run_for_project(project_name)
     if not run:
         return {"entries": []}
 
     model = model_repo.get_by_id(run.model_id)
     if not model:
-        return {"entries": []}
+        raise InternalError(
+            code="MODEL_NOT_FOUND",
+            message=f"Run '{run.id}' references model '{run.model_id}', which does not exist.",
+        )
 
     own_project = project_repo.get_project(project_name)
     if not own_project:
