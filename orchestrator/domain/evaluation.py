@@ -423,7 +423,12 @@ def get_comparison_view(
     same labels/documents, each self-contained — so external and internal
     genuinely need different queries here, not just a post-filter."""
     project = project_repo.get_project(project_name)
-    if not project or not project.labels_hash or not project.document_set_hash:
+    if not project:
+        raise NotFound(
+            code="PROJECT_NOT_FOUND",
+            message=f"Project '{project_name}' not found.",
+        )
+    if not project.labels_hash or not project.document_set_hash:
         return {"entries": []}
     evaluations = (
         eval_repo.find_internal_evaluations_by_labels_and_document_set(
