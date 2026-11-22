@@ -3,7 +3,57 @@
 from itertools import combinations
 
 from domain.errors import InternalError, NotFound
-from domain.evaluation import _entry_to_dict
+
+
+def _entry_to_dict(evaluation, model_name: str, run_project: str) -> dict:
+    return {
+        "groundtruth_project": evaluation.groundtruth_project,
+        "comparison_prelabelling_run_id": evaluation.comparison_prelabelling_run_id,
+        "comparison_project": run_project,
+        "model": model_name,
+        "run_at_raw": evaluation.run_at.isoformat(),
+        "metrics": {
+            "micro": evaluation.metrics_micro,
+            "per_label": evaluation.metrics_per_label,
+            "filenames_count": evaluation.filenames_count,
+        },
+    }
+
+
+def get_comparison_view(
+    project_name: str, project_repo, run_repo, model_repo, eval_repo, scope: str = "external"
+) -> dict:
+    """Same documents, same labels, model/prompt/questions may vary — a
+    ranking of configurations sharing the picked project's own labels and
+    document set. Driven entirely by the picked project's own attributes,
+    not by resolving one canonical groundtruth project first: at most one
+    external groundtruth can ever match (uq_external_groundtruth_labels_documents),
+    while multiple internal groundtruth sets can coincidentally share the
+    same labels/documents, each self-contained — so external and internal
+    genuinely need different queries here, not just a post-filter."""
+    project = project_repo.get_project(project_name)
+    if not project:
+        raise NotFound(
+            code="PROJECT_NOT_FOUND",
+            message=f"Project '{project_name}' not found.",
+        )
+    if not project.labels_hash or not project.document_set_hash:
+        return {"entries": []}
+    evaluations = (
+        eval_repo.find_internal_evaluations_by_labels_and_document_set(
+            project.labels_hash, project.document_set_hash
+        )
+        if scope == "internal"
+        else eval_repo.find_external_evaluations_by_labels_and_document_set(
+            project.labels_hash, project.document_set_hash
+        )
+    )
+    entries = []
+    for e in evaluations:
+        run = run_repo.get_run(e.comparison_prelabelling_run_id)
+        model = model_repo.get_by_id(run.model_id)
+        entries.append(_entry_to_dict(e, model.archived_name, run.project))
+    return {"entries": entries}
 
 
 def get_regression_view(
