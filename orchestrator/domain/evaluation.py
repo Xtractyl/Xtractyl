@@ -210,25 +210,13 @@ def evaluate_run(run_id: int, groundtruth_project: str, project_repo, run_repo, 
         "comparison_project_id": run.id,
         "run_at_raw": run_at.isoformat(),
         "metrics": overall,
-        "answer_comparison": [],
-        "evaluation_output_path": "",
     }
 
 
 def _serialize_existing_evaluation(existing, project_repo, run_repo, model_repo) -> dict:
-    """Formerly a stub. Reshapes an already-persisted Evaluation row into
-    the same response shape evaluate_run() returns for a freshly computed
-    one, so callers of get_evaluation can't tell the difference.
-
-    Known, accepted gap: only metrics_micro/metrics_per_label/filenames_count
-    are persisted on the Evaluation row (see db/models.py) — the richer,
-    non-persisted parts of compute_metrics_from_rows()'s output (per-task
-    breakdown, performance percentiles, the full label list) are only
-    available right after computation, not on replay. If those are needed
-    later for the persisted case too, they'd need their own columns rather
-    than being reconstructed here — flagging this rather than silently
-    returning an incomplete-looking "overall" dict.
-    """
+    """Reshapes an already-persisted Evaluation row into the same response
+    shape evaluate_run() returns for a freshly computed one, so callers of
+    get_evaluation can't tell the difference."""
     run = run_repo.get_run(existing.comparison_prelabelling_run_id)
     gt_project_record = project_repo.get_project(existing.groundtruth_project)
     model = model_repo.get_by_id(run.model_id)
@@ -247,8 +235,6 @@ def _serialize_existing_evaluation(existing, project_repo, run_repo, model_repo)
             "performance": existing.performance,
             "labels": existing.labels,
         },
-        "answer_comparison": [],
-        "evaluation_output_path": "",
     }
 
 

@@ -29,8 +29,6 @@ class EvaluateProjectsResponse(BaseModel):
     model: str
     run_at_raw: str
     metrics: dict
-    answer_comparison: list
-    evaluation_output_path: str
 
 
 class SaveAsGtSetResponse(BaseModel):
