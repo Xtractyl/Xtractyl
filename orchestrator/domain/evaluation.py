@@ -130,7 +130,7 @@ def _tasks_to_rows(token: str, project_id: int) -> list[dict]:
     return rows
 
 
-def evaluate_run(run_id: int, groundtruth_project: str, project_repo, run_repo, eval_repo) -> dict:
+def evaluate_run(run_id: int, groundtruth_project: str, project_repo, run_repo, eval_repo) -> None:
     """The single place a new evaluation is actually computed and persisted."""
     if not project_repo.is_groundtruth(groundtruth_project):
         raise InvalidState(
@@ -203,45 +203,11 @@ def evaluate_run(run_id: int, groundtruth_project: str, project_repo, run_repo, 
         labels=overall.get("labels"),
     )
 
-    return {
-        "groundtruth_project": groundtruth_project,
-        "groundtruth_project_id": gt_project_record.id,
-        "comparison_project": run.project,
-        "comparison_project_id": run.id,
-        "run_at_raw": run_at.isoformat(),
-        "metrics": overall,
-    }
-
-
-def _serialize_existing_evaluation(existing, project_repo, run_repo, model_repo) -> dict:
-    """Reshapes an already-persisted Evaluation row into the same response
-    shape evaluate_run() returns for a freshly computed one, so callers of
-    get_evaluation can't tell the difference."""
-    run = run_repo.get_run(existing.comparison_prelabelling_run_id)
-    gt_project_record = project_repo.get_project(existing.groundtruth_project)
-    model = model_repo.get_by_id(run.model_id)
-    return {
-        "groundtruth_project": existing.groundtruth_project,
-        "groundtruth_project_id": gt_project_record.id,
-        "comparison_project": run.project,
-        "comparison_project_id": existing.comparison_prelabelling_run_id,
-        "model": model.archived_name,
-        "run_at_raw": existing.run_at.isoformat(),
-        "metrics": {
-            "micro": existing.metrics_micro,
-            "per_label": existing.metrics_per_label,
-            "filenames_count": existing.filenames_count,
-            "task_metrics": existing.task_metrics,
-            "performance": existing.performance,
-            "labels": existing.labels,
-        },
-    }
-
 
 def get_evaluation(
     groundtruth_project: str, comparison_project: str, project_repo, run_repo, eval_repo, model_repo
 ) -> dict:
-    """Backs the now purely read-only /evaluate-ai endpoint. Deliberately
+    """Backs the read-only /evaluate-ai endpoint. Deliberately
     does NOT compute on demand: sync_missing_evaluations (called
     automatically from exactly two internal points — a run finishing, a GT
     set being created) is the only place evaluations get created. If this
@@ -268,7 +234,24 @@ def get_evaluation(
                 f"did not run or failed — not something to compute here on demand."
             ),
         )
-    return _serialize_existing_evaluation(existing, project_repo, run_repo, model_repo)
+    gt_project_record = project_repo.get_project(groundtruth_project)
+    model = model_repo.get_by_id(run.model_id)
+    return {
+        "groundtruth_project": groundtruth_project,
+        "groundtruth_project_id": gt_project_record.id,
+        "comparison_project": run.project,
+        "comparison_project_id": run.id,
+        "model": model.archived_name,
+        "run_at_raw": existing.run_at.isoformat(),
+        "metrics": {
+            "micro": existing.metrics_micro,
+            "per_label": existing.metrics_per_label,
+            "filenames_count": existing.filenames_count,
+            "task_metrics": existing.task_metrics,
+            "performance": existing.performance,
+            "labels": existing.labels,
+        },
+    }
 
 
 def sync_missing_evaluations(project_repo, run_repo, eval_repo) -> None:
