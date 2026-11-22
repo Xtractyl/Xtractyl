@@ -44,8 +44,6 @@ def test_evaluate_ai_returns_200(client, monkeypatch):
             "model": "llama3.1:8b",
             "run_at_raw": "2026-01-01T00:00:00+00:00",
             "metrics": {},
-            "answer_comparison": [],
-            "evaluation_output_path": "/dummy/path.json",
         },
     )
     res = client.post(

@@ -96,72 +96,27 @@ def _chosen_annotation_bucket(task: dict) -> dict:
     return _bucket_from_results(chosen.get("result") or [])
 
 
-def _latest_prediction_bucket(task: dict) -> dict:
-    preds = [p for p in (task.get("predictions") or []) if isinstance(p, dict)]
-    if not preds:
-        return {}
-    chosen = sorted(
-        preds,
-        key=lambda p: p.get("created_at") or p.get("updated_at") or "",
-        reverse=True,
-    )[0]
-    return _bucket_from_results(chosen.get("result") or [])
-
-
-def _latest_prediction_meta(task: dict) -> dict:
-    preds = [p for p in (task.get("predictions") or []) if isinstance(p, dict)]
-    if preds:
-        chosen = sorted(
-            preds,
-            key=lambda p: p.get("created_at") or p.get("updated_at") or "",
-            reverse=True,
-        )[0]
-        meta = chosen.get("meta")
-        if isinstance(meta, dict) and meta:
-            return meta
-    data = task.get("data") or {}
-    ml_meta = data.get("ml_meta")
-    return ml_meta if isinstance(ml_meta, dict) else {}
-
-
-def _tasks_to_rows(token: str, project_id: int, mode: str) -> list[dict]:
-    tasks, total = fetch_tasks_page(token, project_id)
+def _tasks_to_rows(token: str, project_id: int) -> list[dict]:
+    tasks, _ = fetch_tasks_page(token, project_id)
     rows = []
     unreviewed_filenames = []
     for t in tasks:
         data = t.get("data") or {}
         filename = data["name"]
-        if mode == "gt":
-            anns = t.get("annotations") or []
-            if not any(a and (a.get("result") or []) for a in anns):
-                t["annotations"] = fetch_task_annotations(token, t.get("id"))
-            has_annotation = any(isinstance(a, dict) for a in (t.get("annotations") or []))
-            if not has_annotation:
-                unreviewed_filenames.append(filename or f"task {t.get('id')}")
-            labels = _chosen_annotation_bucket(t)
-        else:
-            labels = _latest_prediction_bucket(t)
-        meta = _latest_prediction_meta(t) if mode == "pred" else {}
-        run_at_raw = None
-        if mode == "pred":
-            preds = [p for p in (t.get("predictions") or []) if isinstance(p, dict)]
-            if preds:
-                chosen = sorted(
-                    preds,
-                    key=lambda p: p.get("created_at") or p.get("updated_at") or "",
-                    reverse=True,
-                )[0]
-                run_at_raw = chosen.get("created_at") or chosen.get("updated_at")
+        anns = t.get("annotations") or []
+        if not any(a and (a.get("result") or []) for a in anns):
+            t["annotations"] = fetch_task_annotations(token, t.get("id"))
+        has_annotation = any(isinstance(a, dict) for a in (t.get("annotations") or []))
+        if not has_annotation:
+            unreviewed_filenames.append(filename)
         rows.append(
             {
                 "task_id": t.get("id"),
                 "filename": filename,
-                "labels": labels,
-                "meta": meta,
-                "run_at_raw": run_at_raw,
+                "labels": _chosen_annotation_bucket(t),
             }
         )
-    if mode == "gt" and unreviewed_filenames:
+    if unreviewed_filenames:
         raise InvalidState(
             code="INCOMPLETE_ANNOTATIONS",
             message=(
@@ -175,7 +130,7 @@ def _tasks_to_rows(token: str, project_id: int, mode: str) -> list[dict]:
     return rows
 
 
-def evaluate_run(run_id: int, groundtruth_project: str, project_repo, run_repo, eval_repo) -> dict:
+def evaluate_run(run_id: int, groundtruth_project: str, project_repo, run_repo, eval_repo) -> None:
     """The single place a new evaluation is actually computed and persisted."""
     if not project_repo.is_groundtruth(groundtruth_project):
         raise InvalidState(
@@ -248,59 +203,11 @@ def evaluate_run(run_id: int, groundtruth_project: str, project_repo, run_repo, 
         labels=overall.get("labels"),
     )
 
-    return {
-        "groundtruth_project": groundtruth_project,
-        "groundtruth_project_id": gt_project_record.id,
-        "comparison_project": run.project,
-        "comparison_project_id": run.id,
-        "run_at_raw": run_at.isoformat(),
-        "metrics": overall,
-        "answer_comparison": [],
-        "evaluation_output_path": "",
-    }
-
-
-def _serialize_existing_evaluation(existing, project_repo, run_repo, model_repo) -> dict:
-    """Formerly a stub. Reshapes an already-persisted Evaluation row into
-    the same response shape evaluate_run() returns for a freshly computed
-    one, so callers of get_evaluation can't tell the difference.
-
-    Known, accepted gap: only metrics_micro/metrics_per_label/filenames_count
-    are persisted on the Evaluation row (see db/models.py) — the richer,
-    non-persisted parts of compute_metrics_from_rows()'s output (per-task
-    breakdown, performance percentiles, the full label list) are only
-    available right after computation, not on replay. If those are needed
-    later for the persisted case too, they'd need their own columns rather
-    than being reconstructed here — flagging this rather than silently
-    returning an incomplete-looking "overall" dict.
-    """
-    run = run_repo.get_run(existing.comparison_prelabelling_run_id)
-    gt_project_record = project_repo.get_project(existing.groundtruth_project)
-    model = model_repo.get_by_id(run.model_id)
-    return {
-        "groundtruth_project": existing.groundtruth_project,
-        "groundtruth_project_id": gt_project_record.id,
-        "comparison_project": run.project,
-        "comparison_project_id": existing.comparison_prelabelling_run_id,
-        "model": model.archived_name,
-        "run_at_raw": existing.run_at.isoformat(),
-        "metrics": {
-            "micro": existing.metrics_micro,
-            "per_label": existing.metrics_per_label,
-            "filenames_count": existing.filenames_count,
-            "task_metrics": existing.task_metrics,
-            "performance": existing.performance,
-            "labels": existing.labels,
-        },
-        "answer_comparison": [],
-        "evaluation_output_path": "",
-    }
-
 
 def get_evaluation(
     groundtruth_project: str, comparison_project: str, project_repo, run_repo, eval_repo, model_repo
 ) -> dict:
-    """Backs the now purely read-only /evaluate-ai endpoint. Deliberately
+    """Backs the read-only /evaluate-ai endpoint. Deliberately
     does NOT compute on demand: sync_missing_evaluations (called
     automatically from exactly two internal points — a run finishing, a GT
     set being created) is the only place evaluations get created. If this
@@ -327,7 +234,24 @@ def get_evaluation(
                 f"did not run or failed — not something to compute here on demand."
             ),
         )
-    return _serialize_existing_evaluation(existing, project_repo, run_repo, model_repo)
+    gt_project_record = project_repo.get_project(groundtruth_project)
+    model = model_repo.get_by_id(run.model_id)
+    return {
+        "groundtruth_project": groundtruth_project,
+        "groundtruth_project_id": gt_project_record.id,
+        "comparison_project": run.project,
+        "comparison_project_id": run.id,
+        "model": model.archived_name,
+        "run_at_raw": existing.run_at.isoformat(),
+        "metrics": {
+            "micro": existing.metrics_micro,
+            "per_label": existing.metrics_per_label,
+            "filenames_count": existing.filenames_count,
+            "task_metrics": existing.task_metrics,
+            "performance": existing.performance,
+            "labels": existing.labels,
+        },
+    }
 
 
 def sync_missing_evaluations(project_repo, run_repo, eval_repo) -> None:
@@ -409,11 +333,11 @@ def save_as_gt_set(cmd: SaveAsGtSetCommand, project_repo, run_repo, eval_repo) -
 
     project_id = resolve_project_id(token, source_project)
     # _tasks_to_rows raises InvalidState("INCOMPLETE_ANNOTATIONS") itself if any
-    # task has no submitted annotation at all — see its mode="gt" branch. This
+    # task has no submitted annotation at all. This
     # must happen there, not here: an empty labels bucket in gt_rows is
     # otherwise indistinguishable from a reviewer deliberately marking every
     # label as no-match.
-    gt_rows = _tasks_to_rows(token, project_id, mode="gt")
+    gt_rows = _tasks_to_rows(token, project_id)
 
     if not gt_rows:
         raise NotFound(
@@ -453,49 +377,3 @@ def list_evaluated_projects(project_repo, run_repo, eval_repo) -> list[str]:
     """Backs GET /evaluations/projects: every project name that has at
     least one resolvable evaluation family."""
     return eval_repo.list_projects_with_evaluations()
-
-
-def _entry_to_dict(evaluation, model_name: str, run_project: str) -> dict:
-    return {
-        "groundtruth_project": evaluation.groundtruth_project,
-        "comparison_prelabelling_run_id": evaluation.comparison_prelabelling_run_id,
-        "comparison_project": run_project,
-        "model": model_name,
-        "run_at_raw": evaluation.run_at.isoformat(),
-        "metrics": {
-            "micro": evaluation.metrics_micro,
-            "per_label": evaluation.metrics_per_label,
-            "filenames_count": evaluation.filenames_count,
-        },
-    }
-
-
-def get_comparison_view(
-    project_name: str, project_repo, run_repo, model_repo, eval_repo, scope: str = "external"
-) -> dict:
-    """Same documents, same labels, model/prompt/questions may vary — a
-    ranking of configurations sharing the picked project's own labels and
-    document set. Driven entirely by the picked project's own attributes,
-    not by resolving one canonical groundtruth project first: at most one
-    external groundtruth can ever match (uq_external_groundtruth_labels_documents),
-    while multiple internal groundtruth sets can coincidentally share the
-    same labels/documents, each self-contained — so external and internal
-    genuinely need different queries here, not just a post-filter."""
-    project = project_repo.get_project(project_name)
-    if not project or not project.labels_hash or not project.document_set_hash:
-        return {"entries": []}
-    evaluations = (
-        eval_repo.find_internal_evaluations_by_labels_and_document_set(
-            project.labels_hash, project.document_set_hash
-        )
-        if scope == "internal"
-        else eval_repo.find_external_evaluations_by_labels_and_document_set(
-            project.labels_hash, project.document_set_hash
-        )
-    )
-    entries = []
-    for e in evaluations:
-        run = run_repo.get_run(e.comparison_prelabelling_run_id)
-        model = model_repo.get_by_id(run.model_id)
-        entries.append(_entry_to_dict(e, model.archived_name, run.project))
-    return {"entries": entries}

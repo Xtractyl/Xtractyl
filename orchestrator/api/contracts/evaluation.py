@@ -29,8 +29,6 @@ class EvaluateProjectsResponse(BaseModel):
     model: str
     run_at_raw: str
     metrics: dict
-    answer_comparison: list
-    evaluation_output_path: str
 
 
 class SaveAsGtSetResponse(BaseModel):
@@ -47,27 +45,6 @@ class ListGroundtruthProjectsForComparisonRequest(BaseModel):
 
 class ListGroundtruthProjectsForComparisonResponse(BaseModel):
     projects: list[str]
-
-
-class ComparisonEntry(BaseModel):
-    """Shared shape for a single evaluation row, reused by the Regression
-    and Drift contracts in api/contracts/evaluation_views.py."""
-
-    groundtruth_project: str
-    comparison_prelabelling_run_id: int
-    comparison_project: str
-    model: str
-    run_at_raw: str
-    metrics: dict
-
-
-class GetComparisonViewRequest(BaseModel):
-    project_name: str = Field(..., min_length=3)
-    scope: Literal["internal", "external"] = "external"
-
-
-class GetComparisonViewResponse(BaseModel):
-    entries: list[ComparisonEntry]
 
 
 class ListEvaluatedProjectsResponse(BaseModel):

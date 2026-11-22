@@ -1,7 +1,7 @@
 # orchestrator/api/routes/evaluation_views.py
 
 from domain.errors import InternalError, ValidationFailed
-from domain.evaluation_views import get_drift_view, get_regression_view
+from domain.evaluation_views import get_comparison_view, get_drift_view, get_regression_view
 from flask import jsonify, request
 from flask_pydantic_spec import Response
 from infrastructure.repository.evaluation_repository import EvaluationRepository
@@ -13,6 +13,8 @@ from pydantic import ValidationError
 from api.contracts.errors import ErrorResponse
 from api.contracts.evaluation_views import (
     DriftViewRequest,
+    GetComparisonViewRequest,
+    GetComparisonViewResponse,
     GetDriftViewResponse,
     GetRegressionViewResponse,
     RegressionViewRequest,
@@ -20,6 +22,50 @@ from api.contracts.evaluation_views import (
 
 
 def register(app, spec, session_factory=None):
+    @app.route("/evaluations/comparison", methods=["GET"])
+    @spec.validate(
+        query=GetComparisonViewRequest,
+        resp=Response(
+            HTTP_200=GetComparisonViewResponse,
+            HTTP_500=ErrorResponse,
+        ),
+        tags=["evaluation-views"],
+    )
+    def evaluations_comparison():
+        try:
+            contract = GetComparisonViewRequest.model_validate(dict(request.args or {}))
+        except ValidationError as e:
+            raise ValidationFailed(
+                code="VALIDATION_FAILED",
+                message="Invalid query parameters.",
+                details=e.errors(),
+            )
+        db = session_factory()
+        try:
+            project_repo = ProjectRepository(db)
+            run_repo = PrelabellingRunRepository(db)
+            model_repo = ModelRepository(db)
+            eval_repo = EvaluationRepository(db)
+            result = get_comparison_view(
+                contract.project_name,
+                project_repo=project_repo,
+                run_repo=run_repo,
+                model_repo=model_repo,
+                eval_repo=eval_repo,
+                scope=contract.scope,
+            )
+        finally:
+            db.close()
+        try:
+            validated = GetComparisonViewResponse.model_validate(result)
+        except ValidationError as e:
+            raise InternalError(
+                code="RESPONSE_CONTRACT_VIOLATED",
+                message="Internal response did not match expected schema.",
+                meta={"details": e.errors()},
+            )
+        return jsonify(validated.model_dump()), 200
+
     @app.route("/evaluations/regression", methods=["GET"])
     @spec.validate(
         query=RegressionViewRequest,

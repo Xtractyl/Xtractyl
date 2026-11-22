@@ -20,8 +20,6 @@ def compute_metrics_from_rows(
     gt_rows: List[dict],
     pred_rows: List[dict],
     labels: List[str],
-    hash_key: str = "html_hash",
-    labels_key: str = "labels",
 ) -> dict:
     """
      Strict literal equality evaluation.
@@ -66,8 +64,8 @@ def compute_metrics_from_rows(
          "task_metrics": [task_metrics_by_hash[h] for h in all_hashes],
        }
     """
-    gt_by_hash = {r[hash_key]: r for r in gt_rows}
-    pred_by_hash = {r[hash_key]: r for r in pred_rows}
+    gt_by_hash = {r["html_hash"]: r for r in gt_rows}
+    pred_by_hash = {r["html_hash"]: r for r in pred_rows}
     if len(gt_by_hash) != len(gt_rows) or len(pred_by_hash) != len(pred_rows):
         raise ValueError("an html_hash occurs more than once in gt_rows or in pred_rows")
 
@@ -78,16 +76,11 @@ def compute_metrics_from_rows(
             f"only in pred: {sorted(pred_by_hash.keys() - gt_by_hash.keys())}"
         )
     all_hashes = sorted(gt_by_hash, key=lambda h: gt_by_hash[h]["filename"])
-    all_labels = set()
-    for r in gt_rows:
-        all_labels |= set((r.get(labels_key) or {}).keys())
-    for r in pred_rows:
-        all_labels |= set((r.get(labels_key) or {}).keys())
     all_labels = sorted(labels)
 
     labels_in_rows = set()
     for r in gt_rows + pred_rows:
-        labels_in_rows |= set((r.get(labels_key) or {}).keys())
+        labels_in_rows |= set((r.get("labels") or {}).keys())
     unknown_labels = sorted(labels_in_rows - set(all_labels))
     if unknown_labels:
         raise ValueError(f"rows contain labels not defined for the project: {unknown_labels}")
@@ -122,8 +115,8 @@ def compute_metrics_from_rows(
                 n_tasks_with_perf += 1
                 task_metrics_by_hash[html_hash]["_perf_collected"] = True
 
-            gt_val = (gt_by_hash[html_hash].get(labels_key) or {}).get(lab, "")
-            pr_val = (pred_by_hash[html_hash].get(labels_key) or {}).get(lab, "")
+            gt_val = (gt_by_hash[html_hash].get("labels") or {}).get(lab, "")
+            pr_val = (pred_by_hash[html_hash].get("labels") or {}).get(lab, "")
 
             gt_present = bool(gt_val)
             pr_no_match = pr_val == "<<<NO_MATCH>>>"
