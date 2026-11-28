@@ -15,14 +15,19 @@ runs. Nothing is generated at container start.
 | `synthea/` | Raw bundles from [Synthea](https://github.com/synthetichealth/synthea) (`v4.0.0`, fixed seed, `--exporter.fhir.use_us_core_ig=true`), **reduced to the patients that a document bundle was built from** plus `hospitalInformation*.json` / `practitionerInformation*.json` | yes |
 | `document_bundle_generated/` | Document bundles built from `synthea/`, section texts still `TODO` | no (git-ignored, regenerable) |
 | `document_bundle_final/` | The same bundles with the section texts written by hand | yes |
-
+| `pdf/` | Synthetic, hand-made PDF files, uploaded as `Binary` resources | yes |
+| `documentreference/` | One `DocumentReference` transaction per PDF, pointing to a patient and to `Binary/pdf-<name>`; built by `make fhir-pdf-refs` | yes |
+ 
 `fhir_seed` loads in this order:
 
 1. `hospitalInformation*.json` and `practitionerInformation*.json` from
-   `synthea/` (patient bundles reference these Organization/Practitioner
+   `synthea/` (patient transactions reference these Organization/Practitioner
    resources),
 2. the per-patient Synthea bundles from `synthea/` (`POST /fhir`),
 3. the document bundles from `document_bundle_final/` (`POST /fhir/Bundle`).
+4. the PDF files from `pdf/` as `Binary` resources (`PUT /fhir/Binary/pdf-<name>`),
+5. the DocumentReference bundles from `documentreference/` (`POST /fhir`),
+   which point to the patients and to the PDFs.
 
 `fhir` itself has no persistent volume — its data lives only in the running
 container, so a full `docker compose down && up` always starts from an empty
@@ -68,13 +73,33 @@ committed, so normal users never run these. All targets are in the `Makefile`.
    comes back with `make fhir-synthea-regen FORCE=1`. Running
    `make fhir-generate` again on the reduced set must produce the same
    document bundles.
-4. Write the section texts directly into `document_bundle_final/*.json`
-   (`Composition.section[].text.div`, XHTML narrative).
-5. `make fhir-check` validates `document_bundle_final/`: valid JSON, Bundle
+4. `make fhir-pdf-refs` writes one DocumentReference transaction per PDF in
+   `fhir_seed/data/pdf/` to `documentreference/`. Run it after
+   `make fhir-synthea-prune`: the PDFs are paired with the kept patients
+   (both sorted by file name, round-robin: PDF 1 to patient 1, and so on,
+   then from the start again). PDF names may only contain lowercase
+   letters, digits and hyphens (max. 50 characters), they become the
+   `Binary` id `pdf-<name>`. Existing bundles are never overwritten.
+5. Write the section texts directly into `document_bundle_final/*.json`
+   (`Composition.section[].text.div`, XHTML narrative). Start from the
+   templates in `fhir_seed/templates/section_templates.md`.
+6. `make fhir-check` validates `document_bundle_final/`: valid JSON, Bundle
    of type `document`, Composition first, unique `fullUrl`s, every reference
    resolvable inside the bundle, well-formed XHTML in every text `div`, no
    `TODO` left. It is not a replacement for the official FHIR validator.
-6. Commit `synthea/` and `document_bundle_final/`.
+7. Load the data into HAPI to check it. Recreate `fhir` so it starts empty and
+   rebuild `fhir_seed`:
+
+   ```bash
+   docker compose up -d --build --force-recreate fhir fhir_seed
+   docker compose logs -f fhir_seed
+   ```
+
+   Without recreating `fhir`, the server keeps its old data and `fhir_seed`
+   does nothing, because it only loads into an empty server.
+8. Commit the results: `git add` the folders `synthea/`, `document_bundle_final/`,
+   `pdf/` and `documentreference/` (`document_bundle_generated/` is git-ignored).
+
 
 To see the result locally, recreate the stack so `fhir` starts empty and
 `fhir_seed` is rebuilt with the new data:
@@ -104,6 +129,16 @@ the HTML derived from PDFs by Docling.
 The underlying clinical data is synthetic Synthea data and can be medically
 implausible (e.g. an adult kidney transplant in a children's hospital); the
 letter texts follow the data, not clinical reality.
+
+## PDFs
+
+The PDFs in `pdf/` are synthetic and hand-made. Each one is uploaded as a
+`Binary` resource with the id `pdf-<file name without .pdf>`, and a
+`DocumentReference` points to it: `content[0].attachment.url` is
+`Binary/pdf-<name>`, `subject` is a patient from the kept Synthea patients,
+and the identifier (system `https://xtractyl.example/fhir-seed/pdf`, value
+`<name>`) tells these apart from the DocumentReferences Synthea creates. The
+PDF itself is stored as `Binary/pdf-<name>`.
 
 ## Where the free text actually is
 

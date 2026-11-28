@@ -76,7 +76,9 @@ dev-down:
 #                          and copies NEW ones to document_bundle_final/
 #                          (existing files there are never overwritten)
 #   3. write the section texts directly in fhir_seed/data/document_bundle_final/*.json
-#   4. fhir-check          validates document_bundle_final/ before committing
+#	4. `make fhir-pdf-refs` writes one DocumentReference transaction per PDF in
+#						   `fhir_seed/data/pdf/` to `documentreference/`
+#	5. `make fhir-check` 	validates `document_bundle_final/`
 
 FHIR_DATA := fhir_seed/data
 FHIR_GENERATED := $(FHIR_DATA)/document_bundle_generated
@@ -118,3 +120,9 @@ fhir-synthea-prune:
 
 fhir-check:
 	python fhir_seed/check_documents.py $(FHIR_FINAL)
+
+FHIR_PDF := $(FHIR_DATA)/pdf
+FHIR_DOCREF := $(FHIR_DATA)/documentreference
+
+fhir-pdf-refs:
+	python fhir_seed/build_pdf_references.py $(FHIR_DATA)/synthea $(FHIR_PDF) $(FHIR_DOCREF)

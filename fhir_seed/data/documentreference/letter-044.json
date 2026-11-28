@@ -1,0 +1,37 @@
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:7c29d582-3d13-5960-a39f-3370808145fe",
+      "resource": {
+        "resourceType": "DocumentReference",
+        "identifier": [
+          {
+            "system": "https://xtractyl.example/fhir-seed/pdf",
+            "value": "letter-044"
+          }
+        ],
+        "status": "current",
+        "description": "letter-044",
+        "subject": {
+          "reference": "Patient?identifier=https://github.com/synthetichealth/synthea|1c52f358-e04b-774f-ff7a-fb454bafdd51"
+        },
+        "content": [
+          {
+            "attachment": {
+              "contentType": "application/pdf",
+              "url": "Binary/pdf-letter-044",
+              "title": "letter-044.pdf"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "DocumentReference",
+        "ifNoneExist": "identifier=https://xtractyl.example/fhir-seed/pdf|letter-044"
+      }
+    }
+  ]
+}
