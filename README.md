@@ -242,9 +242,9 @@ An e2e review with refactoring and addition of missing tests is underway.
 
 ### Phase 3 – FHIR integration (starting)
 
-While currently the pipeline supports only PDF data, in future it will be possible to import FHIR data and evaluate a model on FHIR-input extraction-based-question-answering as well. So far a FHIR container and a FHIR seed container have been added to generate synthetic FHIR data for testing. The workflow to ingest the FHIR data will be added soon, the overall workflow already established for PDFs will be adapted to serve this data likewise.
+While currently the pipeline supports only PDF data, in future it will be possible to import FHIR data and evaluate a model on FHIR-input extraction-based-question-answering as well. So far a FHIR container (HAPI server) and a FHIR seed container have been added. A basic synthetic test data set is committed in the repo (patient transactions, bundles of type document, DocumentReference transactions and their PDFs), so no data generation is needed: on `docker compose up` the seed container loads it into the HAPI server if the server is empty. The data is generated on demand with Synthea via `make` targets, see `docs/fhir-test-server.md`. The workflow to ingest the FHIR data will be added soon; the workflow already established for PDFs will be adapted to serve this data likewise.
 
-- **Local FHIR test server** (`fhir`, `fhir_seed` in `docker-compose.yml`) — generates synthetic FHIR bundles for developing and testing a planned FHIR narrative/free-text ingestion adapter, not yet wired into the pipeline. See `docs/fhir-test-server.md`.
+- **Local FHIR test server** See `docs/fhir-test-server.md`.
 
 ### Phase 4 – Model Hosting (planned)
 
