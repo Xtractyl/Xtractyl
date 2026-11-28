@@ -1,13 +1,16 @@
 #!/bin/sh
 # fhir_seed/load_bundles.sh
 #
-# Loads the committed FHIR bundles baked into this image into the fhir
-# server, but only if the server is empty (no Patient yet):
-#   /bundles/synthea                 Synthea bundles   -> POST ${FHIR_BASE}
-#   /bundles/document_bundle_final   document bundles  -> POST ${FHIR_BASE}/Bundle
+# Loads the committed FHIR data baked into this image into the fhir server,
+# but only if the server is empty (no Patient yet):
+#   /bundles/synthea                 Synthea bundles       -> POST ${FHIR_BASE}
+#   /bundles/document_bundle_final   document bundles      -> POST ${FHIR_BASE}/Bundle
+#   /bundles/pdf                     PDF files             -> PUT  ${FHIR_BASE}/Binary/pdf-<name>
+#   /bundles/documentreference       DocumentReference     -> POST ${FHIR_BASE}
+#                                    transactions (need the patients and PDFs above)
 #
 # Synthea writes hospitalInformation*.json and practitionerInformation*.json
-# alongside the per-patient bundles; patient bundles reference those
+# alongside the per-patient transactions; patient transactions reference those
 # Organization/Practitioner resources, so they must be loaded first or the
 # reference resolution inside the transaction will fail.
 
@@ -16,6 +19,8 @@ set -eu
 FHIR_BASE="http://${FHIR_CONTAINER_NAME:-fhir}:8080/fhir"
 SYNTHEA_DIR="/bundles/synthea"
 DOCUMENT_DIR="/bundles/document_bundle_final"
+PDF_DIR="/bundles/pdf"
+REFERENCE_DIR="/bundles/documentreference"
 
 echo "fhir_seed: waiting for ${FHIR_BASE}/metadata to respond..."
 until curl -sf "${FHIR_BASE}/metadata" > /dev/null; do
@@ -28,12 +33,15 @@ if [ "${patients:-0}" != "0" ]; then
   exit 0
 fi
 
+# post_bundle <file> <url> [method] [content-type]
 post_bundle() {
   bundle="$1"
   url="$2"
+  method="${3:-POST}"
+  content_type="${4:-application/fhir+json}"
   http_status=$(curl -s -o /tmp/fhir_seed_response.json -w "%{http_code}" \
-    -X POST "$url" \
-    -H "Content-Type: application/fhir+json" \
+    -X "$method" "$url" \
+    -H "Content-Type: ${content_type}" \
     --data-binary "@${bundle}")
 
   if [ "$http_status" -ge 200 ] && [ "$http_status" -lt 300 ]; then
@@ -46,7 +54,7 @@ post_bundle() {
   fi
 }
 
-for dir in "$SYNTHEA_DIR" "$DOCUMENT_DIR"; do
+for dir in "$SYNTHEA_DIR" "$DOCUMENT_DIR" "$PDF_DIR" "$REFERENCE_DIR"; do
   if [ ! -d "$dir" ]; then
     echo "fhir_seed: ${dir} not found in image - check the COPY lines in docker/fhir_seed/Dockerfile."
     exit 1
@@ -76,4 +84,17 @@ for bundle in "$DOCUMENT_DIR"/*.json; do
   post_bundle "$bundle" "${FHIR_BASE}/Bundle" && count=$((count + 1))
 done
 
-echo "fhir_seed: done, loaded ${count} bundle(s)."
+for pdf in "$PDF_DIR"/*.pdf; do
+  [ -e "$pdf" ] || continue
+  id="pdf-$(basename "$pdf" .pdf)"
+  echo "fhir_seed: uploading PDF $(basename "$pdf") as Binary/${id}"
+  post_bundle "$pdf" "${FHIR_BASE}/Binary/${id}" PUT application/pdf && count=$((count + 1))
+done
+
+for bundle in "$REFERENCE_DIR"/*.json; do
+  [ -e "$bundle" ] || continue
+  echo "fhir_seed: loading DocumentReference bundle $(basename "$bundle")"
+  post_bundle "$bundle" "$FHIR_BASE" && count=$((count + 1))
+done
+
+echo "fhir_seed: done, loaded ${count} file(s)."

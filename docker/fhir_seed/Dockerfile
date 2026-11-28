@@ -33,13 +33,17 @@ COPY --from=synthea /synthea/output/fhir /
 
 
 # stage 3: started with 'docker compose up --build fhir_seed'
-# copies patient bundles and document bundles on fhir server (if the server is empty)
+# copies patient transactions, bundles of type "document" and documentreference transactions
+# as well as the pdfs refered to in the documentreference
+# urls on fhir server (if the server is empty)
 
 FROM curlimages/curl@sha256:83a505ba2ba62f208ed6e410c268b7b9aa48f0f7b403c8108b9773b44199dbba
 
 USER root
 COPY fhir_seed/data/synthea /bundles/synthea
 COPY fhir_seed/data/document_bundle_final /bundles/document_bundle_final
+COPY fhir_seed/data/pdf /bundles/pdf
+COPY fhir_seed/data/documentreference /bundles/documentreference
 COPY fhir_seed/load_bundles.sh /load_bundles.sh
 RUN chmod +x /load_bundles.sh
 USER curl_user
